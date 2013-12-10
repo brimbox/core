@@ -1,0 +1,473 @@
+/*
+Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+as published by the Free Software Foundation. 
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU GPL v3 for more details. 
+
+You should have received a copy of the GNU GPL v3 along with this program.
+If not, see http://www.gnu.org/licenses/
+*/
+
+/* RESET */
+*	 {
+	 border: 0;
+	 margin: 0;
+	 outline: 0;
+	 padding: 0;
+	 vertical-align: baseline;
+	 }
+
+/*****************CONTROLLER AREA******************/
+
+/****************/
+/* index styles */
+/* defines the position of the login box */
+#bb_index
+	 {
+	 position:absolute;
+	 top:125px;
+	 left:0;
+	 right:0;
+	 margin: auto;
+	 width:300px;
+	 }
+/* this is how the index image is displayed */
+#bb_index #index_image
+	 {
+	 /* image path related to css file */
+	 background-image: url("../bb-config/login_image.gif");
+	 background-repeat:no-repeat;
+	 background-position:center; 
+	 }
+	 
+
+/*********************/
+/* controller styles */
+/* body -- define margins, draw left border, and set min height */
+body
+	 {
+	 margin: 0 6px 0 6px;
+	 
+	 border-left-width: 1px;
+	 border-left-style: solid;
+	 min-height:1000px;
+	 height: auto !important;
+	 height:1000px;
+	 }
+	 	 
+/* this is how the contoller image is displayed */
+#bb_header #controller_image
+	 {
+	 /* image path related to css file */
+	 background-image: url("../bb-config/controller_image.gif");
+	 background-repeat:no-repeat;
+	 background-position:left; 
+	 }
+
+/******************/
+/* module wrapper */
+/* This is the relative content wrapper set to page width by percentage */
+#bb_wrapper {	 
+    clear:both;
+	position:relative;
+	width: 99%;	
+    }
+
+/* This is the content wrapper for normal tabs, positioned absolutely to bb_wrapper*/	
+#bb_content 	 
+	 {
+	 position: absolute;
+	 width:inherit; /* default inherit, could be larger if normal tabs have wide layout */
+	 left:12px;
+	 top:12px;
+	 }
+
+/* This is the wrapper for setup and admin menu, position absolutely to bb_wrapper */
+#bb_admin_menu
+	 {
+	 position: absolute;
+	 left:12px;
+	 top:12px;
+	 }
+
+/* This is the button style for the admin and setup button that align along left side */	 
+#bb_admin_menu button.menu
+	 {
+	 display:block;
+	 border-radius: 0px;
+ 	 -moz-border-radius: 0px; 
+	 width:150px;
+	 margin-bottom: -1px;	 }
+
+	 
+/* This is the wrapper for setup and admin content, position absolutely to bb_wrapper  */
+#bb_admin_content
+	 {
+	 position: absolute;
+	 padding-left:8px;
+	 left:175px;
+	 top:12px;
+	 }
+
+/***********************/
+/* controller top line */
+/* This is the line when no tab is selected, in other words when hidden module is selected */
+/* line moves under button tab, button tabs are padded 1px more when chosen */
+/* this is a Firefox hack, Firefox will not move a button over a div line */
+#bb_header div.line
+	 {
+	 /* can be changed for wide layout */
+	 top: 0px;
+	 position: relative;
+	 width: 1500px; 
+	 z-index:-1;
+	 border-top-style: solid;
+	 border-top-width: 1px;
+	 }
+/* This is the line when a tab is selected, normal modules */	 
+#bb_header div.under
+	 {
+	 /* can be changed for wide layout */
+	 top: -1px;
+	 position: relative;
+	 width: 1500px; 
+	 z-index:-1;
+	 border-top-style: solid;
+	 border-top-width: 1px;
+	 }
+
+/*******************/
+/* controller tabs */
+/* simple button tab styles */
+/* using buttons as tabs is little different than using unordered list */
+#bb_header .tabs
+    {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+	border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    }	
+
+/* html5 nav tag */
+#bb_header nav
+	{
+	width:1500px; /* can be changed for wide layout */
+	}
+	
+/* button tab */   	
+#bb_header button
+	{
+ 	font-size: 13px;
+	letter-spacing:0.3px;
+    padding: 3px 6px 2px 6px;
+	cursor: pointer;
+    border-style: solid;
+	border-width: 1px;
+	border-bottom-width: 0;
+	margin: 0px 0px 0 -1px;
+	font-weight: bold;
+	}
+	
+/* chosen button tab, 1px more bottom padding */	
+#bb_header button.chosen
+	{
+	/* change background */
+	/* background: @bb_even_color;	*/
+	/* redo padding to align text */
+	padding: 3px 6px 3px 6px;
+	/* font formatting */
+	font-weight: bold;
+	color: black;
+	}
+
+/* END CONTROLLER TABS */
+
+/***************END CONTROLLER AREA****************/
+
+/*******************GLOBALS AREA*******************/
+
+/* font declaration */
+body, td, input, select, button, textarea
+    {
+    font-size: 12px;
+	font-family: Trebuchet MS1, Trebuchet MS, sans-serif; 
+    font-weight: 300;
+    letter-spacing:normal;
+    }		
+
+/* standard form objects, including HTML5 inputs */
+button, input, select, textarea
+	{
+	padding: 1px;
+	border: 1px solid;
+	}
+
+/* immediately change radio, checkbox and image to no border */
+input[type="radio"], input[type="checkbox"], input[type="image"]
+    {
+	border: none;	 
+    }
+	
+/* rounded objects */	
+button, input, select
+	{
+	border-radius: 2px;
+    -moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-o-border-radius: 2px;
+	}
+	
+/* link css */
+button.link
+	 {
+	 background:none;
+	 border:0;
+	 padding: 0;
+	 cursor:pointer
+	 }
+button.link:hover
+	 {
+	 text-decoration:underline;
+	 }
+button.link::-moz-focus-inner
+	 {
+     padding: 0;
+     border: 0
+	 }
+	
+/* CSS global classes, used throughout Brimbox  */
+div.clear
+	{
+	clear:both;
+	}
+.border
+	{
+	border-style: solid;
+    border-width: 1px;
+	}
+.bordertop
+	{
+	border-top-style: solid;
+    border-top-width: 1px;
+	}
+.borderright
+	{
+	border-right-style: solid;
+    border-right-width: 1px;
+	}
+.borderbottom
+	{
+	border-bottom-style: solid;
+    border-bottom-width: 1px;
+	}
+.borderleft
+	{
+	border-left-style: solid;
+    border-left-width: 1px;
+	}
+.divider
+	{
+	border-top: 1px solid;
+	padding:3px 0px 3px 0;
+	}
+    
+.darkline
+	{
+	border-top: 1px solid;
+	padding:3px 0px 3px 0;
+	}    
+.center
+	{
+	text-align:center;
+	}
+.left
+	{
+	text-align:left;
+	}
+.right
+	{
+	text-align:right;
+	}    
+.floatleft
+	{
+	float:left;
+	}	
+.floatright
+	{
+	float:right;
+	}    
+.bold
+	{
+	font-weight:bold;
+	}
+.italic
+	{
+	font-style:italic;
+	}
+.none
+	{
+	text-decoration: none;	
+	}
+.underline
+    {
+    text-decoration: underline;
+    }    	 
+.rounded
+	{
+	border-radius: 2px;
+    -moz-border-radius: 2px;
+	}
+.larger
+	{
+	font-size:13px;
+	letter-spacing: 0.3px;
+	}    
+.margin
+	{
+	margin:1px 2px 1px 2px;	
+	}
+.rightmargin
+	{
+	margin-right:7px;
+	}
+.spaced
+	{
+	margin:2px;		
+	}
+.padded
+	{
+	padding:2px;	
+	}
+.extra
+	 {
+	 padding: 2px 6px;
+	 }    
+.inline
+	{
+	display:inline;
+    }
+.block
+	{
+	display:block;	
+	}
+.overflow
+	{
+	white-space: nowrap;
+	overflow: hidden;
+	float:left;
+	}
+.auto
+	 {
+	 overflow: auto;	 
+	 }    
+.short
+	{
+	 min-height:1px;
+	 width:100px;
+	}
+.minshort
+	{
+	 min-height:1px;
+	 min-width:100px;
+	}
+
+.medium
+	{
+	 min-height:1px;
+	 width:150px;
+	}
+.minmedium
+	 {
+	 min-height:1px;
+	 min-width:150px;
+	 }
+.long
+	{
+	 min-height:1px;
+	 width:200px;
+	}
+.minlong
+	{
+	 min-height:1px;
+	 min-width:200px;
+	}	
+.note
+	{
+    min-height:1px;
+	width:90%;
+	}
+.notearea
+	{
+    height:150px;
+	width:400px;
+	}
+.thinarea
+	 {
+	 height:400px;
+	 width:600px;		  
+	 }
+.widearea
+	 {
+	 height:400px;
+	 width:800px;		  
+	 }
+.textbox
+     {
+     width:300px;    
+     }
+.nobullets
+	{
+	list-style-type: none;
+	}
+.noindent
+	{
+	margin: 0;
+	padding: 0;
+	}
+.table
+	{
+	display:table;
+	}
+.row
+	 {
+	 display: table-row;
+	 }
+.cell
+	{
+	display: table-cell;
+	}
+.nowrap
+	 {
+	 white-space: nowrap;
+	 }
+.hidden
+	 {
+	 display:none;	  
+	 }
+.top
+	 {
+	 vertical-align: top; 
+     }
+.middle
+	 {
+	 vertical-align: middle; 
+	 }
+.bottom
+	 {
+	 vertical-align: bottom; 
+	 }
+/* End CSS global classes */
+
+/*****************END GLOBALS AREA*****************/
+
+
+		
+
+
+		
