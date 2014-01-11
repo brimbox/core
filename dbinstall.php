@@ -48,7 +48,7 @@ This may or may not work in IE -->
 $email = "admin";
 $passwd = "password";
 $db_version = "2013.1.20";
-$program_version = "2013.2.358";
+$program_version = "2013.2.359";
 $backup_version = "2013.1.2";
 //SHA256 standard for the program
 //use a 36 char text salt instead of a binary one

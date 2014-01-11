@@ -243,58 +243,9 @@ class bb_work extends bb_form {
 	//this function duplicated in both reports and work classes under different names	
 	function report(&$xml_state, $module_submit, $module_display, $params = array())
 		{
-		//need to get things from post		
-		$maintain_state = isset($params['maintain_state']) ? $params['maintain_state'] : true;
-		
-		//get values from state
-		$report_type = $this->state('report_type', $xml_state, 0);
-		$page = $this->state('page', $xml_state, 0);
-		$button = $this->state('button', $xml_state, 0);
-			
-		//only if page is set
-		if ($this->check('page', $module_display) && !empty($module_display))
-			{
-			$page = (int)$this->post('page', $module_display, 0);
-			}
-		//if report_type is set, postback	
-		if ($this->check('report_type', $module_submit) && !empty($module_submit))
-			{
-			//postback variables used in report structure
-			$report_type = $this->post('report_type', $module_submit, 0);
-			}		
-		//if postback, save in report arr as button
-		if ($this->check('report_type', $module_submit) && !empty($module_submit))
-			{
-			//if button changes set page to zero
-			$button = $this->state('button', $xml_state, 0);
-			$button_temp = $this->post('bb_button', $module_submit, 0);		
-			//only reset button if greater than zero
-			if ($button_temp > 0)
-				{
-				$button = $button_temp;
-				$page = 0;
-				}
-			}
-			
-		//usually will maintain state
-		if ($maintain_state)
-			{
-			$this->set('report_type', $xml_state, $report_type);
-			$this->set('page', $xml_state, $page);
-			//keeps current button, different than bb_button
-			$this->set('button', $xml_state, $button);
-			$this->set('module_submit', $xml_state, $module_submit);
-			$this->set('module_display', $xml_state, $module_submit);
-			}
-			
-		//set up array
-		$arr['report_type'] = $report_type;
-		$arr['page'] = $page;
-		$arr['button'] = $button;
-		$arr['module_display'] = $module_display;
-		$arr['module_submit'] = $module_submit;
-		
-		return $arr;	
+		//alias of report_post
+		$current = $this->report_post($xml_state, $module_submit, $module_display, $params = array());
+		return $current;
 		}
 		
     } //end class
