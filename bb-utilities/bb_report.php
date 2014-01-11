@@ -95,7 +95,7 @@ class bb_report extends bb_work {
 			$button = $this->state('button', $xml_state, 0);
 			$button_temp = $this->post('bb_button', $module_submit, 0);		
 			//only reset button if greater than zero
-			if ($button_temp > 0)
+			if ($button_temp <> $button)
 				{
 				$button = $button_temp;
 				$page = 0;
@@ -135,7 +135,7 @@ class bb_report extends bb_work {
 		}
 	
 	//large function to output reports	
-	function output_report($result, $current, $settings = array())
+	function output_report($result, $current, $settings, $params = array())
 		{
 		//$report_type must be handled
 		//$button is the root button
@@ -159,25 +159,26 @@ class bb_report extends bb_work {
 		/* PAGED REPORT */
 		if ($current['report_type'] == 1)
 			{
-			$this->paged_report($result, $current, $settings[1]);
+			$this->paged_report($result, $current, $settings[1], $params);
 			}
 			
 		/* FULL TABLE */
 		elseif ($current['report_type'] == 2)
 			{
-			$this->full_report($result, $current, $settings[2]);
+			$this->full_report($result, $current, $settings[2], $params);
 			}
 			
 		/* TEXTAREA */
 		elseif ($current['report_type'] == 3)
 			{
-			$this->textarea_report($result, $current, $settings[3]);
+			$this->textarea_report($result, $current, $settings[3], $params);
 			}
 		} 
 		
-	private function paged_report($result, $current, $setting)
+	private function paged_report($result, $current, $setting, $params)
 		{
 		//output paged report
+		//settings array
 		$arr = $setting[0];
 		
 		$ignore = isset($arr['ignore']) ? $arr['ignore'] : false;
@@ -196,7 +197,10 @@ class bb_report extends bb_work {
 		$row_header_class = isset($arr['row_header_class']) ? $arr['row_header_class'] : "shaded bold";
 		$cell_header_class = isset($arr['cell_header_class']) ? $arr['cell_header_class'] : "extra";
 		
-		//cell_class and row class are returned in the while loop
+		//Note: cell_class and row class are returned in the while loop
+		
+		//params array
+		$number = isset($params['number']) ? $params['number'] : 0; 
 		
 		//only var necessary
 		$page = $current['page'];
@@ -230,9 +234,9 @@ class bb_report extends bb_work {
 		if ($limit > 0 && ($count_rows > 0))
 			{
 			echo "<div class=\"" . $page_selector_class . "\">";
-			echo "&laquo;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $prev . ")\">Previous</button>&nbsp;--&nbsp;";
+			echo "&laquo;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $prev . ")\">Previous</button>&nbsp;--&nbsp;";
 			echo "<label>Showing Rows " . $min . "-" . $max . " of " . $count_rows . " </label>";
-			echo "&nbsp;--&nbsp;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $next . ")\">Next</button>&raquo;</div>";
+			echo "&nbsp;--&nbsp;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $next . ")\">Next</button>&raquo;</div>";
 			}
 		else
 			{
@@ -329,7 +333,7 @@ class bb_report extends bb_work {
 		echo "</div>"; //end table
 		}
 		
-	private function full_report($result, $current, $setting)
+	private function full_report($result, $current, $setting, $params)
 		{
 		//output full report
 		$arr = $setting[0];
@@ -441,7 +445,7 @@ class bb_report extends bb_work {
 		echo "</div>"; //table div	
 		}
 		
-	private function textarea_report($result, $current, $setting)
+	private function textarea_report($result, $current, $setting, $params)
 		{
 		//textarea report
 		//$ows and columns for size of textarea

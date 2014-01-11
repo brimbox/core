@@ -1,3 +1,19 @@
+/*
+Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+as published by the Free Software Foundation. 
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU GPL v3 for more details. 
+
+You should have received a copy of the GNU GPL v3 along with this program.
+If not, see http://www.gnu.org/licenses/
+*/
+
 //this is the module submit javascript function
 //each time a tab is clicked this function executes
 function bb_submit_form(button, target, passthis)
@@ -102,13 +118,13 @@ var bb_reports = new Object();
 			}
 		return false;
 		}
-	bb_reports.paginate_table = function(p)
+	bb_reports.paginate_table = function(n,p)
 		{
 		//this runs on next link
 		//offset and button carried through
 		//offset previously incremented, offset 0 if next link not chosen
 		document.bb_form.page.value = p;
-		bb_submit_form(0);
+		bb_submit_form(n);
 		return false;
 		}
 	bb_reports.clear_textarea = function()

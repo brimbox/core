@@ -111,9 +111,20 @@ class bb_work extends bb_form {
 		{
 		$var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$default;
 		$temp = $module . '_' . $name;
-		if (isset($_POST[$temp])) 
+		$button = $module . '_bb_button';
+		//check if bb_button set to incorporate checkboxes
+		if (isset($_POST[$button])) 
 			{
-			$var = (string)$_POST[$temp];
+			//if variable is set use variable
+			if (isset($_POST[$temp]))
+				{
+				$var = (string)$_POST[$temp];
+				}
+			//else use default in case of checkbox
+			else
+				{
+				$var = (string)$default;	
+				}
 			}
 		unset($xml_state->$name);
 		$xml_state->$name = $var;
