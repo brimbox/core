@@ -24,7 +24,7 @@ $xml_version = $main->get_xml($con, "bb_manage_modules");
 unset($xml_version->database);
 $xml_version->addChild("database","2013.1.20");
 unset($xml_version->program);
-$xml_version->addChild("program","2013.2.359");
+$xml_version->addChild("program","2013.3.368");
 unset($xml_version->backup);
 $xml_version->addChild("backup","2013.1.2");
 

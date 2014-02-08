@@ -306,26 +306,25 @@ if ($main->post('bb_button', $module) == 2) //submit_module
             $arr_module = array();
             $pattern = "/\.php$/";
             //check for php file, then check to look for header
-            if (!preg_match($pattern, $path))
+            if (preg_match($pattern, $path))
                 {
-                array_push($arr_message, $path . " is not a php file. Files must be php files even if they contain css or javascript.");
-                $error = true;
-                break;
-                }
-            //$arr_module passed as a reference
-            $message = get_modules($con, $arr_module, $path, $arr_parameters, $update_flag);
-            if (!empty($message))
-                {
-                array_push($arr_message, $message);
-                $error = true;
-                break;
-                }
-            $arr_modules[$i] = $arr_module;
+				//check PHP files for header, can be multiple headers
+				//$arr_module passed as a reference
+				$message = get_modules($con, $arr_module, $path, $arr_parameters, $update_flag);
+				if (!empty($message))
+					{
+					array_push($arr_message, $message);
+					$error = true;
+					break;
+					}
+				if (isset($arr_module['@module_name']))
+					{
+					$arr_modules[$i] = $arr_module;
+					}
+				}
             $i++;
             }            
         }
-    
-    //
     //no error continue
 
     if (!$error)
@@ -342,14 +341,13 @@ if ($main->post('bb_button', $module) == 2) //submit_module
                 $arr_insert = array();
                        
                 $arr_module['@module_path'] = $main->replace_root($arr_module['@module_path'], "bb-temp/", "bb-modules/");
-                $module_version = in_array($arr_module['@module_version'], array(2,5,6)) ? "" : $arr_module['@module_version'];
                  
                 if ($main->post('update', $module) == 1)
                     {
                     //update query if module is being updated
                     //standard module and module name not changed
                     $update_clause = "UPDATE modules_table SET module_path = '" . pg_escape_string($arr_module['@module_path']) . "',friendly_name = '" . pg_escape_string($arr_module['@friendly_name']) . "', " .
-                                     "module_version = '" . pg_escape_string($module_version) . "', module_type = " . $arr_module['@module_type'] . ", userrole = " . $arr_module['@userrole'] . ", " .
+                                     "module_version = '" . pg_escape_string($arr_module['@module_version']) . "', module_type = " . $arr_module['@module_type'] . ", userrole = " . $arr_module['@userrole'] . ", " .
                                      "maintain_state = " . $arr_module['@maintain_state'] . ", module_files = '" . pg_escape_string($arr_module['@module_files']) . "'::xml, module_details = '" . pg_escape_string($arr_module['@module_details']) . "'::xml "; 
                     $where_clause =  "WHERE module_name = '" . pg_escape_string($arr_module['@module_name']) . "' AND standard_module NOT IN (0,2,5,6)";
                     $query = $update_clause . $where_clause . ";";

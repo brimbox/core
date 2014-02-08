@@ -47,6 +47,7 @@ $xml_layouts = $main->get_xml($con, "bb_layout_names");
 $default_row_type = $main->get_default_row_type($xml_layouts);
 
 //necessary for load
+$list_output =$main->post('list_output', $module, "");
 $row_type_1 = $main->post('row_type_1', $module, $default_row_type);
 $row_type_2 = $main->post('row_type_2', $module, $default_row_type);
 $list_number_2 = $main->post('list_number_2', $module, -1);
@@ -153,6 +154,7 @@ if ($main->post('bb_button', $module) == 1)
 if (($main->post('bb_button', $module) == 2) && ($list_number_2 > 0)) 
     {
 	$list_post = $main->pad("l", $list_number_2, 4);
+	$list_output = ($list_number_2 > 0) ? chr($row_type_2 + 64) . $main->rpad($list_post) : "";
 	$path = "//" . $list_post . "[@row_type = " . $row_type_2 . "]";
 	$arr_list = $main->search_xml($xml_lists, $path);
 	$xml_list = $arr_list[0];
@@ -170,6 +172,7 @@ if ($main->post('bb_button', $module) == 3)
     {
     $update_list = "";
     $update_description = "";
+	$list_output = "";
 	array_push($arr_message, "Form has been cleared.");	
     }
     
@@ -191,7 +194,8 @@ if ($main->post('bb_button', $module) == 4)
                 $xml_lists = sort_list($xml_lists);
                 $main->update_xml($con, $xml_lists,"bb_create_lists");                
                 $update_list = "";
-                $update_description = "";                    
+                $update_description = "";
+				$list_output = "";
                 array_push($arr_message, "List successfully renamed.");
                 }
             else
@@ -309,7 +313,7 @@ echo "</div>";
 echo "<br>";
 
 //Rename List or Update Lists
-echo "<span class=\"spaced colored\">Rename List or Update Description</span>";
+echo "<span class=\"spaced colored\">Rename List, Update Description and Find List Number</span>";
 echo "<div class=\"border table\">"; //border
 echo "<div class=\"table spaced\">";
 echo "<div class=\"row padded\">";
@@ -325,19 +329,25 @@ $main->echo_button("clear_update", $params);
 echo "</div>";
 echo "</div>";
 echo "</div>";
-echo "<div class=\"table spaced\">";
+echo "<div class=\"spaced table padded\">";
 echo "<div class=\"row padded\">";
-echo "<div class=\"cell padded top\">List Name: </div>";
+echo "<div class=\"spaced cell padded\">List Number: </div>";
+echo "<div class=\"cell padded\"><input class=\"spaced textbox\" name=\"list_output\" type=\"text\" value=\"" . htmlentities($list_output) . "\" readonly/></div>";
+echo "</div>";
+echo "<div class=\"row padded\">";
+echo "<div class=\"spaced cell padded top\">List Name: </div>";
 echo "<div class=\"cell padded\"><input class=\"spaced textbox\" name=\"update_list\" type=\"text\" value=\"" . htmlentities($update_list) . "\"/></div>";
 echo "</div>";
 echo "<div class=\"row padded\">";
-echo "<div class=\"cell padded top\">Description: </div>";
+echo "<div class=\"spaced cell padded\">Description: </div>";
 echo "<div class=\"cell padded\"><textarea class=\"spaced\" rows\"4\" cols=\"60\" name=\"update_description\">" . $update_description . "</textarea></div>";
 echo "</div>";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\"></div>";
+echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Update List");
 $main->echo_button("update_list", $params);
+echo "</div>";
 echo "</div>";
 echo "</div>";
 echo "</div>"; //border

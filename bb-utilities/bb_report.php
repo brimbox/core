@@ -94,7 +94,8 @@ class bb_report extends bb_work {
 			//if button changes set page to zero
 			$button_temp = $this->post('bb_button', $module_submit, 0);			
 			//only reset button if greater than zero
-			if ($button_temp <> $button)
+			//do not reset on zero
+			if (($button_temp <> $button) && ($button_temp <> 0))
 				{
 				$button = $button_temp;
 				$page = 0;
@@ -182,8 +183,9 @@ class bb_report extends bb_work {
 		
 		$ignore = isset($arr['ignore']) ? $arr['ignore'] : false;
 		
-		$title = isset($arr['title']) ? $arr['title'] : "";
+		$title = isset($arr['title']) ? $arr['title'] : "";		
 		$title_class = isset($arr['title_class']) ? $arr['title_class'] : "bold larger spaced";
+		$header = isset($arr['header']) ? $arr['header'] : true;
 		$page_selector_class = isset($arr['page_selector_class']) ? $arr['page_selector_class'] : "spaced colored bold";
 		$page_link_class = isset($arr['page_link_class']) ? $arr['page_link_class'] : "link bold colored";
 		$return_rows_class = isset($arr['return_rows_class']) ? $arr['return_rows_class'] : "spaced colored bold";
@@ -227,19 +229,21 @@ class bb_report extends bb_work {
 			{
 			echo "<p class=\"" . $title_class  . "\">" . $title . "</p>";
 			}
-			
-		//if there is a limit do next links
-		//if there is a limit you should sort by appropriate id			
-		if ($limit > 0 && ($count_rows > 0))
+		
+		if ($header)
 			{
-			echo "<div class=\"" . $page_selector_class . "\">";
-			echo "&laquo;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $prev . ")\">Previous</button>&nbsp;--&nbsp;";
-			echo "<label>Showing Rows " . $min . "-" . $max . " of " . $count_rows . " </label>";
-			echo "&nbsp;--&nbsp;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $next . ")\">Next</button>&raquo;</div>";
-			}
-		else
-			{
-			echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";	
+			//if there is a limit do next links
+			if ($limit > 0 && ($count_rows > 0))
+				{
+				echo "<div class=\"" . $page_selector_class . "\">";
+				echo "&laquo;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $prev . ")\">Previous</button>&nbsp;--&nbsp;";
+				echo "<label>Showing Rows " . $min . "-" . $max . " of " . $count_rows . " </label>";
+				echo "&nbsp;--&nbsp;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $next . ")\">Next</button>&raquo;</div>";
+				}
+			else
+				{
+				echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";	
+				}
 			}
 		
 		//start table
@@ -341,6 +345,7 @@ class bb_report extends bb_work {
 		
 		$title = isset($arr['title']) ? $arr['title'] : "";
 		$title_class = isset($arr['title_class']) ? $arr['title_class'] : "bold larger spaced";
+		$header = isset($arr['header']) ? $arr['header'] : true;
 		$return_rows_class = isset($arr['return_rows_class']) ? $arr['return_rows_class'] : "spaced colored bold";
 	
 		$shade_rows = isset($arr['shade_rows']) ? $arr['shade_rows'] : false;
@@ -359,9 +364,12 @@ class bb_report extends bb_work {
 			{
 			echo "<p class=\"" . $title_class . "\">" . $title . "</p>";
 			}
-		
+		//output row_count
+		if ($header)
+			{
+			echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";	
+			}
 		//start table
-		echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";
 		echo "<div class=\"table " . $table_class . "\">";		
 		echo "<div class=\"row " . $row_header_class . "\">";
 		//do header, $num_fields used in while loop
@@ -454,6 +462,7 @@ class bb_report extends bb_work {
 		
 		$title = isset($arr['title']) ? $arr['title'] : "";
 		$title_class = isset($arr['title_class']) ? $arr['title_class'] : "bold larger spaced";
+		$header = isset($arr['header']) ? $arr['header'] : true;
 		$return_rows_class = isset($arr['return_rows_class']) ? $arr['return_rows_class'] : "spaced colored bold";
 	
 		$button_class = isset($arr['button_class']) ? $arr['button_class'] : "link bold underline spaced";
@@ -463,7 +472,8 @@ class bb_report extends bb_work {
 		$columns =  isset($arr['columns']) ? $arr['columns'] : 120;
 		$start_column = isset($arr['start_column']) ? $arr['start_column'] : 0;		
 	
-	
+		//get row count
+		$count_rows = pg_num_rows($result);
 		//data_out is output data to textarea
 		$data_out = "";
 		//chars to be purged
@@ -536,9 +546,15 @@ class bb_report extends bb_work {
 		if (!empty($title))
 			{
 			echo "<p class=\"" . $title_class . "\">" . $title . "</p>";
+			}
+		//output header
+		if ($header)
+			{
+			echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label> -- ";	
+			echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"select_textarea\" value=\"select_textarea\" onclick=\"bb_reports.select_textarea();\">Select Textarea</button> -- ";	
+			echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"clear_textarea\" value=\"clear_textarea\" onclick=\"bb_reports.clear_textarea();\">Clear Textarea</button><br>";
+			echo "</div>";
 			}		
-		echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"select_textarea\" value=\"select_textarea\" onclick=\"bb_reports.select_textarea();\">Select Textarea</button> ";	
-		echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"clear_textarea\" value=\"clear_textarea\" onclick=\"bb_reports.clear_textarea();\">Clear Textarea</button><br>";
 		echo "<textarea id=\"txtarea\" class=\"" . $textarea_class . "\" name=\"txtarea\" rows=\"" . $rows . "\" cols=\"" . $columns . "\"  wrap=\"off\">" . $data_out . "</textarea>";
 		echo "<div class=\"clear\"></div>";	
 		}	
