@@ -60,6 +60,8 @@ $mode = ($xml_home->mode == "On") ? " 1 = 1 " : " archive IN (0)";
 $xml_state = $main->load($module, $array_state);
 
 $search = $main->process('search', $module, $xml_state, "");
+//make a copy
+$search_parsed = $search;
 $offset = $main->process('offset', $module, $xml_state, 1);
 $row_type = $main->process('row_type', $module, $xml_state, 0);
 
@@ -74,9 +76,12 @@ if ($main->check('row_type', $module))
         
 //back to string
 $main->update($array_state, $module,  $xml_state);
-
-$search_array = parse_search_string($search);
 /* END STATE PROCESS */
+
+/* PARSE SEARCH STRING */
+//function parse_boolean_string calls four non-object functions, advance, token, open, operator
+$message = parse_boolean_string($search_parsed);
+array_push($arr_message, $message); 
 
 /* GET LAYOUT */
 $xml_columns = $main->get_xml($con, "bb_column_names");
@@ -121,29 +126,21 @@ echo "</div>"; //end align center
 //echo state variables into form
 $main->echo_state($array_state);
 $main->echo_form_end();
-
-
 /* END FORM */ ?>
 
 <?php
 /* BEGIN RETURN ROWS */
-
 //this function returns the repetitive rows from the search query
-//$search_array[0] contains the search terms after parsing by parbb_se_search()
-//$search_array[1] contains the return message after parsing by parbb_se_search()
 
 $return_rows = RETURN_ROWS;
 $pagination = PAGINATION;
 $count_rows = 0;
 
-$message = ($search_array[1] == "Parsed") ? "" : $search_array[1];
-array_push($arr_message, $message); 
-
-//serach array successfully parsed			
-if (!empty($search_array[0]))
-	{
+//search array successfully parsed			
+if (empty($message))
+	{	
 	$lower_limit = (($offset - 1) * $return_rows);
-	$escaped_search_parsed = pg_escape_string($search_array[0]); //search array is decoded
+	$escaped_search_parsed = pg_escape_string($search_parsed); //search array is decoded
     
     $and_clause = ($row_type == 0) ? " 1=1 " : " row_type = " . $row_type . " ";
 	

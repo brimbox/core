@@ -369,7 +369,7 @@ if ($main->post('bb_button', $module) == 2) //submit_module
                     //INSERT query when inserting por reinstalling module
                     $insert_clause = "(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)";
                     $select_clause = $module_order . " as module_order, '" . pg_escape_string($arr_module['@module_path']) . "' as module_path, '" . pg_escape_string($arr_module['@module_name']) . "' as module_name, '" . pg_escape_string($arr_module['@friendly_name']) . "' as friendly_name, '" .
-                                     pg_escape_string($module_version) . "' as module_version, " . $arr_module['@module_type'] . " as module_type, " . $arr_module['@userrole'] . " as userrole, " . $standard_module . " as standard_module, " .
+                                     pg_escape_string($arr_module['@module_version']) . "' as module_version, " . $arr_module['@module_type'] . " as module_type, " . $arr_module['@userrole'] . " as userrole, " . $standard_module . " as standard_module, " .
                                      $arr_module['@maintain_state'] . " as maintain_state, '" . pg_escape_string($arr_module['@module_files']) . "'::xml as module_files, '" . pg_escape_string($arr_module['@module_details']) . "'::xml as module_details";
                     $query = "INSERT INTO modules_table " . $insert_clause . " " .
                                "SELECT " . $select_clause . " WHERE NOT EXISTS (SELECT 1 FROM modules_table WHERE module_name IN ('" . $arr_module['@module_name'] . "'));";
