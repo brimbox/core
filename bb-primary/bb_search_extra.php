@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC

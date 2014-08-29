@@ -47,12 +47,16 @@ function bb_submit_form(button, target, passthis)
     //module is current module always, this for submitting form vars
     module=frmobj.elements['bb_module'].value;
     
-    //once module is set for form module submission, set bb_module for target
-    //if undefined, target is current module, actual target is always index.php
+    //once module is set for form module submission
+    //actual target is always index.php
+    //bb_submit is to save where you are coming from
+    frmobj['bb_submit'].value = frmobj['bb_module'].value;
+    //if undefined, target is current module
     if (target!=undefined)
         {
+        //set bb_module as target module
         frmobj['bb_module'].value = target;
-        }   
+        }
         
     for (var i=0; i<frmobj.length; i++)
         {
@@ -118,15 +122,28 @@ var bb_reports = new Object();
 			}
 		return false;
 		}
-	bb_reports.paginate_table = function(n,p)
+	bb_reports.paginate_table = function(n,p,s,o)
 		{
 		//this runs on next link
 		//offset and button carried through
 		//offset previously incremented, offset 0 if next link not chosen
 		document.bb_form.page.value = p;
+        document.bb_form.sort.value = s;
+        document.bb_form.order.value = o;
 		bb_submit_form(n);
 		return false;
 		}
+    bb_reports.sort_order = function(n,s,o)
+		{
+		//this runs on next link
+		//offset and button carried through
+		//offset previously incremented, offset 0 if next link not chosen
+		document.bb_form.sort.value = s;
+        document.bb_form.order.value = o;
+		bb_submit_form(n);
+		return false;
+		}
+
 	bb_reports.clear_textarea = function()
 		{
 		//clear and select textarea

@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -14,6 +15,20 @@ See the GNU GPL v3 for more details.
 You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
+?>
+<?php
+/* BEGIN REQUIRED FORM */
+$main->retrieve($con, $array_state, $userrole);
+		
+$main->echo_form_begin();
+$main->echo_module_vars($module);
+
+/* In case you need to put a quick link on the home page */
+$main->echo_common_vars();
+
+$main->echo_state($array_state);
+$main->echo_form_end();
+/* END FORM */
 ?>
 
 <!-- Can simply include HTML content -->

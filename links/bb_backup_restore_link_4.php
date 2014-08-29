@@ -16,8 +16,8 @@ If not, see http://www.gnu.org/licenses/
 */
 /* NO HTML OR BLANK LINE OUTPUT ALLOWED */
 
-include("../bb-config/bb_config.php");
 define('BASE_CHECK', true);
+include("../bb-config/bb_config.php");
 //objects extended together
 include("../bb-utilities/bb_database.php");
 include("../bb-utilities/bb_link.php");
@@ -46,7 +46,7 @@ $passwd = $_POST['dump_passwd'];
 $userrole = $_SESSION['userrole'];
 $email = $_SESSION['email'];
 
-$valid_password = $main->validate_login($con, $email, $passwd, $userrole);
+$valid_password = $main->validate_login($con, $email, $passwd, 5);
 
 if (!$valid_password)
 	{

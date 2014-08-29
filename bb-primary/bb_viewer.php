@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -17,73 +18,23 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission("Viewer");
-?>
-<script type="text/javascript">
-function force_logout()
-    {
-    //set bb_module var and submit form
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.bb_module.value = "bb_logout";
-    bb_submit_form(); //javascript submit function
-	return false;
-    }
-function archive_mode()
-    {
-    //set bb_module var and submit form
-    var frmobj = document.forms["bb_form"];
-    
-	if (document.getElementById('archive_mode').innerHTML == "On")
-		{
-		frmobj.mode.value = "Off";
-		}
-    else
-		{
-		frmobj.mode.value = "On";		
-		}
-    bb_submit_form(); //javascript submit function
-	return false;
-    }
+$main->check_permission(2);
 
-</script>
+/* BEGIN DATABASE STATS */
+echo "<div class=\"floatright\">";
+$main->logout_link();
+echo "</div>";
 
-<?php 
-/* VIEWER STATE AND POSTBACK */
-$main->retrieve($con, $array_state, $userrole);
+echo "<div class=\"floatleft\">";
+$main->database_stats();
+$main->archive_link();
+echo "<br>";
+$main->userrole_switch();
+echo "</div>";
+echo "<div class=\"clear\"></div>";
+/* END DATABASE STATS */
 
-$xml_state = $main->load($module, $array_state);
-$mode = $main->process('mode', $module, $xml_state, "Off");
-
-$main->update($array_state, $module,  $xml_state);
-
-echo "<span class=\"floatleft bold\">Hello <span class=\"colored\">" . $_SESSION['name'] . "</span></span>";
-echo "<button class=\"floatright bold link underline\" onclick=\"force_logout()\">Logout</button>";
-echo "<div class=\"clear\"></div>";
-echo "<span class=\"floatleft bold\">You are logged in as: <span class=\"colored\">" . $email . "</span></span>";	
-echo "<div class=\"clear\"></div>";
-echo "<span class=\"floatleft bold\">You are using database: <span class=\"colored\">" . DB_NAME . "</span></span>";
-echo "<div class=\"clear\"></div>";
-echo "<span class=\"floatleft bold\">This database is known as: <span class=\"colored\">" . DB_FRIENDLY_NAME . "</span></span>";
-echo "<div class=\"clear\"></div>";
-echo "<span class=\"floatleft bold\">This database email address is: <span class=\"colored\">" . EMAIL_ADDRESS . "</span></span>";
-echo "<div class=\"clear\"></div>";
-echo "<span class=\"floatleft bold\">Archive mode is: <button class=\"link underline\" id=\"archive_mode\" onclick=\"archive_mode(); return false;\">" . $mode . "</button></span>";
-echo "<div class=\"clear\"></div>";
 
 include("bb-config/bb_viewer_extra.php");
-		
-/* BEGIN REQUIRED FORM */
-$main->echo_form_begin();
-$main->echo_module_vars($module);
-
-echo "<input type = \"hidden\"  name=\"mode\" value = \"" . $mode . "\">";
-
-/* In case you need to put a quick link on the viewer page */
-$main->echo_common_vars();
-
-$main->echo_state($array_state);
-$main->echo_form_end();
-/* END FORM */
 ?>
 

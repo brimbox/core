@@ -4,7 +4,7 @@
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+it under the terms of the GNU General Public License Version 3 (â€œGNU GPL v3â€)
 as published by the Free Software Foundation. 
 
 This program is distributed in the hope that it will be useful,
@@ -76,12 +76,45 @@ class bb_report extends bb_work {
 		$report_type = $this->state('report_type', $xml_state, 0);
 		$page = $this->state('page', $xml_state, 0);		
 		$button = $this->state('button', $xml_state, 0);
+		$sort = $this->state('sort', $xml_state, "");
+        $order = $this->state('order', $xml_state, "");		
 			
 		//only if page is set
-		if ($this->check('page', $module_display) && !empty($module_display))
+        //order is taken through a waterfall
+		if ($this->check('sort', $module_display) && !empty($module_display))
 			{
-			$page = (int)$this->post('page', $module_display, 0);
+			$sort_post = $this->post('sort', $module_display, "");
+            //sort column has changed
+            if ($sort_post <> $sort) 
+                {
+                $order = "ASC";
+                }
+            //toggle order (ASC/DESC)
+            else
+                {
+                if (($order == "") || ($order == "DESC"))
+                    {
+                    $order = "ASC";   
+                    }
+                else
+                    {
+                    $order = "DESC";    
+                    }
+                }
+            //populate sort
+            $sort = $sort_post;
 			}
+        //only if page is set   
+        if ($this->check('page', $module_display) && !empty($module_display))
+			{
+			$page_post = (int)$this->post('page', $module_display, 0);
+            if ($page_post <> $page) 
+                {
+                $order =  $this->post('order', $module_display, "");
+                }
+            $page = $page_post;
+			}
+
 		//if report_type is set, postback	
 		if ($this->check('report_type', $module_submit) && !empty($module_submit))
 			{
@@ -92,12 +125,11 @@ class bb_report extends bb_work {
 		if ($this->check('report_type', $module_submit) && !empty($module_submit))
 			{
 			//if button changes set page to zero
-			$button_temp = $this->post('bb_button', $module_submit, 0);			
+			$button_post = $this->post('bb_button', $module_submit, 0);			
 			//only reset button if greater than zero
-			//do not reset on zero
-			if (($button_temp <> $button) && ($button_temp <> 0))
+			if (($button_post <> $button) && ($button_post <> 0))
 				{
-				$button = $button_temp;
+				$button = $button_post;
 				$page = 0;
 				}
 			}
@@ -107,6 +139,8 @@ class bb_report extends bb_work {
 			{
 			$this->set('report_type', $xml_state, $report_type);
 			$this->set('page', $xml_state, $page);
+			$this->set('sort', $xml_state, $sort);
+            $this->set('order', $xml_state, $order);
 			//keeps current button, different than bb_button
 			$this->set('button', $xml_state, $button);
 			$this->set('module_submit', $xml_state, $module_submit);
@@ -116,6 +150,8 @@ class bb_report extends bb_work {
 		//set up array
 		$current['report_type'] = $report_type;
 		$current['page'] = $page;
+		$current['sort'] = $sort;
+        $current['order'] = $order;
 		$current['button'] = $button;
 		$current['module_display'] = $module_display;
 		$current['module_submit'] = $module_submit;
@@ -126,9 +162,9 @@ class bb_report extends bb_work {
 	function echo_report_vars()
 		{
 		//if you add vars here you can custom handle them, report_post handles standard Brimbox vars 
-		
-		global $array_report_variables;
-		foreach ($array_report_variables as $key => $value)
+		//other vars = order, report_type and button (a state saved version of bb_button)
+		$arr_report_variables = array('page'=>0,'sort'=>'','order'=>'');
+		foreach ($arr_report_variables as $key => $value)
 			{
 			echo "<input type = \"hidden\" name=\"" . $key . "\" value = \"" . $value. "\">";
 			}
@@ -205,6 +241,8 @@ class bb_report extends bb_work {
 		
 		//only var necessary
 		$page = $current['page'];
+        $sort = $current['sort']; //overwritten later
+        $order = $current['order'];
 		
 		//get while loop vars and update offset
 		$i = $page * $limit;
@@ -236,9 +274,9 @@ class bb_report extends bb_work {
 			if ($limit > 0 && ($count_rows > 0))
 				{
 				echo "<div class=\"" . $page_selector_class . "\">";
-				echo "&laquo;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $prev . ")\">Previous</button>&nbsp;--&nbsp;";
+				echo "&laquo;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $prev . ",'" . $sort . "','" . $order . "')\">Previous</button>&nbsp;--&nbsp;";
 				echo "<label>Showing Rows " . $min . "-" . $max . " of " . $count_rows . " </label>";
-				echo "&nbsp;--&nbsp;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $next . ")\">Next</button>&raquo;</div>";
+				echo "&nbsp;--&nbsp;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $next . ",'" . $sort . "','" . $order . "')\">Next</button>&raquo;</div>";
 				}
 			else
 				{
@@ -254,8 +292,16 @@ class bb_report extends bb_work {
 		$num_fields = pg_num_fields($result);
 		for ($j = $start_column; $j < $num_fields; $j++)
 			{
-			$field = pg_field_name($result, $j);
-			echo "<div class=\"cell " . $cell_header_class . "\">" . htmlentities(ucfirst($field)) . "</div>";
+			$field = htmlentities(ucfirst(pg_field_name($result, $j)));
+			$sort = $this->pad("s",$j, 2);
+			if 	(isset($arr[$sort]))
+				{
+				echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . $field . "</button></div>";
+				}
+		    else
+				{
+				echo "<div class=\"cell " . $cell_header_class . "\">" . $field . "</div>";				
+				}
 			}
 		echo "</div>";
 		
@@ -356,6 +402,9 @@ class bb_report extends bb_work {
 		$row_class  = isset($arr['row_class']) ? $arr['row_class'] : "";
 		$cell_header_class = isset($arr['cell_header_class']) ? $arr['cell_header_class'] : "extra";
 		$cell_class  = isset($arr['cell_class']) ? $arr['cell_class'] : "extra";
+
+		//button number
+		$number = isset($current['button']) ? $current['button'] : 0;
 		
 		$count_rows = pg_num_rows($result);
 		
@@ -376,8 +425,16 @@ class bb_report extends bb_work {
 		$num_fields = pg_num_fields($result);
 		for ($j = $start_column; $j < $num_fields; $j++)
 			{
-			$field = pg_field_name($result, $j);
-			echo "<div class=\"cell " . $cell_header_class . "\">" . htmlentities(ucfirst($field)) . "</div>";
+			$field = htmlentities(ucfirst(pg_field_name($result, $j)));
+			$sort = $this->pad("s",$j, 2);
+			if 	(isset($arr[$sort]))
+				{
+				echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . $field . "</button></div>";
+				}
+		    else
+				{
+				echo "<div class=\"cell " . $cell_header_class . "\">" . $field . "</div>";				
+				}
 			}
 		echo "</div>";
 		
@@ -557,7 +614,20 @@ class bb_report extends bb_work {
 			}		
 		echo "<textarea id=\"txtarea\" class=\"" . $textarea_class . "\" name=\"txtarea\" rows=\"" . $rows . "\" cols=\"" . $columns . "\"  wrap=\"off\">" . $data_out . "</textarea>";
 		echo "<div class=\"clear\"></div>";	
-		}	
+		}
+
+    function build_sort($current)
+		{
+		if (preg_match('/[,]/', $current['sort']))
+            {
+            $order_by = (!empty($current['sort'])) ? "ORDER BY " . $current['sort'] : "";
+            }
+        else
+            {
+            $order_by = (!empty($current['sort'])) ? "ORDER BY " . $current['sort'] . " " . $current['order'] : "";    
+            }
+		return $order_by;
+		}
 	
 			
 	function output_single_row($result, $params = array())

@@ -75,9 +75,6 @@ $array_reports[1] = "Paginated";
 $array_reports[2] = "Full";
 $array_reports[3] = "Textarea";
 
-# HIDDEN REPORT VARIABLES #
-$array_report_variables = array('page'=>0);
-
 # DATA VALIDATION ARRAY #
 $array_validation = array();
 $array_validation['Text']	= array($main,'validate_text');

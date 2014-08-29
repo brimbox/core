@@ -44,8 +44,12 @@ class bb_form extends bb_validate {
 		
 	function echo_module_vars($module)
 		{
-		//echos bb_module and bb_button hidden vars
+		/* These variables support javascript function bb_submit_form() */
+		//starts with current module and changes to target, where you're going
 		echo "<input rel=\"ignore\" name=\"bb_module\" type=\"hidden\" value=\"" . $module . "\" />";
+		//starts empty and changes to current module, where you're coming from
+		echo "<input rel=\"ignore\" name=\"bb_submit\" type=\"hidden\" value=\"\" />";
+		//button submitted, prepended with current module name
 		echo "<input name=\"bb_button\" type=\"hidden\" value=\"\" />";
 		}
 				

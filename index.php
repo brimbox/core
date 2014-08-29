@@ -35,11 +35,9 @@ session_start();
 
 if (isset($_SESSION['userrole'])):
 
-/* CONTROLLER SECTION */
-/* build tabs and echo current module if logged in */
-
 /* RESERVED VARIABLES (used in controller)*/
 //$userrole -- the security level
+//$userroles -- valisd security permissions
 //$email -- the current email/username
 //$array_state -- the state array, commonly passed into functions as reference
 //$module -- the current module
@@ -53,12 +51,45 @@ if (isset($_SESSION['userrole'])):
 //$lineclass //unset after tabs are echoed
 //$arr_controller -- unset after final use
 
-
 //get userrole and module
-$userrole = $_SESSION['userrole'];
-$email = $_SESSION['email'];
+$userroles = $_SESSION['userroles']; //careful with userroles session, used to check for valid userrole
+$userrole = $_SESSION['userrole']; //once set, can be set with user input, checked against userroles
+$email = $_SESSION['email']; //login of user
+$archive = $_SESSION['archive']; //archive mode
+
+//logout algorithm used for both userrole change and logout
+if (isset($_POST['bb_module']))
+	{
+	//die($_POST['bb_module']); 
+	if ($_POST['bb_module'] == "bb_logout")
+		{
+		$button = $_POST['bb_submit'] . "_bb_button";
+		//check for session poisoning, array userroles should not be altered
+		//the conversion to int of $_POST[$button] will stop injection
+		//$userroles should be protected and not used or altered anywhere
+		if (($_POST[$button] > 0) && in_array($_POST[$button], $userroles))
+			{
+			$_SESSION['userrole'] = $_POST[$button];
+			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+			header($index_path);
+			die(); //important to stop script
+			}
+		//if logout, destroy session and force index
+		else
+			{
+			session_destroy();
+			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+			header($index_path);
+			die(); //important to stop script
+			}
+		}
+	else
+		{
+		$module = $_POST['bb_module']; 
+		}
+	}
 //default module from login is bb_guest or bb_home
-if (!isset($_POST['bb_module']))
+else
     {
 	switch($userrole)
 		{
@@ -75,28 +106,8 @@ if (!isset($_POST['bb_module']))
 		break;		
 		}
     }
-else
-    {
-    $module = $_POST['bb_module'];    
-    }
-
-
-//Get form variable to populate current modules (or logout)
-//if logout, destroy session and force index
-if ($module == "bb_logout")
-    {
-    session_destroy();
-    $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-    header($index_path);
-    }
 	
-/* START HTML OUTPUT (no html output allowed before this point because of header call) */
-//send html header info and include files, include files will include some javascript
-?>
-<?php
 /* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
-/* NOTE THAT SOME OF THESE FUNCTION LIBRARIES HAVE HTML OUTPUT */
-
 // contains bb_database class
 include("bb-utilities/bb_database.php");
 // contains bb_links class extends bb_database
@@ -116,7 +127,7 @@ include("bb-utilities/bb_main.php");
 include("bb-config/bb_admin_functions.php");
 
 /* SET UP OBJECT */
-//objects are all daisy chained togethert
+//objects are all daisy chained together
 $main = new bb_main();
 //constructs main and work, extends form
 /* END OBJECTS */
@@ -130,6 +141,8 @@ $con = $main->connect();
 include("bb-utilities/bb_globals.php");
 //Contains the user defined globals
 include("bb-config/bb_admin_globals.php");
+
+//START HTML OUTPUT
 ?>
 <!DOCTYPE html>    
 <html>
@@ -165,12 +178,10 @@ echo "</style>";
 $query = "SELECT * FROM modules_table WHERE standard_module IN (0,1,2,4,6) AND userrole BETWEEN 1 AND " . (int)$userrole . " ORDER BY module_type, module_order;";
 $result = pg_query($con, $query);
 
-//this little area if to prevent error if module has has been deactivated or deleted
-
 //put the tab info into arrays for processing
 $arr_controller = array(1=>array(),2=>array(),3=>array(),4=>array(),5=>array());
 //controller type (module type) and controller path need defaults
- //like a hidden tab
+//like a hidden tab
 $controller_type = 0;
 //default tabs, should not be deactivated
 switch ($userrole)
@@ -430,7 +441,7 @@ if (isset($_POST['index_enter']))
     $passwd = $main->custom_trim_string($_POST['passwd'],255);
     
     //query master database
-    $query = "SELECT * FROM users_table WHERE userrole IN (1,2,3,4,5) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
+    $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT (0 = ANY (userroles)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
     
     //get result
     $result = $main->query($con, $query);
@@ -439,25 +450,59 @@ if (isset($_POST['index_enter']))
     //1 row, definate database //known username
     if ($num_rows == 1)
 		{
+		$set_session = false;
 		$row = pg_fetch_array($result);
-		if (hash('sha512', $passwd . $row['salt']) == $row['hash'])
+		
+		//go through single user and admin waterfall
+		if (SINGLE_USER_ONLY <> '')
+			{
+			if ((SINGLE_USER_ONLY ==  $row['email']) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
+				{
+				$set_session = true;
+				}
+			$message = "Program in single user mode."; //only if failure
+			}
+		else //single user empty
+			{
+			if (ADMIN_ONLY == 'YES')
+				{
+				$arr_userroles = explode(",", $row['userroles']);
+				if (in_array(5,$arr_userroles) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
+					{
+					$set_session = true;
+					}
+				$message = "Program in Admin only mode."; //only if failure
+				}
+			else //regular check password admin only not YES
+				{
+				if (hash('sha512', $passwd . $row['salt']) == $row['hash'])
+					{
+					$set_session = true;	
+					}
+				$message = "Invalid Login/Password."; //only if failure	
+				}
+			}
+		
+		if ($set_session) //good login
 			{
 			//set attempts to zero
 			$query = "UPDATE users_table SET attempts = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
 			$main->query($con, $query);
-			//set session
-			$_SESSION['name'] = $main->build_name($row);
-			$_SESSION['userrole'] = $row['userrole'];
+			//set sessions
 			$_SESSION['email'] = $row['email'];
+			$_SESSION['name'] = $main->build_name($row);
+			$_SESSION['userroles'] = explode(",", $row['userroles']);
+			$_SESSION['userrole'] = $_SESSION['userroles'][0];
+			$_SESSION['archive'] = 0;
 			//log entry
 			$main->log_entry($con, "Login Success");
 			//redirect with header call to index with session set
-			$str = "Location: " . dirname($_SERVER['PHP_SELF']);
-			header($str);
-			}
-		else
+			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+			header($index_path);
+			die(); //important to stop script
+			}		
+		else //bad password or admin mode
 			{
-			//bad password
 			$query = "UPDATE users_table SET attempts = attempts + 1 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "') RETURNING attempts;";
 			$result = $main->query($con, $query);
 			$row = pg_fetch_array($result);
@@ -466,27 +511,29 @@ if (isset($_POST['index_enter']))
 				$query = "UPDATE users_table SET userrole = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
 				$main->query($con, $query);
 				}
-			$main->log_entry($con, "Login Failure: Password", $email);
-			$message = "Invalid Login/Password: Please try again";
+			$main->log_entry($con, rtrim($message, ".") , $email);
 			//delay if invalid login
 			$rnd = rand(100000,200000);
 			$email = "";
 			$passwd = "";
 			usleep($rnd);
 			}
-		}
-	else
+		} //end row found
+		
+	else //no rows, bad username or locked
 		{
 		//bad username
-		$main->log_entry($con, "Login Failure: Bad Username or Account Locked",$email);
-		$message = "Invalid Login/Password: Please try again";
+		$message = "Login Failure: Bad Username or Account Locked.";
+		$main->log_entry($con, rtrim($message, ".") , $email);
 		//delay if invalid login
 		$rnd = rand(100000,200000);
 		$email = "";
 		$passwd = "";
 		usleep($rnd);
-		}
-    }
+		}			
+	} //end post
+
+
     
 //echo html output
 ?>

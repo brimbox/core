@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -16,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(3);
+$main->check_permission(array(3,4,5));
 ?>
 <script type="text/javascript">
 function reload_on_list()

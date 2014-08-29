@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -18,16 +19,18 @@ If not, see http://www.gnu.org/licenses/
 /* NO HTML OUTPUT */
 
 /* DATABASE SETTINGS */
-/** Postgres Friendly database name */
+/** Postgres friendly database name */
 define('DB_FRIENDLY_NAME', 'Brimbox');  
 /** Postgres hostname */
 define('DB_HOST', 'localhost');  
-/** The name of the master database for Brimbox */
+/** Postgres database name */
 define('DB_NAME', 'database');
 /** Postgres database username */
 define('DB_USER', 'user');
 /** Postgres database password */
 define('DB_PASSWORD', 'password'); 
+/** Postgres database owner, for standard cPanel installs */
+define('DB_OWNER', 'owner');
 
 /* EMAIL SETTINGS, get this information from system administrator */  
 // Email server
@@ -55,20 +58,16 @@ define('USER_TIMEZONE', 'America/New_York');
 define('RETURN_ROWS', 4);
 // Standard number pages in the page selector
 define('PAGINATION', 5);
-//number of layouts possible, must be less than 26
+//Number of layouts possible, must be less than 26
 define('NUMBER_LAYOUTS', 12);
 //Archive interworking (ON/OFF)
 define('ARCHIVE_INTERWORKING', 'OFF');
 
 /* PROGRAM LOCK FOR ADMINISTRATORS FUNCTIONALITY */
 // Default userrole on the manage users page
-// 0=>Locked,1=>Guest,2=>Viewer,3=>User,4=>Superuser,5=>Admin
 define('DEFAULT_USERROLE_ASSIGN', 1);
 // Allow only admins to use the database (YES/NO)
 define('ADMIN_ONLY', 'NO');
-// Allow only a single user to user the database (YES/NO)
-define('SINGLE_USER', 'NO');
-// Single user username  when SINGLE_USER is set YES 
-define('SINGLE_USER_EMAIL', '');
-
+// Allow only a single user to user the database (empty string/username)
+define('SINGLE_USER_ONLY', '');
 ?>

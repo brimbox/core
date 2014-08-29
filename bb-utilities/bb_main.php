@@ -52,6 +52,10 @@ If not, see http://www.gnu.org/licenses/
 //validate_logic
 //validate_required
 //validate_dropdown
+//logout_link
+//archive_link
+//database_stats
+//userrole_switch
 
 class bb_main extends bb_report {
 	
@@ -492,31 +496,40 @@ class bb_main extends bb_report {
 		//waterfall
 		//this will also check that session is set
 		$userrole = $_SESSION['userrole'];
-		if (is_string($permission))
+        $email = $_SESSION['email'];
+        if (is_string($permission)) //string input
 			{
-			$permission = array_search($permission, $array_userroles);	
+			$permission = (int)array_search($permission, $array_userroles);	
 			}
-		if ($userrole < (int)$permission)
+        if (is_int($permission)) //either int or string input
+            {
+            $permission = array($permission);    
+            }            
+		if (!in_array($userrole, $permission))
 			{
-			//echo "Insufficient Permission.";
-			exit();
+			echo "Insufficient Permission.";
+            session_destroy();
+			die();
 			}
+        
 		//will have sufficient permission
-		//this for when administarters lock the db down
-		if (SINGLE_USER == "YES")
+		//this for when administratprs lock the db down
+		if (SINGLE_USER_ONLY <> '')
 			{
-			if ($_SESSION['email'] <> SINGLE_USER_EMAIL)
-				{
-				echo "Program in single user mode.";
-				exit();    
-				}
+            if ($email <> SINGLE_USER_ONLY)
+                {
+                echo "Program switched to single user mode.";
+                session_destroy();
+                die();
+                }
 			}
 		if (ADMIN_ONLY == "YES")
 			{
-			if ($userrole < 5)
+			if ($userrole <> 5)
 				{
-				echo "Program in admin only mode.";
-				exit();    
+				echo "Program switched to admin only mode.";
+                session_destroy();
+				die();    
 				}
 			}    
 		}
@@ -526,33 +539,28 @@ class bb_main extends bb_report {
 		global $array_userroles;
 		//waterfall
 		//this will also check that session is set
-		if (is_array($userlevels))
+        $userrole = (int)$_SESSION['userrole'];
+		if (!is_array($userlevels))
 			{
-			$str_levels = implode(",", $userlevels);	
+			$userlevels = array($userlevels);	
 			}
-		else
-			{
-			$str_levels = $userlevels;	
-			}
-		$query = "SELECT * FROM users_table WHERE userrole IN (" . $str_levels . ") AND UPPER(email) = UPPER('". pg_escape_string($email) . "');";
-		$result = $this->query($con, $query);
-		if (pg_num_rows($result) == 1)
-			{
-			$row = pg_fetch_array($result);
-			if (hash('sha512', $passwd . $row['salt']) == $row['hash'])
-				{
-				return true;
-				}
-			else
-				{
-				return false;
-				} 
-			}
-		else
-			{
-			return false;    
-			}
+        //waterfall
+        if (in_array($userrole, $userlevels))
+            {
+            $query = "SELECT * FROM users_table WHERE " . $userrole . " = ANY (userroles) AND UPPER(email) = UPPER('". pg_escape_string($email) . "');";
+            $result = $this->query($con, $query);
+            if (pg_num_rows($result) == 1)
+                {
+                $row = pg_fetch_array($result);
+                if (hash('sha512', $passwd . $row['salt']) == $row['hash'])
+                    {
+                    return true;
+                    }
+                }
+			}		
+		return false; 
 		}
+        
 	function build_indexes($con, $row_type)
 		{
 		//reduce xml_layout to include only 1 row_type for column update, all for rebuild indexes
@@ -882,6 +890,68 @@ class bb_main extends bb_report {
 			}
 		return $return_value;
 		}
-	
+        
+    function logout_link($class = "bold link underline", $label = "Logout")
+        {
+        $params = array("class"=>$class,"number"=>0,"target"=>"bb_logout", "passthis"=>true, "label"=>$label);
+        $this->echo_button("logout", $params);   
+        }
+        
+    function archive_link($class_button = "link underline",  $class_span = "bold")
+        {
+        global $module;
+        
+        if ($this->post('bb_button', $module) == -1)
+            {
+            if ($_SESSION['archive'] == 0)
+                {
+                $_SESSION['archive'] = 1;
+                }
+            else
+                {
+                $_SESSION['archive'] = 0;           
+                }
+            }
+            
+        $label = ($_SESSION['archive'] == 0) ? "Off" : "On";
+        
+        echo "<span class=\"" . $class_span . "\">Archive mode is: ";
+        $params = array("class"=>$class_button,"number"=>-1,"target"=>$module, "passthis"=>true, "label"=>$label);
+        $this->echo_button("archive", $params);
+        echo "</span>";
+        }
+        
+    function database_stats($class_div = "bold", $class_span = "colored")
+        {
+        echo "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
+        echo "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['email'] . "</span></div>";	
+        echo "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
+        echo "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
+        echo "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
+        }
+        
+    function userrole_switch($class_span = "bold", $class_button = "link underline")
+        {
+        global $array_userroles;
+        global $userrole;
+        global $userroles;
+        
+        $cnt = count($userroles);
+        if ($cnt > 1)
+            {
+            echo "<span class=\"" . $class_span . "\">Current userrole is: ";
+            $i = 1;
+            foreach ($userroles as $value)
+                {
+                $bold = ($value == $userrole) ? " bold" : "";
+                $params = array("class"=>$class_button . $bold,"number"=>$value,"target"=>"bb_logout", "passthis"=>true, "label"=>$array_userroles[$value]);
+                $this->echo_button("role" . $value, $params);
+                $separator = ($i <> $cnt) ? ", " : "";
+                echo $separator;
+                $i++;
+                }
+            echo "</span>";
+            }
+        }	
 	} //end class
 ?>

@@ -16,8 +16,8 @@ If not, see http://www.gnu.org/licenses/
 */
 /* NO HTML OR BLANK LINE OUTPUT ALLOWED */
 
-include("../bb-config/bb_config.php");
 define('BASE_CHECK', true);
+include("../bb-config/bb_config.php");
 //objects extended together
 include("../bb-utilities/bb_database.php");
 include("../bb-utilities/bb_link.php");
@@ -32,7 +32,7 @@ $main = new bb_main(); //extends bb_database
 //userrole not passed in from controller
 session_name(DB_NAME);
 session_start();
-$main->check_permission(4);
+$main->check_permission(array(4,5));
 ?>
 <?php
 /* THIS IS A TEXT FILE HEADER OUTPUT */

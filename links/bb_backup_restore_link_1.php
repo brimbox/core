@@ -14,9 +14,8 @@ See the GNU GPL v3 for more details.
 You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
-
-include("../bb-config/bb_config.php");
 define('BASE_CHECK', true);
+include("../bb-config/bb_config.php");
 //objects extended together
 include("../bb-utilities/bb_database.php");
 include("../bb-utilities/bb_link.php");
@@ -46,7 +45,7 @@ $userrole = $_SESSION['userrole'];
 $email = $_SESSION['email'];
 
 //validate password
-$valid_password = $main->validate_login($con, $email, $passwd, $userrole);
+$valid_password = $main->validate_login($con, $email, $passwd, 5);
 if (!$valid_password)
 	{
 	die("Invalid Password");	
@@ -104,15 +103,17 @@ $hash = hash('sha512', $passwd . $salt);
 $iv = substr($salt,0,8);
 
 //encryption type
+//00000000 -- no encrypt before userrole => userroles
+//00000001 -- encrypt before userrole => userroles
 if ($type == 0) //no encrypt 
 	{
 	//left 2 digits should be encrypt method
-	$hex = "00000000";
+	$hex = "00000002";
 	$eol = "\r\n";
 	}
 elseif ($type == 1) //MCRYPT_3DES + Compression
 	{
-	$hex = "00000001";
+	$hex = "00000003";
 	$eol = "\r\n";
 	}
 	
@@ -176,7 +177,7 @@ while ($row = pg_fetch_row($result))
 /* USERS TABLE */
 $query = "BEGIN; LOCK TABLE users_table;";
 $main->query($con,$query);
-$query = "SELECT email, hash, salt, attempts, userrole, fname, minit, lname, change_date FROM users_table;";
+$query = "SELECT email, hash, salt, attempts, userroles, fname, minit, lname, change_date FROM users_table;";
 $result = $main->query($con,$query);
 $cnt = pg_num_rows($result);
 $query = "COMMIT;";

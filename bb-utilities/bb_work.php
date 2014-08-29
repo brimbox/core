@@ -39,161 +39,161 @@ class bb_work extends bb_form {
 			
     function name($name, $module)
         {
-		//returns the name of variable with module prepended
+	//returns the name of variable with module prepended
         return $module . "_" . $name;
-		}
+	}
 			
 	function load($module, $array_state)
         {
-		global $array_state;
-		//gets and loads xml from array state 
-		$key = $module . "_bb_state";
-		$xml = simplexml_load_string($array_state[$key]);
-		return $xml;	
-		}
+	    global $array_state;
+	    //gets and loads xml from array state 
+	    $key = $module . "_bb_state";
+	    $xml = simplexml_load_string($array_state[$key]);
+	    return $xml;	
+	    }
 		
 	function check($name, $module)
+	    {
+	    //checks to see if a $_POST variable is set
+	    $temp = $module . '_' . $name;
+	    $bool = false;
+	    if (isset($_POST[$temp]))
 		{
-		//checks to see if a $_POST variable is set
-		$temp = $module . '_' . $name;
-		$bool = false;
-		if (isset($_POST[$temp]))
-			{
-			$bool = true;	
-			}
-		return $bool;	
+		$bool = true;	
 		}
+	    return $bool;	
+	    }
 		
 	function full($name, $module)
-		//to check if full, opposite of empty function, returns false if empty
-		//post var must be set or you will get a notice
-		{
-		$var = false;
-		$temp = $module . '_' . $name;
-		$post_var = trim($_POST[$temp]);
-		if (!empty($post_var))
-			{
-			$var = true;
-			}
-		return $var;	
-		}
+	    //to check if full, opposite of empty function, returns false if empty
+	    //post var must be set or you will get a notice
+	    {
+	    $var = false;
+	    $temp = $module . '_' . $name;
+	    $post_var = trim($_POST[$temp]);
+	    if (!empty($post_var))
+		    {
+		    $var = true;
+		    }
+	    return $var;	
+	    }
 		
 	function post($name, $module, $default = "")
-		//gets the post value of a variable
-		{
-		$var = (string)$default; 
-		$temp = $module . '_' . $name;
-		if (isset($_POST[$temp]))
-			{
-			$var = $_POST[$temp];
-			}
-		return $var;	
-		}	
+	    //gets the post value of a variable
+	    {
+	    $var = (string)$default; 
+	    $temp = $module . '_' . $name;
+	    if (isset($_POST[$temp]))
+		    {
+		    $var = $_POST[$temp];
+		    }
+	    return $var;	
+	    }	
 			
 	function state($name, $xml_state, $initial = "")
-		{
-		//gets the state value of a variable
-		$var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$initial;
-		return $var;	
-		}	
+	    {
+	    //gets the state value of a variable
+	    $var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$initial;
+	    return $var;	
+	    }	
 	 
 	function set($name, &$xml_state, $value)
-		{
-		//sets the state value from a variable, $module var not needed
-		$value = (string)$value;
-		unset($xml_state->$name);
-		$xml_state->$name = $value;
-		return $value;
-		}	
+	    {
+	    //sets the state value from a variable, $module var not needed
+	    $value = (string)$value;
+	    unset($xml_state->$name);
+	    $xml_state->$name = $value;
+	    return $value;
+	    }	
 	
 	function process($name, $module, &$xml_state, $default = "")
-		//fully processes $_POST variable into state setting with initial value
-		{
-		$var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$default;
-		$temp = $module . '_' . $name;
-		$button = $module . '_bb_button';
-		//check if bb_button set to incorporate checkboxes
-		if (isset($_POST[$button])) 
-			{
-			//if variable is set use variable
-			if (isset($_POST[$temp]))
-				{
-				$var = (string)$_POST[$temp];
-				}
-			//else use default in case of checkbox
-			else
-				{
-				$var = (string)$default;	
-				}
-			}
-		unset($xml_state->$name);
-		$xml_state->$name = $var;
-		return $var;	
-		}
+	    //fully processes $_POST variable into state setting with initial value
+	    {
+	    $var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$default;
+	    $temp = $module . '_' . $name;
+	    $button = $module . '_bb_button';
+	    //check if bb_button set to incorporate checkboxes
+	    if (isset($_POST[$button])) 
+		    {
+		    //if variable is set use variable
+		    if (isset($_POST[$temp]))
+			    {
+			    $var = (string)$_POST[$temp];
+			    }
+		    //else use default in case of checkbox
+		    else
+			    {
+			    $var = (string)$default;	
+			    }
+		    }
+	    unset($xml_state->$name);
+	    $xml_state->$name = $var;
+	    return $var;	
+	    }
 		
 	function render($name, $module, &$xml_state, $type, $default = "")
-		//fully processes $_POST variable into state setting with initial value
-		{
-		global $array_validation;
-		
-		$var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$default; 
-		$temp = $module . '_' . $name;
-		if (isset($_POST[$temp])) 
-			{
-			$var = (string)$_POST[$temp];
-			}
-		//will format value if valid, otherwise leaves $var untouched
-		call_user_func_array($array_validation[$type], array(&$var));	
-		unset($xml_state->$name);
-		$xml_state->$name = $var;
-		return $var;	
-		}
+	    //fully processes $_POST variable into state setting with initial value
+	    {
+	    global $array_validation;
+	    
+	    $var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$default; 
+	    $temp = $module . '_' . $name;
+	    if (isset($_POST[$temp])) 
+		    {
+		    $var = (string)$_POST[$temp];
+		    }
+	    //will format value if valid, otherwise leaves $var untouched
+	    call_user_func_array($array_validation[$type], array(&$var));	
+	    unset($xml_state->$name);
+	    $xml_state->$name = $var;
+	    return $var;	
+	    }
 			
 	function retrieve($con, &$array_state, $userrole)
-		//retrieves state from $_POST based on known tabs with state from tab table in database
-        {
-        //This function will also initalize state if not set
-        $array_state = array();
-        
-        //if guest condition, else other condition
-        switch ($userrole)
-            {
-            case 1:
-            $and_clause =  "userrole IN (1)";
-            break;
-            case 2:
-            $and_clause =  "userrole IN (2)";
-            break;
-            case 3:
-            $and_clause =  "userrole IN (3)";
-            break;               
-            case 4:
-            $and_clause =  "userrole IN (3,4)";
-            break;
-            case 5:
-            $and_clause =  "userrole IN (3,4,5)";
-            break;
-            }
-		
-		//to create this as a base class call query with die
-        $query = "SELECT module_name FROM modules_table WHERE maintain_state = 1 AND " . $and_clause . " AND standard_module IN (0,1,2,4,6);";
-        //$this = new bb_database();
-		$result = $this->query($con, $query);
-        
-        while($row = pg_fetch_array($result))
-            {
-            $key = $row['module_name'] . '_bb_state';
-            if (!empty($_POST[$key])) //get state from post
-                {
-                $array_state[$key] = base64_decode($_POST[$key]);
-                }
-            else  //initialize state
-                {                
-                $array_state[$key] = "<hold></hold>";
-                }
-            }
-		$this->hot_state($array_state, $userrole);
+	    //retrieves state from $_POST based on known tabs with state from tab table in database
+	    {
+	    //This function will also initalize state if not set
+	    $array_state = array();
+	    
+	    //if guest condition, else other condition
+	    switch ($userrole)
+		{
+		case 1:
+		$and_clause =  "userrole IN (1)";
+		break;
+		case 2:
+		$and_clause =  "userrole IN (2)";
+		break;
+		case 3:
+		$and_clause =  "userrole IN (3)";
+		break;               
+		case 4:
+		$and_clause =  "userrole IN (3,4)";
+		break;
+		case 5:
+		$and_clause =  "userrole IN (3,4,5)";
+		break;
 		}
+		    
+		    //to create this as a base class call query with die
+	    $query = "SELECT module_name FROM modules_table WHERE maintain_state = 1 AND " . $and_clause . " AND standard_module IN (0,1,2,4,6);";
+	    //$this = new bb_database();
+		    $result = $this->query($con, $query);
+	    
+	    while($row = pg_fetch_array($result))
+		{
+		$key = $row['module_name'] . '_bb_state';
+		if (!empty($_POST[$key])) //get state from post
+		    {
+		    $array_state[$key] = base64_decode($_POST[$key]);
+		    }
+		else  //initialize state
+		    {                
+		    $array_state[$key] = "<hold></hold>";
+		    }
+		}
+	    $this->hot_state($array_state, $userrole);
+	    }
 	
 	function update(&$array_state, $module, $xml_state)
 		//updates array_state when xml_state is updated with new state variables
@@ -203,50 +203,50 @@ class bb_work extends bb_form {
         }
 			
 	private function hot_state(&$array_state, $userrole)
-        {
-		//hot state used to update state vars when tabs are switched without postback
-		global $array_hot_state;
-		
-		$arr_work = array();
-		if (isset($array_hot_state[$userrole]))
-			{
-			$arr_work = $array_hot_state[$userrole];	
+	    {
+	    //hot state used to update state vars when tabs are switched without postback
+	    global $array_hot_state;
+	    
+	    $arr_work = array();
+	    if (isset($array_hot_state[$userrole]))
+		{
+		$arr_work = $array_hot_state[$userrole];	
+		}
+	    
+	    //do not update the state unless coming from that tab
+	    $update = false;
+	    //$arr_work contains hot states for appropriate user level
+	    foreach ($arr_work as $module => $arr_value)
+		{
+		//check one value before proceeding, makes the loop inefficiency acceptable
+		if ($this->check(current($arr_value), $module))
+		    {
+		    $key = $module . "_bb_state";
+		    $xml_state = simplexml_load_string($array_state[$key]);
+		    //loop through hot state values
+		    foreach ($arr_value as $value)
+			{				
+			if ($this->check($value, $module))
+			    {
+			    $this->process($value, $module, $xml_state);
+			    }
 			}
-		
-		//do not update the state unless coming from that tab
-		$update = false;
-		//$arr_work contains hot states for appropriate user level
-		foreach ($arr_work as $module => $arr_value)
-			{
-			//check one value before proceeding, makes the loop inefficiency acceptable
-			if ($this->check(current($arr_value), $module))
-				{
-				$key = $module . "_bb_state";
-				$xml_state = simplexml_load_string($array_state[$key]);
-				//loop through hot state values
-				foreach ($arr_value as $value)
-					{				
-					if ($this->check($value, $module))
-						{
-						$this->process($value, $module, $xml_state);
-						}
-					}
-				$update = true;
-				}
-			}		
-		if ($update)
-			{
-			$this->update($array_state, $module, $xml_state);
-			}
-        }
+		    $update = true;
+		    }
+		}		
+	    if ($update)
+		{
+		    $this->update($array_state, $module, $xml_state);
+		}
+	    }
 	
 	//this function duplicated in both reports and work classes under different names	
 	function report(&$xml_state, $module_submit, $module_display, $params = array())
-		{
-		//alias of report_post
-		$current = $this->report_post($xml_state, $module_submit, $module_display, $params = array());
-		return $current;
-		}
+	    {
+	    //alias of report_post
+	    $current = $this->report_post($xml_state, $module_submit, $module_display, $params = array());
+	    return $current;
+	    }
 		
     } //end class
 
