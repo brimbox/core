@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -16,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 ?>
 <script type="text/javascript">
 //reload for change of row_type
@@ -31,51 +32,51 @@ function reload_on_layout()
 set_time_limit(0);
 
 //find default row_type, $xml_layouts must have one layout set
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
-$arr_notes = array("c49","c50");
-$arr_reserved = array("c47","c48");
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_notes = array(49,50);
+$arr_reserved = array(47,48);
 
 /* RETRIEVE STATE */
 $main->retrieve($con, $array_state, $userrole);
 
+//for sorting lists with uasort
 function cmp( $a, $b )
     { 
-    if ($a->order == $b->order)
+    if ($a['order'] == $b['order'])
         {
         return 0;
         } 
-    return ($a->order < $b->order) ? -1 : 1;
+    return ($a['order'] < $b['order']) ? -1 : 1;
     }
 
 //start of code, get row_type
 $row_type = $main->post('row_type', $module, $default_row_type);
 
 //get xml, after row type
-$xml_columns = $main->get_xml($con, "bb_column_names");
-$layout = $main->pad("l", $row_type);
-$xml_layout = $xml_layouts->$layout;
-$xml_column = $xml_columns->$layout;
-$layout_name = (string)$xml_layout['plural'];
+$arr_columns = $main->get_json($con, "bb_column_names");
+$arr_layout = $arr_layouts[$row_type];
+$arr_column = $arr_columns[$row_type];
+$layout_name = $arr_layout['plural'];
 
 //array of error messages
 $arr_message = array();
 
 //with flow through already existing column values
-if ($main->post('bb_button', $module) == 1)
+if ($main->button(1))
 	{
     $message = "Columns have been refreshed.";
     }
 
 /* SUBMIT COLUMN DATA */	
-if ($main->post('bb_button', $module) == 2)
+if ($main->button(2))
     {
     /* CHECK FOR ERRORS */
     $i = 1;
     $error = false; //true means there was errors
-    $arr_columns = array();
-    $arr_rows = array();
-    $arr_order = array();
+    $arr_names = array(); //check for unique names
+    $arr_rows = array(); //check for ascending rows
+    $arr_order = array(); //check for strict ascending order
     $arr_errors = array(0 => "Error: Row settings contain a blank value when column name is set.",
                     1 => "Error: Column order contains a blank value when column name is set.",
                     2 => "Error: Row values must start at 1 and be strictly ascending when column name is set, records can have multiple columns per row.",
@@ -83,12 +84,11 @@ if ($main->post('bb_button', $module) == 2)
                     4 => "Error: Column names must be unique."); 
     for ($i = 1; $i <= 50; $i++)
         {
-        //$col_name = "c" . str_pad((string)$i, 2, "0", STR_PAD_LEFT);
-        $col_input = "column_" . $i;
-        $col_value = $main->custom_trim_string($main->post($col_input, $module), 50, true, true);
-        if (!empty($col_value))
+        //check rows and order for integrity
+        $col_name = $main->custom_trim_string($main->post("name_" . $i, $module), 50, true, true);
+        if (!empty($col_name))
             {
-            array_push($arr_columns, $col_value);
+            array_push($arr_names, $col_name);
             $row_input = "row_" . $i;
             if ($main->post($row_input, $module) == 0) 
                 { 
@@ -114,10 +114,10 @@ if ($main->post('bb_button', $module) == 2)
 		
         //process arrays
         //columns must be unique
-        $cnt = count($arr_columns);
+        $cnt = count($arr_names);
         //case insensitive for column names
-        $arr_columns = $main->array_iunique($arr_columns);
-        $cnt_unique = count($arr_columns);        
+        $arr_names = $main->array_iunique($arr_names);
+        $cnt_unique = count($arr_names);        
         
         //strictly ascending starting at 1
         $arr_rows = array_unique($arr_rows);
@@ -162,81 +162,49 @@ if ($main->post('bb_button', $module) == 2)
         /* array is built for sorting so column xml is stored in order according to column order */
         /* this makes column retrieval faster since it is already in order */
         /* the layout order or header xml is stored last-in at the end of xml */
-        $a = 0;
+        $count = 0; //count of columss
         $arr_order= array();
         //put into array for sorting
         for ($i = 1; $i <= 50; $i++)
             {
-            $col_name = "c" . str_pad((string)$i, 2, "0", STR_PAD_LEFT);
-            $col_input = "column_" . $i;
-            $col_value = $main->custom_trim_string($main->post($col_input, $module),50, true, true);
+            //The name of the column
+            $col_name = $main->custom_trim_string($main->post("name_" . $i, $module),50, true, true);
             
             //makes life easier, an xpath sort is going to return an array anyway
-            if (!empty($col_value))
+            if (!empty($col_name))
                 {
-                $a++;
-				$arr_order[$i] = new stdClass();
-                $arr_order[$i]->num = $i;
-                $arr_order[$i]->val = $col_value;
-                $arr_order[$i]->leng = $main->post("leng_" . $i, $module);
-                $arr_order[$i]->row = (int)$main->post("row_" . $i, $module);
-                $arr_order[$i]->order = (int)$main->post("order_" . $i, $module);
-                $arr_order[$i]->type = $main->post("type_" . $i, $module, "");
-				//convert if not set to int
-                $arr_order[$i]->req = (int)$main->post("req_" . $i, $module, 0);
-                $arr_order[$i]->secure = (int)$main->post("secure_" . $i, $module, 0);
-                $arr_order[$i]->search = (int)$main->post("search_" . $i, $module, 0); 
+                $name = (string)$col_name;
+                $row = (int)$main->post("row_" . $i, $module);
+                $length = (string)$main->post("length_" . $i, $module);
+                $order = (int)$main->post("order_" . $i, $module);
+                $type = (string)$main->post("type_" . $i, $module, "");
+                $required = (int)$main->post("required_" . $i, $module, 0);
+                $secure = (int)$main->post("secure_" . $i, $module, 0);
+                $search = (int)$main->post("search_" . $i, $module, 0);
+                $arr_order[$i] = array('name'=>$name,'row'=>$row,'length'=>$length,'order'=>$order,'type'=>$type,'required'=>$required,'secure'=>$secure,'search'=>$search);
+                $count++;
                 }
             }
             //uses the cmp function to sort columns by order
-            usort($arr_order,'cmp');
-            
-            /* SET XML */
-			//get key
-			$xml_column = $xml_columns->$layout;
-			$key = (string)$xml_column['key'];
-            /* initialize $xml_column */
-			unset($xml_column);
-			$main->set($layout, $xml_columns, "");
-            $xml_column = $xml_columns->$layout;
+            uasort($arr_order,'cmp');
+			
+            //get unique, count and primary for layout key
+            $arr_order['layout'] = array();
+            //preserve unique -- not set if no key
+            if (isset($arr_column['layout']['unique']))
+                {
+                $arr_order['layout']['unique'] = $arr_column['layout']['unique'];
+                }
+            $arr_order['layout']['primary'] = key($arr_order); //Always set
+            $arr_order['layout']['count'] = $count; //Always set
+                        
+            $arr_column = $arr_order;
+            $arr_columns[$row_type] =  $arr_order;
 
-            foreach ($arr_order as $value)
-                {
-                /* column definitions */
-                $col_name = "c" . str_pad((string)$value->num, 2, "0", STR_PAD_LEFT);   
-                $xml_column->$col_name = $value->val;
-				$child = $xml_column->$col_name;
-                $child->addAttribute("leng", $value->leng);
-                $child->addAttribute("row", $value->row);
-                $child->addAttribute("order", $value->order);
-                $child->addAttribute("type", $value->type);
-                $child->addAttribute("req", (int)$value->req);
-                $child->addAttribute("secure", (int)$value->secure);
-                $child->addAttribute("search", (int)$value->search);
-                   
-                //set primary, inside loop   
-                if ($value->order == 1)
-                    {
-                    //Error posibility of 2 column order 1's, just set 1
-                    //does not matter because xml will not load, error situation
-                    unset($xml_column['primary']);
-                    $xml_column->addAttribute("primary", $col_name);
-                    }                
-                }
-			//outside loop
-            if ($a > 0) //don't set count if blank xml
-                {
-                $xml_column->addAttribute("count", $a);
-                }
-			//set unique key
-			if (!empty($key))
-				{
-				$xml_column->addAttribute("key", $key);	
-				}
 			//commit if no error
             if (!$error)
                 {//commit XML to database
-                $main->update_xml($con, $xml_columns, "bb_column_names"); //submit xml
+                $main->update_json($con, $arr_columns, "bb_column_names"); //submit xml
                 //update full text indexes for that column $row_type > 0;
                 $main->build_indexes($con, $row_type);
                 array_push($arr_message, "Columns have been updated and search index has been rebuilt for this layout.");               
@@ -245,7 +213,7 @@ if ($main->post('bb_button', $module) == 2)
 	} /* END SUBMIT COLUMN NAMES */
     
 //rebuild all indexes, row_type = 0 for full text search update
-if ($main->post('bb_button', $module) == 3)
+if ($main->button(3))
     {
     //full text update
     $main->build_indexes($con, 0);
@@ -257,7 +225,7 @@ if ($main->post('bb_button', $module) == 3)
 echo "<p class=\"spaced bold larger\">Column Names</p>";
 /* BEGIN REQUIRED FORM */	
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();;
 
 echo "<div class=\"spaced\">";
 $main->echo_messages($arr_message);
@@ -265,7 +233,7 @@ echo "</div>";
 
 //row_type select tag
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_dropdown($xml_layouts, "row_type", $row_type, $params);
+$main->layout_select($arr_layouts, "row_type", $row_type, $params);
 
 //populate row_type select combo box from xml columns
 $arr_head = array("Column","Name","Row","Length","Order","Type","Required","Secure","Search");
@@ -281,37 +249,37 @@ echo "</div>";
 
 //table rows
 for ($m = 1; $m <= 50; $m++)
-    {   
-    $value = "";
+    {
+    //defaults
+    $column = $m;
+    $name = "";
     $row = 0;
     $leng = "";
     $order = 0;
     $type = "";
-    $req = 0;
+    $required = 0;
     $secure = 0;
     $search = 0;
     
-    $col = "c" . str_pad((string)$m, 2, "0", STR_PAD_LEFT);
-    if (!empty($xml_column->$col)) //empty condition
+    if (isset($arr_column[$m])) //empty condition
         {
-        //if reset or initial load populates from xml table      
-        $child = $xml_column->$col;		
-        $value = (string)$child;	
-        $row = (int)$child['row'];		
-        $leng = (string)$child['leng'];
-        $order = (int)$child['order'];
-        $type = (string)$child['type'];
-        $req = (int)$child['req'];
-        $secure = (int)$child['secure'];
-        $search = (int)$child['search'];
+        //if reset or initial load populates from xml table
+        $name = $arr_column[$m]['name'];
+        $row = $arr_column[$m]['row'];
+        $length = $arr_column[$m]['length'];
+        $order = $arr_column[$m]['order'];
+        $type = $arr_column[$m]['type'];
+        $required = $arr_column[$m]['required'];
+        $secure = $arr_column[$m]['secure'];
+        $search = $arr_column[$m]['search'];
         }
 	
 	//this is for reserved columns
-	$readonly = in_array($col, $arr_reserved) ? "readonly" : "";
+	$readonly = in_array($column, $arr_reserved) ? "readonly" : "";
  
 	echo "<div class=\"row\">";        
 	echo "<div class = \"padded cell middle\">" . htmlentities($layout_name) . " " . str_pad((string)$m, 2, "0", STR_PAD_LEFT) . "</div>";
-	echo "<div class = \"cell middle\"><input name=\"column_" . $m . "\" class = \"spaced\" type=\"text\" value=\"" . htmlentities($value) . "\" size=\"25\" maxlength=\"50\" " . $readonly . "/></div>"; 	    
+	echo "<div class = \"cell middle\"><input name=\"name_" . $m . "\" class = \"spaced\" type=\"text\" value=\"" . htmlentities($name) . "\" size=\"25\" maxlength=\"50\" " . $readonly . "/></div>"; 	    
 
 	echo "<div class = \"cell middle\"><select name=\"row_" . $m . "\" class = \"spaced\"/>";
 	echo "<option value = \"0\"></option>";
@@ -321,11 +289,11 @@ for ($m = 1; $m <= 50; $m++)
 			}
 	 echo "</select></div>";		
 
-	echo "<div class = \"cell middle\"><select name = \"leng_" . $m . "\" class = \"spaced\">";
-		echo "<option value=\"short\" " . ("short" == $leng ? "selected" : "") . ">Short</option>";
-		echo "<option value=\"medium\" " . ("medium" == $leng ? "selected" : "") . ">Medium</option>";
-		echo "<option value=\"long\" " . ("long" == $leng ? "selected" : "") . ">Long</option>";
-		echo "<option value=\"note\" " . ("note" == $leng ? "selected" : "") . ">Note</option>";
+	echo "<div class = \"cell middle\"><select name = \"length_" . $m . "\" class = \"spaced\">";
+		echo "<option value=\"short\" " . ("short" == $length ? "selected" : "") . ">Short</option>";
+		echo "<option value=\"medium\" " . ("medium" == $length ? "selected" : "") . ">Medium</option>";
+		echo "<option value=\"long\" " . ("long" == $length ? "selected" : "") . ">Long</option>";
+		echo "<option value=\"note\" " . ("note" == $length ? "selected" : "") . ">Note</option>";
 	echo "</select></div>";
 				
 	echo "<div class = \"cell middle\"><select name = \"order_" . $m. "\" class = \"spaced\">";	
@@ -335,11 +303,11 @@ for ($m = 1; $m <= 50; $m++)
                 echo "<option value=\"" . $i . "\" " . ($i == $order ? "selected" : "") . ">" . $i . "&nbsp;</option>";
                 }
 	echo "</select></div>";
-	if (in_array($col, $arr_notes))
+	if (in_array($column, $arr_notes))
 		{
 		echo "<div class = \"padded cell middle center colored\">Note</div>";
 		}
-	elseif (in_array($col, $arr_reserved))
+	elseif (in_array($column, $arr_reserved))
 		{
 		echo "<div class = \"padded cell middle center colored\">Reserved</div>";
 		}
@@ -355,13 +323,14 @@ for ($m = 1; $m <= 50; $m++)
 		}
     //required checkbox
     echo "<div class = \"padded cell center middle\">";
-	echo "<input name=\"req_" . $m . "\" type=\"checkbox\"  class=\"spaced\" value=\"1\" " . ($req == 1 ? "checked" : "") . "/>";
+	echo "<input name=\"required_" . $m . "\" type=\"checkbox\"  class=\"spaced\" value=\"1\" " . ($required == 1 ? "checked" : "") . "/>";
     echo "</div>";
     //secure checkbox
 	if (empty($array_security))
 		{
 		echo "<div class = \"padded cell center middle\">";
-		echo "<input name=\"secure_" . $m . "\" type=\"checkbox\"  class=\"spaced\" value=\"1\" " . (($secure == 0) ? "" : "checked") . "/>";
+        $checked = ($secure == 1) ? true : false;
+        $main->echo_input("secure_" . $m, 1, array('type'=>'checkbox','class'=>'spaced','checked'=>$checked));
 		echo "</div>";
 		}
 	else
@@ -375,7 +344,8 @@ for ($m = 1; $m <= 50; $m++)
 		}
     //search checkbox
     echo "<div class = \"padded cell center middle\">";
-    echo "<input name=\"search_" . $m . "\" type=\"checkbox\"  class=\"spaced\" value=\"1\" " . ($search == 1 ? "checked" : "") . "/>";
+    $checked = ($search == 1) ? true : false;
+    $main->echo_input("search_" . $m, 1, array('type'=>'checkbox','class'=>'spaced','checked'=>$checked));
     echo "</div>";
     echo "</div>";
     }

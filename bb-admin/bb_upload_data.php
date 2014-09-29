@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -14,7 +15,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(4);
+$main->check_permission("bb_brimbox", array(4,5));
 ?>
 <script type="text/javascript">     
 function dump_data()
@@ -85,7 +86,7 @@ $xml_column = $xml_columns->$layout;
 //get dropdowns for validation
 $xml_dropdowns = $main->get_xml($con, "bb_dropdowns");
 
-if ($main->post('bb_button', $module) == 1) //get column names for layout
+if ($main->button(1)) //get column names for layout
 	{
     if ($parent == 0)
         {
@@ -104,7 +105,7 @@ if ($main->post('bb_button', $module) == 1) //get column names for layout
 
 
 //submit file to textarea	
-if ($main->post('bb_button', $module) == 2) //submit_file
+if ($main->button(2)) //submit_file
 	{
 	if (!empty($_FILES[$main->name('upload_file', $module)]["tmp_name"]))
 		{
@@ -117,7 +118,7 @@ if ($main->post('bb_button', $module) == 2) //submit_file
 	}
 
 //post data to database	
-if ($main->post('bb_button', $module) == 3) //submit_data
+if ($main->button(3)) //submit_data
     {
     $arr_lines = explode(PHP_EOL, trim($data));
     $cnt = count($arr_lines);
@@ -362,7 +363,7 @@ echo "</div>";
 
 /* START REQUIRED FORM */
 $main->echo_form_begin(array("type"=>"enctype=\"multipart/form-data\""));
-$main->echo_module_vars($module);
+$main->echo_module_vars();;
 
 //upload row_type calls dummy function
 echo "<div class=\"spaced border floatleft padded\">";

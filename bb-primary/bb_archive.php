@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <?php
 /* INITIALIZE */
@@ -32,7 +32,7 @@ $row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;
 
 //get postback vars
 /* BEGIN ARCHIVE CASCADE */
-if ($main->post('bb_button',$module) == 1)
+if ($main->button(1))
 	{
     $post_key = $main->post('post_key',$module);
     $row_type = $main->post('row_type',$module);
@@ -108,16 +108,15 @@ else //default behavior
         array_push($arr_message, "This record does not have child records.");    
         }
     
-    $xml_layouts = $main->get_xml($con, "bb_layout_names");
-    $xml_columns = $main->get_xml($con, "bb_column_names");
-    $layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-    $xml_column = $xml_columns->$layout;
-    $xml_layout = $xml_layouts->$layout;
+    $arr_layouts = $main->get_json($con, "bb_layout_names");
+    $arr_columns = $main->get_json($con, "bb_column_names");
+    $arr_column = $arr_columns[$row_type];
+    $arr_layout = $arr_layouts[$row_type];
 
-    $parent_row_type = (int)$xml_layout['parent'];
-    $parent_layout = "l" . str_pad($parent_row_type,2,"0",STR_PAD_LEFT);
-    $xml_column_parent = $xml_columns->$parent_layout;
-    $leftjoin = isset($xml_column_parent['primary']) ? $xml_column_parent['primary'] : "c01";
+    //get column name from "primary" attribute in column array
+    //this is used to populate the record header link to parent record
+    $parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+    $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 
     $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
 	     "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " .
@@ -134,7 +133,7 @@ else //default behavior
     //outputs the row we are working with
     $main->return_header($row, "bb_cascade");
     echo "<div class=\"clear\"></div>";   
-    $main->return_rows($row, $xml_column);
+    $main->return_rows($row, $arr_column);
     echo "<div class=\"clear\"></div>";
     echo "</div>";
      echo "<div class =\"margin divider\"></div>";
@@ -147,9 +146,9 @@ $main->echo_messages($arr_message);
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
 
-if ($main->post('bb_button',$module) <> 1)
+if (!$main->button(1)) //not equal to 1
 	{
 	if (empty($array_archive))
 		{

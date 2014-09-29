@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
@@ -46,63 +46,62 @@ function bb_reload_on_asc_desc()
 //This function displays the result set
 
 /* INITIALIZE */
-//find default row_type, $xml_layouts must have one layout set
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
+//find default row_type, $arr_layouts must have one layout set
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 /***START STATE AND VIEW POSTBACK***/
 $main->retrieve($con, $array_state, $userrole);
 
 //get archive mode
-$xml_home = $main->load('bb_home', $array_state);
-$mode = ($xml_home->mode == "On") ? " 1 = 1 " : " archive IN (0)";
+$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
 
-$xml_state = $main->load($module, $array_state);
+$arr_state = $main->load($module, $array_state);
 
-//coming from an view link, set $xml_state
+//coming from an view link, set $arr_state
 //bb_row_type is empty if not set with javascript
 if (!empty($_POST['bb_row_type']))
         {
 		//global post_key and row_type
-		$offset = $main->set('offset', $xml_state, 1);
-		$row_type = $main->set('row_type', $xml_state, $_POST['bb_row_type']);
-		$post_key = $main->set('post_key', $xml_state, $_POST['bb_post_key']);
-		$col1 = $main->set('col1', $xml_state, "create_date");
-		$asc_desc = $main->set('asc_desc', $xml_state, "DESC");
+		$offset = $main->set('offset', $arr_state, 1);
+		$row_type = $main->set('row_type', $arr_state, $_POST['bb_row_type']);
+		$post_key = $main->set('post_key', $arr_state, $_POST['bb_post_key']);
+		$col1 = $main->set('col1', $arr_state, "create_date");
+		$asc_desc = $main->set('asc_desc', $arr_state, "DESC");
         }		
 else //get on postback, or populate with input_state if coming from other page
         {
         //local post_key and row_type
-		$offset = $main->process('offset', $module, $xml_state, 1);
-		$row_type = $main->process('row_type', $module, $xml_state, $default_row_type);
-		$post_key = $main->process('post_key', $module, $xml_state, 0);
-		$col1 = $main->process('col1', $module, $xml_state, "create_date");
-		$asc_desc = $main->process('asc_desc', $module, $xml_state, 'DESC');
+		$offset = $main->process('offset', $module, $arr_state, 1);
+		$row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
+		$post_key = $main->process('post_key', $module, $arr_state, 0);
+		$col1 = $main->process('col1', $module, $arr_state, "create_date");
+		$asc_desc = $main->process('asc_desc', $module, $arr_state, 'DESC');
        }
         
 //save state
-$main->update($array_state, $module, $xml_state);
+$main->update($array_state, $module, $arr_state);
 /*** END POSTBACK ***/
 ?>
 <?php
 /*** COLUMN AND LAYOUT INFO ***/
             
 //get xml_column and sort column type
-$xml_columns = $main->get_xml($con, "bb_column_names");
+$arr_columns = $main->get_json($con, "bb_column_names");
 $layout = $main->pad("l", $row_type);
-$xml_column = $xml_columns->$layout;
-$xml_layout = $xml_layouts->$layout;
+$arr_column = $arr_columns[$row_type];
+$arr_layout = $arr_layouts[$row_type];
 
 //for the header left join
-$parent_row_type = (int)$xml_layout['parent'];
-$parent_layout = $main->pad("l", $parent_row_type);
-$xml_column_parent = $xml_columns->$parent_layout;
-$leftjoin = isset($xml_column_parent['primary']) ? $xml_column_parent['primary'] : "c01";
+//get column name from "primary" attribute in column array
+//this is used to populate the record header link to parent record
+$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 /*** END COLUMN AND LAYOUT INFO ***/
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
 
 echo "<span class=\"spaced\">Order By:</span>";
 echo "<select name=\"col1\" class=\"spaced\" onchange=\"bb_reload_on_column()\">";
@@ -110,11 +109,13 @@ echo "<select name=\"col1\" class=\"spaced\" onchange=\"bb_reload_on_column()\">
 //order on create or modify date, use actual column names in this output
 echo "<option value=\"create_date\" " . ($col1 == "create_date" ? "selected" : "") . ">Created&nbsp;</option>";
 echo "<option value=\"modify_date\" " . ($col1 == "modify_date" ? "selected" : "") . ">Modified&nbsp;</option>";
+//strip non-integer keys
+$arr_column = $main->filter_keys($arr_column);
 //build field options for column names
-foreach($xml_column->children() as $child)
+foreach($arr_column as $key => $value)
     {
-    $col = $child->getName();
-    echo "<option value=\"" . $col . "\" " . ($col == $col1 ? "selected" : "") . ">" . htmlentities((string)$child) . "&nbsp;</option>";
+    $col = $main->pad("c", $key);
+    echo "<option value=\"" . $col . "\" " . ($col == $col1 ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
     }
 echo "</select>";
 //dropdown for ascending or descending
@@ -165,9 +166,9 @@ if ($post_key > 0) //viewing children of record
 		echo "<div class =\"margin divider\">";
 		$main->return_header($row, "bb_cascade");
 		echo "<div class=\"clear\"></div>";	
-  		$count_rows = $main->return_rows($row, $xml_column);
+  		$count_rows = $main->return_rows($row, $arr_column);
 		echo "<div class=\"clear\"></div>";		 
-		$main->output_links($row, $xml_layouts, $userrole);
+		$main->output_links($row, $arr_layouts, $userrole);
 		echo "<div class=\"clear\"></div>";
         echo "</div>";	 
   		}

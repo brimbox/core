@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
@@ -47,10 +47,10 @@ function submit_lookup()
 </script>
 <?php
 /* INITIALIZE */
-//find default row_type, $xml_layouts must have one layout set
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$xml_columns = $main->get_xml($con, "bb_column_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
+//find default row_type, $arr_layouts must have one layout set
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_columns = $main->get_json($con, "bb_column_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
 $arr_messages = array();
 
 /* LOOKUP AND STATE POSTBACK */
@@ -58,57 +58,55 @@ $arr_messages = array();
 $main->retrieve($con, $array_state, $userrole); //run first
     
 //get archive mode
-$xml_home = $main->load('bb_home', $array_state);
-$mode = ($xml_home->mode == "On") ? " 1 = 1 " : " archive IN (0)";
+$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
 
 //get lookup state variables are use them
-$xml_state = $main->load($module, $array_state);
+$arr_state = $main->load($module, $array_state);
 
 //process offset and archive
-$offset = $main->process('offset', $module, $xml_state, 1);
-$record_id = $main->process('record_id', $module, $xml_state, "");
+$offset = $main->process('offset', $module, $arr_state, 1);
+$record_id = $main->process('record_id', $module, $arr_state, "");
 
 // get row_type to find posted layout
 $row_type = $main->post('row_type', $module, $default_row_type);
-$layout = $main->pad("l", $row_type);
-$xml_column = $xml_columns->$layout;
+$arr_column = $arr_columns[$row_type];
 
 //get default col_type or deal with possibility of no columns, then 1
-$default_col_type = (count($xml_column->children()) > 0) ? $main->rpad((string)$xml_column->children()->getName()) : 1;
+$default_col_type = $main->get_default_column($arr_column);
 
 //set col_type state from default if postback and row_type changed
-if ($main->check('row_type', $module) && $main->post('row_type', $module) <> $main->state('row_type', $xml_state))
+if ($main->check('row_type', $module) && $main->post('row_type', $module) <> $main->state('row_type', $arr_state))
 	{
-	$col_type_1 = $main->set('col_type_1', $xml_state, $default_col_type);
-	$col_type_2 = $main->set('col_type_2', $xml_state, $default_col_type);
+	$col_type_1 = $main->set('col_type_1', $arr_state, $default_col_type);
+	$col_type_2 = $main->set('col_type_2', $arr_state, $default_col_type);
 	}
 //else fully process col_type
 else
 	{
-	$col_type_1 = $main->process('col_type_1', $module, $xml_state, $default_col_type);
-	$col_type_2 = $main->process('col_type_2', $module, $xml_state, $default_col_type);
+	$col_type_1 = $main->process('col_type_1', $module, $arr_state, $default_col_type);
+	$col_type_2 = $main->process('col_type_2', $module, $arr_state, $default_col_type);
 	}
 
 //process fields	
-$value_1 = $main->process('value_1', $module, $xml_state, "");
-$value_2 = $main->process('value_2', $module, $xml_state, "");
-$radio_1 = $main->process('radio_1', $module, $xml_state, 1);
-$radio_2 = $main->process('radio_2', $module, $xml_state, 1);
+$value_1 = $main->process('value_1', $module, $arr_state, "");
+$value_2 = $main->process('value_2', $module, $arr_state, "");
+$radio_1 = $main->process('radio_1', $module, $arr_state, 1);
+$radio_2 = $main->process('radio_2', $module, $arr_state, 1);
 
 //process row_type, earlier just got it from post	
-$row_type = $main->process('row_type', $module, $xml_state, $default_row_type);
+$row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 
 //little tricky because checkbox $_POST is not set if empty
 //so check if other variable ($row_type) is set and then get post
-$archive = $main->state('archive', $xml_state, 0);
+$archive = $main->state('archive', $arr_state, 0);
 if ($main->check('row_type', $module))
 	{
 	$archive = $main->post('archive', $module, 0);
-	$main->set('archive', $xml_state, $archive);
+	$main->set('archive', $arr_state, $archive);
 	}
 	
 //back to string
-$main->update($array_state, $module, $xml_state);
+$main->update($array_state, $module, $arr_state);
 /* END POSTBACK */
 ?>
 <?php 
@@ -116,9 +114,9 @@ $main->update($array_state, $module, $xml_state);
 
 /* GET COLUMN AND LAYOUT VALUES */
 //get column names based on row_type/record types
-$layout = $main->pad("l", $row_type);
-$xml_column = $xml_columns->$layout;
-$xml_layout = $xml_layouts->$layout;
+
+$arr_column = $arr_columns[$row_type];
+$arr_layout = $arr_layouts[$row_type];
 $column_1 = $main->pad("c", $col_type_1);
 $column_2 = $main->pad("c", $col_type_2);
 /* END COLUMN AND LAYOUT VALUES */	
@@ -150,7 +148,7 @@ if (!empty($record_id) || $record_id === '0')
 
 /* START REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
 	
 //layout types, this produces $row_type
 //use a table
@@ -192,7 +190,7 @@ echo "<input type =\"text\" class=\"spaced short\" name = \"record_id\" value = 
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
 $params = array("onchange"=>"reload_on_layout()");
-$main->layout_dropdown($xml_layouts, "row_type", $row_type, $params);
+$main->layout_select($arr_layouts, "row_type", $row_type, $params);
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
 //column 1 values
@@ -203,7 +201,7 @@ echo "<span class=\"spaced middle\">Like:</span><input type=\"radio\" class=\"mi
 echo "<span class=\"spaced middle\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
 echo "&nbsp;";
 $params = array("class"=>"spaced");
-$main->column_dropdown($xml_column, "col_type_1", $col_type_1, $params);
+$main->column_select($arr_column, "col_type_1", $col_type_1, $params);
 echo "</td>";
 
 //column 2 values
@@ -215,7 +213,7 @@ echo "<span class=\"spaced\">Like:</span><input type=\"radio\" class=\"middle\" 
 echo "<span class=\"spaced\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"4\"" . ($radio_2 == 4 ? "checked" : "") . ">";
 echo "&nbsp;";
 $params = array("class"=>"spaced");
-$main->column_dropdown($xml_column, "col_type_2", $col_type_2, $params);
+$main->column_select($arr_column, "col_type_2", $col_type_2, $params);
 echo "</td>";
 
 echo "</tr></table>"; //table 1
@@ -262,8 +260,8 @@ if ($valid_id) //record_id
 	$row_type =  ord(strtolower(substr($record_id, 0, 1))) - 96;
 	$layout = $main->pad("l", $row_type);
 	//reset column for output, and layout for parent row type, state will remain
-	$xml_layout = $xml_layouts->$layout;
-	$xml_column = $xml_columns->$layout;
+	$arr_layout = $arr_layouts->$layout;
+	$arr_column = $arr_columns->$layout;
 	$and_clause_3 = " 1 = 1 ";
 	$and_clause_4 = " id = " . $id . " ";
 	}
@@ -321,10 +319,11 @@ else //value_1 or value_2
 //this does not need to be done before the form
 //get column name from "primary" attribute in column xml
 //this is used to populate the record header link to parent record for all queries
-$parent_row_type = (int)$xml_layout['parent']; 
-$parent_layout = $main->pad("l", $parent_row_type);
-$xml_column_parent = $xml_columns->$parent_layout;
-$leftjoin = isset($xml_column_parent['primary']) ? $xml_column_parent['primary'] : "c01";
+
+//get column name from "primary" attribute in column array
+//this is used to populate the record header link to parent record
+$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 
 //return query, order by column 1 and column 2
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM (SELECT * FROM data_table WHERE " . $and_clause_4 . ") T1 " .
@@ -349,10 +348,10 @@ while($row = pg_fetch_array($result))
 	$main->return_header($row, "bb_cascade");
 	echo "<div class=\"clear\"></div>";
 	//returns the record data in appropriate row
-	$count_rows = $main->return_rows($row, $xml_column); 
+	$count_rows = $main->return_rows($row, $arr_column); 
 	echo "<div class=\"clear\"></div>";
 	//return the links along the bottom of a record
-	$main->output_links($row, $xml_layouts, $userrole);
+	$main->output_links($row, $arr_layouts, $userrole);
     echo "</div>";
 	echo "<div class=\"clear\"></div>";	
 	}

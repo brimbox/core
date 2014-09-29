@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -30,7 +31,7 @@ function bb_reload_on_layout_3()
 	}
 </script>
 <?php
-$main->check_permission(4);
+$main->check_permission("bb_brimbox", array(4,5));
 
 /*INITIALIZE */
 $arr_message = array();
@@ -39,12 +40,12 @@ $arr_message = array();
 $main->retrieve($con, $array_state, $userrole);
 
 //start code here
-$xml_lists = $main->get_xml($con, "bb_create_lists");
+$arr_lists = $main->get_json($con, "bb_create_lists");
 $message = "";
 
 //columns
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 //necessary for load
 $list_output =$main->post('list_output', $module, "");
@@ -58,80 +59,49 @@ $update_list = $main->post('update_list', $module, "");
 $update_description = $main->post('update_description', $module, "");
 
 //handle remove confirm checkbox
-$confirm_remove = $main->post('confirm_remove', $module, 0); 
-
+$confirm_remove = $main->post('confirm_remove', $module, 0);
 
 /* LIST SORTING FUNCTIONS */
 //used in sorting lists for the usort function
 function cmp( $a, $b )
     { 
-    return strcmp ($a->value, $b->value);
+    return strcasecmp ($a['name'], $b['name']);
     }
     
-//must keep list sorted, no easy way
-function sort_list($xml_in)
-    {
-    $arr_sort = array();
-    $i = 0;
-    foreach ($xml_in->children() as $child)
-        {
-		$arr_sort[$i] = new stdClass();
-        $arr_sort[$i]->node = (string)$child->getName();        
-        $arr_sort[$i]->value = (string)$child;
-        $arr_sort[$i]->row_type = (string)$child['row_type'];
-        $arr_sort[$i]->archive = (string)$child['archive'];
-        $arr_sort[$i]->description = (string)$child['description'];
-        $i++;
-        }
-    usort($arr_sort,'cmp');
-    $xml_out = simplexml_load_string("<lists/>");
-    foreach ($arr_sort as $value)
-        {		
-		$node = (string)$value->node; //convert object to string
-		$child = $xml_out->addChild($node);
-		$child->{0} = $value->value;
-        $child->addAttribute("row_type", $value->row_type);
-        $child->addAttribute("archive", $value->archive);
-        $child->addAttribute("description", $value->description);
-        }
-    return $xml_out;
-    }
-/* END LIST SORTING FUNCTIONS */
-
 //add new list
-if ($main->post('bb_button', $module) == 1)
+if ($main->button(1))
     {
     if ($main->full('new_value', $module))
         {
         $new_value = $main->custom_trim_string($main->post('new_value', $module),50, true, true);
         $new_description = $main->custom_trim_string($main->post('new_description', $module), 255);
-        $row_type = $main->post('row_type', $module);
+        $row_type = $main->post('row_type_1', $module);
+        $arr_list = isset($arr_lists[$row_type_1]) ? $arr_lists[$row_type_1] : array();
         
-        $path = "//*[.=\"". $new_value . "\" and @row_type=" . $row_type_1 . "]";
-        $node = $main->search_xml($xml_lists, $path);
-        $bool = (count($node) == 0) ? true : false; //search true if list already exists
-            
-        if ($bool && ($row_type_1 > 0)) //list does not exist, valid row_type
+        $found = false;
+        foreach($arr_list as $value)
             {
-			$path = "/lists/*[@row_type=" . $row_type_1 . "]";
-            $k = $main->get_next_xml_node($xml_lists, $path, 2000); //gets next lists number
+            if (!strcasecmp($value['name'], $new_value))
+                {
+                $found = true;
+                break;
+                }
+            }
+        
+        if (!$found)  
+            {
+            $arr_keys = array_keys($arr_list);
+            $k = $main->get_next_node($arr_keys, 2000); //gets next lists number
             if ($k < 0) //over maximum number of lists
                 {
                 array_push($arr_message, "Error: Maximum number of lists exceeded."); 
                 }
             else//add list
                 {
-                $node = $main->pad("l", $k, 4);
-				//wierd but works, 3 equals
-				$child = $xml_lists->addChild($node);
-				$child->{0} = $new_value;
-                $child->addAttribute("row_type",$row_type_1);
-                $child->addAttribute("archive",0);
-                $child->addAttribute("description",$new_description);
-                //sort the xml, no easy way
-                $xml_lists = sort_list($xml_lists);
-                //update the xml table
-                $main->update_xml($con, $xml_lists,"bb_create_lists");
+                $arr_list[$k] = array('name'=>$new_value, 'description'=>$new_description, 'archive'=>0);
+                uasort($arr_list,'cmp');
+                $arr_lists[$row_type_1] = $arr_list;
+                $main->update_json($con, $arr_lists,"bb_create_lists");
                 //empty list just in case
                 $query = "UPDATE data_table SET list_string = list_reset(list_string, " . $k . ") WHERE list_retrieve(list_string, " . $k . ") = 1 AND row_type IN (" . (int)$row_type_1 . ");";
         
@@ -151,24 +121,21 @@ if ($main->post('bb_button', $module) == 1)
     }
 
 //populate list for update
-if (($main->post('bb_button', $module) == 2) && ($list_number_2 > 0)) 
+if ($main->button(2) && ($list_number_2 > 0)) 
     {
-	$list_post = $main->pad("l", $list_number_2, 4);
-	$list_output = ($list_number_2 > 0) ? chr($row_type_2 + 64) . $main->rpad($list_post) : "";
-	$path = "//" . $list_post . "[@row_type = " . $row_type_2 . "]";
-	$arr_list = $main->search_xml($xml_lists, $path);
-	$xml_list = $arr_list[0];
-	$update_list = (string)$xml_list;
-	$update_description = (string)$xml_list['description'];
+    $arr_list = $arr_lists[$row_type_2];
+	$list_output = ($list_number_2 > 0) ? chr($row_type_2 + 64) . $list_number_2 : "";
+	$update_list = $arr_list[$list_number_2]['name'];
+	$update_description = $arr_list[$list_number_2]['description'];
 	array_push($arr_message, "Form has been populated for update with selected list.");
     }
-elseif ($main->post('bb_button', $module) == 2)
+elseif ($main->button(2))
 	{
 	array_push($arr_message, "Error: Unable to find list.");	
 	}
 
 //clear list for update
-if ($main->post('bb_button', $module) == 3)
+if ($main->button(3))
     {
     $update_list = "";
     $update_description = "";
@@ -177,22 +144,21 @@ if ($main->post('bb_button', $module) == 3)
     }
     
 //rename or update list    
-if ($main->post('bb_button', $module) == 4)
+if ($main->button(4))
     {
     if ($list_number_2 > 0)
         {    
         if ($main->full('update_list', $module))
             {
-			$list_post = $main->pad("l", $list_number_2, 4);
-			$path = "//" . $list_post . "[@row_type = " . $row_type_2 . "]";
-			$arr_list = $main->search_xml($xml_lists, $path);
-			if (count($arr_list == 1))
+            $list = $arr_lists[$row_type_2];
+			if (isset($list))
 				{
-				$xml_list = $arr_list[0];
-                $xml_list->{0} = (string)$main->custom_trim_string($update_list, 50, true, true);
-                $xml_list['description'] = (string)$main->custom_trim_string($update_description ,255);
-                $xml_lists = sort_list($xml_lists);
-                $main->update_xml($con, $xml_lists,"bb_create_lists");                
+				$arr_list[$list_number_2]['name'] = $main->custom_trim_string($update_list, 50, true, true);
+                $arr_list[$list_number_2]['description'] = (string)$main->custom_trim_string($update_description ,255);
+                $arr_list[$list_number_2]['archive'] = 0;
+                uasort($arr_list,'cmp');
+                $arr_lists[$row_type_2] = $arr_list;
+                $main->update_json($con, $arr_lists, "bb_create_lists");                
                 $update_list = "";
                 $update_description = "";
 				$list_output = "";
@@ -211,22 +177,18 @@ if ($main->post('bb_button', $module) == 4)
     } //button 4 if    
 
 //remove list
-if (($main->post('bb_button', $module) == 5) && ($confirm_remove == 1))
+if ($main->button(5) && ($confirm_remove == 1))
     {
     if ($list_number_3 > 0)
-        {        
-        $list_post = $main->pad("l", $list_number_3, 4);
-		$path = "//" . $list_post . "[@row_type = " . $row_type_3 . "]";
-		$arr_list = $main->search_xml($xml_lists, $path);
-		if (count($arr_list) == 1)
+        {
+		if (isset($arr_lists[$row_type_3][$list_number_3]))
 			{
 			//reference parent, wierd but works
-			$xml_list = $arr_list[0];
-			unset($xml_list[0]);            
+			unset($arr_lists[$row_type_3][$list_number_3]);            
 			//empty list_bit
 			$query = "UPDATE data_table SET list_string = list_reset(list_string, " . $list_number_3 . ") WHERE list_retrieve(list_string, " . $list_number_3 . ") = 1 AND row_type IN (" . (int)$row_type_3 . ");";			
 			$main->query($con, $query);	
-			$main->update_xml($con, $xml_lists, "bb_create_lists");        
+			$main->update_json($con, $arr_lists, "bb_create_lists");        
 			array_push($arr_message, "List successfully removed.");
 			}
 		else
@@ -239,25 +201,21 @@ if (($main->post('bb_button', $module) == 5) && ($confirm_remove == 1))
 		array_push($arr_message, "Error: List not selected."); 
 		}
     } //button 5 if
-elseif (($main->post('bb_button', $module) == 5) && ($confirm_remove <> 1))
+elseif ($main->button(5) && ($confirm_remove <> 1))
 	{
 	array_push($arr_message, "Error: Please confirm to remove list.");	
 	}
 	
 //archive or retrieve list    
-if ($main->post('bb_button', $module) == 6)
+if ($main->button(6))
     {
     if ($list_number_3 > 0)
         {
-		$list_post = $main->pad("l", $list_number_3, 4);
-		$path = "//" . $list_post . "[@row_type = " . $row_type_3 . "]";
-		$arr_list = $main->search_xml($xml_lists, $path);
-        if (count($arr_list) == 1) //underlying data could change, hopefully still there, multiuser problem
+        if (isset($arr_lists[$row_type_3][$list_number_3])) //underlying data could change, hopefully still there, multiuser problem
             {            
             $archive_flag = ($main->post('archive_value', $module) == 1) ? 1 : 0;
-			$child = $arr_list[0];
-            $child['archive'] = $archive_flag;
-            $main->update_xml($con, $xml_lists,"bb_create_lists");
+            $arr_lists[$row_type_3][$list_number_3]['archive'] = $archive_flag;
+            $main->update_json($con, $arr_lists,"bb_create_lists");
                 
             $message = ($archive_flag == 1) ? "List successfully archived." : "List successfully retrieved.";
             array_push($arr_message, $message);
@@ -282,7 +240,7 @@ $main->echo_messages($arr_message);
 echo "</div>";
 
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();;
 
 //add lists
 echo "<span class=\"spaced colored\">Add New List</span>";
@@ -291,25 +249,25 @@ echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\">List Type: </div>";
 echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced");
-$main->layout_dropdown($xml_layouts, "row_type_1", $row_type_1, $params);
+$main->layout_select($arr_layouts, "row_type_1", $row_type_1, $params);
 echo "</div>";
 echo "</div>";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded top\">List Name: </div>";
-echo "<div class=\"cell padded\"><input class=\"spaced textbox\" name=\"new_value\" type=\"text\" /></div>";
-echo "</div>";
+echo "<div class=\"cell padded\">";
+$main->echo_input("new_value", "", array('type'=>'text','input_class'=>'spaced'));
+echo "</div></div>";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded top\">Description: </div>";
-echo "<div class=\"cell padded\"><textarea class=\"spaced\" rows\"4\" cols=\"60\" name=\"new_description\"></textarea></div>";
-echo "</div>";
+echo "<div class=\"cell padded\">";
+$main->echo_textarea("new_description", "", array('rows'=>4, 'cols'=>60, 'class'=>'spaced'));
+echo "</div></div>";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\"></div>";
 echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"New List");
 $main->echo_button("add_list", $params);
-echo "</div>";
-echo "</div>";
-echo "</div>";
+echo "</div></div></div>";
 echo "<br>";
 
 //Rename List or Update Lists
@@ -319,9 +277,10 @@ echo "<div class=\"table spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_on_layout_2()");
-$main->layout_dropdown($xml_layouts, "row_type_2", $row_type_2, $params);
+$main->layout_select($arr_layouts, "row_type_2", $row_type_2, $params);
 $params = array("class"=>"spaced","empty"=>true,"archive"=>true);
-$main->list_dropdown($xml_lists, "list_number_2", $list_number_2, $row_type_2, $params);
+$arr_pass = isset($arr_lists[$row_type_2]) ? $arr_lists[$row_type_2] : array();
+$main->list_select($arr_pass, "list_number_2", $list_number_2, $params);
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Populate List");
 $main->echo_button("populate_list", $params);
 $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Clear List");
@@ -332,16 +291,19 @@ echo "</div>";
 echo "<div class=\"spaced table padded\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"spaced cell padded\">List Number: </div>";
-echo "<div class=\"cell padded\"><input class=\"spaced textbox\" name=\"list_output\" type=\"text\" value=\"" . htmlentities($list_output) . "\" readonly/></div>";
-echo "</div>";
+echo "<div class=\"cell padded\">";
+$main->echo_input("list_output", htmlentities($list_output), array('type'=>'text','input_class'=>'spaced textbox','readonly'=>true));
+echo "</div></div>";
 echo "<div class=\"row padded\">";
 echo "<div class=\"spaced cell padded top\">List Name: </div>";
-echo "<div class=\"cell padded\"><input class=\"spaced textbox\" name=\"update_list\" type=\"text\" value=\"" . htmlentities($update_list) . "\"/></div>";
-echo "</div>";
+echo "<div class=\"cell padded\">";
+$main->echo_input("update_list", htmlentities($update_list), array('type'=>'text','input_class'=>'spaced textbox'));
+echo "</div></div>";
 echo "<div class=\"row padded\">";
 echo "<div class=\"spaced cell padded\">Description: </div>";
-echo "<div class=\"cell padded\"><textarea class=\"spaced\" rows\"4\" cols=\"60\" name=\"update_description\">" . $update_description . "</textarea></div>";
-echo "</div>";
+echo "<div class=\"cell padded\">";
+$main->echo_textarea("update_description", $update_description, array('rows'=>4, 'cols'=>60, 'class'=>'spaced'));
+echo "</div></div>";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\"></div>";
 echo "<div class=\"cell padded\">";
@@ -359,16 +321,18 @@ echo "<div class=\"table border spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_on_layout_3()");
-$main->layout_dropdown($xml_layouts, "row_type_3", $row_type_3, $params);
+$main->layout_select($arr_layouts, "row_type_3", $row_type_3, $params);
 $params = array("class"=>"spaced","empty"=>true,"archive"=>true);
-$main->list_dropdown($xml_lists, "list_number_3", $list_number_3, $row_type_3, $params);
+$arr_pass = isset($arr_lists[$row_type_3]) ? $arr_lists[$row_type_3] : array();
+$main->list_select($arr_pass, "list_number_3", $list_number_3, $params);
 echo " | ";
 echo "</div>";
 echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Remove List");
 $main->echo_button("remove_list", $params);
 echo "<span class = \"spaced border rounded padded shaded\">";
-echo "<label class=\"padded\">Confirm Remove: </label><input class=\"middle padded\" type=\"checkbox\" name=\"confirm_remove\" value =\"1\" />";
+echo "<label class=\"padded\">Confirm Remove: </label>";
+$main->echo_input("confirm_remove", 1, array('type'=>'checkbox','input_class'=>'middle padded'));
 echo "</span>";
 echo " | ";
 echo "</div>";
@@ -376,7 +340,8 @@ echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","number"=>6,"target"=>$module, "passthis"=>true, "label"=>"Archive/Retrieve List");
 $main->echo_button("archive_list", $params);
 echo "</div>";
-echo "<div class=\"cell padded nowrap\"><input class=\"spaced middle\" name=\"archive_value\" value=\"1\" type=\"checkbox\" />";
+echo "<div class=\"cell padded nowrap\">";
+$main->echo_input("archive_value", 1, array('type'=>'checkbox','input_class'=>'middle spaced'));
 echo "<span class=\"spaced\">Check to Archive/Uncheck to Retrieve</span></div>";
 echo "</div>";
 echo "</div>";

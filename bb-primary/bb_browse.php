@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
@@ -28,7 +28,7 @@ function set_hidden(lt)
     var frmobj = document.forms["bb_form"];  
     frmobj.letter.value = lt;
     frmobj.offset.value = 1;   
-    bb_submit_form(0); //call javascript submit_form function
+    bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 
@@ -40,8 +40,8 @@ function reload_on_layout()
     
     var frmobj = document.forms["bb_form"];
     
-    frmobj.offset.value = 1;
-    bb_submit_form(0); //call javascript submit_form function
+    frmobj.offset.value = 2;
+    bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 //standard reload column
@@ -53,7 +53,7 @@ function reload_on_column()
     var frmobj = document.forms["bb_form"];
     
     frmobj.offset.value = 1;
-    bb_submit_form(0); //call javascript submit_form function
+    bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 
@@ -61,50 +61,48 @@ function reload_on_column()
 </script>
 <?php
 /* INITIALIZE */
-//find default row_type, $xml_layouts must have one layout set
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$xml_columns = $main->get_xml($con, "bb_column_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
+//find default row_type, $arr_layouts must have one layout set
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_columns = $main->get_json($con, "bb_column_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 /* BROWSE AND STATE POSTBACK */
 //do browse postback, get variables from state
 $main->retrieve($con, $array_state, $userrole); //run first
     
 //get archive mode
-$xml_home = $main->load('bb_home', $array_state);
-$mode = ($xml_home->mode == "On") ? " 1 = 1 " : " archive IN (0)";
+$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
     
 //get browse_state variables are set use them
-$xml_state = $main->load($module, $array_state);
+$arr_state = $main->load($module, $array_state);
 
 //get variable from state, or initialize
-$letter = $main->process('letter', $module, $xml_state, "A");
-$offset = $main->process('offset', $module, $xml_state, 1);
+$letter = $main->process('letter', $module, $arr_state, "A");
+$offset = $main->process('offset', $module, $arr_state, 1);
 
 //must get post while preserving row_type state to reset col_type when row_type changes
 $row_type = $main->post('row_type', $module, $default_row_type);
 //must get xml_column on current row_type before setting default col_type
-$layout = $main->pad("l", $row_type, 2);
-$xml_column = $xml_columns->$layout;
+$arr_column = $arr_columns[$row_type];
 
 //get default col_type or deal with possibility of no columns, then 1
-$default_col_type = (count($xml_column->children()) > 0) ? $main->rpad((string)$xml_column->children()->getName()) : 1;
+$default_col_type = $main->get_default_column($arr_column);
 
 // if row_type changed and postback (post is different than state) use default column type
-if ($main->check('row_type', $module) && ($row_type <> $main->state('row_type', $xml_state)))
-	{	
-	$col_type = $main->set('col_type', $xml_state, $default_col_type);
+if ($main->check('row_type', $module) && ($row_type <> $main->state('row_type', $arr_state)))
+	{
+	$col_type = $main->set('col_type', $arr_state, $default_col_type);
 	}
 else
 	{
-	$col_type = $main->process('col_type', $module, $xml_state, $default_col_type);
+	$col_type = $main->process('col_type', $module, $arr_state, $default_col_type);
 	}
 
 //process row_type	
-$row_type = $main->process('row_type', $module, $xml_state, $default_row_type);
+$row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 
 //update state, back to string, get name
-$main->update($array_state, $module, $xml_state);
+$main->update($array_state, $module, $arr_state);
 /* END POSTBACK */
 ?>
 <?php 
@@ -114,7 +112,7 @@ echo "<div class=\"center\">"; //centering
 /* START REQUIRED FORM */
 //form tag
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
 
 echo "<span class=\"padded larger\">"; //font size
 //do alpha and numeric links
@@ -150,26 +148,23 @@ echo "<span class=\"padded larger\">"; //font size
 //this sets the correct column xml -- carries through to browse return
 
 //get column names based on row_type/record types (repeated after state load but why not for clarity)
-$layout = $main->pad("l", $row_type);
 $column = $main->pad("c", $col_type);
-$xml_column = $xml_columns->$layout;
-$xml_layout = $xml_layouts->$layout;
+$arr_column = $arr_columns[$row_type];
+$arr_layout = $arr_layouts[$row_type];
 
-//get column name from "primary" attribute in column xml
+//get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
-$parent_row_type = (int)$xml_layout['parent'];
-$parent_layout = $main->pad("l", $parent_row_type);
-$xml_column_parent = $xml_columns->$parent_layout;
-$leftjoin = isset($xml_column_parent['primary']) ? $xml_column_parent['primary'] : "c01";
+$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 
 echo "&nbsp;&nbsp;";
 //layout types, this produces $row_type
 $params = array("onchange"=>"reload_on_layout()");
-$main->layout_dropdown($xml_layouts, "row_type", $row_type, $params);
+$main->layout_select($arr_layouts, "row_type", $row_type, $params);
 echo "&nbsp;&nbsp;";
 //column names, $column is currently selected column
 $params = array("onchange"=>"reload_on_column()");
-$main->column_dropdown($xml_column, "col_type", $col_type, $params);
+$main->column_select($arr_column, "col_type", $col_type, $params);
 
 //hidden element containing the current chosen letter
 echo "<input type = \"hidden\"  name = \"letter\" value = \"" . $letter . "\">";
@@ -191,7 +186,7 @@ echo "</div>"; //end align center
 
 /* BROWSE RETURN ROWS OUTPUT */
 //This area displays the result set
-//uses variables $xml_column, $letter, $column, $offset and $row_type
+//uses variables $arr_column, $letter, $column, $offset and $row_type
 //$return_rows is a global variable which can be set
 //$count_rows contains the number of rows in the query without limit
 
@@ -225,10 +220,10 @@ while($row = pg_fetch_array($result))
 	$main->return_header($row, "bb_cascade");
 	echo "<div class=\"clear\"></div>";
 	//returns the record data in appropriate row
-	$count_rows = $main->return_rows($row, $xml_column); 
+	$count_rows = $main->return_rows($row, $arr_column); 
 	echo "<div class=\"clear\"></div>";
 	//return the links along the bottom of a record
-	$main->output_links($row, $xml_layouts, $userrole);
+	$main->output_links($row, $arr_layouts, $userrole);
     echo "</div>";
 	echo "<div class=\"clear\"></div>";	
 	}  

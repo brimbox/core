@@ -166,16 +166,16 @@ CREATE TABLE modules_table
 (
   id serial NOT NULL,
   module_order int,
-  module_path character varying(65536),
+  module_path text,
   module_name character varying(255),
   friendly_name character varying(255),
-  module_version character varying(255),
+  interface character varying(255),
   module_type smallint,
-  userrole smallint,
+  module_version character varying(255),
   standard_module smallint,
   maintain_state smallint,
-  module_files xml,
-  module_details xml,
+  module_files text,
+  module_details text,
   change_date timestamp with time zone,
   CONSTRAINT modules_table_pkey PRIMARY KEY (id),
   CONSTRAINT modules_table_unique_module_name UNIQUE (module_name)
@@ -203,7 +203,7 @@ CREATE TABLE users_table
   hash text,
   salt text,
   attempts smallint NOT NULL DEFAULT 0,
-  userrole smallint NOT NULL DEFAULT 0,
+  userroles text[] NOT NULL DEFAULT '{"0-bb_brimbox"}',
   fname character varying(255),
   minit character varying(255),
   lname character varying(255),
@@ -226,27 +226,27 @@ CREATE TRIGGER ts1_update_change_date
   EXECUTE PROCEDURE change_date();
 EOT;
 
-$xml_before_eot = <<<EOT
-CREATE TABLE xml_table
+$json_before_eot = <<<EOT
+CREATE TABLE json_table
 (
   id serial NOT NULL,
   lookup character varying(255) NOT NULL DEFAULT ''::character varying,
-  xmldata xml,
+  jsondata text,
   change_date timestamp with time zone,
-  CONSTRAINT xml_table_pkey PRIMARY KEY (id),
-  CONSTRAINT xml_table_unique_lookup UNIQUE (lookup)
+  CONSTRAINT json_table_pkey PRIMARY KEY (id),
+  CONSTRAINT json_table_unique_lookup UNIQUE (lookup)
 )
 WITH (
   OIDS=FALSE
 );
 --set up the sequence
-ALTER SEQUENCE xml_table_id_seq RESTART CYCLE;
+ALTER SEQUENCE json_table_id_seq RESTART CYCLE;
 EOT;
-$xml_after_eot = <<<EOT
+$json_after_eot = <<<EOT
 --trigger: change_date
 CREATE TRIGGER ts1_update_change_date
   BEFORE INSERT OR UPDATE
-  ON xml_table
+  ON json_table
   FOR EACH ROW
   EXECUTE PROCEDURE change_date();
 EOT;

@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -16,30 +17,30 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 
 /* PRESERVE STATE */
 $main->retrieve($con, $array_state, $userrole);
 
 //start of code
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$xml_columns = $main->get_xml($con, "bb_column_names");
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_columns = $main->get_json($con, "bb_column_names");
 $arr_message = array();
 
 $number_layouts = (NUMBER_LAYOUTS <= 26) ? NUMBER_LAYOUTS : 26;
 
 function cmp( $a, $b )
     { 
-    if ($a->order == $b->order)
+    if ($a['order'] == $b['order'])
         {
         return 0;
         } 
-    return ($a->order < $b->order) ? -1 : 1;
+    return ($a['order'] < $b['order']) ? -1 : 1;
     }
 
 //waterfall, first layout, second layout, third layout
 //will only work if first layout is populated
-if ($main->post('bb_button', $module) == 1) //layout_submit
+if ($main->button(1)) //layout_submit
     {
     //one record must be populated
     $empty = true;
@@ -67,6 +68,7 @@ if ($main->post('bb_button', $module) == 1) //layout_submit
             array_push($arr_singular, $singular);
             array_push($arr_plural, $plural);
             array_push($arr_order, $order);
+            //check for circular references
 			array_push($arr_parent, $parent_forward);
 			array_push($arr_parent, $parent_reverse);
             }
@@ -108,7 +110,7 @@ if ($main->post('bb_button', $module) == 1) //layout_submit
 			$relationship = false;
 			}
         
-        //put in array to sort, no real better way to sort XML
+        //put in array 
         $arr_order = array();
         for ($i=1; $i<=$number_layouts; $i++)
             {
@@ -116,35 +118,18 @@ if ($main->post('bb_button', $module) == 1) //layout_submit
             $singular = $main->custom_trim_string($main->post('singular_'. (string)$i, $module),50,true, true);
             $plural = $main->custom_trim_string($main->post('plural_'. (string)$i, $module),50, true, true);
             if (!empty($singular) && !empty($plural))
-                {
-				$arr_order[$i] = new stdClass();	
-                $arr_order[$i]->row_type = $i;
-                $arr_order[$i]->singular = $singular;
-                $arr_order[$i]->plural = $plural;
-                $arr_order[$i]->parent = $main->post('parent_' . (string)$i, $module);
-                $arr_order[$i]->order = $main->post('order_' . (string)$i, $module);
-                $secure = (int)$main->post('secure_' . (string)$i, $module);
-                $arr_order[$i]->secure = $secure;
-				$arr_order[$i]->autoload = 0;
+                {                
+                $parent = $main->post('parent_' . (string)$i, $module, 0); //not set = 0
+                $order = $main->post('order_' . (string)$i, $module); //always set
+                $secure = (int)$main->post('secure_' . (string)$i, $module, 0); //not set = 0
+                $autoload = 0;
+                $arr_order[$i] = array('singular'=>$singular,'plural'=>$plural,'parent'=>$parent,'order'=>$order,'secure'=>$secure,'autoload'=>$autoload);
                 }
             }
-            
-        usort($arr_order,'cmp');
-        $xml_layouts = simplexml_load_string("<layouts></layouts>");
-            
-        foreach ($arr_order as $value)
-            {
-            $layout = $main->pad("l",(int)$value->row_type);
-			//overload
-            $xml_layouts->$layout = "";
-			$child = $xml_layouts->$layout;
-            $child->addAttribute("singular",$value->singular);
-            $child->addAttribute("plural",$value->plural);
-            $child->addAttribute("parent",$value->parent);
-            $child->addAttribute("order",$value->order);
-            $child->addAttribute("secure",$value->secure);
-			$child->addAttribute("autoload",$value->autoload);
-            }
+        //sort  
+        uasort($arr_order,'cmp');
+        //update array_layout
+        $arr_layouts = $arr_order; 
         }
     else //empty
         {
@@ -154,18 +139,18 @@ if ($main->post('bb_button', $module) == 1) //layout_submit
     //not empty and unique, update xml
     if ($unique && !$empty && $count && $relationship)
         {
-        $main->update_xml($con, $xml_layouts, "bb_layout_names");
+        $main->update_json($con, $arr_layouts, "bb_layout_names");
         array_push($arr_message,"Layouts have been updated.");    
         }
     } //submit
 
-if ($main->post('bb_button', $module) == 2) //revert to xml in database
+if ($main->button(2)) //revert to xml in database
 	{
-    $xml_layouts = $main->get_xml($con, "bb_layout_names");
+    $arr_layouts = $main->get_json($con, "bb_layout_names");
     array_push($arr_message,"Layouts have been refreshed from database.");
     }
 
-if ($main->post('bb_button', $module) == 3) //vaccum database
+if ($main->button(3)) //vaccum database
     {
     $query = "VACUUM;";
     $main->query($con, $query);
@@ -180,7 +165,7 @@ $main->echo_messages($arr_message);
 echo "</div>";
 
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();;
 
 echo "<div class=\"table spaced border\">";
 echo "<div class=\"row\">";
@@ -193,19 +178,27 @@ echo "<div class=\"row\">";
 echo "</div>";
 for ($i=1; $i<=$number_layouts; $i++)
     {
-    $layout = $main->pad("l", $i);
-    $xml_layout = $xml_layouts->$layout;
     echo "<div class=\"row\">";
 	echo "<div class=\"cell middle\"><label class=\"spaced\">Layout " . chr($i + 64) . $i . "</label></div>";
-	echo "<div class=\"cell middle\"><input class=\"spaced\" name=\"singular_" . $i . "\" type=\"text\" value = \"" . (isset($xml_layout) ? htmlentities((string)$xml_layout['singular']) : "") . "\"/></div>";
-	echo "<div class=\"cell middle\"><input class=\"spaced\" name=\"plural_" . $i . "\" type=\"text\" value = \"" . (isset($xml_layout) ? htmlentities((string)$xml_layout['plural']) : "") . "\"/></div>";
+	echo "<div class=\"cell middle\">";
+    $value = isset($arr_layouts[$i]) ? htmlentities($arr_layouts[$i]['singular']) : "";
+    $main->echo_input("singular_" . $i, $value, array('input_class'=>'spaced'));
+    echo "</div>";
+	echo "<div class=\"cell middle\">";
+    $value = isset($arr_layouts[$i]) ? htmlentities($arr_layouts[$i]['plural']) : "";
+    $main->echo_input("plural_" . $i, $value, array('input_class'=>'spaced'));
+    echo "</div>";
 	echo "<div class=\"cell middle\">";
 	echo "<select class=\"spaced\" name=\"parent_" . $i . "\">";
 	echo "<option value=\"0\">&nbsp;</option>";
 	for ($j=1; $j<=$number_layouts; $j++)
 		{
-		$select  = ((int)$xml_layout['parent'] == $j) ? "selected" : "";
-		echo "<option value=\"" . $j . "\" " . $select . ">" .  chr($j + 64) . $j . "&nbsp;</option>";
+        $select = "";
+        if (isset($arr_layouts[$i]['parent']))
+            {
+            $selected  = ($arr_layouts[$i]['parent'] == $j) ? "selected" : "";
+            }
+		echo "<option value=\"" . $j . "\" " . $selected . ">" .  chr($j + 64) . $j . "&nbsp;</option>";
 		}
 	echo "</select>";
 	echo "</div>";
@@ -214,18 +207,26 @@ for ($i=1; $i<=$number_layouts; $i++)
 	echo "<option value=\"0\"0>&nbsp;</option>";
 	for ($j=1; $j<=$number_layouts; $j++)
 		{
-		$select = ((int)$xml_layout['order'] == $j) ? "selected" : "";
-		echo "<option value=\"" . $j . "\" " . $select . ">" .  $j . "&nbsp;</option>";
+        $selected = "";
+        if (isset($arr_layouts[$i]['order']))
+            {
+            $selected = ($arr_layouts[$i]['order'] == $j) ? "selected" : "";
+            }
+		echo "<option value=\"" . $j . "\" " . $selected . ">" .  $j . "&nbsp;</option>";
 		}
 	echo "</select>";
 	echo "</div>";
 	
-	//secure checkbox
-	$secure = (int)$xml_layout['secure'];	    
+	//secure checkbox	    
 	if (empty($array_security))
 		{
+        $checked = "";
+        if (isset($arr_layouts[$i]['secure']))
+            {
+            $checked = ($arr_layouts[$i]['secure'] == 1) ? true : false;
+            }            
 		echo "<div class=\"cell middle center spaced\">";
-		echo "<input class=\"spaced\" type=\"checkbox\" name=\"secure_" . $i . "\" value=\"1\"  " .  (($secure == 0) ? "" : "checked") . " />";
+        $main->echo_input("secure_" . $i, 1, array('type'=>'checkbox','class'=>'spaced','checked'=>$checked));
 		echo "</div>";
 		}
 	else
@@ -233,7 +234,12 @@ for ($i=1; $i<=$number_layouts; $i++)
 		echo "<div class = \"cell middle\"><select name=\"secure_" . $i . "\"class = \"spaced\">";
 		foreach ($array_security as $key => $value)
 			{
-			echo "<option value = \"" . $key . "\" " . ($secure == $key ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
+            $selected = "";
+            if (isset($arr_layouts[$i]['secure']))
+                {
+                $selected = ($arr_layouts[$i]['secure'] == $key) ? "selected" : "";
+                }
+            echo "<option value = \"" . $key . "\" " . $selected . ">" . htmlentities($value) . "&nbsp;</option>";
 			}
 		echo "</select></div>";
 		}		

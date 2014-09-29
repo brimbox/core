@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
@@ -37,62 +37,111 @@ function bb_reload_on_layout()
 
 <?php
 /* INITIALIZE */
-//find default row_type, $xml_layouts must have one layout set
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
-$arr_notes = array("c49","c50");
-$textarea_rows = 4; //minimum
-
-//message pile
-$arr_message = array();
-
-/*INPUT STATE AND POSTBACK */  
-//this is a major/long part in module
-$main->retrieve($con, $array_state, $userrole);
-
-$xml_state = $main->load($module, $array_state);
-
-//need to get row_number before getting $xml_column
-//$xml_column returned when $row_type is popluated
-$xml_columns = $main->get_xml($con, "bb_column_names");
+//find default row_type, $arr_layouts must have one layout set
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
+//get columns
+$arr_columns = $main->get_json($con, "bb_column_names");
 //get dropdown values while were at it
-$xml_dropdowns = $main->get_xml($con, "bb_dropdowns");
+$arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 
-//arr_notes used several times including in postback extra file
-$unique_key = "";
+$arr_notes = array("49","50");
+$textarea_rows = 4; //minimum
+$arr_message = array(); //message pile
+$unique = "";
 $message = ""; //return message
 
+/*INPUT STATE AND POSTBACK */  
+$main->retrieve($con, $array_state, $userrole);
+$arr_state = $main->load($module, $array_state);
+
 //include file for postback routines
-//this include handles input state
+//this include handles input state and contains class bb_input_extra
 include("bb_input_extra.php");
 
-//$layout and $xml_column set in bb_input_extra
+//constuct with default row type
+$input_class = new bb_input_extra($arr_columns, $arr_state, $main, $con, $module, $default_row_type);
+//process different input options
+if (!empty($_POST['bb_row_type'])) //row_type set in global link
+    {
+    $arr_input_class = $input_class->global_row_type();   
+    }
+elseif ($main->button(1)) //postback
+    {
+    $arr_input_class = $input_class->input_postback(); 
+    }
+elseif ($main->button(2)) //clear form
+    {
+    $arr_input_class = $input_class->clear_form();
+    }
+elseif ($main->button(3))
+    {
+    $arr_input_class = $input_class->load_textarea();
+    }
+elseif ($main->button(4))
+    {
+    $arr_input_class = $input_class->combo_change();    
+    }
+else
+    {
+    $arr_input_class = $input_class->load_from_state();    
+    }
+//list variables from return    
+list($row_type, $row_join, $post_key, $arr_state) = $arr_input_class;
 
-//$xml_layout will be needed
-$xml_layout = $xml_layouts->$layout;
+//process if posted from queue page "Add To Input" button
+if ($main->button(2,'bb_queue'))
+    {
+    //constuct with row type from state
+    $var_subject = $main->post('subject','bb_queue');
+    $input_class = new bb_input_queue($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key, $var_subject);
+    
+    if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
+        {
+        $arr_input_class = $input_class->queue_record_add();   
+        }
+    elseif (substr($var_subject,0,13) == "Record Edit: " && preg_match("/^[A-Z]\d+/", substr($var_subject,13)))
+        {
+        $arr_input_class = $input_class->queue_record_edit();   
+        }
+    elseif (substr($var_subject,0,12) == "Record New: " && preg_match("/^[A-Z]$/", substr($var_subject,12)))    
+        {
+        $arr_input_class = $input_class->queue_record_new();
+        }
+    else
+        {
+        $arr_input_class = $input_class->queue_record_default();
+        }
+    //list variables from return 
+    list($row_type, $row_join, $post_key, $arr_state) = $arr_input_class;
+    }     
+    
+//$arr_layout will be needed
+$arr_layout = $arr_layouts[$row_type];
+$arr_column = $arr_columns[$row_type];
+$arr_column_reduced = $main->filter_keys($arr_column);
 
-/* back to string */
-$main->update($array_state, $module, $xml_state);
+//update state
+$main->update($array_state, $module, $arr_state);
 /*END INPUT STATE AND POSTBACK */
 	
 /* SUBMIT TO DATABASE */
 //validation error arr_error_msg
-if ($main->post('bb_button',$module) == 1)
+if ($main->button(1))
 	{
-    $obj_errors = new stdClass(); //empty object
-	$errors = false;
-	foreach($xml_column->children() as $child)
+    $arr_errors = array(); //empty array
+	foreach($arr_column_reduced as $key => $value)
         {
         /* START VALIDATION */
-		$type = (string)$child['type']; //validation type 
-        $required_flag = $child['req'] == 1 ? true : false; //required boolean       
-        $col = $child->getName();
+		$type = $value['type']; //validation type 
+        $required_flag = $value['required'] == 1 ? true : false; //required boolean       
+        $col = $main->pad("c", $key);
             
         //textarea no validation
-		if (in_array($col,$arr_notes))
+		if (in_array($key,$arr_notes))
 			{
             //long column
-			$main->set($col, $xml_state, $main->custom_trim_string($main->post($col,$module),65536, false));
+			$main->set($col, $arr_state, $main->custom_trim_string($main->post($col,$module),65536, false));
 			}                
 		else
 			{
@@ -103,55 +152,59 @@ if ($main->post('bb_button',$module) == 1)
             //required field  
             if ($required_flag) //false=not required, true=required
                 {
-                $return_required = $main->validate_required($value, true);    
-                }
-            //populated string = error, boolean is good
-            if (!is_bool($return_required)) 
-                {
-                $obj_errors->$col = $return_required;
-				$errors = true;
-                } 
-            elseif (!empty($value)) //field has data, trimmed already
+                $return_required = $main->validate_required($value, true);
+                if (!is_bool($return_required)) 
+                    {
+                    $arr_errors[$col] = $return_required;
+                    }
+                }            
+            //validate, field has data, trimmed already, will skip if empty
+            if (!empty($value) || ($value === '0')) 
                 {
 				//value is passed a reference and may change in function if formatted
                 $return_validate = $main->validate_logic($type, $value, true);
                 if (!is_bool($return_validate))
                     {
-                    $obj_errors->$col = $return_validate;
-					$errors = true;
+                    $arr_errors[$col] = $return_validate;
                     }
                 }
-			$main->set($col, $xml_state, $value);
+			$main->set($col, $arr_state, $value);
 			}
 		}
         /* END VALIDATION */
         
     /* INSERT OR UPDATE ROW */       
-    if (!$errors) //no errors
+    if (empty($arr_errors)) //no errors
         {
         //produce empty form since we are going to load the data
         $owner = $main->custom_trim_string($_SESSION['email'],255); //used in both if and else
-        $unique_key = isset($xml_column['key']) ? (string)$xml_column['key'] : "";  //used in both update and insert
-        if ($row_type == $row_join) // update preexisting row
+        //see if unique key set
+        if (isset($arr_column['layout']['unique']))
+            {
+            $unique_key = $arr_column['layout']['unique']; //used in both update and insert\
+            $unique_column = $main->pad("c", $unique_key);
+            }
+        // update preexisting row
+        if ($row_type == $row_join) 
             {
             $update_clause = "updater_name = '" . pg_escape_string($owner) . "'";
 			$arr_ts_vector_fts = array();
 			$arr_ts_vector_ftg = array();
-            foreach($xml_column->children() as $child)
+            foreach($arr_column_reduced as $key => $value)
 				{
-				$col = $child->getName();
-				$str = pg_escape_string((string)$xml_state->$col);
+				$col = $main->pad("c", $key);
+				$str = pg_escape_string((string)$arr_state[$col]);
 				$update_clause .= "," . $col . " =  '" . $str . "'";;
 				//prepare fts and ftg
-				$search_flag = ($child['search'] == 1) ? true : false;
+				$search_flag = ($value['search'] == 1) ? true : false;
 				//guest flag
 				if (empty($array_guest_index))
 					{
-					$guest_flag = (($child['search'] == 1) && ($child['secure'] == 0)) ? true : false;
+					$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
 					}
 				else
 					{
-					$guest_flag = (($child['search'] == 1) && in_array((int)$child['secure'], $array_guest_index)) ? true : false;						
+					$guest_flag = (($value['search'] == 1) && in_array($value['secure'], $array_guest_index)) ? true : false;						
 					}
 				//build fts SQL code
 				if ($search_flag)
@@ -169,28 +222,29 @@ if ($main->post('bb_button',$module) == 1)
             //update query
             //check that row exists in update because of multiuser situation
 			$select_where_not = "SELECT 1 WHERE 1 = 0";
-            if (!empty($unique_key))
+            if (isset($unique_key)) //no key = 0
                 {
-                $unique_value = isset($xml_state->$unique_key) ? (string)$xml_state->$unique_key : "";
+                //get the vlaue to be checked
+                $unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
                 if (!empty($unique_value))
                     {
-                    $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_key . ") IN (lower('" . $unique_value . "'))";                        
+                    $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";                        
                     }
 				else
 					{
 					$select_where_not = "SELECT 1";	
 					}
-				}                
-            //will not allow a blank if $unique_key is set
-			$return_primary = $xml_column['primary'];
+				}
+            //will not allow a blank if $unique is set
+			$return_primary = $main->pad("c", $arr_column['layout']['primary']);
             $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " .
 				     "WHERE id IN (" . $post_key . ") AND archive = 0 AND NOT EXISTS (" . $select_where_not . ") RETURNING id, " . $return_primary . " as primary;";                 
             $result = $main->query($con, $query);
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
-                array_push($arr_message, "Record Succesfully Edited.");
-                $main->update($array_state, $module, $xml_state);												
+                array_push($arr_message, "Record Succesfully Updated.");
+                $main->update($array_state, $module, $arr_state);												
 				//will find $parent_id, $inserted_id when finding parent
                 }
             else //bad edit
@@ -199,7 +253,7 @@ if ($main->post('bb_button',$module) == 1)
 				if (pg_num_rows($result) == 1)
 					{
 					//retain state values
-					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $xml_column->$unique_key . "\"."); 
+					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\"."); 
 					}
 				else
 					{
@@ -207,9 +261,9 @@ if ($main->post('bb_button',$module) == 1)
 					$row_join = -1;
 					$post_key = -1;
 					$row_type = 0;
-					//dispose of $xml_state and update state
-					$xml_state = simplexml_load_string("<hold></hold>");            
-					$main->update($array_state, $module, $xml_state);
+					//dispose of $arr_state and update state
+					$arr_state = array();            
+					$main->update($array_state, $module, $arr_state);
 	
 					array_push($arr_message, "Error: Record not updated. Record archived or underlying data change possible.");
 					}
@@ -222,24 +276,24 @@ if ($main->post('bb_button',$module) == 1)
 
 			$arr_ts_vector_fts = array();
 			$arr_ts_vector_ftg = array(); 
-            foreach($xml_column->children() as $child)
+            foreach($arr_column_reduced as $key => $value)
                 {
-                $col = $child->getName();
-                $str = pg_escape_string((string)$xml_state->$col);
+                $col = $main->pad("c", $key);
+                $str = pg_escape_string($arr_state[$col]);
                 $insert_clause .= "," . $col;
                 $select_clause .= ", '" . $str . "'";
-				$search_flag = ($child['search'] == 1) ? true : false;
+                //search flag
+				$search_flag = ($value['search'] == 1) ? true : false;
 				//guest flag
 				if (empty($array_guest_index))
 					{
-					$guest_flag = (($child['search'] == 1) && ($child['secure'] == 0)) ? true : false;
+					$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
 					}
 				else
 					{
-					$guest_flag = (($child['search'] == 1) && in_array((int)$child['secure'], $array_guest_index)) ? true : false;						
+					$guest_flag = (($value['search'] == 1) && in_array($value['secure'], $array_guest_index)) ? true : false;						
 					}
 				//build fts SQL code
-
 				if ($search_flag)
 					{
 					array_push($arr_ts_vector_fts, "'" . $str . "' || ' ' || regexp_replace('" . $str . "', E'(\\\\W)+', ' ', 'g')");
@@ -259,26 +313,26 @@ if ($main->post('bb_button',$module) == 1)
             $select_where_exists = "SELECT 1";
             $select_where_not = "SELECT 1 WHERE 1 = 0";
             //key exists must check for duplicate value
-            if (!empty($unique_key))
+            if (isset($unique_key)) //no key = 0
                 {
-                $unique_value = isset($xml_state->$unique_key) ? (string)$xml_state->$unique_key : ""; 
+                $unique_value = isset($arr_state[$unique_column]) ? (string)$arr_state[$unique_column] : ""; 
                 //key, will not insert on empty value, key must be populated
                 if (!empty($unique_value))
                     {
-                    $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND lower(" . $unique_key . ") IN (lower('" . $unique_value . "'))";
+                    $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
                     }
 				else
 					{
 					$select_where_not = "SELECT 1";	
 					}
-                }            
-             //parent row has been deleted, multiuser situation, check on insert
+                }
+             //if parent row has been deleted, multiuser situation, check on insert
             if ($post_key > 0)
                 {
                 $select_where_exists = "SELECT 1 FROM data_table WHERE archive = 0 AND id IN (" . $post_key . ")";
                 }
 				
-			$return_primary = $xml_column['primary'];           
+			$return_primary = $main->pad("c", $arr_column['layout']['primary']);
             $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") RETURNING id, " . $return_primary . " as primary;";
             //echo "<p>" . $query . "</p>";
             $result = $main->query($con, $query);
@@ -286,10 +340,10 @@ if ($main->post('bb_button',$module) == 1)
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
-                array_push($arr_message, "Record Succesfully Entered.");
-                //dispose of $xml_state and update state
-                $xml_state = simplexml_load_string("<hold></hold>");         
-                $main->update($array_state, $module, $xml_state);
+                array_push($arr_message, "Record Succesfully Inserted.");
+                //dispose of $arr_state
+                $arr_state = array();         
+                $main->update($array_state, $module, $arr_state);
 				
 				//to drill down, $inserted_row_type become $row_join or the parent row when used
 				$inserted_row_type = $row_type;
@@ -306,7 +360,7 @@ if ($main->post('bb_button',$module) == 1)
 				if (pg_num_rows($result) == 1)
 					{
 					//retain state values
-					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $xml_column->$unique_key . "\"."); 
+					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\"."); 
 					}
 				else
 					{
@@ -314,9 +368,9 @@ if ($main->post('bb_button',$module) == 1)
 					$row_join = -1;
 					$post_key = -1;
 					$row_type = 0;
-					//dispose of $xml_state and update state
-					$xml_state = simplexml_load_string("<hold></hold>");            
-					$main->update($array_state, $module, $xml_state);
+					//dispose of $arr_state and update state
+					$arr_state = array();            
+					$main->update($array_state, $module, $arr_state);
 	
 					array_push($arr_message, "Error: Record not inserted. Parent record archived or underlying data change possible.");    
 					}
@@ -331,15 +385,13 @@ if ($main->post('bb_button',$module) == 1)
 $parent_row_type = 0;
 if ($post_key > 0)
     {
-    $parent_row_type = (int)$xml_layout['parent'];
-    $parent_layout = "l" . str_pad($parent_row_type,2,"0",STR_PAD_LEFT);
-	$xml_column_parent = $xml_columns->$parent_layout;
-    $primary_parent = isset($xml_columns->$parent_layout) ? $xml_column_parent['primary'] : "c01";
+    $parent_row_type = $arr_layout['parent'];
+    $primary_parent = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 	 
 	 //edit, must join to parent
     if ($row_type == $row_join)
         {       
-		$primary_child = isset($xml_column) ? $xml_column['primary'] : "c01";		
+		$primary_child = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";		
 		
         $query = "SELECT T2.id, T2." . $primary_parent . " as parent, T1." . $primary_child . " as child, T2.archive FROM data_table T1 LEFT JOIN data_table T2 " .
                  "ON T2.id = T1.key1 WHERE T1.id = " . $post_key . ";";
@@ -382,20 +434,24 @@ if ($post_key > 0)
         if ($cnt_rows == 1)
             {
             //loop through each node
-            foreach ($xml_column_parent->children() as $child1)
+            $arr_column_parent = $main->filter_keys($arr_columns[$parent_row_type]);
+            //build array for search
+            foreach ($arr_column_reduced as $key => $value)
                 {
-                $col1 = $child1->getName();
-                //xpath each node for existance
-				$path = "//" . $layout . "/*[.=\"". (string)$child1 . "\"]";
-                $node = $main->search_xml($xml_column, $path);
+                $arr_search[$key] = $value['name'];
+                }
+            foreach ($arr_column_parent as $key1 => $value1)
+                {
+                $col1 = $main->pad("c", $key1);    
+                $key2 = array_search($value1['name'], $arr_search);
                 //if found
-                if (!empty($node[0]))
+                if (is_integer($key2))
                     {
-                    $col2 = $node[0]->getName();
+                    $col2 = $main->pad("c", $key2);
                     //if autofill column is empty
-                    if (empty($xml_state->$col2))
+                    if (empty($arr_state[$col2]))
                         {
-                        $xml_state->$col2 = $row[$col1];   
+                        $arr_state[$col2] = $row[$col1];   
                         }
                     }
                 }
@@ -408,15 +464,26 @@ if ($post_key > 0)
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
 
 //echos input select object if row_type exists
 
 
-if ($row_type >= 0):
+if ($row_type > 0):
 
     //has parent only one select value
-	$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Submit Record");
+    if ($row_type == $row_join)
+        {
+        $update_or_insert = "Update Record";
+        $edit_or_insert = "Edit Mode";
+        }
+    else
+        {
+        $update_or_insert = "Insert Record";
+        $edit_or_insert = "Insert Mode";
+        }
+        
+	$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
 	$main->echo_button("top_submit", $params);
 	$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
 	$main->echo_button("top_reset", $params);
@@ -424,43 +491,42 @@ if ($row_type >= 0):
     if ($parent_row_type > 0)
         {
         echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-        echo "<option value=\"" . $row_type . "\" selected>" . $xml_layout['plural'] . "&nbsp;</option>";
+        echo "<option value=\"" . $row_type . "\" selected>" . $arr_layout['plural'] . "&nbsp;</option>";
         echo "</select>";
         }
 	//no parent, all possible top level records
     else
         {
-		$arr_select = $xml_layouts->xpath("//*[@parent=0]");
+        //get top level records
+        foreach($arr_layouts as $key => $value)
+            {
+            if ($value['parent'] == 0)
+                {
+                $arr_select[$key] = $value;
+                }
+            }
 		//has top level records
 		if (count($arr_select) > 0)
 			{
-			//on reset, $xml_column already set if changing top level from select
-			if ($row_type == 0)
-				{
-				$layout = $arr_select[0]->getName();
-				$xml_column = $xml_columns->$layout;
-				}
-			//output
+			//on reset, $arr_column already set if changing top level from select
 			echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-			foreach ($arr_select as $child)
+			foreach ($arr_select as $key => $value)
 				{
-				$i = (int)substr($child->getName(),1);
-				echo "<option value=\"" . $i . "\" " . ($i == $row_type ? "selected" : "") . ">" . $child['plural'] . "&nbsp;</option>";
+				echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";
 				}
 			echo "</select>";
 			}
-		//no top level records
+		//no top level records, not common
 		else
 			{
-			unset($xml_column);
+			unset($arr_column);
 			}
         }
 	echo "<div class=\"clear\"></div>";    
 
-if (!empty($xml_column))
+if (!empty($arr_column))
 	{
 	//edit or insert mode and primaryt parent column		
-	$edit_or_insert = ($row_type == $row_join) ? "Edit Mode" : "Insert Mode";
 	$parent_string = empty($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $link_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
 	echo "<p class=\"bold spaced\">" . $edit_or_insert . $parent_string . "</p>";
 	}
@@ -468,10 +534,10 @@ if (!empty($xml_column))
 //add children links
 if (!empty($inserted_id) && ($inserted_row_type > 0))
 	{
-	if ($main->check_child($inserted_row_type, $xml_layouts))
+	if ($main->check_child($inserted_row_type, $arr_layouts))
 		{
 		echo "<p class=\"spaced bold\">Add Child Record - Parent: <span class=\"colored\">" . $inserted_primary . "</span> - ";
-		$main->drill_links($inserted_id, $inserted_row_type, $xml_layouts, "bb_input", "Add");
+		$main->drill_links($inserted_id, $inserted_row_type, $arr_layouts, "bb_input", "Add");
 		echo "</p>";
 		}
 	}
@@ -479,10 +545,10 @@ if (!empty($inserted_id) && ($inserted_row_type > 0))
 //add sibling links
 if (!empty($parent_id) && ($parent_row_type > 0))
 	{
-	if ($main->check_child($parent_row_type, $xml_layouts))
+	if ($main->check_child($parent_row_type, $arr_layouts))
 		{
 		echo "<p class=\"spaced bold\">Add Sibling Record - Parent: <span class=\"colored\">" . $parent_primary . "</span> - ";
-		$main->drill_links($parent_id, $parent_row_type, $xml_layouts, "bb_input", "Add");
+		$main->drill_links($parent_id, $parent_row_type, $arr_layouts, "bb_input", "Add");
 		echo "</p>";
 		}
 	}	
@@ -495,36 +561,35 @@ echo "</div>";
 /* POPULATE INPUT FIELDS */
 //check if empty, could be either empty or children not populated
 //this is dependent on admin module "Set Column Names"
-if (!empty($xml_column))
+if (!empty($arr_column))
 	{
-	$textarea_rows = (int)$xml_column['count'] > 4 ? (int)$xml_column['count'] : 4;
-	foreach($xml_column->children() as $child)
+	$textarea_rows = (int)$arr_column['layout']['count'] > 4 ? (int)$arr_column['layout']['count'] : 4;
+	foreach($arr_column_reduced as $key => $value)
 		{
-		$col = $child->getName();
-		$value = (isset($xml_state->$col)) ? (string)$xml_state->$col : "";
-		$error = (isset($obj_errors->$col)) ? (string)$obj_errors->$col : "";
-		if (isset($xml_dropdowns->$layout->$col))
+        $col = $main->pad("c", $key);
+		$input = (isset($arr_state[$col])) ? $arr_state[$col] : "";
+		$error = (isset($arr_errors[$col])) ? $arr_errors[$col] : "";
+		if (isset($arr_dropdowns[$row_type][$key]))
 				{
-				$path = $layout . "/" . $col . "/value";
-				echo "<div class=\"clear\"><label class = \"spaced padded floatleft right overflow medium shaded\">" . htmlentities($child) . ": </label>";
+				echo "<div class=\"clear\"><label class = \"spaced padded floatleft right overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
 				echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"remove_message(); return false;\">";
-				$arr_dropdown = $xml_dropdowns->xpath($path);
+				$arr_dropdown = $arr_dropdowns[$row_type][$key];
 				foreach ($arr_dropdown as $dropdown)
 						{                            
-						echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($value) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
+						echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
 						}
 				echo "</select><label class=\"error\">" . $error . "</label></div>";
 				}
-		elseif (in_array($col,$arr_notes))
+		elseif (in_array($key, $arr_notes))
 				{
-				echo "<div class = \"clear\"><label class = \"spaced padded floatleft left overflow medium shaded\">" . htmlentities($child) . ": </label>";
+				echo "<div class = \"clear\"><label class = \"spaced padded floatleft left overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
 				echo "<div class=\"clear\"></div>";
-				echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" onFocus=\"remove_message(); return false;\">" . $value . "</textarea></div>";				
+				echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" onFocus=\"remove_message(); return false;\">" . $input . "</textarea></div>";				
 				}				
 		else
 				{			
-				echo "<div class=\"clear\"><label class = \"spaced padded floatleft right overflow medium shaded\">" . htmlentities($child) . ": </label>";
-				echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($value) .  "\" onFocus=\"remove_message(); return false;\" />";
+				echo "<div class=\"clear\"><label class = \"spaced padded floatleft right overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
+				echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" onFocus=\"remove_message(); return false;\" />";
 				echo "<label class=\"error\">" . $error . "</label></div>";
 				}		
 		}
@@ -532,9 +597,9 @@ if (!empty($xml_column))
 	echo "<div class=\"clear\"></div>";
 	//check if children not populated
 	//this is dependent on admin module "Set Column Names"    
-	if (!empty($xml_column))
+	if (!empty($arr_column))
 		{
-		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Submit Record");
+		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
 		$main->echo_button("bottom_submit", $params);
 		$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
 		$main->echo_button("bottom_reset", $params);

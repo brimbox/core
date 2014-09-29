@@ -42,15 +42,19 @@ class bb_form extends bb_validate {
 		echo "<form name=\"" . $name . "\" action=\"" . $action . "\" method=\"post\" " . $type . " " . $autocomplete . ">";	
 		}
 		
-	function echo_module_vars($module)
+	function echo_module_vars()
 		{
+		//global make the most sense since these are global variables
+		global $module;
 		/* These variables support javascript function bb_submit_form() */
 		//starts with current module and changes to target, where you're going
 		echo "<input rel=\"ignore\" name=\"bb_module\" type=\"hidden\" value=\"" . $module . "\" />";
 		//starts empty and changes to current module, where you're coming from
 		echo "<input rel=\"ignore\" name=\"bb_submit\" type=\"hidden\" value=\"\" />";
-		//button submitted, prepended with current module name
-		echo "<input name=\"bb_button\" type=\"hidden\" value=\"\" />";
+		//working Brimbox button submitted processed in the controller, always set w/ javascript
+		echo "<input rel=\"ignore\" name=\"bb_button\" type=\"hidden\" value=\"\" />";
+		//used when loggin out or changing state
+		echo "<input rel=\"ignore\" name=\"bb_interface\" type=\"hidden\" value=\"\" />";
 		}
 				
 	function echo_common_vars()
@@ -96,10 +100,72 @@ class bb_form extends bb_validate {
 		//make sure button name is different than function name
 		$class = isset($params['class']) ? $params['class'] : "";
 		$label = isset($params['label']) ? $params['label'] : "";
-		$onclick = isset($params['onclick']) ? $params['onclick'] : "";
+		//return false included
+		$onclick = isset($params['onclick']) ? "onclick=\"" . $params['onclick'] . "; return false;\"" : "";
 		
-		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"" . $onclick . "; return false;\">" . $label . "</button>"; 
+		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" " . $onclick . ">" . $label . "</button>"; 
 		}
+		
+    function echo_input($name, $value = "", $params = array())
+		{
+		//function to output input html object
+		
+		//string params
+		$type = isset($params['type']) ? $params['type'] : "text";
+		$input_class = isset($params['input_class']) ? $params['input_class'] : "";
+		//return false not included
+		$onclick = isset($params['onclick']) ? "onClick=\"" . $params['onclick'] . ";\"" : "";
+		$handler = isset($params['handler']) ? $params['handler'] . ";\"" : "";
+		
+		//true or false params
+		$checked = !empty($params['checked']) ? "checked" : "";
+		$readonly = !empty($params['readonly']) ? "readonly" : "";
+		
+		//integer, 0 will be empty
+		$maxlength = !empty($params['maxlength']) ? "maxlength=\"" . $params['maxlength'] . "\"" : "";
+		
+		$label = isset($params['label']) ? $params['label'] : "";
+		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
+		$position = isset($params['position']) ? $params['position'] : "";
+		
+		$begin = "";
+		$end = "";
+		if (!empty($label))
+			{
+			if (strcasecmp($position, "begin"))
+				{
+				$begin = "<label  class=\"" . $label_class . "\">" . $label;
+				$end = "</label>";
+				}
+			else
+				{
+				$begin = "<label  class=\"" . $label_class . "\">";
+				$end =  $label . "</label>";					
+				}
+			}
+		//zend hack -- give empty checkbox a zero value with a hidden input of same name
+		if ($type == "checkbox")
+			{
+		    echo $begin . "<input type=\"hidden\" name=\"" . $name . "\" value=\"0\"><input type=\"" . $type . "\" class=\"" . $input_class . "\" name=\"" . $name . "\" value=\"" . $value . "\" " . $onclick . " " . $handler . " " . $readonly . " " . $checked . "/>" . $end; 
+			}
+		else
+			{
+		    echo $begin . "<input type=\"" . $type . "\" class=\"" . $input_class . "\" name=\"" . $name . "\" value=\"" . $value . "\" " . $maxlength . " " . $onclick . " " . $handler . " "  . $readonly . "/>" . $end; 
+			}
+		}
+		
+	function echo_textarea($name, $value = "", $params = array())
+		{
+		//function to output button
+		$class = isset($params['class']) ? $params['class'] : "";
+		$readonly = isset($params['readonly']) ? "readonly" : "";
+		$onclick = isset($params['onclick']) ? " onclick=\"" . $params['onclick'] . "; return false;\" " : "";
+		$rows = isset($params['rows']) ? $params['rows'] : "";
+		$cols = isset($params['cols']) ? $params['cols'] : "";		
+		
+		echo "<textarea class=\"" . $class . "\" name=\"" . $name . "\" value=\"" . $value . "\" rows=\"" . $rows . "\" cols=\"" . $cols . "\" " . $onclick . " " . $readonly . ">" . $value . "</textarea>"; 
+		}
+
 		
 	function echo_form_end()
 		{

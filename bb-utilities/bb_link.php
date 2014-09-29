@@ -35,7 +35,7 @@ If not, see http://www.gnu.org/licenses/
 //related PHP class
 class bb_link extends bb_database {
 	
-	function standard($row, $xml_layouts, $target, $text, $params = array())
+	function standard($row, $arr_layouts, $target, $text, $params = array())
 		{
 		//standard row_type and post_key for a target
 		$filter = isset($params['layouts']) ? $params['layouts'] : array();
@@ -46,7 +46,7 @@ class bb_link extends bb_database {
 			}
 		}
 			
-	function edit($row, $xml_layouts, $target, $text, $params = array())
+	function edit($row, $arr_layouts, $target, $text, $params = array())
 		{
 		//edit row, row_type and row_join are the same and from row
 		//target is input and text is editable, uses js input function
@@ -58,7 +58,7 @@ class bb_link extends bb_database {
 			}
 		}
 	
-	function children($row, $xml_layouts, $target_add, $text_add, $target_view, $text_view, $params = array())
+	function children($row, $arr_layouts, $target_add, $text_add, $target_view, $text_view, $params = array())
 		{
 		//view children and add child links, outputted at once
 		//row_join is row_type of current row
@@ -67,14 +67,14 @@ class bb_link extends bb_database {
 		$check = isset($params['check']) ? $params['check'] : false;
 		//find all the children
 		$arr_children = array();
-		foreach($xml_layouts->children() as $child)
+		foreach($arr_layouts as $key => $value)
 			{
-			$secure = ($check && ($child['secure'] > 0)) ? 1 : 0;
-			if (($row['row_type'] == (int)$child['parent']) && !$secure) 
+			$secure = ($check && ($value['secure'] > 0)) ? 1 : 0;
+			if (($row['row_type'] == $value['parent']) && !$secure) 
 				{
-				$i = (int)substr($child->getName(),1);
-				$plural = $child['plural'];
-				$singular = $child['singular'];
+				$i = $key;
+				$plural = $value['plural'];
+				$singular = $value['singular'];
 				array_push($arr_children, array("row_type"=>$i, "singular"=>$singular, "plural"=> $plural));    
 				}
 			}
@@ -96,21 +96,18 @@ class bb_link extends bb_database {
 			}
 		}
 		
-	function drill($post_key, $row_type, $xml_layouts, $target_add, $text_add)
+	function drill($post_key, $row_type, $arr_layouts, $target_add, $text_add)
 		{
 		//used for adding drill links to the standard input form
 		//row_join is row_type of parent or inserted row
 		//row_type is from the child array
 		//post_key is the parent or inserted id
 		$arr_children = array();
-		foreach($xml_layouts->children() as $child)
+		foreach($arr_layouts as $key => $value)
 			{
-			if ($row_type == (int)$child['parent'])
+			if ($row_type == $value['parent'])
 				{
-				$i = (int)substr($child->getName(),1);
-				$plural = $child['plural'];
-				$singular = $child['singular'];
-				array_push($arr_children, array("row_type"=>$i, "singular"=>$singular, "plural"=> $plural));    
+				array_push($arr_children, array("row_type"=>$key, "singular"=>$value['singular'], "plural"=> $value['plural']));    
 				}
 			}
 		if (!empty($arr_children))

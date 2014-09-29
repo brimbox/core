@@ -405,6 +405,8 @@ class bb_report extends bb_work {
 
 		//button number
 		$number = isset($current['button']) ? $current['button'] : 0;
+        $sort = $current['sort']; //overwritten later
+        $order = $current['order'];
 		
 		$count_rows = pg_num_rows($result);
 		
@@ -647,18 +649,7 @@ class bb_report extends bb_work {
 			echo "</div>";
 			}
 		}
-		
-	function echo_input($name, $value = "", $params = array())
-		{
-		//echos an input form object
-		$label = isset($params['label']) ? $params['label'] : "";
-		$input_class = isset($params['input_class']) ? $params['input_class'] : "";
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-	
-		echo "<label class=\"" . $label_class . "\">" . $label . "</label>";
-		echo "<input type=\"text\" name=\"" . $name. "\" class=\"" . $input_class . "\" value=\"" . $value . "\">";	
-		}
-		
+				
 	function result_to_select($result, $name, $selected, $params = array())
 		{
 		//turns a single column result into a select dropdown, all and onchange js optional

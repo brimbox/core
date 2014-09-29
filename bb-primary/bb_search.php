@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <?php
 /* Contains recursive descent parser for boolean expression */
@@ -39,8 +39,8 @@ function reset_return()
 </script>
 <?php
 /* INITIALIZE */
-//find default row_type, $xml_layouts must have one layout set
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
+//find default row_type, $arr_layouts must have one layout set
+$arr_layouts = $main->get_json($con, "bb_layout_names");
 //default row_type is 0, for all layouts
 
 //message pile
@@ -54,29 +54,28 @@ $main->retrieve($con, $array_state, $userrole);
 $search_array = array("","No Search Terms Entered");
 
 //get archive mode
-$xml_home = $main->load('bb_home', $array_state);
-$mode = ($xml_home->mode == "On") ? " 1 = 1 " : " archive IN (0)";
+$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
     
 //get search state variables are set use them
-$xml_state = $main->load($module, $array_state);
+$arr_state = $main->load($module, $array_state);
 
-$search = $main->process('search', $module, $xml_state, "");
+$search = $main->process('search', $module, $arr_state, "");
 //make a copy
 $search_parsed = $search;
-$offset = $main->process('offset', $module, $xml_state, 1);
-$row_type = $main->process('row_type', $module, $xml_state, 0);
+$offset = $main->process('offset', $module, $arr_state, 1);
+$row_type = $main->process('row_type', $module, $arr_state, 0);
 
 //little tricky because checkbox $_POST is not set if empty
 //so check if other variable ($row_type) is set and then get post
-$archive = $main->state('archive', $xml_state, 0);
+$archive = $main->state('archive', $arr_state, 0);
 if ($main->check('row_type', $module))
 	{
 	$archive = $main->post('archive', $module, 0);
-	$main->set('archive', $xml_state, $archive);
+	$main->set('archive', $arr_state, $archive);
 	}
         
 //back to string
-$main->update($array_state, $module,  $xml_state);
+$main->update($array_state, $module,  $arr_state);
 /* END STATE PROCESS */
 
 /* PARSE SEARCH STRING */
@@ -85,18 +84,18 @@ $message = parse_boolean_string($search_parsed);
 array_push($arr_message, $message); 
 
 /* GET LAYOUT */
-$xml_columns = $main->get_xml($con, "bb_column_names");
+$arr_columns = $main->get_json($con, "bb_column_names");
 
 /* BEGIN REQUIRED FORM */
 //search form
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
 
 echo "<div class=\"center\">";
 //search vars
 echo "<input type=\"text\" name=\"search\" class = \"spaced\" size=\"35\" value = \"" . htmlentities($search) . "\"/>";
 $params = array("all"=>true);
-$main->layout_dropdown($xml_layouts, "row_type", $row_type, $params);
+$main->layout_select($arr_layouts, "row_type", $row_type, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
 //echo state variables into form
@@ -148,15 +147,16 @@ if (empty($message))
     //parent columns could come from a variety of rows
 	//left join cols, get all possible columns, and then make them distict with _left
     $arr_parent_columns = array(0=>"c01"); //default value, if not set
-    foreach ($xml_layouts->children() as $child)  //loop through arr_layout
+    foreach ($arr_layouts as $value)  //loop through arr_layout
         {
-        if ((int)$child['parent'] > 0) //indicator set to zero when xml made into array
+        if ($value['parent'] > 0) //indicator set to zero when xml made into array
             {
-            $parent_row_type = (int)$child['parent']; //parent row type
-            $parent_layout = $main->pad("l", $parent_row_type); //parent column node
-            $xml_column = $xml_columns->$parent_layout; //get current column
-            $column = $xml_column['primary'];
-            array_push($arr_parent_columns, $column); //push on stack
+            $parent_row_type = $value['parent']; //parent row type will be zero if not set
+            if (isset($arr_columns[$parent_row_type]['primary']))
+                {
+                $column = $main->pad("c", $arr_columns[$parent_row_type]['primary']);
+                array_push($arr_parent_columns, $column); //push on stack
+                }             
             }
         }
     
@@ -196,16 +196,11 @@ if (empty($message))
         //this sets the correct column xml -- each iteration requires new columns
         //$xml is global so there is only one round trip to the db per page load
         //get row type from returned rows
-        $row_type = (int)$row['row_type'];
-        $layout = $main->pad("l", $row_type);
-        $xml_column = $xml_columns->$layout;
+        $arr_column = $arr_columns[$row['row_type']];
         
-        //get the primary column and set $row['hdr'] based on primary header
-        $xml_layout = $xml_layouts->$layout;
-        $parent_row_type = (int)$xml_layout['parent'];
-        $parent_layout = $main->pad("l", $parent_row_type);
-        $xml_column_parent = $xml_columns->$parent_layout;
-        $leftjoin = isset($xml_column_parent['primary']) ? $xml_column_parent['primary'] : "c01";
+        //get the primary column and set $row['hdr'] based on primary header      
+        $parent_row_type = $arr_layouts[$row['row_type']]['parent'];
+        $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
      
         $row['hdr'] = $row[$leftjoin . "_left"];
         
@@ -213,9 +208,9 @@ if (empty($message))
         echo "<div class =\"margin divider\">";
         $main->return_header($row, "bb_cascade");
         echo "<div class=\"clear\"></div>";
-        $count_rows = $main->return_rows($row, $xml_column);
+        $count_rows = $main->return_rows($row, $arr_column);
         echo "<div class=\"clear\"></div>";				
-        $main->output_links($row, $xml_layouts, $userrole);
+        $main->output_links($row, $arr_layouts, $userrole);
         echo "<div class=\"clear\"></div>";
         echo "</div>";	 
         }

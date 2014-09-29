@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -28,14 +29,14 @@ If not, see http://www.gnu.org/licenses/
 </style>
 
 <?php
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 ?>
 <?php
 /* PRESERVE STATE */
 $main->retrieve($con, $array_state, $userrole);
 
 //This area is for truncating the table
-if ($main->post('bb_button', $module) == 1) //truncate_table
+if ($main->button(1)) //truncate_table
     {
     $truncate_option = (int)$main->post('truncate_option', $module);
     //switch based on select option
@@ -103,7 +104,7 @@ echo "</div>";
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();;
 
 //truncate_option select tag
 $arr_options = array("Preserve 1 Day", "Preserve 1 Week", "Preserve 1 Month");

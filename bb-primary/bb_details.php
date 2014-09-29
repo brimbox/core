@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script  type="text/javascript">
 //clear the textarea dump	
@@ -31,10 +31,10 @@ function clear_textarea()
 
 <?php
 /* INITIALIZE */
-//find default row_type, $xml_layouts must have one layout set
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
-$arr_notes = array("c49","c50");
+//find default row_type, $arr_layouts must have one layout set
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_notes = array("49","50");
 
 //message pile
 $arr_message = array();
@@ -44,29 +44,28 @@ $arr_message = array();
 $main->retrieve($con, $array_state, $userrole);
 
 //get archive mode
-$xml_home = $main->load('bb_home', $array_state);
-$mode = ($xml_home->mode == "On") ? " 1 = 1 " : " archive IN (0)";
+$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
   
 //get details state variables are set use them
-$xml_state = $main->load($module, $array_state);
+$arr_state = $main->load($module, $array_state);
 
-//coming from an add or edit link, reset $xml_state
+//coming from an add or edit link, reset $arr_state
 if (!empty($_POST['bb_row_type']))
         {
         //global post variables		
-		$row_type = $main->set('row_type', $xml_state, $_POST['bb_row_type']);
-		$post_key = $main->set('post_key', $xml_state, $_POST['bb_post_key']);
-		$link_values = $main->set('link_values', $xml_state, "");
+		$row_type = $main->set('row_type', $arr_state, $_POST['bb_row_type']);
+		$post_key = $main->set('post_key', $arr_state, $_POST['bb_post_key']);
+		$link_values = $main->set('link_values', $arr_state, "");
         }		
 else //default = nothing, or populate with input_state if coming from other page
         {
         //local post variables
-		$row_type = $main->process('row_type', $module, $xml_state, $default_row_type);
-		$post_key = $main->process('post_key', $module, $xml_state, 0);
-		$link_values = $main->process('link_values', $module, $xml_state, "");
+		$row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
+		$post_key = $main->process('post_key', $module, $arr_state, 0);
+		$link_values = $main->process('link_values', $module, $arr_state, "");
         }
            
-$main->update($array_state, $module, $xml_state);
+$main->update($array_state, $module, $arr_state);
 
 /*** END DETAILS POSTBACK ***/		
 ?>
@@ -93,27 +92,28 @@ if ($post_key > 0) // a detail of a record
         $row = pg_fetch_array($result);
                 
         //get columns for details row_type
-        $xml_columns = $main->get_xml($con, "bb_column_names");
-        $layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-        $xml_column = $xml_columns->$layout;
-        $xml_layout =  $xml_layouts->$layout;
+        $arr_columns = $main->get_json($con, "bb_column_names");
+        $arr_column = $arr_columns[$row_type];
+        $arr_layout =  $arr_layouts[$row_type];
     
          //call to function that outputs details
-        echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities((string)$xml_layout['singular']) . "</p>";
-        /* return the details */    
-        foreach($xml_column->children() as $child)
+        echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities((string)$arr_layout['singular']) . "</p>";
+        //strip non-integer keys
+        $arr_column = $main->filter_keys($arr_column);
+        /* return the details */
+        foreach($arr_column as $key => $value)
             {
-            $col2 = $child->getName();   
-            if (in_array($col2,$arr_notes))
+            $col2 = $main->pad("c", $key);  
+            if (in_array($key, $arr_notes))
                 {
-                echo "<div class = \"clear\"><label class = \"margin padded left floatleft overflow medium shaded\">" . htmlentities($child) . ":</label>";
+                echo "<div class = \"clear\"><label class = \"margin padded left floatleft overflow medium shaded\">" . htmlentities($value['name']) . ":</label>";
                 echo "<div class = \"clear\"></div>";
                 echo "<textarea class=\"margin notearea\" readonly=\"readonly\">" . htmlentities($row[$col2]) . "</textarea>";				
                 echo "</div>";
                 }		
             else
                 {
-                echo "<div class=\"clear\"><label class=\"margin padded right overflow floatleft medium shaded\">" . htmlentities($child) . ":</label>";
+                echo "<div class=\"clear\"><label class=\"margin padded right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
                 echo "<label class=\"margin padded left floatleft\">" . htmlentities($row[$col2]) . "</label>";
                 echo "</div>";
                 }
@@ -122,19 +122,19 @@ if ($post_key > 0) // a detail of a record
     /* end return the details */
 	
     /* get the dump into a string for texterea */
-	if ($main->post('bb_button',$module) == 2)
+	if ($main->button(2))
 		{
        	$text_str = ""; 	
-        foreach($xml_column->children() as $child)
+        foreach($arr_column as $key => $value)
             { 	 
-            $col2 = $child->getName();     	
+            $col2 = $main->pad("c", $key);     	
             $text_str .= $row[$col2] . PHP_EOL;	 	
             }
 		}
     /* end dump */
         
     //link records area       
-    if ($main->post('bb_button',$module) == 1)
+    if ($main->button(1))
         {
         //intialize		
 		$arr_link_row_type = array(); //will be empty if either unlinkable or empty link_values
@@ -145,12 +145,11 @@ if ($post_key > 0) // a detail of a record
 			}
 		else //check to see if record is linkable
 			{
-			foreach($xml_layouts->children() as $child)
+			foreach($arr_layouts as $key => $value)
 				{
-				if ($row_type == (int)$child['parent'])
+				if ($row_type == $value['parent'])
 					{
-					$i = $main->rpad($child->getName());
-					array_push($arr_link_row_type, $i);                
+					array_push($arr_link_row_type, $key);                
 					}
 				}
 			 if (empty($arr_link_row_type))
@@ -198,7 +197,7 @@ if ($post_key > 0) // a detail of a record
 				$arr_union_query = array();
 				foreach ($arr_to_link_value as $value)
 					{
-					$row_type_link =	ord(strtolower(substr($value, 0, 1))) - 96;
+					$row_type_link = ord(strtolower(substr($value, 0, 1))) - 96;
 					$id = substr($value,1);
 					$str_union_query = "SELECT id FROM data_table WHERE id = " . $id . " AND row_type = " . $row_type_link;
 					array_push($arr_union_query, $str_union_query);
@@ -268,7 +267,7 @@ if ($post_key > 0) // a detail of a record
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
  
 //message and textarea align left
 echo "<div class=\"left\">";

@@ -33,7 +33,7 @@ $main = new bb_main(); //extends bb_database
 session_name(DB_NAME);
 session_start();
 
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 
 /* INITIALIZE */
 $con = $main->connect();
@@ -48,7 +48,7 @@ $passwd = $_POST['dump_passwd'];
 $userrole = $_SESSION['userrole'];
 $email = $_SESSION['email'];
 
-$valid_password = $main->validate_login($con, $email, $passwd, 5);
+$valid_password = $main->validate_login($con, $email, $passwd, "5-bb_brimbox");
 
 if (!$valid_password)
 	{
@@ -59,7 +59,7 @@ if (!$valid_password)
 /* THIS IS A TEXT FILE HEADER OUTPUT */
 /* NO HTML OR BLANK LINE OUTPUT ALLOWED */
 $filename = "List_Definitions_Dump.txt";
-    
+     
 //Here go the headers
 header ("Content-Type: application/octet-stream");
 header ("Content-disposition: attachment; filename=" . $filename . "");
@@ -67,7 +67,7 @@ header ("Content-Transfer-Encoding: binary");
 ob_clean();
 flush();
 
-$xml_lists = $main->get_xml($con, "bb_create_lists");
+$arr_lists = $main->get_json($con, "bb_create_lists");
 
 $arr_row = array();
 array_push($arr_row, "list_number");
@@ -78,18 +78,19 @@ array_push($arr_row, "archive");
 
 $str = implode("\t", $arr_row) . $eol;
 echo $str;
-
-foreach ($xml_lists->children() as $child)
-	{
-    $arr_row = array();
-	$list_number = $main->rpad($child->getName());
-	array_push($arr_row, $list_number);
-	array_push($arr_row, trim(preg_replace($pattern, " ", (string)$child)));
-	array_push($arr_row, $child['row_type']);
-	array_push($arr_row, trim(preg_replace($pattern, " ", $child['description'])));
-	array_push($arr_row, $child['archive']);
-	
-	$str = implode("\t", $arr_row) . $eol;
-	echo $str;	
-	}
+foreach ($arr_lists as $row_type => $arr_list)
+    {
+    foreach ($arr_list as $key2 => $value)
+        {
+        $arr_row = array();
+        array_push($arr_row, $key2);
+        array_push($arr_row, trim(preg_replace($pattern, " ", $value['name'])));
+        array_push($arr_row, $row_type);
+        array_push($arr_row, trim(preg_replace($pattern, " ", $value['description'])));
+        array_push($arr_row, $value['archive']);
+        
+        $str = implode("\t", $arr_row) . $eol;
+        echo $str;	
+        }
+    }
 ?>

@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -16,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(4);
+$main->check_permission("bb_brimbox", array(4,5));
 ?>
 <script type="text/javascript">
 //reload on layout change
@@ -33,22 +34,21 @@ function reload_on_layout()
 <?php
 /* INITIALIZE */
 $arr_message = array();
-$arr_notes = array("c49","c50");
+$arr_notes = array("49","50");
 
 /* GET STATE */
 $main->retrieve($con, $array_state, $userrole);
 
 //This area creates the form for choosing the lists
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
 $row_type = $main->post('row_type', $module, $default_row_type);
 
-$xml_columns = $main->get_xml($con, "bb_column_names");
-$layout = $main->pad("l", $row_type);
-$xml_column = $xml_columns->$layout;
+$arr_columns = $main->get_json($con, "bb_column_names");
+$arr_column = $arr_columns[$row_type];
 
 //this is catch variable from the javascript to initialize
-$default_col_type = (count($xml_column->children()) > 0) ? $main->rpad($xml_column->children()->getName()) : 1;
+$default_col_type = $main->get_default_column($arr_column);
 $col_type = $main->post('col_type', $module, $default_col_type);
 if ($main->post('col_catch', $module) == 1)
 	{
@@ -59,62 +59,45 @@ if ($main->post('col_catch', $module) == 1)
 $null_value = $main->post('null_value', $module, 0);
 //alphabetize flag
 $alpha = $main->post('alpha', $module, 0);
-    
-$xml_columns = $main->get_xml($con, "bb_column_names");
-$layout = $main->pad("l", $row_type, 2);
-$xml_column = $xml_columns->$layout;
-
-$column = $main->pad("c", $col_type, 2);   	
-$col_text = (string)$xml_column->$column;
+      	
+$col_text = $arr_column[$col_type]['name'];
 
 //this area populates the textarea
-if ($main->post('bb_button', $module) == 1) //populate_dropdown
+if ($main->button(1)) //populate_dropdown
 	{
     //preexisting dropdown xml
-    $xml_dropdowns = $main->get_xml($con, "bb_dropdowns");   
-    $xml_dropdown = $xml_dropdowns->$layout;
-    
-	//get all drop downs for row_type
-	$arr_xml = array();
-    if (isset($xml_dropdown->$column))
-        {
-        foreach($xml_dropdown->$column->children() as $child)
-            {
-            array_push($arr_xml,(string)$child);
-            if ((string)$child == "")
-                {
-                $null_value = 1;    
-                }
-            }
-        }
- 
-    //get all values in database for the selected column (and row type) 	
+    $arr_dropdowns = $main->get_json($con, "bb_dropdowns");   
+    $arr_dropdown = $arr_dropdowns[$row_type];
+    $arr_droplist = isset($arr_dropdown[$col_type]) ? $arr_dropdown[$col_type] : array();
+
+    //get all values in database for the selected column (and row type)
+    $column = $main->pad("c",$col_type);
 	$query = "SELECT distinct " .  $column . " FROM data_table WHERE row_type = " . $row_type . " AND archive = 0 ORDER BY " . $column . " LIMIT 2000;";
 	$result = $main->query($con, $query);
 	
 	$arr_query = pg_fetch_all_columns($result, 0);
 
     //if array is set for the column in question merge and unique it, else just get unique from database
-	if (!empty($arr_xml))
+	if (!empty($arr_droplist))
 		{
 		array_push($arr_message, "Column " . $col_text . " has a dropdown list.");
-		$arr_pop = array_merge($arr_query, $arr_xml);
-		$arr_pop = array_unique($arr_pop);
-        $arr_pop = array_filter($arr_pop); //remove empty rows
+		$arr_populate = array_merge($arr_query, $arr_droplist);
+		$arr_populate = array_unique($arr_populate);
+        $arr_populate = array_filter($arr_populate); //remove empty rows
 		}
 	else 
 		{
 		array_push($arr_message, "Column " . $col_text . " does not have a preexisting dropdown list.");
-		$arr_pop = array_filter($arr_query);
+		$arr_populate = array_filter($arr_query);
 		}
 	}
 
 //this area updates the drop down if set
-if ($main->post('bb_button', $module) == 2) //submit dropdown
+if ($main->button(2)) //submit dropdown
 	{
     $arr_txt = preg_split("/[\r\n]+/",  $main->custom_trim_string($main->post('droplist', $module), 65536, false, true));
 	$arr_txt = array_filter($arr_txt); //remove empty rows
-    if (in_array($column,$arr_notes))
+    if (in_array($col_type ,$arr_notes))
         {
         array_push($arr_message, "Error: Cannot create a dropdown on a note column.");    
         }
@@ -124,27 +107,11 @@ if ($main->post('bb_button', $module) == 2) //submit dropdown
         }    
     else //populate dropdown
         {
-        $xml_dropdowns = $main->get_xml($con, "bb_dropdowns");
-        //add a layout if necessary
-        //layouts may or may not be empty (or exist)
-        if (!isset($xml_dropdowns->$layout))
-            {
-            $xml_dropdowns->$layout = "";   
-            }
-        $xml_dropdown = $xml_dropdowns->$layout;
-        //will remove all the column instances
-        unset($xml_dropdown->$column);
-		$xml_dropdown->$column = "";
-        $child = $xml_dropdown->$column;
-       
-		//* NOTE THIS WIERD SYNTAX OVERLOADS MULTIPLE NODES WITH THE SAME NODE NAME */
-		//* $child->addChild("value")->{0} = $value */
-		//* THIS WORKS WITH SPECIAL CHARACTERS *//
-		
+        $arr_dropwork = array();
 		//add empty or null value
         if ($main->post('null_value', $module) == 1)
             {
-            $child->addChild("value")->{0} = "";    
+            array_push($arr_dropwork, "");    
             }
         //add values
 		if ($alpha == 1)
@@ -153,20 +120,20 @@ if ($main->post('bb_button', $module) == 2) //submit dropdown
 			}
         foreach ($arr_txt as $value)
             {
-			$child->addChild("value")->{0} = $value; //overload
+			array_push($arr_dropwork, $value);//overload
             }
-    
-        $main->update_xml($con, $xml_dropdowns, "bb_dropdowns");	
+        $arr_dropdowns[$row_type][$col_type] = $arr_dropwork;
+        $main->update_json($con, $arr_dropdowns, "bb_dropdowns");	
         array_push($arr_message, "Column ". $col_text . " has had its dropdown list added or updated.");
         }
  	}
 	
 //this area removes the dropdown
-if ($main->post('bb_button', $module) == 3) //remove_dropdown
+if ($main->button(3)) //remove_dropdown
 	{ 
-	$xml_dropdowns = $main->get_xml($con, "bb_dropdowns");
-    unset($xml_dropdowns->$layout->$column);
-    $main->update_xml($con, $xml_dropdowns,"bb_dropdowns");
+	$arr_dropdowns = $main->get_json($con, "bb_dropdowns");
+    unset($arr_dropdowns[$row_type][$col_type]);
+    $main->update_json($con, $arr_dropdowns,"bb_dropdowns");
 	
 	array_push($arr_message, "Column " . $col_text . " has had its dropdown list removed if it existed.");
 	}
@@ -180,22 +147,22 @@ $main->echo_messages($arr_message);
 echo "</div>";
     
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();;
 
 //row_type select tag
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_dropdown($xml_layouts, "row_type", $row_type, $params);
+$main->layout_select($arr_layouts, "row_type", $row_type, $params);
 echo "<br>"; //why not
 $params = array("class"=>"spaced");
-$main->column_dropdown($xml_column, "col_type", $col_type, $params);
+$main->column_select($arr_column, "col_type", $col_type, $params);
 echo "<br>";
 echo "<input name=\"col_catch\" type=\"hidden\" value\"0\">";
 	
 //populate text area
 echo "<textarea class=\"spaced\" name=\"droplist\" cols=\"40\" rows=\"10\" wrap=\"off\">";
-if (isset($arr_pop))
+if (isset($arr_populate))
 	{
-	foreach($arr_pop as $value)
+	foreach($arr_populate as $value)
   		{   
   		echo $value . "\r\n";  
   		}
@@ -211,11 +178,13 @@ echo "<br>";
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Create Dropdown");
 $main->echo_button("create_dropdown", $params);
 echo "<span class = \"spaced border rounded padded shaded\">";
-echo "<input type=\"checkbox\" class=\"middle padded\" name=\"null_value\" value=\"1\" " . ($null_value == 1 ? "checked" : "") . "/>";
+$checked =  ($null_value == 1) ? true : false;
+$main->echo_input("null_value", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
 echo "<label class=\"padded\">Include Empty Value</label>";
 echo "</span>";
 echo "<span class = \"spaced border rounded padded shaded\">";
-echo "<input type=\"checkbox\" class=\"middle padded\" name=\"alpha\" value=\"1\" " . ($alpha == 1 ? "checked" : "") . "/>";
+$checked =  ($alpha == 1) ? true : false;
+$main->echo_input("alpha", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
 echo "<label class=\"padded\">Alphabetize</label>";
 echo "</span><br>";
 $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Remove Dropdown");

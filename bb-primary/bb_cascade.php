@@ -17,61 +17,59 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 
 <?php
 /* INITIALIZE */
-//find default row_type, $xml_layouts must have one layout set
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
+//find default row_type, $arr_layouts must have one layout set
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 /***START STATE AND VIEW POSTBACK***/
 $main->retrieve($con, $array_state, $userrole);
 
 //get archive mode
-$xml_home = $main->load('bb_home', $array_state);
-$mode = ($xml_home->mode == "On") ? " 1 = 1 " : " archive IN (0)";
+$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
 
-$xml_state = $main->load($module, $array_state);
+$arr_state = $main->load($module, $array_state);
 
-//coming from an add or edit link, reset $xml_state
+//coming from an add or edit link, reset $arr_state
 //bb_row_type is empty if not set with javascript
 if (!empty($_POST['bb_row_type']))
         {
-		$offset = $main->set('offset', $xml_state, 1);
-		$row_type = $main->set('row_type', $xml_state, $_POST['bb_row_type']);
-		$post_key = $main->set('post_key', $xml_state, $_POST['bb_post_key']);
+		$offset = $main->set('offset', $arr_state, 1);
+		$row_type = $main->set('row_type', $arr_state, $_POST['bb_row_type']);
+		$post_key = $main->set('post_key', $arr_state, $_POST['bb_post_key']);
         }		
 else //default = nothing, or populate with input_state if coming from other page
         {
-		$offset = $main->process('offset', $module, $xml_state, 1);
-		$row_type = $main->process('row_type', $module, $xml_state, $default_row_type);
-		$post_key = $main->process('post_key', $module, $xml_state, 0);
+		$offset = $main->process('offset', $module, $arr_state, 1);
+		$row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
+		$post_key = $main->process('post_key', $module, $arr_state, 0);
         }
 
-$main->update($array_state, $module, $xml_state);
+$main->update($array_state, $module, $arr_state);
 /*** END POSTBACK ***/
 ?>
 <?php
 /*** COLUMN AND LAYOUT INFO ***/
 //get xml_column and sort column type
-$xml_columns = $main->get_xml($con, "bb_column_names");
+$arr_columns = $main->get_json($con, "bb_column_names");
 
-$layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-$xml_layout = $xml_layouts->$layout;
-$xml_column = $xml_columns->$layout;
+$arr_layout = $arr_layouts[$row_type];
+$arr_column = $arr_columns[$row_type];
 
 //for the header left join
-$parent_row_type = $xml_layout['parent'];
-$parent_layout = "l" . str_pad($parent_row_type,2,"0",STR_PAD_LEFT);
-$xml_column_parent = $xml_columns->$parent_layout;
-$leftjoin = isset($xml_column_parent['primary']) ? $xml_column_parent['primary'] : "c01";
+//get column name from "primary" attribute in column array
+//this is used to populate the record header link to parent record
+$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 /*** END COLUMN AND LAYOUT INFO ***/
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
 
 //local POST variables
 echo "<input type=\"hidden\" name=\"offset\" value=\"" . $offset . "\" />";
@@ -113,10 +111,9 @@ if ($post_key > 0) //cascade children of record
         $union_cascade = "SELECT " . implode(" as id UNION SELECT ", $arr_ids) . " as id";
             
         $arr_union = array();
-        foreach ($xml_layouts->children() as $child)
+        foreach ($arr_layouts as $key => $value)
             {
-            $i = (int)substr($child->getName(),1);
-            $str_union = "SELECT " . $i . " as row_type_union, " . (int)$child['order'] . " as sort";
+            $str_union = "SELECT " . $key . " as row_type_union, " . $value['order'] . " as sort";
             array_push($arr_union, $str_union);
             }
         $str_union_query = implode(" UNION ", $arr_union);
@@ -134,15 +131,14 @@ if ($post_key > 0) //cascade children of record
         $main->return_stats($result);
     
         //this outputs the data blobs
-	$row_type_catch = 0;
+        $row_type_catch = 0;
         while($row = pg_fetch_array($result))
             {
             //this sets the correct column xml -- each iteration requires new columns
             //$xml is global so there is only one round trip to the db per page load
             //get row type from returned rows
-            $row_type = (int)$row['row_type'];
-            $layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-            $xml_column = $xml_columns->$layout;
+            $row_type = $row['row_type'];
+            $arr_column = $arr_columns[$row_type];
             
             if ($row_type <> $row_type_catch)
                 {
@@ -158,9 +154,9 @@ if ($post_key > 0) //cascade children of record
             $bool_header = ($row['id'] == $post_key) ? true : false;
             $main->return_header($row, "bb_cascade", $bool_header);
             echo "<div class=\"clear\"></div>";
-            $count_rows = $main->return_rows($row, $xml_column);
+            $count_rows = $main->return_rows($row, $arr_column);
             echo "<div class=\"clear\"></div>";				
-            $main->output_links($row, $xml_layouts, $userrole);
+            $main->output_links($row, $arr_layouts, $userrole);
             echo "<div class=\"clear\"></div>";
             echo "</div>";
             $row_type_catch = $row_type;

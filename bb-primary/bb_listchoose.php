@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <style type="text/css">
 /* MODULE CSS */
@@ -39,7 +39,7 @@ $post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;
 $row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;
 
 //get postback vars
-if ($main->post('bb_button', $module) == 1)
+if ($main->button(1))
     {
     $post_key = $main->post('post_key',$module);
     $row_type = $main->post('row_type',$module);   
@@ -71,17 +71,15 @@ if ($main->check('remove_names',$module))
 	}
 
 //get layout   
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$xml_columns = $main->get_xml($con, "bb_column_names");
-$layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-$xml_column = $xml_columns->$layout;
-$xml_layout = $xml_layouts->$layout;
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_columns = $main->get_json($con, "bb_column_names");
+$arr_column = $arr_columns[$row_type];
+$arr_layout = $arr_layouts[$row_type];
 
-//find parent
-$parent_row_type = (int)$xml_layout['parent'];
-$parent_layout = "l" . str_pad($parent_row_type,2,"0",STR_PAD_LEFT);
-$xml_column_parent = $xml_columns->$parent_layout;
-$leftjoin = isset($xml_column_parent['primary']) ? $xml_column_parent['primary'] : "c01";
+//get column name from "primary" attribute in column array
+//this is used to populate the record header link to parent record
+$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
     
 //one int and a string
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
@@ -101,7 +99,7 @@ echo "<div class =\"margin divider\">";
 //outputs the row we are working with
 $main->return_header($row, "bb_cascade");
 echo "<div class=\"clear\"></div>";   
-$main->return_rows($row, $xml_column);
+$main->return_rows($row, $arr_column);
 echo "<div class=\"clear\"></div>";
 echo "</div>";
 echo "<div class =\"margin divider\"></div>"; 
@@ -110,15 +108,16 @@ echo "<div class =\"margin divider\"></div>";
 $row_type = $row['row_type'];
 $list_string = $row['list_string'];
 
-//get list xml
-$xml_lists = $main->get_xml($con, "bb_create_lists");
+//get list arr
+$arr_lists = $main->get_json($con, "bb_create_lists");
+$arr_list = $arr_lists[$row_type];
 
 //start form containing select add and remove boxes
 echo "<div class=\"clear\"></div>";
 echo "<div class=\"clear\"></div>";
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
 
 //select add box
 echo "<div class=\"table\">";
@@ -130,18 +129,14 @@ echo "</div>"; //row
 echo "<div class=\"row\">";
 echo "<div class=\"cell padded box\">";
 
-$path = "//*[@row_type = " . (int)$row_type . " and @archive = 0]";
-$arr_list = $main->search_xml($xml_lists, $path);
-
 echo "<select class=\"box\" name = \"add_names[]\" multiple>";
 //echo the xml lists not set
-foreach($arr_list as $object)
+foreach($arr_list as $key => $value)
     {
-    $list_number = $main->rpad($object->getName());
-	$i = $list_number - 1; //start string at 0
+	$i = $key - 1; //start string at 0
     if ((int)substr($list_string, $i, 1) == 0)  
         {
-        echo "<option value=\"" . $list_number . "\">" . htmlentities((string)$object) . "</option>";
+        echo "<option value=\"" . $key. "\">" . htmlentities($value['name']) . "</option>";
         }
     }
 echo "</select>";
@@ -157,13 +152,12 @@ echo "<div class=\"cell padded\">";
 echo"<select class=\"box\" name=\"remove_names[]\" multiple>";
 //echo the xml lists already set
 //no need to get $arr_list again
-foreach($arr_list as $object)
+foreach($arr_list as $key => $value)
     {
-    $list_number = $main->rpad($object->getName());
-    $i = $list_number - 1; //start string at 0
+    $i = $key - 1; //start string at 0
     if ((int)substr($list_string, $i, 1) == 1)  
         {
-        echo "<option value=\"" . $list_number . "\">" . htmlentities((string)$object) . "</option>";
+        echo "<option value=\"" . $key . "\">" . htmlentities($value['name']) . "</option>";
         }
     }
 echo "</select>";

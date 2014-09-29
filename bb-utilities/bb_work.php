@@ -35,21 +35,38 @@ If not, see http://www.gnu.org/licenses/
 
 
 /* POSTBACK ANBD STATE FUNCTIONS */	
-class bb_work extends bb_form {	
-			
+class bb_work extends bb_form {
+	
+	function button($number, $check = "")
+		{
+		global $submit;
+		global $module;
+		global $button;
+		
+		//tab or buttopn is always 0
+		if (!empty($check)) //check where it was submitted from
+			{
+			return (($submit == $check) && ($button == $number)) ? true : false;
+			}
+		else //postback
+			{
+			return (($button == $number) && ($submit == $module))? true : false;	
+			}
+		}
     function name($name, $module)
         {
-	//returns the name of variable with module prepended
+		//returns the name of variable with module prepended
         return $module . "_" . $name;
-	}
+		}
 			
 	function load($module, $array_state)
         {
 	    global $array_state;
-	    //gets and loads xml from array state 
+		
+	    //gets and loads arr from array state 
 	    $key = $module . "_bb_state";
-	    $xml = simplexml_load_string($array_state[$key]);
-	    return $xml;	
+	    $arr_state = json_decode($array_state[$key], true);
+	    return $arr_state;	
 	    }
 		
 	function check($name, $module)
@@ -58,9 +75,9 @@ class bb_work extends bb_form {
 	    $temp = $module . '_' . $name;
 	    $bool = false;
 	    if (isset($_POST[$temp]))
-		{
-		$bool = true;	
-		}
+			{
+			$bool = true;	
+			}
 	    return $bool;	
 	    }
 		
@@ -90,116 +107,106 @@ class bb_work extends bb_form {
 	    return $var;	
 	    }	
 			
-	function state($name, $xml_state, $initial = "")
+	function state($name, $arr_state, $initial = "")
 	    {
 	    //gets the state value of a variable
-	    $var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$initial;
+	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $initial;
 	    return $var;	
 	    }	
 	 
-	function set($name, &$xml_state, $value)
+	function set($name, &$arr_state, $value)
 	    {
 	    //sets the state value from a variable, $module var not needed
-	    $value = (string)$value;
-	    unset($xml_state->$name);
-	    $xml_state->$name = $value;
+	    $value = $value;
+	    $arr_state[$name] = $value;
 	    return $value;
 	    }	
 	
-	function process($name, $module, &$xml_state, $default = "")
+	function process($name, $module, &$arr_state, $default = "")
 	    //fully processes $_POST variable into state setting with initial value
+		//on checkbox set default = 0
 	    {
-	    $var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$default;
+	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default;
 	    $temp = $module . '_' . $name;
-	    $button = $module . '_bb_button';
 	    //check if bb_button set to incorporate checkboxes
-	    if (isset($_POST[$button])) 
-		    {
-		    //if variable is set use variable
-		    if (isset($_POST[$temp]))
-			    {
-			    $var = (string)$_POST[$temp];
-			    }
-		    //else use default in case of checkbox
-		    else
-			    {
-			    $var = (string)$default;	
-			    }
-		    }
-	    unset($xml_state->$name);
-	    $xml_state->$name = $var;
+		//-1 is the controller button value
+		if (isset($_POST[$temp]))
+			{
+			$var = $_POST[$temp];
+			}
+	    $arr_state[$name] = $var;
 	    return $var;	
 	    }
 		
-	function render($name, $module, &$xml_state, $type, $default = "")
+	function render($name, $module, &$arr_state, $type, $default = "")
 	    //fully processes $_POST variable into state setting with initial value
 	    {
 	    global $array_validation;
 	    
-	    $var = isset($xml_state->$name) ? (string)$xml_state->$name : (string)$default; 
+	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default; 
 	    $temp = $module . '_' . $name;
-	    if (isset($_POST[$temp])) 
+	    if (!$this->button(0)) 
 		    {
-		    $var = (string)$_POST[$temp];
+		    //if variable is set use variable
+		    if (isset($_POST[$temp]))
+			    {
+			    $var = $_POST[$temp];
+			    }
+		    //else use default in case of checkbox
+		    else
+			    {
+			    $var = $default;	
+			    }
 		    }
 	    //will format value if valid, otherwise leaves $var untouched
 	    call_user_func_array($array_validation[$type], array(&$var));	
-	    unset($xml_state->$name);
-	    $xml_state->$name = $var;
+	    $arr_state[$name] = $var;
 	    return $var;	
 	    }
 			
 	function retrieve($con, &$array_state, $userrole)
 	    //retrieves state from $_POST based on known tabs with state from tab table in database
 	    {
+		global $array_interface;
+		
+		$array_state = array();		
+		$arr_modules_active = array();
+		
+		foreach ($array_interface as $key => $value)
+			{
+			if (in_array($userrole, $value['userroles']))
+				{
+				array_push($arr_modules_active, (int)$value['module_type']);
+				}
+			}
 	    //This function will also initalize state if not set
-	    $array_state = array();
-	    
-	    //if guest condition, else other condition
-	    switch ($userrole)
-		{
-		case 1:
-		$and_clause =  "userrole IN (1)";
-		break;
-		case 2:
-		$and_clause =  "userrole IN (2)";
-		break;
-		case 3:
-		$and_clause =  "userrole IN (3)";
-		break;               
-		case 4:
-		$and_clause =  "userrole IN (3,4)";
-		break;
-		case 5:
-		$and_clause =  "userrole IN (3,4,5)";
-		break;
-		}
-		    
-		    //to create this as a base class call query with die
+	    $and_clause = " module_type IN (" . implode(",",$arr_modules_active) . ") ";
+	    		    
+		//to create this as a base class call query with die
 	    $query = "SELECT module_name FROM modules_table WHERE maintain_state = 1 AND " . $and_clause . " AND standard_module IN (0,1,2,4,6);";
 	    //$this = new bb_database();
-		    $result = $this->query($con, $query);
+		$result = $this->query($con, $query);
 	    
 	    while($row = pg_fetch_array($result))
-		{
-		$key = $row['module_name'] . '_bb_state';
-		if (!empty($_POST[$key])) //get state from post
-		    {
-		    $array_state[$key] = base64_decode($_POST[$key]);
-		    }
-		else  //initialize state
-		    {                
-		    $array_state[$key] = "<hold></hold>";
-		    }
-		}
+			{
+			$key = $row['module_name'] . '_bb_state';
+			if (!empty($_POST[$key])) //get state from post
+				{
+				$array_state[$key] = base64_decode($_POST[$key]);
+				}
+			else  //initialize state
+				{                
+				$array_state[$key] = "";
+				}
+			}
 	    $this->hot_state($array_state, $userrole);
 	    }
 	
-	function update(&$array_state, $module, $xml_state)
-		//updates array_state when xml_state is updated with new state variables
+	function update(&$array_state, $module, $arr_state)
+		//updates array_state when arr_state is updated with new state variables
         {
 		$key = $module . '_bb_state';
-        $array_state[$key] = $xml_state->asXML();
+        $array_state[$key] = json_encode($arr_state);
         }
 			
 	private function hot_state(&$array_state, $userrole)
@@ -209,42 +216,42 @@ class bb_work extends bb_form {
 	    
 	    $arr_work = array();
 	    if (isset($array_hot_state[$userrole]))
-		{
-		$arr_work = $array_hot_state[$userrole];	
-		}
+			{
+			$arr_work = $array_hot_state[$userrole];	
+			}
 	    
 	    //do not update the state unless coming from that tab
 	    $update = false;
 	    //$arr_work contains hot states for appropriate user level
 	    foreach ($arr_work as $module => $arr_value)
-		{
-		//check one value before proceeding, makes the loop inefficiency acceptable
-		if ($this->check(current($arr_value), $module))
-		    {
-		    $key = $module . "_bb_state";
-		    $xml_state = simplexml_load_string($array_state[$key]);
-		    //loop through hot state values
-		    foreach ($arr_value as $value)
-			{				
-			if ($this->check($value, $module))
-			    {
-			    $this->process($value, $module, $xml_state);
-			    }
-			}
-		    $update = true;
-		    }
-		}		
+			{
+			//check one value before proceeding, makes the loop inefficiency acceptable
+			if ($this->check(current($arr_value), $module))
+				{
+				$key = $module . "_bb_state";
+				$arr_state = json_decode($array_state[$key], true);
+				//loop through hot state values
+				foreach ($arr_value as $value)
+					{
+					if ($this->check($value, $module))
+						{
+						$this->process($value, $module, $arr_state);
+						}
+					}
+				$update = true;
+				}
+			}		
 	    if ($update)
-		{
-		    $this->update($array_state, $module, $xml_state);
-		}
+			{
+		    $this->update($array_state, $module, $arr_state);
+			}
 	    }
 	
 	//this function duplicated in both reports and work classes under different names	
-	function report(&$xml_state, $module_submit, $module_display, $params = array())
+	function report(&$arr_state, $module_submit, $module_display, $params = array())
 	    {
 	    //alias of report_post
-	    $current = $this->report_post($xml_state, $module_submit, $module_display, $params = array());
+	    $current = $this->report_post($arr_state, $module_submit, $module_display, $params = array());
 	    return $current;
 	    }
 		

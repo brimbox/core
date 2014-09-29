@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -16,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 ?>
 <script type="text/javascript">
 //dump standard brimbox backup
@@ -59,7 +60,7 @@ function submit_listdata()
 /* INTITALIZE */
 $arr_message = array();
 set_time_limit(0);
-$xml_layouts = $main->get_xml($con,"bb_layout_names");
+$arr_layouts = $main->get_json($con,"bb_layout_names");
 //set default row_type and process later
 $row_type = 0;
 
@@ -86,9 +87,9 @@ function decrypt_line($str, $passwd, $iv, $type)
 
 //CLEAN DATABASE DATA
 //removes tabs and cleans up new lines
-if ($main->post('bb_button', $module) == 1) //submit_file
+if ($main->button(1)) //submit_file
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), $userrole);
+	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5-bb_brimbox');
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
@@ -100,9 +101,9 @@ if ($main->post('bb_button', $module) == 1) //submit_file
 		}
 	}
 //CLEAN DATABASE COLUMN	
-if ($main->post('bb_button', $module) == 2) //clean_up_columns
+if ($main->button(2)) //clean_up_columns
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), $userrole);
+	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5-bb_brimbox');
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
@@ -115,9 +116,9 @@ if ($main->post('bb_button', $module) == 2) //clean_up_columns
     }
 	
 //CLEAN DATABASE LAYOUT	
-if ($main->post('bb_button', $module) == 3) //clean_up_columns
+if ($main->button(3)) //clean_up_columns
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), $userrole);
+	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5-bb_brimbox');
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
@@ -131,7 +132,7 @@ if ($main->post('bb_button', $module) == 3) //clean_up_columns
 
 
 //RESTORE DATABASE
-if ($main->post('bb_button', $module) == 4) //submit_file
+if ($main->button(4)) //submit_file
 	{
 	//file must be populated
 	if (!empty($_FILES[$main->name('backup_file', $module)]["tmp_name"]))
@@ -150,36 +151,39 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 			$salt = substr($str, 8, 32);
 			$hash = substr($str, 32 + 8, 128);
 			//check password
+            //00000000 -- no encrypt before userrole => userroles
+            //00000001 -- encrypt before userrole => userroles
 			if (hash('sha512', $passwd . $salt) == $hash)
 				{					
-				if ($hex == "00000000")
+				if (in_array($hex, array("00000000","00000002","00000004")))
 					{
 					$type = 0;
 					}
-				elseif ($hex == "00000001")
+				elseif (in_array($hex, array("00000001","00000003","00000005")))
 					{
 					$type = 1;
 					}
 				//get next line, xml_backup has version and time stats	
 				$str = rtrim(fgets($handle));	
-				$xml_backup = simplexml_load_string(decrypt_line($str, $passwd, $iv, $type));
+				$json_header = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
 				
 				/* TABLES ORDERED FOR QUICKER RESTORE */
 				//since data table is last it can be skipped on upload if not restored
 
-				/* XML TABLE */
-				//get next line, xml has xml table count				
+				/* JSON TABLE */
+				//get next line, xml has xml table count
 				$str = rtrim(fgets($handle));
-				$xml_xml = simplexml_load_string(decrypt_line($str, $passwd, $iv, $type));
-				$cnt = (int)$xml_xml->count;
+                $json_json = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                $cnt = $json_json['count'];
+
 				//restore xml table if	
-				if ($main->post('xml_table_checkbox', $module) == 1)
+				if ($main->post('json_table_checkbox', $module) == 1)
 					{
 					//cascaded drop
-					$query = "DROP TABLE IF EXISTS xml_table CASCADE";
+					$query = "DROP TABLE IF EXISTS json_table CASCADE";
 					$main->query($con, $query);
 					//install new table					
-					$query = $xml_before_eot;
+					$query = $json_before_eot;
 					$main->query($con, $query);
 					//populate table
 					for ($i=0; $i<$cnt; $i++)
@@ -188,13 +192,13 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 						$str = rtrim(fgets($handle));
 						//decrypt and split
 						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
-						$query = "INSERT INTO xml_table (lookup, xmldata, change_date) " .
+						$query = "INSERT INTO json_table (lookup, jsondata, change_date) " .
 								 "VALUES ($1,$2,$3);";
 						//echo "<p>" . htmlentities($query) . "</p><br>";
 						$main->query_params($con, $query, $row);		 
 						}
 					//install triggers indexes etc
-					$query = $xml_after_eot;
+					$query = $json_after_eot;
 					$main->query($con, $query);
 					array_push($arr_message, "XML table has been restored from backup.");
 					}
@@ -211,8 +215,8 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 				
 				/* USERS TABLE */
 				$str = rtrim(fgets($handle));
-				$xml_users = simplexml_load_string(decrypt_line($str, $passwd, $iv, $type));
-				$cnt = (int)$xml_users->count;
+                $json_users = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                $cnt = $json_users['count'];
 					
 				if ($main->post('users_table_checkbox', $module) == 1)
 					{
@@ -225,8 +229,8 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 					for ($i=0; $i<$cnt; $i++)
 						{
 						$str = rtrim(fgets($handle));
-						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
-						$query = "INSERT INTO users_table (email, hash, salt, attempts, userrole, fname, minit, lname, change_date) " .
+						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));                      
+						$query = "INSERT INTO users_table (email, hash, salt, attempts, userroles, fname, minit, lname, change_date) " .
 								 "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9);";	
 						//echo "<p>" . htmlentities($query) . "</p><br>";
 						$main->query_params($con, $query, $row);		 
@@ -245,8 +249,8 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 				
 				/* MODULES TABLE */
 				$str = rtrim(fgets($handle));
-				$xml_modules = simplexml_load_string(decrypt_line($str, $passwd, $iv, $type));
-				$cnt = (int)$xml_modules->count;	
+                $json_modules = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                $cnt = $json_modules['count'];
 			
 				if ($main->post('modules_table_checkbox', $module) == 1)
 					{
@@ -260,8 +264,8 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 						{
 						$str = rtrim(fgets($handle));
 						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
-						$query = "INSERT INTO modules_table (module_order, module_path, module_name, friendly_name, module_version, module_type, " .
-								 "userrole, standard_module, maintain_state, module_files, module_details, change_date) " .
+						$query = "INSERT INTO modules_table (module_order, module_path, module_name, friendly_name, interface, module_type, module_version, " .
+                                 "standard_module, maintain_state, module_files, module_details, change_date) " .
 								 "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);";	
 						//echo "<p>" . htmlentities($query) . "</p><br>";
 						//use query params because not updating or inserting full text columns
@@ -281,8 +285,8 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 
 				/* LOG TABLE */					
 				$str = rtrim(fgets($handle));
-				$xml_log = simplexml_load_string(decrypt_line($str, $passwd, $iv, $type));
-				$cnt = (int)$xml_log->count;
+                $json_log = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                $cnt = $json_log['count'];
 								
 				if ($main->post('log_table_checkbox', $module) == 1)
 					{
@@ -317,8 +321,8 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 				/* slightly different than last foru tables */
 				//get count from header xml
 				$str = rtrim(fgets($handle));
-				$xml_data = simplexml_load_string(decrypt_line($str, $passwd, $iv, $type));
-				$cnt = (int)$xml_data->count;
+                $json_data = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                $cnt = $json_data['count'];
 				//restore data table	
 				if ($main->post('data_table_checkbox', $module) == 1)
 					{
@@ -392,7 +396,7 @@ if ($main->post('bb_button', $module) == 4) //submit_file
 	
 //BUILD INDEXES
 //full text indexes do not exist after data table restore
-if ($main->post('bb_button', $module) == 5) //submit_file
+if ($main->button(5)) //submit_file
 	{
 	$main->build_indexes($con, 0);
 	array_push($arr_message, "Indexes have been rebuilt.");
@@ -405,7 +409,7 @@ echo "</div>";
 	
 /* START REQUIRED FORM */
 $main->echo_form_begin(array("type"=>"enctype=\"multipart/form-data\""));
-$main->echo_module_vars($module);
+$main->echo_module_vars();;
 
 /* BACKUP AREA */
 echo "<p class=\"spaced bold larger\">Backup Database</p>";
@@ -422,7 +426,7 @@ $main->echo_script_button("backup_database", $params);
 echo "<label class=\"spaced\">Password: </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"backup_passwd\"/>";
 echo "<label class=\"spaced\"> Encrypt: </label>";
-echo "<input class=\"spaced\" type=\"checkbox\" name=\"encrypt_method\" value=\"1\" checked/>";
+$main->echo_input("encrypt_method", 1, array('type'=>'checkbox','class'=>'spaced','checked'=>true));
 echo "</div>";
 echo "<div class=\"clear\"></div>";
 
@@ -430,7 +434,7 @@ echo "<p class=\"spaced bold larger\">Database Dump</p>";
 echo "<div class=\"spaced border floatleft padded\">";
 $params = array("class"=>"spaced","label"=>"Download Layout","onclick"=>"submit_dump()");
 $main->echo_script_button("dump_database", $params);
-$main->layout_dropdown($xml_layouts, "row_type", $row_type);
+$main->layout_select($arr_layouts, "row_type", $row_type);
 echo "<select class=\"spaced\" name=\"column_names\"><option value=\"0\">Use Friendly Names&nbsp;</option><option value=\"1\">Use Generic Names&nbsp;</option></select>";
 echo "<select class=\"spaced\" name=\"new_lines\"><option value=\"0\">Escape New Lines&nbsp;</option><option value=\"1\">Purge New Lines&nbsp;</option></select>";
 echo "<br>";
@@ -449,32 +453,32 @@ echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"backup_file\" id=\"file\" /><br>";
 echo "<div class=\"spaced border floatleft padded\">";
-$params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Restore Database");
-$main->echo_button("restore_database", $params);
-echo "<div class=\"spaced\">Password: ";
-echo "<input class=\"spaced\" type=\"password\" name=\"restore_passwd\"/></div>";
 echo "<div class=\"table\">";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\"><input class=\"spaced\" type=\"checkbox\" name=\"xml_table_checkbox\" value=\"1\"/></div>";
-echo "<div class=\"cell middle padded\">Restore XML Table</div>";
+$main->echo_input("json_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
+echo "<div class=\"cell middle padded\">Restore JSON Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\"><input class=\"spaced\" type=\"checkbox\" name=\"users_table_checkbox\" value=\"1\"/></div>";
+$main->echo_input("users_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
 echo "<div class=\"cell middle padded\">Restore Users Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\"><input class=\"spaced\" type=\"checkbox\" name=\"modules_table_checkbox\" value=\"1\"/></div>";
+$main->echo_input("modules_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
 echo "<div class=\"cell middle padded\">Restore Modules Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\"><input class=\"spaced\" type=\"checkbox\" name=\"log_table_checkbox\" value=\"1\"/></div>";
+$main->echo_input("log_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
 echo "<div class=\"cell middle padded\">Restore Log Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\"><input class=\"spaced\" type=\"checkbox\" name=\"data_table_checkbox\" value=\"1\"/></div>";
+$main->echo_input("data_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
 echo "<div class=\"cell middle padded\">Restore Data Table</div>";
 echo "</div>";
 echo "</div>";
+echo "<div class=\"spaced\">Password: ";
+echo "<input class=\"spaced\" type=\"password\" name=\"restore_passwd\"/></div>";
+$params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Restore Database");
+$main->echo_button("restore_database", $params);
 $params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Build Indexes");
 $main->echo_button("build_indexes", $params);
 echo "</div><br>";

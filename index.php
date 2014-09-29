@@ -33,48 +33,66 @@ session_start();
 
 /* START IF, IF (logged in) THEN (controller) ELSE (login) END */
 
-if (isset($_SESSION['userrole'])):
+if (isset($_SESSION['email'])):
 
 /* RESERVED VARIABLES (used in controller)*/
 //$userrole -- the security level
-//$userroles -- valisd security permissions
+//$userroles -- valid security permissions
+//$interface -- current interface
 //$email -- the current email/username
-//$array_state -- the state array, commonly passed into functions as reference
 //$module -- the current module
 //$con -- the connection to the database
+//$array_master -- contains all the interface arrays
 //$controller_path -- the path to the current module
+//$controller_type -- the current module type
 //$index_path - not unset because used in a header redirect
 
-//these other vars are all disposed of with unset
-//$controller_type //unset after tabs are echoed
-//$selected //unset after tabs are echoed
-//$lineclass //unset after tabs are echoed
-//$arr_controller -- unset after final use
+//$less -- LESS parser invocations
+//$main -- Brimbox objects invoked
 
-//get userrole and module
-$userroles = $_SESSION['userroles']; //careful with userroles session, used to check for valid userrole
-$userrole = $_SESSION['userrole']; //once set, can be set with user input, checked against userroles
+/* RESERVED OBJECTS */
+//bb_database
+//bb_link
+//bb_validate
+//bb_form
+//bb_work
+//bb_report
+//bb_main
+//lessc -- LESS comnpiler
+
+//other vars are all disposed of with unset
+
+//get SESSION STUFF -- designed for one user type per browser
 $email = $_SESSION['email']; //login of user
+$userrole = $_SESSION['userrole']; //only one session per browser per database
+$userroles = $_SESSION['userroles']; //careful with userroles session, used to check for valid userrole
+list($userwork, $interface) = explode("-", $userrole, 2);
+
 $archive = $_SESSION['archive']; //archive mode
 
-//logout algorithm used for both userrole change and logout
+$button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
+
+//logout algorithm used for both interface change, userrole change and logout
 if (isset($_POST['bb_module']))
 	{
-	//die($_POST['bb_module']); 
-	if ($_POST['bb_module'] == "bb_logout")
+	$module = $_POST['bb_module'];
+	$submit = $_POST['bb_submit'];
+	if ($module == "bb_logout")
 		{
-		$button = $_POST['bb_submit'] . "_bb_button";
+		//explode on first dash only allows for dashes in interface name
+		list($userwork, $interface) = explode("-", $_POST['bb_interface'], 2);
+		//logout and change interface/userrole could be on different or many pages
 		//check for session poisoning, array userroles should not be altered
-		//the conversion to int of $_POST[$button] will stop injection
-		//$userroles should be protected and not used or altered anywhere
-		if (($_POST[$button] > 0) && in_array($_POST[$button], $userroles))
+		//the conversion to string of string of $_POST['bb_submit'] and will stop injection
+		//$userroles variable should be protected and not used or altered anywhere		
+		if (((int)$userwork > 0) && in_array($_POST['bb_interface'], $userroles))
 			{
-			$_SESSION['userrole'] = $_POST[$button];
+			$_SESSION['userrole'] = $_POST['bb_interface']; 
 			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
 			header($index_path);
 			die(); //important to stop script
 			}
-		//if logout, destroy session and force index
+		//if logout, destroy session and force index, button < 0 or invalid userrrole
 		else
 			{
 			session_destroy();
@@ -83,29 +101,7 @@ if (isset($_POST['bb_module']))
 			die(); //important to stop script
 			}
 		}
-	else
-		{
-		$module = $_POST['bb_module']; 
-		}
 	}
-//default module from login is bb_guest or bb_home
-else
-    {
-	switch($userrole)
-		{
-		case 1:
-		$module = "bb_guest";
-		break;
-		case 2:
-		$module = "bb_viewer";
-		break;
-		case 3:
-		case 4:
-		case 5:
-		$module = "bb_home";
-		break;		
-		}
-    }
 	
 /* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
 // contains bb_database class
@@ -126,11 +122,11 @@ include("bb-utilities/bb_main.php");
 // User function include
 include("bb-config/bb_admin_functions.php");
 
-/* SET UP OBJECT */
+/* SET UP MAIN OBJECT */
 //objects are all daisy chained together
 $main = new bb_main();
 //constructs main and work, extends form
-/* END OBJECTS */
+/* END MAIN OBJECT */
 
 /* GET DATABASE CONNECTION */
 //database connection passed into modules globally
@@ -142,15 +138,24 @@ include("bb-utilities/bb_globals.php");
 //Contains the user defined globals
 include("bb-config/bb_admin_globals.php");
 
-//START HTML OUTPUT
+//unpack $array_master
+foreach($array_master['bb_brimbox'] as $key => $value)
+	{
+	${'array_' . $key} = $value;
+	}
 ?>
+<?php /* START HTML OUTPUT */ ?>
 <!DOCTYPE html>    
 <html>
 <head>    
 <meta http-equiv="Content-Type" content="text/html; charset="utf-8" />
 
+<?php /* JAVASCRIPT AND CSS INCLUDES */ ?>
 <script type="text/javascript" src="bb-utilities/bb_script.js"></script>
+<script type="text/javascript" src="bb-config/bb_admin_javascript.js"></script>
+
 <link rel=StyleSheet href="bb-utilities/bb_styles.css" type="text/css" media=screen>
+<link rel=StyleSheet href="bb-config/bb_admin_css.css" type="text/css" media=screen>
 
 <?php
 /* SET UP LESS PARSER */
@@ -160,89 +165,82 @@ $less = new lessc();
 echo "<style>";
 $less->setFormatter("compressed");
 echo $less->compileFile("bb-utilities/bb_styles.less");
+echo $less->compileFile("bb-config/bb_admin_less.less");
 echo "</style>";
 /* END LESS PARSER */
 ?>
 
-<script type="text/javascript" src="bb-config/bb_admin_javascript.js"></script>
-<link rel=StyleSheet href="bb-config/bb_admin_css.css" type="text/css" media=screen>
-
 <title><?php echo PAGE_TITLE; ?></title> 
-
 </head>
+
 <body>
-	
 <?php
 /* CONTROLLER ARRAYS*/
-//query the modules table to set up the tabs and setyup and admin links
-$query = "SELECT * FROM modules_table WHERE standard_module IN (0,1,2,4,6) AND userrole BETWEEN 1 AND " . (int)$userrole . " ORDER BY module_type, module_order;";
-$result = pg_query($con, $query);
+//query the modules table to set up the interface according to $array_master
 
-//put the tab info into arrays for processing
-$arr_controller = array(1=>array(),2=>array(),3=>array(),4=>array(),5=>array());
-//controller type (module type) and controller path need defaults
-//like a hidden tab
-$controller_type = 0;
-//default tabs, should not be deactivated
-switch ($userrole)
-    {
-    case 1:
-        $controller_path = "bb-primary/bb_guest.php";
-        break;
-    case 2:
-        $controller_path = "bb-primary/bb_viewer.php";
-        break;
-    case 3:
-    case 4:
-    case 5:
-        $controller_path = "bb-primary/bb_home.php";
-        break;        
-    }
+//setup initial variables
+//arr_reduce is part of interface for current userrole
+$arr_reduce = $array_interface;
+//arr_work is an array of temp variables for quick disposal
+$arr_work['interface_type'] = "";
+$arr_work['module_types'] = array();
+//get the module types for current interface
+foreach($array_interface as $key => $value)
+	{
+	if (in_array($userrole, $value['userroles']))
+		{
+		array_push($arr_work['module_types'], $value['module_type']);
+		}
+	else
+		{
+		unset($arr_reduce[$key]);	
+		}
+	};
+//get modules type into string for query, reuse variable
+$arr_work['module_types'] = implode(",", array_unique($arr_work['module_types']));
 
-//setup controller array
+//query modules table
+$arr_work['query'] = "SELECT * FROM modules_table WHERE standard_module IN (0,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($arr_work['module_types']) . ") ORDER BY module_type, module_order;";
+$result = pg_query($con, $arr_work['query']);
+
+//populate controller arrays
+$controller_path = ""; //path to included module
 while($row = pg_fetch_array($result))
     {
-    if ($row['module_name'] == $module)
-        {
-        $controller_type = $row['module_type'];
-        $controller_path = $row['module_path'];
-        } 
     //double check that user permission is consistant with module type
-    if ($row['module_type'] <= $userrole)
-        {
-        switch ($row['module_type'])
-            {
-            case 0:
-                 //hidden, do nothing
-                 break;
-            case 1:
-                //guest tab
-                $key = $row['module_type'];
-                $arr_controller[$key][$row['module_name']] = $row['friendly_name'];
-                break;
-            case 2:
-                //viewer tab
-                $key = $row['module_type'];
-                $arr_controller[$key][$row['module_name']] = $row['friendly_name'];
-                break;
-            case 3:
-                //user tab
-                $key = $row['module_type'];
-                $arr_controller[$key][$row['module_name']] = $row['friendly_name'];
-             break;
-            case 4:
-                //setup tab
-                $key = $row['module_type'];
-                $arr_controller[$key][$row['module_name']]= $row['friendly_name'];
-            break;
-            case 5:
-                //admin tab
-                $key = $row['module_type'];
-                $arr_controller[$key][$row['module_name']] = $row['friendly_name'];
-             break;
-            }
-        }
+	if ($row['module_type'] <> 0)
+		{
+		if (!empty($module))
+			{
+			if ($row['module_name'] == $module)
+				{
+				$controller_path = $row['module_path'];
+				$controller_type = $row['module_type']; 
+				}
+			}
+		$arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path']);
+		}
     }
+
+//get default module to display initially	
+if (empty($module))
+	{
+	//use $array[key($array)] to find first value
+	$arr_work['key'] = $arr_reduce[key($arr_reduce)]['module_type'];
+	$module = key($arr_controller[$arr_work['key']]);
+	$controller_path = $arr_controller[$arr_work['key']][$module]['module_path'];
+	$controller_type = key($arr_controller);
+	}
+
+//if hidden, query hidden modules
+if (empty($controller_path))
+	{	
+	$arr_work['query'] = "SELECT * FROM modules_table WHERE standard_module IN (1,2) AND module_type IN (0) AND module_name = '" . $module . "';";
+	$result = pg_query($con, $arr_work['query']);
+	$row = pg_fetch_array($result);
+	$controller_path = $row['module_path'];
+	$controller_type = $row['module_type'];
+	}
 /* END CONTROLLER AARAYS */
 
 /* ECHO TABS */
@@ -250,148 +248,96 @@ while($row = pg_fetch_array($result))
 echo "<div id=\"bb_header\">";
 //header image
 echo "<div id=\"controller_image\"></div>";
-
 echo "<nav>"; //html5 nav tag
-    
-if ($userrole == 1)
-    {
-    //guest tabs
-    foreach ($arr_controller[1] as $key => $value)       
-        {
-        $selected = ($module == $key) ? "chosen" : "";
-        echo "<button class=\"tabs " . $selected . " \" onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value . "</button>";
-        }
-    }
-if ($userrole == 2)
-    {
-    //viewer tabs
-    foreach ($arr_controller[2] as $key => $value)       
-        {
-        $selected = ($module == $key) ? "chosen" : "";
-        echo "<button class=\"tabs " . $selected . " \" onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value . "</button>";
-        }
-    }   
-else
-    {
-    //standard, setup, & admin tabs
-    //standard tabs
-    foreach ($arr_controller[3] as $key => $value)       
-        {
-        $selected = ($module == $key) ? "chosen" : "";
-        $selected = trim("tabs " . $selected);
-        echo "<button class=\"" . $selected . "\" onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value . "</button>";
-        }
-   
-   //setup tab
-   //get module and set selected for setup
-    if (array_key_exists($module, $arr_controller[4]))
-        {
-        $setup_tab = $module;
-        }
-    else
-        {
-        reset($arr_controller[4]);
-        $setup_tab = key($arr_controller[4]); //to return first value
-        } 
-    $selected = ($controller_type == 4) ? "chosen" : "";
-    $selected = trim("tabs " . $selected);
-    if (!empty($arr_controller[4]))
-        {
-        echo "<button class=\"" . $selected . "\"  onclick=\"bb_submit_form(0,'" . $setup_tab . "')\">Setup</button>";
-        }
-      
-   //admin tab
-   //get module and set selected for admin
-    if (array_key_exists($module, $arr_controller[5]))
-        {
-        $admin_tab = $module;
-        }
-    else
-        {
-        reset($arr_controller[5]);
-        $admin_tab = key($arr_controller[5]); //to return first value
-        } 
-   $selected = ($controller_type == 5) ? "chosen" : "";
-   $selected = trim("tabs " . $selected);
-   if (!empty($arr_controller[5]))
-        {
-        echo "<button class=\"" . $selected . "\" onclick=\"bb_submit_form(0,'" . $admin_tab . "')\">Admin</button>";
-        }
-    }  //end else
-    
-echo "</nav>"; //closing nav tag
+
+foreach ($arr_reduce as $value)
+	{
+	$arr_work['selected'] = ""; //reset selected
+	if ($value['module_type'] == $controller_type)
+		{
+		$arr_work['interface_type'] = $value['interface_type'];
+		}
+	if ($value['interface_type'] == 'Standard')
+		{
+		foreach ($arr_controller[$value['module_type']] as $key => $value)       
+			{
+			$arr_work['selected'] = ($module == $key) ? "chosen" : "";
+			echo "<button class=\"tabs " . $arr_work['selected'] . "\" onclick=\"bb_submit_form(-1,'" . $key . "')\">" . $value['friendly_name'] . "</button>";
+			}
+		}
+	elseif ($value['interface_type'] == 'Auxiliary')
+		{
+		//this section
+		if (array_key_exists($value['module_type'], $arr_controller))
+			{
+			if (array_key_exists($module, $arr_controller[$value['module_type']]))
+				{
+				$arr_work['selected'] = "chosen";
+				$arr_work['module'] = $module;
+				}
+			else
+				{
+				$arr_work['module'] = key($arr_controller[$value['module_type']]);
+				}
+			echo "<button class=\"tabs " . $arr_work['selected'] . "\"  onclick=\"bb_submit_form(-1,'" . $arr_work['module'] . "')\">" . $value['friendly_name'] . "</button>";
+			}			
+		}		
+	}
+/* END ECHO TABS */
+
 
 //line either set under chosen tab or below all tabs and a hidden module
-$lineclass = ($controller_type == 0) ? "line" : "under";
-echo "<div class=\"" . $lineclass . "\"></div>";
+$arr_work['lineclass'] = ($controller_type == 0) ? "line" : "under";
+echo "<div class=\"" . $arr_work['lineclass'] . "\"></div>";
 echo "</div>"; //bb_header
 /* END ECHO TABS */
 
 /* UNSET UNNEEDED VARS BEFORE INCLUDE */
 /* so not passed to modules */
-unset($selected);
-unset($lineclass);
-unset($admin_tab);
-unset($setup_tab);
-unset($query);
-unset($result);
 
 /* INCLUDE APPROPRIATE MODULE */
-//end id = header, end tab sections
-//chose out whatever module you want to load
-
 echo "<div id=\"bb_wrapper\">";
-if (array_key_exists($module, $arr_controller[4]))
-    //setup tab
+//Auxiliary tabs
+if ($arr_work['interface_type'] == 'Auxiliary')
     {
     echo "<div id=\"bb_admin_menu\">";
-    //echo setup buttons side menu
-    foreach ($arr_controller[4] as $key => $value)
-        {     
-        echo "<button class=\"menu\" name=\"" . $key . "_name\" value=\"" . $key . "_value\"  onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value . "</button>";
+    //echo Auxiliary buttons on the side
+    foreach ($arr_controller[$controller_type] as $key => $value)
+        {
+        echo "<button class=\"menu\" name=\"" . $key . "_name\" value=\"" . $key . "_value\"  onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value['friendly_name'] . "</button>";
         }
     echo "</div>";
     
-    //$arr_controller no longer needed
-    unset($arr_controller);
-    unset($key);
+    //clean up before include
+	unset($key);
     unset($value);
+	unset($arr_work);
+	unset($arr_reduce);
+	unset($result);
+    unset($arr_controller);
+	//module include this is where modules are included
     echo "<div id=\"bb_admin_content\">";
     //$controller_path is reserved, this "include" includes the current module
     include($controller_path);
     echo "</div>";
     echo "<div class=\"clear\"></div>";
     }
-elseif (array_key_exists($module, $arr_controller[5]))
-    //admin tab
-    {
-    echo "<div id=\"bb_admin_menu\">";
-    //echo admin buttons side menu
-    foreach ($arr_controller[5] as $key => $value)
-        {
-        echo "<button class=\"menu\" name=\"" . $key . "_name\" value=\"" . $key . "_value\" onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value . "</button>";
-        }
-    echo "</div>";
-    //$arr_controller no longer needed
-    unset($arr_controller);
-    unset($key);
-    unset($value);
-    echo "<div id=\"bb_admin_content\">";
-    //$controller_path is reserved, this "include" includes the current module
-    include($controller_path);    
-    echo "</div>";
-    echo "<div class=\"clear\"></div>";
-    }
+//Standard tabs
 else 
     {
-    //include for all primary tabs
-    //works for both guest and user tabs
+    //clean up before include
+	unset($key);
+    unset($value);
+	unset($arr_reduce);
+	unset($arr_work);
+	unset($result);
+	unset($arr_controller);
+	//module include this is where modules are included
     echo "<div id=\"bb_content\">";
     //$controller_path is reserved, this "include" includes the current module
-    unset($key);
-    unset($value);
     include($controller_path);
     echo "</div>";
+	
     echo "<div class=\"clear\"></div>";
     }
 echo "</div>"; //bb_wrapper
@@ -441,7 +387,7 @@ if (isset($_POST['index_enter']))
     $passwd = $main->custom_trim_string($_POST['passwd'],255);
     
     //query master database
-    $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT (0 = ANY (userroles)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
+    $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0%' = ANY (userroles)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
     
     //get result
     $result = $main->query($con, $query);
@@ -491,7 +437,9 @@ if (isset($_POST['index_enter']))
 			//set sessions
 			$_SESSION['email'] = $row['email'];
 			$_SESSION['name'] = $main->build_name($row);
+			//this holds the possible permissions, be careful altering on the fly
 			$_SESSION['userroles'] = explode(",", $row['userroles']);
+			$_SESSION['userroles'][0];
 			$_SESSION['userrole'] = $_SESSION['userroles'][0];
 			$_SESSION['archive'] = 0;
 			//log entry

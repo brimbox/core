@@ -83,7 +83,16 @@ function bb_page_selector(e,of)
 	var frmobj = document.forms['bb_form'];
 	var frmele = frmobj.elements[e];
 	frmele.value = of;
-	bb_submit_form(0);
+	bb_submit_form();
+	return false;
+	}
+	
+function bb_logout_selector(i)
+	{
+	var frmobj = document.forms['bb_form'];
+	var frmele = frmobj.elements['bb_interface'];
+	frmele.value = i;
+	bb_submit_form(0,'bb_logout');
 	return false;
 	}
 
@@ -118,7 +127,7 @@ var bb_reports = new Object();
 		//offset and button carried through
 		if (document.bb_form.report_type.value == 0)
 			{
-			bb_submit_form(0);
+			bb_submit_form();
 			}
 		return false;
 		}

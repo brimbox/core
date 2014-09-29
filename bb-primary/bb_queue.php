@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <?php /* MODULE INCLUDES */
 include("bb_queue_extra.php");
@@ -149,10 +149,10 @@ function set_field(col)
 /* BEGIN QUEUE AND STATE POSTBACK  */
 $main->retrieve($con, $array_state, $userrole);
 
-$xml_state = $main->load($module, $array_state);
-$email_number = $main->process('email_number', $module, $xml_state, -1);
+$arr_state = $main->load($module, $array_state);
+$email_number = $main->process('email_number', $module, $arr_state, -1);
 	
-$main->update($array_state, $module,  $xml_state);
+$main->update($array_state, $module,  $arr_state);
 /*** END POSTBACK ***/
 ?>
 
@@ -177,7 +177,7 @@ if (!$mbox):
     echo "</form>";
 else: //long else
     //delete email by UID (not message id)	
-	if ($main->post('bb_button',$module) == 3)
+	if ($main->button(3))
 		{
 		$nbr = imap_num_msg($mbox);
 			for ($i=1; $i<=$nbr; $i++)
@@ -195,7 +195,7 @@ else: //long else
 		}    
     //mark emails by UID
     
-	if ($main->post('bb_button',$module) == 4)
+	if ($main->button(4))
 		{
 		$nbr = imap_num_msg($mbox);
 		for ($i=1; $i<=$nbr; $i++)
@@ -219,7 +219,7 @@ else: //long else
     
 //START REQUIRED FORM
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();
     
     //parse mbox	
 	if ($mbox)
@@ -315,8 +315,8 @@ $main->echo_module_vars($module);
 		//get glean row_type -- standard email headers for guest pack and viewer pack
 		$row_type = 0;
 		$post_record = false;
-		$xml_columns = $main->get_xml($con, "bb_column_names");
-		$xml_layouts = $main->get_xml($con, "bb_layout_names");
+		$arr_columns = $main->get_json($con, "bb_column_names");
+		$arr_layouts = $main->get_json($con, "bb_layout_names");
 		
 		
 		if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
@@ -331,9 +331,8 @@ $main->echo_module_vars($module);
 				if ($cnt_rows)
 					{
 					$row_type = ord(substr($var_subject,12,1)) - 64;
-					$layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-					$xml_layout = $xml_layouts->$layout;
-					if ((int)$xml_layout['parent'] == 0)
+					$arr_layout = $arr_layouts[$row_type];
+					if ($arr_layout['parent'] == 0)
 						{
 						$row_type = 0;	
 						}					
@@ -350,16 +349,14 @@ $main->echo_module_vars($module);
 				$result = $main->query($con, $query);
 				$cnt_rows = pg_num_rows($result);
 				$row_type = ($cnt_rows == 0) ? 0 : ord(substr($var_subject,13,1)) - 64;
-				$layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
 				}
 			}
 		elseif (substr($var_subject,0,12) == "Record New: " && preg_match("/^[A-Z]$/", substr($var_subject,12)))
 			{
 			$post_record = true;			
 			$row_type = ord(substr($var_subject,12,1)) - 64;
-			$layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-			$xml_layout = $xml_layouts->$layout;
-			if ((int)$xml_layout['parent'] > 0)
+			$arr_layout = $arr_layouts[$row_type];
+			if ($arr_layout['parent'] > 0)
 				{
 				$row_type = 0;	
 				}
@@ -368,18 +365,17 @@ $main->echo_module_vars($module);
 		//Record Add, New or Edit
 		if ($row_type > 0)
 			{
-			$xml_column = $xml_columns->$layout; 
+			$arr_column = $arr_columns[$row_type]; 
 			}
 		
 		//Check input state
 		if ((!$post_record) && ($row_type == 0))
 			{
-			$temp_state = simplexml_load_string($array_state['bb_input_bb_state']);
-			$row_type = isset($temp_state->row_type) ? (int)$temp_state->row_type : 0;
+			$temp_state = json_decode($array_state['bb_input_bb_state'], true);
+			$row_type = isset($temp_state['row_type']) ? $temp_state['row_type'] : 0;
 			if ($row_type > 0)
 				{
-				$layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-				$xml_column = $xml_columns->$layout;
+				$arr_column = $arr_columns[$row_type];
 				}
 			}
 		
@@ -396,18 +392,19 @@ $main->echo_module_vars($module);
 		$i = 1;
 	    //visable queue fields
 		echo "<div class=\"floatleft\"><ul class=\"nobullets noindent\">";
-		if (!empty($xml_column))
+		if (!empty($arr_column))
 			{
-			 foreach($xml_column->children() as $child)
+			$arr_column_reduced = $main->filter_keys($arr_column);
+			foreach($arr_column_reduced as $key => $value)
 				{
-				$col = $child->getName();
+				$col = $main->pad("c", $key);
 				echo "<input name=\"" . $col . "\" type=\"hidden\" value=\"\" />";
-				echo "<li class=\"noindent\"><button type=\"button\" class=\"link spaced padded\" onclick=\"set_field('" . $col . "'); return false;\">" . $child . "</button></li>";
+				echo "<li class=\"noindent\"><button type=\"button\" class=\"link spaced padded\" onclick=\"set_field('" . $col . "'); return false;\">" . $value['name'] . "</button></li>";
 				echo "<li class=\"noindent\"><span id=\"" . $col . "\" class=\"spaced\"></span></li>";
 				$i++;
 				}
-			echo "</ul></div>";
 			}
+		echo "</ul></div>";
 		echo "<div class=\"clear\"></div>";
 		}    
 	imap_close($mbox);

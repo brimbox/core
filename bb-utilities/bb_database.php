@@ -51,9 +51,10 @@ class bb_database {
 			{
 			if ($display)
 				{
-				die($query);
+				$string = "<p>Error: " . pg_last_error($con) . "</p><p>Query: " . $query . "</p>";
+				die($string);
 				}
-			die("Cannot query database.");
+			die();
 			}
 		return $result;
 		}
@@ -66,9 +67,10 @@ class bb_database {
 			{
 			if ($display)
 				{
-				die($query);
+				$string = "<p>Error: " . pg_last_error($con) ."</p><p>Query: " . $query . "</p>";
+				die($string);
 				}
-			die("Cannot query database.");  
+			die();  
 			}
 		return $result;    
 		}
@@ -110,6 +112,27 @@ class bb_database {
 		$node = $xml->xpath($path);
 		return $node;    
 		}
+		
+	function get_json($con, $lookup)
+		{
+		//gets an xml object from the xml_table
+		$query = "SELECT jsondata FROM json_table WHERE lookup IN ('" . pg_escape_string($lookup) . "');";
+	
+		$result = $this->query($con, $query);
+		
+		$row = pg_fetch_array($result);
+		$json = $row['jsondata'];
+			
+		return json_decode($json, true);		
+		}
+	
+	function update_json($con, $array, $lookup)
+		{
+		//update xml_table with a whole xml object
+		$query = "UPDATE json_table SET jsondata = '" . json_encode($array) . "' WHERE lookup = '" . $lookup . "';";
+	
+		$this->query($con, $query);
+		}	
 	    
 	function get_next_xml_node($xml, $path, $limit)
 		{

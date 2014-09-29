@@ -24,6 +24,8 @@ include("../bb-utilities/bb_form.php");
 include("../bb-utilities/bb_work.php");
 include("../bb-utilities/bb_report.php");
 include("../bb-utilities/bb_main.php");
+//get versions
+include("bb-utilities/bb_globals.php");
 
 /* NO HTML OUTPUT ALLOWED */
 $main = new bb_main(); //extends bb_database
@@ -31,10 +33,14 @@ $main = new bb_main(); //extends bb_database
 session_name(DB_NAME);
 session_start();
 
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 
 /* INITIALIZE */
-$backup = "2012.1.2"; //probably change with database design, backup type
+//version 2014.1.3
+$backup = BRIMBOX_BACKUP; //probably change with database design, backup type
+$program = BRIMBOX_PROGRAM; //probably change with database design, backup type
+$database = BRIMBOX_DATABASE;
+
 $str_encrypt = "";
 set_time_limit(0);
 $con = $main->connect();
@@ -45,7 +51,7 @@ $userrole = $_SESSION['userrole'];
 $email = $_SESSION['email'];
 
 //validate password
-$valid_password = $main->validate_login($con, $email, $passwd, 5);
+$valid_password = $main->validate_login($con, $email, $passwd, "5-bb_brimbox");
 if (!$valid_password)
 	{
 	die("Invalid Password");	
@@ -108,12 +114,12 @@ $iv = substr($salt,0,8);
 if ($type == 0) //no encrypt 
 	{
 	//left 2 digits should be encrypt method
-	$hex = "00000002";
+	$hex = "00000004";
 	$eol = "\r\n";
 	}
 elseif ($type == 1) //MCRYPT_3DES + Compression
 	{
-	$hex = "00000003";
+	$hex = "00000005";
 	$eol = "\r\n";
 	}
 	
@@ -121,24 +127,17 @@ elseif ($type == 1) //MCRYPT_3DES + Compression
 echo $hex . $salt . $hash . $eol;
 
 //back up stats
-$xml_header = simplexml_load_string("<header/>");
-$xml_header->backup = $backup;
+$json_header = array();
+$json_header['backup'] = $backup;
+$json_header['program'] = $program;
+$json_header['database'] = $database;
 
-$xml_version = $main->get_xml($con, "bb_manage_modules");
-if (isset($xml_version->program))
-	{
-	$xml_header->program = (string)$xml_version->program;
-	}
-if (isset($xml_version->database))
-	{
-	$xml_header->database = (string)$xml_version->database;
-	}
 date_default_timezone_set(USER_TIMEZONE);
 $datetime = date('m/d/Y h:i:s a', time());
-$xml_header->addChild("datetime", $datetime);
+$json_header['datetime'] = $datetime;
 
 //echo second line, backup stats, encrypted	
-$str = $xml_header->asXML();
+$str = json_encode($json_header);
 echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 
 /* TABLES ORDERED FOR QUICKER RESTORE */
@@ -146,19 +145,19 @@ echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 
 /* XML TABLE */
 //lock and get xml table
-$query = "BEGIN; LOCK TABLE xml_table;";
+$query = "BEGIN; LOCK TABLE json_table;";
 $main->query($con,$query);
 //get exact columns desired
-$query = "SELECT lookup, xmldata, change_date FROM xml_table;";
+$query = "SELECT lookup, jsondata, change_date FROM json_table;";
 $result = $main->query($con,$query);
 $cnt = pg_num_rows($result);
 $query = "COMMIT;";
 $main->query($con,$query);
 
 //xml table stats in xml form, count is important
-$xml_xml = simplexml_load_string("<xml/>");
-$xml_xml->count = $cnt;
-$str = $xml_xml->asXML();
+$json_json = array();
+$json_json['count'] = $cnt;
+$str = json_encode($json_json);
 echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 
 //echo xml rows
@@ -183,9 +182,9 @@ $cnt = pg_num_rows($result);
 $query = "COMMIT;";
 $main->query($con,$query);
 
-$xml_users = simplexml_load_string("<users/>");
-$xml_users->count = $cnt;
-$str = $xml_users->asXML();
+$json_users = array();
+$json_users['count'] = $cnt;
+$str = json_encode($json_users);
 echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 
 while ($row = pg_fetch_row($result))
@@ -198,16 +197,16 @@ while ($row = pg_fetch_row($result))
 /* MODULES TABLE */
 $query = "BEGIN; LOCK TABLE modules_table;";
 $main->query($con,$query);
-$query = "SELECT module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, " .
-		 "maintain_state, module_files, module_details, change_date FROM modules_table;";
+$query = "SELECT module_order, module_path, module_name, friendly_name, interface, module_type, module_version,
+  standard_module, maintain_state, module_files, module_details, change_date FROM modules_table;";
 $result = $main->query($con,$query);
 $cnt = pg_num_rows($result);
 $query = "COMMIT;";
 $main->query($con,$query);
 
-$xml_modules = simplexml_load_string("<modules/>");
-$xml_modules->count = $cnt;
-$str = $xml_modules->asXML();
+$json_modules = array();
+$json_modules['count'] = $cnt;
+$str = json_encode($json_modules);
 echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 
 while ($row = pg_fetch_row($result))
@@ -227,9 +226,9 @@ $query = "COMMIT;";
 $main->query($con,$query);
 
 
-$xml_log = simplexml_load_string("<log/>");
-$xml_log->count = $cnt;
-$str = $xml_log->asXML();
+$json_log = array();
+$json_log['count'] = $cnt;
+$str = json_encode($json_log);
 echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 
 while ($row = pg_fetch_row($result))
@@ -256,9 +255,9 @@ $query = "COMMIT;";
 $main->query($con,$query);
 
 
-$xml_data = simplexml_load_string("<log/>");
-$xml_data->count = $cnt;
-$str = $xml_data->asXML();
+$json_data = array();
+$json_data['count'] = $cnt;
+$str = json_encode($json_data);
 echo encrypt_line($str, $passwd, $iv, $type) . $eol;		
 
 while ($row = pg_fetch_row($result))

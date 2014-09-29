@@ -24,9 +24,13 @@ If not, see http://www.gnu.org/licenses/
 //return_header
 //return_rows
 //get_default_row_type
-//layout_dropdown
-//column_dropdown
-//list_dropdown
+//layout_dropdown -- deprecated
+//layout_select
+//column_dropdown -- deprecated
+//column_select
+//list_dropdown -- deprecated
+//list_select
+//get_next_node
 //pad
 //rpad
 //build_name
@@ -115,51 +119,57 @@ class bb_main extends bb_report {
 	//$col2 is the actual name of the columns from the xml, $row[$col2] is  $row['c03']
 	//$child is the visable name of the column the user name of the column
 	
-	function return_rows($row, $xml_column, $check = false)
+	function return_rows($row, $arr_column, $check = false)
 		{
 		//you could always feed this function only non-secured columns
 		$row2 = 1;  //to catch row number change
 		$row3 = ""; //string with row data in it
 		$secure = false; //must be check = true and secure = 1 to secure column
 		$pop = false; //to catch empty rows, pop = true for non-empty rows
-		foreach($xml_column->children() as $child)
+        $arr_column_reduced = $this->filter_keys($arr_column);
+		foreach($arr_column_reduced as $key => $value)
 			{
-			$col2 = $child->getName(); //node name
-			$row1 = (int)$child['row']; //current row number
-			//always skipped first time
-			if ($row2 != $row1) 
-				{
-				if ($pop)
-					{
-					echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";                
-					}
-				$row3 = ""; //reset row data
-				$pop = false; //start row again with pop  = false
-				}
-			//secure > 0 means true
-			$secure = ($check && ($child['secure'] > 0)) ? true : false;
-			//check secure == 0
-			if (!$secure)
-				{
-				if (!empty($row[$col2]))
-					{
-					$pop = true; //field has data, so row will too
-					}
-				//prepare row, if row has data also echo the empty cell spots
-				$row3 .= "<div class = \"overflow " . $child['leng'] . "\">" . htmlentities($row[$col2]) . "</div>";
-				}
-			$row2 = $row1;
-			}
-		//echo the last row if populated
-		if ($pop)
-			{
-			echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";                
-			}
-		return (int)$row['cnt'];
+            if (is_integer($key)) //integer keys reserved for columns
+                {
+                $row1 = (int)$value['row']; //current row number
+                $col2 = $this->pad("c", $key);
+                //always skipped first time
+                if ($row2 != $row1) 
+                    {
+                    if ($pop)
+                        {
+                        echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";                
+                        }
+                    $row3 = ""; //reset row data
+                    $pop = false; //start row again with pop  = false
+                    }
+                //secure > 0 means true
+                $secure = ($check && ($value['secure'] > 0)) ? true : false;
+                //check secure == 0
+                if (!$secure)
+                    {
+                    if (!empty($row[$col2]))
+                        {
+                        $pop = true; //field has data, so row will too
+                        }
+                    //prepare row, if row has data also echo the empty cell spots
+                    $row3 .= "<div class = \"overflow " . $value['length'] . "\">" . htmlentities($row[$col2]) . "</div>";
+                    }
+                $row2 = $row1;
+                }
+            }
+            //echo the last row if populated
+        if ($pop)
+            {
+            echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";                
+            }
+
+		return $row['cnt'];
 		}
 		
 	function get_default_row_type($xml_layouts, $check = false)
 		{
+        ###DEPRACATED###
 		//at least one layout should be set
 		//this finds the first layout as the default value
 		$i = 0; // no layouts
@@ -177,11 +187,80 @@ class bb_main extends bb_report {
 			}
 		return $i;
 	   }
+       
+    function get_default_layout($arr_layouts, $available = null)
+		{
+        //layouts are in order, will return first array if $check is false
+        //if check is true, $available array of layout secure values will be considered
+        //$available is an array of available securities to allow
+        if (is_integer($available))
+            {
+            $available = array($available);    
+            }
+        //loop through $arr_layouts
+        foreach ($arr_layouts as $key => $value)
+            {
+            if (is_integer($key)) //integer is row_type
+                {
+                if (!is_null($available)) //check is true
+                    {
+                    if (in_array($value['secure'], $available))
+                        {
+                        return $key;
+                        }
+                    }
+                else //check is false
+                    {
+                    return $key;   
+                    }
+                }
+            }
+	    }
+        
+    function get_default_column($arr_column, $available = null)
+		{
+        //columns are in order, will return first array if $check is false
+        //if check is true, $available array of layout secure values will be considered
+        //$available is an array of available securities to allow
+        if (is_integer($available))
+            {
+            $available = array($available);    
+            }
+        //loop through $arr_layouts
+        foreach ($arr_column as $key => $value)
+            {
+            //integer values reserved for columns
+            if (is_integer($key))
+                {
+                if (!is_null($available)) //check is true
+                    {
+                    if (in_array($value['secure'], $available))
+                        {
+                        return $key;
+                        }
+                    }
+                else //check is false
+                    {
+                    return $key;
+                    }
+                }
+            }
+	    }
+    
+    function filter_keys ($arr_in)
+        //function to return array with only integer keys
+        {
+        $keys = array_filter(array_keys($arr_in), 'is_integer');
+        $arr_out = array_intersect_key($arr_in, array_flip($keys));
+        
+        return $arr_out;
+        }
 			
 	//this returns a standard header combo for selecting record type
 	//for this function the javascript function reload_on_layout() is uniquely tailored to the calling module    
 	function layout_dropdown($xml_layouts, $name, $row_type, $params = array())
 		{
+        ###DEPRACATED###
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
 		$check = isset($params['check']) ? $params['check'] : false;
@@ -215,9 +294,46 @@ class bb_main extends bb_report {
 				}
 		 echo "</select>";
 		}
+        
+    function layout_select($arr_layouts, $name, $row_type, $params = array())
+		{
+		$class = isset($params['class']) ? $params['class'] : "";
+		$onchange = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
+		$check = isset($params['check']) ? $params['check'] : false;
+		$empty = isset($params['empty']) ? $params['empty'] : false;
+		$all = isset($params['all']) ? $params['all'] : false;
+		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
+		$label = isset($params['label']) ? $params['label'] : "";
+		
+		if (!empty($label))
+			{
+			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
+			}
+			
+		echo "<select name = \"" . $name . "\" class = \"" . $class . "\" onchange=\"" . $onchange  . "\">";
+		if ($empty)
+			{
+			echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
+			}
+		if ($all)
+			{
+			echo "<option value=\"0\" " . (0 == $row_type ? "selected" : "") . ">All&nbsp;</option>";
+			}
+		 foreach ($arr_layouts as $key => $value)
+				{
+				$secure = ($check && ($value['secure'] > 0)) ? 1 : 0;
+				if (!$secure)
+					{
+					echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . htmlentities($value['plural']) . "&nbsp;</option>";
+					}
+				}
+		echo "</select>";
+		}
+
 			 
 	function column_dropdown($xml_column, $name, $col_type, $params = array())
 		{
+        ###DEPRECATED###
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
 		$check = isset($params['check']) ? $params['check'] : false;
@@ -253,9 +369,48 @@ class bb_main extends bb_report {
 			}
 		echo "</select>";
 		}
+        
+    function column_select($arr_column, $name, $col_type, $params = array())
+		{
+		$class = isset($params['class']) ? $params['class'] : "";
+		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
+		$check = isset($params['check']) ? $params['check'] : false;
+		$empty = isset($params['empty']) ? $params['empty'] : false;
+		$all = isset($params['all']) ? $params['all'] : false;
+		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
+		$label = isset($params['label']) ? $params['label'] : "";
+		
+		if (!empty($label))
+			{
+			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
+			}
+
+		//Security there should be no way to get column with secured row_type
+		echo "<select name=\"". $name . "\" class=\"". $class . "\" onchange=\"" . $onchange  . "\">";
+		//build field options for column names
+		if ($empty)
+			{
+			echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
+			}
+		if ($all)
+			{
+			echo "<option value=\"0\" " . (0 == $col_type ? "selected" : "") . ">All&nbsp;</option>";
+			}
+        $arr_column = $this->filter_keys($arr_column);
+		foreach($arr_column as $key => $value)
+			{
+            $secure = ($check && ($child['secure'] > 0)) ? 1 : 0;
+            if (!($secure))
+                {
+                echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
+                }
+			}
+		echo "</select>";
+		}
 		
 	function list_dropdown($xml_lists, $name, $list_number, $row_type, $params = array())
 		{
+        ###DEPRECATED###
 		//Security there should be no way to get column with secured row_type
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
@@ -287,7 +442,72 @@ class bb_main extends bb_report {
 				echo "<option value=\"" . $i. "\"" . ($i == $list_number   ? " selected " : "") . ">" . htmlentities((string)$child) . $archive_flag . "&nbsp;</option>";
 				}
 			}
-		echo "</select>";    }
+		echo "</select>";
+        }
+        
+    function list_select($arr_list, $name, $list_number, $params = array())
+		{
+		//Security there should be no way to get column with secured row_type
+		$class = isset($params['class']) ? $params['class'] : "";
+		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
+		$archive = isset($params['archive']) ? $params['archive'] : false;
+		$empty = isset($params['empty']) ? $params['empty'] : false;
+		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
+		$label = isset($params['label']) ? $params['label'] : "";
+		
+		if (!empty($label))
+			{
+			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
+			}
+		echo "<select name = \"" . $name . "\" class=\"" . $class . "\" onchange=\"" . $onchange  . "\">";
+		//list combo
+		if ($empty)
+			{
+			echo "<option value=\"-1\" " . (-1 == $list_number ? "selected" : "") . "></option>";
+			}
+		foreach($arr_list as $key => $value)
+			{
+			//either 1 or 0 for archive
+			if (!$value['archive'] || $archive)
+				{
+				$archive_flag = ($value['archive']) ? "*" : "";
+				echo "<option value=\"" . $key. "\"" . ($key == $list_number   ? " selected " : "") . ">" . htmlentities($value['name']) . $archive_flag . "&nbsp;</option>";
+				}
+			}
+		echo "</select>";
+        }
+        
+    function get_next_node($arr, $limit)
+		{
+		//when there are nodes like c001, c002, c004, c005 finds next empty value ie 3
+		//double quotes in path will not work
+		$k = 0;  // initialize for first value
+		$bool = false;	
+		sort($arr);
+		foreach($arr as $i => $j)
+			{
+			$k = $i + 1; //$i starts at 0, $k start at 1
+			if ($k <> $j)
+				{
+				$bool = true; //insert value in middle
+				break;
+				}			
+			}
+            
+		if (!$bool)
+			{
+			$k = $k + 1; //insert value at end
+			}			
+		if ($k > $limit)
+			{
+			return -1; //limit exceeded
+			}
+		else
+			{
+			return $k;//return next value
+			}
+		}
+
 	
 	//pad a number to a column name	
 	function pad($char, $number, $padlen = 2)
@@ -490,22 +710,17 @@ class bb_main extends bb_report {
 			}  
 		}	
 	
-	function check_permission($permission)
+	function check_permission($module_interface, $module_userroles)
 		{
-		global $array_userroles;
 		//waterfall
 		//this will also check that session is set
-		$userrole = $_SESSION['userrole'];
         $email = $_SESSION['email'];
-        if (is_string($permission)) //string input
-			{
-			$permission = (int)array_search($permission, $array_userroles);	
-			}
-        if (is_int($permission)) //either int or string input
+        list($userwork, $interface) = explode("-", $_SESSION['userrole'], 2);
+        if (is_int($module_userroles)) //either int or string input
             {
-            $permission = array($permission);    
+            $module_userroles = array($module_userroles);    
             }            
-		if (!in_array($userrole, $permission))
+		if (!in_array($userwork, $module_userroles) || ($interface <> $module_interface))
 			{
 			echo "Insufficient Permission.";
             session_destroy();
@@ -525,7 +740,7 @@ class bb_main extends bb_report {
 			}
 		if (ADMIN_ONLY == "YES")
 			{
-			if ($userrole <> 5)
+			if (($userwork <> 5) || ($interface <> "bb_brimbox"))
 				{
 				echo "Program switched to admin only mode.";
                 session_destroy();
@@ -536,10 +751,9 @@ class bb_main extends bb_report {
 	
 	function validate_login($con, $email, $passwd, $userlevels)
 		{
-		global $array_userroles;
 		//waterfall
 		//this will also check that session is set
-        $userrole = (int)$_SESSION['userrole'];
+        $userrole = $_SESSION['userrole'];
 		if (!is_array($userlevels))
 			{
 			$userlevels = array($userlevels);	
@@ -547,7 +761,7 @@ class bb_main extends bb_report {
         //waterfall
         if (in_array($userrole, $userlevels))
             {
-            $query = "SELECT * FROM users_table WHERE " . $userrole . " = ANY (userroles) AND UPPER(email) = UPPER('". pg_escape_string($email) . "');";
+            $query = "SELECT * FROM users_table WHERE '" . $userrole . "' = ANY (userroles) AND UPPER(email) = UPPER('". pg_escape_string($email) . "');";
             $result = $this->query($con, $query);
             if (pg_num_rows($result) == 1)
                 {
@@ -764,13 +978,13 @@ class bb_main extends bb_report {
 			}
 		}
 		
-	function check_child($row_type, $xml_layouts)
+	function check_child($row_type, $arr_layouts)
 		{
 		//checks for child records or record
 		$test = false;
-		foreach($xml_layouts->children() as $child)
+		foreach($arr_layouts as $key => $value)
 			{
-			if ($row_type == (int)$child['parent'])
+			if ($row_type == $value['parent'])
 				{
 				$test = true;
 				break;
@@ -779,10 +993,10 @@ class bb_main extends bb_report {
 		return $test;
 		}
 		
-	function drill_links($post_key, $row_type, $xml_layouts, $module, $text)
+	function drill_links($post_key, $row_type, $arr_layouts, $module, $text)
 		{
 		//call function add drill links in class bb_link
-		call_user_func_array(array($this, "drill") , array($post_key, $row_type, $xml_layouts, $module, $text));
+		call_user_func_array(array($this, "drill") , array($post_key, $row_type, $arr_layouts, $module, $text));
 		}
 		
 	function page_selector($element, $offset, $count_rows, $return_rows, $pagination)
@@ -893,15 +1107,18 @@ class bb_main extends bb_report {
         
     function logout_link($class = "bold link underline", $label = "Logout")
         {
-        $params = array("class"=>$class,"number"=>0,"target"=>"bb_logout", "passthis"=>true, "label"=>$label);
-        $this->echo_button("logout", $params);   
+            
+        $params = array("class"=>$class, "passthis"=>true, "label"=>$label, "onclick"=>"bb_logout_selector('0-bb_logout')");
+        $this->echo_script_button("logout", $params); 
         }
         
     function archive_link($class_button = "link underline",  $class_span = "bold")
         {
+        //careful not to use -1 on on pages with archive link
+        global $button;
         global $module;
-        
-        if ($this->post('bb_button', $module) == -1)
+        //on postback
+        if ($this->button(-1))
             {
             if ($_SESSION['archive'] == 0)
                 {
@@ -932,10 +1149,12 @@ class bb_main extends bb_report {
         
     function userrole_switch($class_span = "bold", $class_button = "link underline")
         {
-        global $array_userroles;
-        global $userrole;
+        global $array_master;        
         global $userroles;
-        
+        global $userrole;
+        global $interface;
+
+        $userstring = $userrole . "-" . $interface;         
         $cnt = count($userroles);
         if ($cnt > 1)
             {
@@ -943,9 +1162,12 @@ class bb_main extends bb_report {
             $i = 1;
             foreach ($userroles as $value)
                 {
-                $bold = ($value == $userrole) ? " bold" : "";
-                $params = array("class"=>$class_button . $bold,"number"=>$value,"target"=>"bb_logout", "passthis"=>true, "label"=>$array_userroles[$value]);
-                $this->echo_button("role" . $value, $params);
+                $arr_split = explode("-", $value, 2);
+                $userrole = (int)$arr_split[0];
+                $interface = $arr_split[1];
+                $bold = ($value == $userstring) ? " bold" : "";
+                $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interface]['userroles'][$userrole], "onclick"=>"bb_logout_selector('" . $value . "')");
+                $this->echo_script_button("role" . $value, $params);
                 $separator = ($i <> $cnt) ? ", " : "";
                 echo $separator;
                 $i++;

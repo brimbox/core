@@ -18,7 +18,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(array(3,4,5));
+$main->check_permission("bb_brimbox", array(3,4,5));
 
 /* BEGIN DATABASE STATS */
 echo "<div class=\"floatright\">";

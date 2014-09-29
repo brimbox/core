@@ -32,7 +32,7 @@ $main = new bb_main(); //extends bb_database
 session_name(DB_NAME);
 session_start();
 
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 
 /* INITIALIZE */
 $con = $main->connect();
@@ -49,7 +49,7 @@ $new_lines = $_POST['new_lines'];
 $userrole = $_SESSION['userrole'];
 $email = $_SESSION['email'];
 
-$valid_password = $main->validate_login($con, $email, $passwd, 5);
+$valid_password = $main->validate_login($con, $email, $passwd, "5-bb_brimbox");
 
 if (!$valid_password)
 	{
@@ -59,17 +59,17 @@ if (!$valid_password)
 <?php
 /* THIS IS A TEXT FILE HEADER OUTPUT */
 /* NO HTML OR BLANK LINE OUTPUT ALLOWED */
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$xml_columns = $main->get_xml($con, "bb_column_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_columns = $main->get_json($con, "bb_column_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 $row_type = (empty($_POST['row_type'])) ? $default_row_type :  $_POST['row_type'];
 
-$layout = $main->pad("l", $row_type);
-$xml_column = $xml_columns->$layout;
-$xml_layout = $xml_layouts->$layout;
+$arr_column = $arr_columns[$row_type];
+$arr_layout = $arr_layouts[$row_type];
+$arr_column_reduced = $main->filter_keys($arr_column); 
 
-$filename = (string)$xml_layout['singular'] . "_Dump.txt";
+$filename = $arr_layout['singular'] . "_Dump.txt";
     
 //Here go the headers
 header ("Content-Type: application/octet-stream");
@@ -87,9 +87,9 @@ array_push($arr_row, "id");
 array_push($arr_row,"row_type");
 array_push($arr_row, "key1");
 array_push($arr_row, "key2");
-foreach ($xml_column->children() as $child)
+foreach ($arr_column_reduced as $key => $value)
     {
-	$column = (int)$column_names ? (string)$child->getName() : (string)$child;
+	$column = $column_names ? $main->pad("c", $key) : $value['name'];
     array_push($arr_row, trim(preg_replace($pattern, " ", $column)));
     }
 array_push($arr_row,"owner_name");
@@ -108,9 +108,9 @@ while ($row = pg_fetch_array($result))
 	array_push($arr_row,$row['row_type']);
 	array_push($arr_row, $row['key1']);
 	array_push($arr_row, $row['key2']);
-	foreach ($xml_column->children() as $child)
+	foreach ($arr_column_reduced as $key => $value)
 		{
-		$col = (string)$child->getName();
+		$col = $main->pad("c", $key);
 		//push onto stack purging characters which will be problems
 		if (in_array($col, array("c49","c50")))
 			{

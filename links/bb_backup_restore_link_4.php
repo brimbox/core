@@ -33,7 +33,7 @@ $main = new bb_main(); //extends bb_database
 session_name(DB_NAME);
 session_start();
 
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 
 /* INITIALIZE */
 $con = $main->connect();
@@ -46,7 +46,7 @@ $passwd = $_POST['dump_passwd'];
 $userrole = $_SESSION['userrole'];
 $email = $_SESSION['email'];
 
-$valid_password = $main->validate_login($con, $email, $passwd, 5);
+$valid_password = $main->validate_login($con, $email, $passwd, "5-bb_brimbox");
 
 if (!$valid_password)
 	{
@@ -65,7 +65,7 @@ header ("Content-Transfer-Encoding: binary");
 ob_clean();
 flush();
 
-$xml_lists = $main->get_xml($con, "bb_create_lists");
+$arr_lists = $main->get_json($con, "bb_create_lists");
 
 $arr_row = array();
 array_push($arr_row, "row_id");
@@ -75,23 +75,23 @@ array_push($arr_row, "row_type");
 $str = implode("\t", $arr_row) . $eol;
 echo $str;
 
-foreach ($xml_lists->children() as $child)
-	{
-	$list_number = $main->rpad($child->getName());
-	$row_type = (int)$child['row_type'];
-	
-	$query = "SELECT id, row_type FROM data_table WHERE list_retrieve(list_string, " . $list_number . ") = 1 AND row_type = " . $row_type . ";";
-	$result = $main->query($con, $query);
-	
-	while ($row = pg_fetch_array($result))
-		{
-		$arr_row = array();
-		array_push($arr_row, $row['id']);
-		array_push($arr_row, $list_number);
-		array_push($arr_row, $row['row_type']);
-		
-		$str = implode("\t", $arr_row) . $eol;
-		echo $str;
-		}
+foreach ($arr_lists as $row_type => $arr_list)
+    {
+    foreach ($arr_list as $key2 => $value)
+        {        
+        $query = "SELECT id FROM data_table WHERE list_retrieve(list_string, " . $key2 . ") = 1 AND row_type = " . $row_type . ";";
+        $result = $main->query($con, $query);
+        
+        while ($row = pg_fetch_array($result))
+            {
+            $arr_row = array();
+            array_push($arr_row, $row['id']);
+            array_push($arr_row, $key2);
+            array_push($arr_row, $row_type);
+            
+            $str = implode("\t", $arr_row) . $eol;
+            echo $str;
+            }
+        }
 	}
 ?>

@@ -1,3 +1,4 @@
+<?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
 Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
@@ -16,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$main->check_permission(5);
+$main->check_permission("bb_brimbox", 5);
 ?>
 <script type="text/javascript">
 function reload_on_layout()
@@ -25,45 +26,37 @@ function reload_on_layout()
     }
 </script>
 <?php
-$main->check_permission(2);
 
 /* PRESERVE STATE */
 $main->retrieve($con, $array_state, $userrole);
-$arr_notes = array("c49","c50");
+$arr_notes = array("49","50");
 
 //start code here
 $arr_message = array();
 
 //row_type
-$xml_layouts = $main->get_xml($con, "bb_layout_names");
-$default_row_type = $main->get_default_row_type($xml_layouts);
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$default_row_type = $main->get_default_layout($arr_layouts);
 $row_type = $main->post('row_type', $module, $default_row_type);
 	
 //layout
-$xml_columns = $main->get_xml($con, "bb_column_names");
-$layout = $main->pad("l",$row_type);
-$xml_column = $xml_columns->$layout;
-$xml_layout = $xml_layouts->$layout;
+$arr_columns = $main->get_json($con, "bb_column_names");
+$arr_column = $arr_columns[$row_type];
+$arr_layout = $arr_layouts[$row_type];
 
-if (isset($xml_column['key']))
-    {
-    $column = $xml_column['key'];   
-    }
-else
-    {
-    $column = (string)$xml_column->children()->getName();
-    }
+$col_number =  (isset($arr_column['layout']['unique'])) ? $arr_column['layout']['unique'] : $main->get_default_column($arr_column);
+
 
 //check_column    
-if (($main->post('bb_button', $module) == 1) || ($main->post('bb_button', $module)) == 2) 
+if ($main->button(1) || $main->button(2)) 
     {
-    $col_type = $main->post('col_type', $module);
-	$column = $main->pad("c", $col_type);
-	//key already set
-    if (isset($xml_column['key']))
+    $col_number = $main->post('col_number', $module);
+	$column = $main->pad("c", $col_number);
+	//unique key already set
+    if (isset($arr_column['layout']['unique']))
         {
-        $unique_key = $xml_column['key'];
-        array_push($arr_message, "Error: Unique Key is already set on layout " . (string)$xml_layout['plural'] . ".<Column " . (string)$xml_column->$unique_key . " has a unique key on it.");    
+        $unique = $arr_column['layout']['unique'];
+        array_push($arr_message, "Error: Unique Key is already set on layout " . $arr_layout['plural'] . " . Column " . $arr_column[$unique]['name'] . " has a unique key on it.");    
         }
 	//no key
     else
@@ -73,7 +66,7 @@ if (($main->post('bb_button', $module) == 1) || ($main->post('bb_button', $modul
         $result = $main->query($con, $query);
         if (pg_num_rows($result) > 0)
             {    
-            array_push($arr_message, "Error: Column " . (string)$xml_column->$column . " contains duplicate values. Unique key cannot be created.");
+            array_push($arr_message, "Error: Column " . $arr_column[$col_number]['name'] . " contains duplicate values. Unique key cannot be created.");
             }
         
 		//check for empty keys
@@ -81,7 +74,7 @@ if (($main->post('bb_button', $module) == 1) || ($main->post('bb_button', $modul
         $result = $main->query($con, $query);        
 		if (pg_num_rows($result) > 0)
             {
-            array_push($arr_message, "Error: Column " . (string)$xml_column->$column . " contains empty values. Unique key cannot be created.");
+            array_push($arr_message, "Error: Column " . $arr_column[$col_number]['name'] . " contains empty values. Unique key cannot be created.");
             }
         
 		//check if note column 
@@ -92,17 +85,16 @@ if (($main->post('bb_button', $module) == 1) || ($main->post('bb_button', $modul
         }
     }
 //if no message, inform administartor or add key
-if (($main->post('bb_button', $module) == 1) && !empty($column) && empty($arr_message)) //check_column
+if ($main->button(1) && !empty($col_number) && empty($arr_message)) //check_column
     {
-    array_push($arr_message, "Unique key can be created on layout " . (string)$xml_layout['plural'] . " column " . (string)$xml_column->$column . ".");       
+    array_push($arr_message, "Unique key can be created on layout " . $arr_layout['plural'] . " column " . $arr_column[$col_number]['name'] . ".");       
     }	
-elseif (($main->post('bb_button', $module) == 2) && empty($arr_message)) //add_key
-	{     
-    unset($xml_column['key']);
-    $xml_column->addAttribute('key', $column);
+elseif ($main->button(2) && empty($arr_message)) //add_key
+	{
+    $arr_columns[$row_type]['layout']['unique'] = $col_number;
     
     //Update xml row explicitly, check for valid key
-    $query = "UPDATE xml_table SET xmldata = '" . pg_escape_string($xml_columns->asXML()) . "' WHERE lookup = 'bb_column_names' " .
+    $query = "UPDATE json_table SET jsondata = '" . json_encode($arr_columns) . "' WHERE lookup = 'bb_column_names' " .
              "AND NOT EXISTS (SELECT 1 FROM (SELECT " . $column . ", count(" . $column . ") FROM data_table WHERE row_type = " . $row_type . " GROUP BY " . $column . " HAVING count(" . $column . ") > 1) T1)" .
              "AND NOT EXISTS (SELECT 1 FROM data_table WHERE " . $column . " = '' AND row_type = " . $row_type . ");";
     //echo "<p>" . $query . "</p>";
@@ -110,25 +102,25 @@ elseif (($main->post('bb_button', $module) == 2) && empty($arr_message)) //add_k
     
     if (pg_affected_rows($result) == 1) //key updated or set
         {
-        array_push($arr_message, "Unique Key has been created on layout " . $xml_layout['plural'] . ", column " . (string)$xml_column->$column . ".");     
+        array_push($arr_message, "Unique Key has been created on layout " . $arr_layout['plural'] . ", column " . $arr_column[$col_number]['name'] . ".");     
         }
     else //something changed
         {
-        array_push($arr_message, "Unique Key has not been created on layout " . $xml_layout['plural'] . ", column " . (string)$xml_column->$column . ". Underlying data change.");     
+        array_push($arr_message, "Unique Key has not been created on layout " . $arr_layout['plural'] . ", column " . $arr_column[$col_number]['name'] . ". Underlying data change.");     
         }
 	}
 	
-if ($main->post('bb_button', $module) == 3) //remove_key
+if ($main->button(3)) //remove_key
     {
-	if (isset($xml_column['key']))
+	if (isset($arr_column['layout']['unique']))
 		{
-		unset($xml_column['key']);
-		$main->update_xml($con, $xml_columns, "bb_column_names");
-		array_push($arr_message, "Unique Key has been removed for this layout type " . (string)$xml_layout['plural'] . ".");  
+        unset($arr_columns[$row_type]['layout']['unique']);
+		$main->update_json($con, $arr_columns, "bb_column_names");
+		array_push($arr_message, "Unique Key has been removed for this layout type " . $arr_layout['plural'] . ".");  
 		}
 	else
 		{
-		array_push($arr_message, "There is currently no key on layout type " . (string)$xml_layout['plural'] . ".");			
+		array_push($arr_message, "There is currently no key on layout type " . $arr_layout['plural'] . ".");			
 		}
 	}
 /* BEGIN REQUIRED FORM */
@@ -140,15 +132,15 @@ echo "</div>";
 
 
 $main->echo_form_begin();
-$main->echo_module_vars($module);
+$main->echo_module_vars();;
 echo "<div class=\"spaced borderleft bordertop floatleft\">";
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Check Layout");
 $main->echo_button("check_column", $params);
 echo "<br>";
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_dropdown($xml_layouts, "row_type", $row_type, $params);
+$main->layout_select($arr_layouts, "row_type", $row_type, $params);
 $params = array("class"=>"spaced");
-$main->column_dropdown($xml_column, "col_type", $column, $params);
+$main->column_select($arr_column, "col_number", $col_number, $params);
 echo "<br>";
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Create Key");
 $main->echo_button("add_key", $params);
