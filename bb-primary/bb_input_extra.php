@@ -150,7 +150,7 @@ class bb_input_extra {
             {				
             $col = $this->main->pad("c", $key);
             $textarea = isset($arr_textarea[$i]) ? trim($arr_textarea[$i]) : "";
-            if (!empty($value))
+            if ($textarea <> "")
                 {
                 if (in_array($key,$this->arr_notes))
                     {

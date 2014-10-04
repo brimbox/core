@@ -57,9 +57,7 @@ if ($main->post('col_catch', $module) == 1)
 
 //null value flag
 $null_value = $main->post('null_value', $module, 0);
-//alphabetize flag
-$alpha = $main->post('alpha', $module, 0);
-      	
+$all_values = $main->post('all_values', $module, 0);      	
 $col_text = $arr_column[$col_type]['name'];
 
 //this area populates the textarea
@@ -67,7 +65,7 @@ if ($main->button(1)) //populate_dropdown
 	{
     //preexisting dropdown xml
     $arr_dropdowns = $main->get_json($con, "bb_dropdowns");   
-    $arr_dropdown = $arr_dropdowns[$row_type];
+    $arr_dropdown = isset($arr_dropdowns[$row_type]) ? $arr_dropdowns[$row_type] : array();
     $arr_droplist = isset($arr_dropdown[$col_type]) ? $arr_dropdown[$col_type] : array();
 
     //get all values in database for the selected column (and row type)
@@ -77,14 +75,23 @@ if ($main->button(1)) //populate_dropdown
 	
 	$arr_query = pg_fetch_all_columns($result, 0);
 
-    //if array is set for the column in question merge and unique it, else just get unique from database
-	if (!empty($arr_droplist))
+    //values from db and dropdown alphabetized
+	if (!empty($arr_droplist) && ($all_values == 0))
 		{
-		array_push($arr_message, "Column " . $col_text . " has a dropdown list.");
 		$arr_populate = array_merge($arr_query, $arr_droplist);
 		$arr_populate = array_unique($arr_populate);
         $arr_populate = array_filter($arr_populate); //remove empty rows
+        array_push($arr_message, "Column " . $col_text . " has a dropdown list.");
+        array_push($arr_message, "Textarea populated from both preexisting dropdown list and the database.");
 		}
+    //values from dropdown not alphabetized
+    elseif (!empty($arr_droplist) && ($all_values == 1))
+        {
+        $arr_populate = $arr_droplist;
+        array_push($arr_message, "Column " . $col_text . " has a dropdown list.");
+        array_push($arr_message, "Textarea populated from preexisting dropdown list.");
+        }
+    //values from db alphabetized    
 	else 
 		{
 		array_push($arr_message, "Column " . $col_text . " does not have a preexisting dropdown list.");
@@ -113,11 +120,6 @@ if ($main->button(2)) //submit dropdown
             {
             array_push($arr_dropwork, "");    
             }
-        //add values
-		if ($alpha == 1)
-			{
-			sort($arr_txt);
-			}
         foreach ($arr_txt as $value)
             {
 			array_push($arr_dropwork, $value);//overload
@@ -174,6 +176,11 @@ echo "<div class=\"clear\"></div>";
 //buttons
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Populate Form");
 $main->echo_button("populate_dropdown", $params);
+echo "<span class = \"spaced border rounded padded shaded\">";
+$checked =  ($all_values == 1) ? true : false;
+$main->echo_input("all_values", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
+echo "<label class=\"padded\">Populate With Existing Dropdown</label>";
+echo "</span>";
 echo "<br>";
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Create Dropdown");
 $main->echo_button("create_dropdown", $params);
@@ -182,11 +189,7 @@ $checked =  ($null_value == 1) ? true : false;
 $main->echo_input("null_value", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
 echo "<label class=\"padded\">Include Empty Value</label>";
 echo "</span>";
-echo "<span class = \"spaced border rounded padded shaded\">";
-$checked =  ($alpha == 1) ? true : false;
-$main->echo_input("alpha", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
-echo "<label class=\"padded\">Alphabetize</label>";
-echo "</span><br>";
+echo "<br>";
 $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Remove Dropdown");
 $main->echo_button("populate_dropdown", $params);
 echo "<br>";

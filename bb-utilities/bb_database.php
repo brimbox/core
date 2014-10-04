@@ -129,7 +129,7 @@ class bb_database {
 	function update_json($con, $array, $lookup)
 		{
 		//update xml_table with a whole xml object
-		$query = "UPDATE json_table SET jsondata = '" . json_encode($array) . "' WHERE lookup = '" . $lookup . "';";
+		$query = "UPDATE json_table SET jsondata = '" . pg_escape_string(json_encode($array)) . "' WHERE lookup = '" . $lookup . "';";
 	
 		$this->query($con, $query);
 		}	

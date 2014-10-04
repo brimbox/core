@@ -260,8 +260,8 @@ if ($valid_id) //record_id
 	$row_type =  ord(strtolower(substr($record_id, 0, 1))) - 96;
 	$layout = $main->pad("l", $row_type);
 	//reset column for output, and layout for parent row type, state will remain
-	$arr_layout = $arr_layouts->$layout;
-	$arr_column = $arr_columns->$layout;
+	$arr_layout = $arr_layouts[$row_type];
+	$arr_column = $arr_columns[$row_type];
 	$and_clause_3 = " 1 = 1 ";
 	$and_clause_4 = " id = " . $id . " ";
 	}

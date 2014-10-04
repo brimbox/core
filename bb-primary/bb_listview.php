@@ -76,7 +76,7 @@ if (!$main->check('row_type', $module) && empty($list_number))
         }
     else
         {
-        $list_number = "";    
+        $list_number = 0;    
         }
 	$list_number = $main->set('list_number', $arr_state, $list_number);
     $row_type = $main->set('row_type', $arr_state, $row_type);
@@ -85,9 +85,9 @@ if (!$main->check('row_type', $module) && empty($list_number))
 elseif ($main->check('row_type',$module) && ($row_type <> $main->post('row_type',$module)))
     {
     $row_type = $main->post('row_type', $module, $default_row_type);
-    if (isset($arr_lists[$row_type])) $arr_list = $arr_lists[$row_type];
-    if (isset($arr_list))
+    if (isset($arr_lists[$row_type]))
         {
+        $arr_list = $arr_lists[$row_type];
         $list_number = key($arr_list);
         }
     else
@@ -98,7 +98,7 @@ elseif ($main->check('row_type',$module) && ($row_type <> $main->post('row_type'
     $row_type = $main->set('row_type', $arr_state, $row_type);
     }
 //change list   
-elseif ($main->check('list_number',$module) && ($row_type <> $main->post('list_number',$module)))
+else
     {
 	$list_number = $main->process('list_number', $module, $arr_state, 0);  
     $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
@@ -112,7 +112,7 @@ $main->update($array_state, $module, $arr_state);
 <?php
 //get list fields, xml4 is the list fields
 //get description
-if (!empty($list_number))
+if (isset($arr_lists[$row_type][$list_number]))
     {
     $arr_list = $arr_lists[$row_type];
     $list = $arr_list[$list_number];

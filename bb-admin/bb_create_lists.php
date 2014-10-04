@@ -17,13 +17,18 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <script>
-function bb_reload_on_layout_2()
+function bb_reload_row_type_2()
 	{
 	var frmobj = document.forms["bb_form"];  
     frmobj.list_number_2.value = -1;
     bb_submit_form(0); //call javascript submit_form function	
 	}
-function bb_reload_on_layout_3()
+function bb_reload_list_number_2()
+	{
+    bb_submit_form(0); //call javascript submit_form function	
+	}
+    
+function bb_reload_row_type_3()
 	{
 	var frmobj = document.forms["bb_form"];  
     frmobj.list_number_3.value = -1;
@@ -78,6 +83,7 @@ if ($main->button(1))
         $row_type = $main->post('row_type_1', $module);
         $arr_list = isset($arr_lists[$row_type_1]) ? $arr_lists[$row_type_1] : array();
         
+        //multidimensional too painful to search
         $found = false;
         foreach($arr_list as $value)
             {
@@ -120,53 +126,30 @@ if ($main->button(1))
         }
     }
 
-//populate list for update
-if ($main->button(2) && ($list_number_2 > 0)) 
-    {
-    $arr_list = $arr_lists[$row_type_2];
-	$list_output = ($list_number_2 > 0) ? chr($row_type_2 + 64) . $list_number_2 : "";
-	$update_list = $arr_list[$list_number_2]['name'];
-	$update_description = $arr_list[$list_number_2]['description'];
-	array_push($arr_message, "Form has been populated for update with selected list.");
-    }
-elseif ($main->button(2))
-	{
-	array_push($arr_message, "Error: Unable to find list.");	
-	}
-
-//clear list for update
-if ($main->button(3))
-    {
-    $update_list = "";
-    $update_description = "";
-	$list_output = "";
-	array_push($arr_message, "Form has been cleared.");	
-    }
     
 //rename or update list    
-if ($main->button(4))
+if ($main->button(2))
     {
     if ($list_number_2 > 0)
         {    
         if ($main->full('update_list', $module))
             {
-            $list = $arr_lists[$row_type_2];
-			if (isset($list))
+            $arr_list = $arr_lists[$row_type_2];
+			if (isset($arr_list))
 				{
 				$arr_list[$list_number_2]['name'] = $main->custom_trim_string($update_list, 50, true, true);
-                $arr_list[$list_number_2]['description'] = (string)$main->custom_trim_string($update_description ,255);
+                $arr_list[$list_number_2]['description'] =  $main->custom_trim_string($update_description ,255);
                 $arr_list[$list_number_2]['archive'] = 0;
                 uasort($arr_list,'cmp');
                 $arr_lists[$row_type_2] = $arr_list;
                 $main->update_json($con, $arr_lists, "bb_create_lists");                
-                $update_list = "";
-                $update_description = "";
-				$list_output = "";
-                array_push($arr_message, "List successfully renamed.");
+                $update_list = $update_description = $list_output = "";
+                $list_number_2 = -1;
+                array_push($arr_message, "List definition successfully updated/renamed.");
                 }
             else
                 {
-                array_push($arr_message, "Error: Unable to rename list.");    
+                array_push($arr_message, "Error: Unable to updated/renamed list.");    
                 }
             }
         else
@@ -174,10 +157,26 @@ if ($main->button(4))
             array_push($arr_message, "Error: List name for update not supplied.");
             }
         }
-    } //button 4 if    
+    } //button 2 if
+else
+    {
+    //populate list for update
+    if ($list_number_2 > 0) 
+        {
+        $arr_list = $arr_lists[$row_type_2];
+        $list_output = ($list_number_2 > 0) ? chr($row_type_2 + 64) . $list_number_2 : "";
+        $update_list = $arr_list[$list_number_2]['name'];
+        $update_description = $arr_list[$list_number_2]['description'];
+        }
+    //clear list for update
+    elseif ($list_number_2 < 0)
+        {
+        $update_list = $update_description = $list_output = "";
+        }    
+    } //button 2 else
 
 //remove list
-if ($main->button(5) && ($confirm_remove == 1))
+if ($main->button(3) && ($confirm_remove == 1))
     {
     if ($list_number_3 > 0)
         {
@@ -188,7 +187,13 @@ if ($main->button(5) && ($confirm_remove == 1))
 			//empty list_bit
 			$query = "UPDATE data_table SET list_string = list_reset(list_string, " . $list_number_3 . ") WHERE list_retrieve(list_string, " . $list_number_3 . ") = 1 AND row_type IN (" . (int)$row_type_3 . ");";			
 			$main->query($con, $query);	
-			$main->update_json($con, $arr_lists, "bb_create_lists");        
+			$main->update_json($con, $arr_lists, "bb_create_lists");
+            //delete list populated for update
+            if ($list_number_2 == $list_number_3)
+                {
+                $update_list = $update_description = $list_output = "";
+                $list_number_2 = -1;
+                }
 			array_push($arr_message, "List successfully removed.");
 			}
 		else
@@ -200,14 +205,14 @@ if ($main->button(5) && ($confirm_remove == 1))
 		{
 		array_push($arr_message, "Error: List not selected."); 
 		}
-    } //button 5 if
-elseif ($main->button(5) && ($confirm_remove <> 1))
+    } //button 3 if
+elseif ($main->button(3) && ($confirm_remove <> 1))
 	{
 	array_push($arr_message, "Error: Please confirm to remove list.");	
 	}
 	
 //archive or retrieve list    
-if ($main->button(6))
+if ($main->button(4))
     {
     if ($list_number_3 > 0)
         {
@@ -229,7 +234,7 @@ if ($main->button(6))
 		{
 		array_push($arr_message, "Error: Unable to find list");   	
         }
-    } //button 5 if
+    } //button 4 if
 
 
 /* BEGIN REQUIRED FORM */
@@ -276,15 +281,11 @@ echo "<div class=\"border table\">"; //border
 echo "<div class=\"table spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\">";
-$params = array("class"=>"spaced","onchange"=>"bb_reload_on_layout_2()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload_row_type_2()");
 $main->layout_select($arr_layouts, "row_type_2", $row_type_2, $params);
-$params = array("class"=>"spaced","empty"=>true,"archive"=>true);
+$params = array("class"=>"spaced","empty"=>true,"archive"=>true,"onchange"=>"bb_reload_list_number_2()");
 $arr_pass = isset($arr_lists[$row_type_2]) ? $arr_lists[$row_type_2] : array();
 $main->list_select($arr_pass, "list_number_2", $list_number_2, $params);
-$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Populate List");
-$main->echo_button("populate_list", $params);
-$params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Clear List");
-$main->echo_button("clear_update", $params);
 echo "</div>";
 echo "</div>";
 echo "</div>";
@@ -307,7 +308,7 @@ echo "</div></div>";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\"></div>";
 echo "<div class=\"cell padded\">";
-$params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Update List");
+$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Update List");
 $main->echo_button("update_list", $params);
 echo "</div>";
 echo "</div>";
@@ -320,7 +321,7 @@ echo "<span class=\"spaced colored\">Remove or Archive List</span>";
 echo "<div class=\"table border spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded nowrap\">";
-$params = array("class"=>"spaced","onchange"=>"bb_reload_on_layout_3()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload_row_type_3()");
 $main->layout_select($arr_layouts, "row_type_3", $row_type_3, $params);
 $params = array("class"=>"spaced","empty"=>true,"archive"=>true);
 $arr_pass = isset($arr_lists[$row_type_3]) ? $arr_lists[$row_type_3] : array();
@@ -328,7 +329,7 @@ $main->list_select($arr_pass, "list_number_3", $list_number_3, $params);
 echo " | ";
 echo "</div>";
 echo "<div class=\"cell padded nowrap\">";
-$params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Remove List");
+$params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Remove List");
 $main->echo_button("remove_list", $params);
 echo "<span class = \"spaced border rounded padded shaded\">";
 echo "<label class=\"padded\">Confirm Remove: </label>";
@@ -337,7 +338,7 @@ echo "</span>";
 echo " | ";
 echo "</div>";
 echo "<div class=\"cell padded nowrap\">";
-$params = array("class"=>"spaced","number"=>6,"target"=>$module, "passthis"=>true, "label"=>"Archive/Retrieve List");
+$params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Archive/Retrieve List");
 $main->echo_button("archive_list", $params);
 echo "</div>";
 echo "<div class=\"cell padded nowrap\">";

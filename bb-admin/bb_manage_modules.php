@@ -345,9 +345,9 @@ if ($main->button(2)) //submit_module
                         { 
                         array_push($arr_insert, "INSERT INTO json_table (lookup, jsondata) SELECT '" . pg_escape_string(substr($key,6)) . "' as lookup, '" . pg_escape_string($value) . "'::xml as xmldata WHERE NOT EXISTS (SELECT 1 FROM json_table WHERE lookup IN ('" . substr($key,5) ."'));");               
                         }
-                    }   
+                    }
                 //$module_order finds next available order number
-                $module_order = "(SELECT max(module_order) + 1 FROM modules_table WHERE module_type = " .  $arr_module['@module_type'] . ")";        
+                $module_order = "(SELECT CASE WHEN max(module_order) > 0 THEN max(module_order) + 1 ELSE 1 END FROM modules_table WHERE interface = '" . $arr_module['@interface'] . "' AND module_type = " .  $arr_module['@module_type'] . ")";        
                 //INSERT query when inserting por reinstalling module
                 $insert_clause = "(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)";
                 $select_clause = $module_order . " as module_order, '" . pg_escape_string($arr_module['@module_path']) . "' as module_path, '" . pg_escape_string($arr_module['@module_name']) . "' as module_name, '" . pg_escape_string($arr_module['@friendly_name']) . "' as friendly_name, '" .
@@ -454,8 +454,8 @@ if (!empty($arr_details)):
 else:   
 //get the module information, cnt used to for order update 
 $query = "SELECT T1.*, T2.cnt FROM modules_table T1 " .
-         "INNER JOIN (SELECT module_type, count(module_type) as cnt FROM modules_table GROUP BY module_type) T2 " .
-         "ON T1.module_type = T2.module_type ORDER BY T1.module_type, T1.module_order;";
+         "INNER JOIN (SELECT interface, module_type, count(module_type) as cnt FROM modules_table GROUP BY interface, module_type) T2 " .
+         "ON T1.module_type = T2.module_type AND T1.interface = T2.interface ORDER BY T1.interface, T1.module_type, T1.module_order;";
 $result = $main->query($con, $query);
 
 echo "<p class=\"spaced bold larger\">Manage Modules</p>";
@@ -536,7 +536,7 @@ echo "<div class=\"table spaced border\">";
         //form elements
         echo "<input type=\"hidden\"  name=\"module_type_" . $row['id'] . "\" value = \"" . $row['module_type'] . "-" . $row['interface'] . "\">";
         echo "<div class=\"cell short middle\">";
-        if ($row['module_type'] <> 0) //hidden or hooks
+        if ($row['module_type'] <> 0) //not hidden or hooks
             {
             echo "<select name=\"order_" . $row['id'] . "\">";
             for ($j=1; $j<=$row['cnt']; $j++) //reuse j

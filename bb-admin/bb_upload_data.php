@@ -313,9 +313,12 @@ if ($main->button(3)) //submit_data
                 if ($post_key > 0)
                     {
                     $select_where_exists = "SELECT 1 FROM data_table WHERE id IN (" . $post_key . ") AND row_type IN (" . $parent . ")";
+                    //mirror the security and archive status of parent
+                    $select_secure = "SELECT secure FROM data_table WHERE id IN (" . $post_key . ") AND row_type IN (" . $parent . ")";
+                    $select_archive = "SELECT archive FROM data_table WHERE id IN (" . $post_key . ") AND row_type IN (" . $parent . ")";                    
                     }
-               
-                $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ");";
+                
+                $query = "INSERT INTO data_table (" . $insert_clause	. ", secure, archive) SELECT " . $select_clause . ", (" . $select_secure . ") as secure , (" . $select_archive . ") as archive WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ");";
                 //echo "<p>" . $query . "</p>";
                 //print_r($arr_insert);
                 $result = $main->query($con, $query);
@@ -325,7 +328,7 @@ if ($main->button(3)) //submit_data
                     }
                 else
                     {
-                    array_push($arr_message,"Error: Some rows returned becasue of duplicate keys or invalid links.");
+                    array_push($arr_message,"Error: Some rows returned because of duplicate keys or invalid links.");
                     $data .= $arr_lines[$j] . PHP_EOL;
                     }                  		
                 } //else insert row
