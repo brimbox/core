@@ -442,7 +442,9 @@ if ($action == 0)
         foreach ($userroles_work as $value)
             {
             $arr_explode = explode("-" ,$value, 2);
-            $str_name = $array_master[$arr_explode[1]]['interface_name'] . ": " . $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]];   
+            $str_interface = isset($array_master[$arr_explode[1]]['interface_name']) ? $array_master[$arr_explode[1]]['interface_name'] : "Undefined";
+            $str_userrole = isset($array_master[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
+            $str_name =  $str_interface . ": " . $str_userrole;   
             array_push($arr_display, $str_name);
             }
         echo implode(", ", $arr_display);
@@ -550,7 +552,9 @@ if (in_array($action, array(1,2,3,4))):
         foreach ($userroles_work as $value)
             {
             $arr_explode = explode("-" ,$value, 2);
-            $str_name = $array_master[$arr_explode[1]]['interface_name'] . ": " . $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]];   
+            $str_interface = isset($array_master[$arr_explode[1]]['interface_name']) ? $array_master[$arr_explode[1]]['interface_name'] : "Undefined";
+            $str_userrole = isset($array_master[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
+            $str_name =  $str_interface . ": " . $str_userrole;   
             array_push($arr_display, $str_name);
             }
         echo implode(", ", $arr_display);
@@ -569,9 +573,14 @@ if (in_array($action, array(1,2,3,4))):
         foreach ($userroles_work as $value)
             {
             $arr_explode = explode("-" ,$value, 2);
-            $arr_default_name = $array_master[$arr_explode[1]]['interface_name'] . ": " . $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]]; 
-            $selected = ($value == $userroles_work[0]) ? "selected" : "";
-            echo "<option value=\"" . $value . "\" " . $selected . ">" . $arr_default_name . "&nbsp;</option>";
+            if (isset($array_master[$arr_explode[1]]['interface_name']) && isset($array_master[$arr_explode[1]]['userroles']))
+                {
+                $str_interface = $array_master[$arr_explode[1]]['interface_name'];
+                $str_userrole =  $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]];
+                $str_name =  $str_interface . ": " . $str_userrole;   
+                $selected = ($value == $userroles_work[0]) ? "selected" : "";
+                echo "<option value=\"" . $value . "\" " . $selected . ">" . $str_name . "&nbsp;</option>";
+                }
             }    
         echo "</select></div>";
         echo "<div class=\"cell error middle\"></div>";    
@@ -584,6 +593,9 @@ if (in_array($action, array(1,2,3,4))):
         echo "<div class=\"cell middle\">";
         echo "<div class=\"spaced border padded\">";
         //do not alter global $array_userroles
+        $result = $main->query($con, $query);
+        
+
         foreach ($array_userroles_loop as $value)
             {
             $userrole_value = $value['userrole_value'] . "-" . $value['interface_value'];

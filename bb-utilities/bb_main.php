@@ -1165,11 +1165,14 @@ class bb_main extends bb_report {
                 $arr_split = explode("-", $value, 2);
                 $userrole = (int)$arr_split[0];
                 $interface = $arr_split[1];
-                $bold = ($value == $userstring) ? " bold" : "";
-                $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interface]['userroles'][$userrole], "onclick"=>"bb_logout_selector('" . $value . "')");
-                $this->echo_script_button("role" . $value, $params);
-                $separator = ($i <> $cnt) ? ", " : "";
-                echo $separator;
+                if (isset($array_master[$interface]['interface_name']) && isset($array_master[$interface]['userroles'][$userrole]))
+                    {
+                    $bold = ($value == $userstring) ? " bold" : "";                
+                    $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interface]['userroles'][$userrole], "onclick"=>"bb_logout_selector('" . $value . "')");
+                    $this->echo_script_button("role" . $value, $params);
+                    $separator = ($i <> $cnt) ? ", " : "";
+                    echo $separator;
+                    }
                 $i++;
                 }
             echo "</span>";
