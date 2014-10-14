@@ -96,14 +96,8 @@ $radio_2 = $main->process('radio_2', $module, $arr_state, 1);
 //process row_type, earlier just got it from post	
 $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 
-//little tricky because checkbox $_POST is not set if empty
-//so check if other variable ($row_type) is set and then get post
-$archive = $main->state('archive', $arr_state, 0);
-if ($main->check('row_type', $module))
-	{
-	$archive = $main->post('archive', $module, 0);
-	$main->set('archive', $arr_state, $archive);
-	}
+//get archive flag checkbox
+$archive_flag = $main->process('archive_flag', $module, $arr_state, 0);
 	
 //back to string
 $main->update($array_state, $module, $arr_state);
@@ -169,14 +163,14 @@ echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">Second Looku
 if (ARCHIVE_INTERWORKING == "ON")
 	{
 	$checked = "";
-	if ($archive == 1)
+	if ($archive_flag == 1)
 		{
 		$checked =  "checked";
 		$mode = " 1 = 1 ";
 		}
 	echo "<td class=\"borderleft nowrap padded middle\" rowspan=\"2\">";
 	echo "<span class = \"border rounded padded shaded\">";
-	echo "<input type=\"checkbox\" class=\"middle padded\" name=\"archive\" value=\"1\" " . $checked . "/>";
+    $main->echo_input("archive_flag" . $i, 1, array('type'=>'checkbox','class'=>'middle padded','checked'=>$checked));
 	echo "<label class=\"padded\">Check Archives</label>";
 	echo "</span>";
 	echo "</td>";

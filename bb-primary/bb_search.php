@@ -65,15 +65,9 @@ $search_parsed = $search;
 $offset = $main->process('offset', $module, $arr_state, 1);
 $row_type = $main->process('row_type', $module, $arr_state, 0);
 
-//little tricky because checkbox $_POST is not set if empty
-//so check if other variable ($row_type) is set and then get post
-$archive = $main->state('archive', $arr_state, 0);
-if ($main->check('row_type', $module))
-	{
-	$archive = $main->post('archive', $module, 0);
-	$main->set('archive', $arr_state, $archive);
-	}
-        
+//archive flag checkbox
+$archive_flag = $main->process('archive_flag', $module, $arr_state, 0);
+
 //back to string
 $main->update($array_state, $module,  $arr_state);
 /* END STATE PROCESS */
@@ -116,8 +110,8 @@ if (ARCHIVE_INTERWORKING == "ON")
 		$mode = " 1 = 1 ";
 		}
 	echo "<span class = \"border rounded padded shaded\">";
-	echo "<input type=\"checkbox\" class=\"middle padded\" name=\"archive\" value=\"1\" " . $checked . "/>";
-	echo "<label class=\"padded\">Check Archives</label>";
+    $main->echo_input("archive_flag", 1, array('type'=>'checkbox','class'=>'middle padded','checked'=>$checked));
+    echo "<label class=\"padded\">Check Archives</label>";
 	echo "</span><br>";
 	}
 	

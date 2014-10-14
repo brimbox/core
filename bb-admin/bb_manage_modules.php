@@ -57,28 +57,8 @@ $arr_details = array();
 //used in several routines, in
 $arr_maintain_state = array(0=>'No',1=>'Yes');
 
-$arr_required_raw = array("@module_path","@module_name","@friendly_name","@interface","@module_type","@module_version","@maintain_state");
-//these are used to put together the details routine
-$arr_required = array("module_name","module_path","friendly_name","module_type","version","maintain_state","interface");
-
-
-//make array installed
-$arr_installed = array();
-$query = "SELECT module_name FROM modules_table;";
-$result = $main->query($con,$query);
-$arr_installed = pg_fetch_all_columns($result);
-
-//set up to pass as array
-$arr_parameters = array();
-//globals
-$arr_parameters[0] = $arr_maintain_state;
-$arr_parameters[1] = $arr_required_raw;
-$arr_parameters[2] = $arr_installed;
-
-$update_flag = ($main->post('update', $module) == 1) ? true : false;
-$arr_parameters['update_flag'] = $update_flag;
-
-$manage = new bb_manage_modules($arr_parameters);
+//call helper class
+$manage = new bb_manage_modules();
 
 #ADD HOOK#
 
@@ -248,11 +228,8 @@ if ($module_action <> 0)
 /* ADD OPTIONAL MODULES */
 if ($main->button(2)) //submit_module
     {                    
-    //empty temp directory
-	
-    $error = false;
+    //empty temp directory	
     $main->empty_directory("bb-temp/");
-
     //upload zip file to temp directory
     if (!empty($_FILES[$main->name('module_file', $module)]["tmp_name"]))
         {
@@ -266,21 +243,17 @@ if ($main->button(2)) //submit_module
          else
             {
             array_push($arr_message,"Error: Unable to open zip archive.");
-            $error = true;
             }
         }
     else
         {
         array_push($arr_message, "Error: Must specify module file name.");
-        $error = true;
         }
-    
-    $arr_module = array();        
-    //check for errors
-    if (!$error)
+       
+    //process header with extra class $manage
+    if (!count($arr_message))
         {
         $arr_paths = $main->get_directory_tree("bb-temp/");
-        $i = 0;
         foreach ($arr_paths as $path)
             {
             $arr_module = array();
@@ -293,59 +266,74 @@ if ($main->button(2)) //submit_module
                 $arr_module['@module_path'] = $path;
                 //call bb_manage_modules object
 				$message = $manage->get_modules($con, $arr_module);
-				if ($message)
-					{
-					array_push($arr_message, $message);
-					break;
-					}
-				if (isset($arr_module['@module_name']))
-					{
-					$arr_modules[$i] = $arr_module;
-					}
+                //check for errors
+                if (!empty($message))
+                    {
+                    $arr_message[] = $message;
+                    }
+                //populate if module_name is set, ignore included 
+                elseif (isset($arr_module['@module_name']))
+                    {
+                    $arr_modules[] = $arr_module;
+                    }					
 				}
-            $i++;
             }            
         }
+        
     //no error continue
-
-    if (!$message)
+    if (!count($arr_message)) //!$message
         {
-        //move it all over
-        $main->copy_directory("bb-temp/", "bb-modules/");
-        //sets up an array of xml_table insert queries
-        //this does insert with not exists lookup in both update and insert cases
+        //this does insert with not exists lookup in insert cases
+        $query = "SELECT module_name from modules_table;";
+        $result = $main->query($con, $query);
+        $arr_module_names = pg_fetch_all_columns($result);
         foreach($arr_modules as $arr_module)
-            {
-            //to reinstall xml you must delete the plugin
-            $arr_insert = array();
-                   
+            {            
+            //to reinstall xml you must delete the plugin                   
             $arr_module['@module_path'] = $main->replace_root($arr_module['@module_path'], "bb-temp/", "bb-modules/");
             
-            //Update module 
-            if ($main->post('update', $module) == 1)
+            //insert json
+            $arr_insert = array();
+            $standard_module = ($arr_module['@module_type'] == 0) ? 1 : 3;
+            $pattern_1 = "/^@json-.*/";
+            foreach ($arr_module as $key => $value)
+                {
+                if (preg_match($pattern_1, $key))
+                    { 
+                    $arr_insert[] = "INSERT INTO json_table (lookup, jsondata) SELECT '" . pg_escape_string(substr($key,6)) . "' as lookup, '" . pg_escape_string($value) . "' WHERE NOT EXISTS (SELECT 1 FROM json_table WHERE lookup IN ('" . substr($key,6) ."'));";               
+                    }
+                }
+            //should not have excessive json queries
+            foreach ($arr_insert as $value)
+                {
+                $main->query($con, $value);
+                }
+
+            //Update module
+            if (in_array($arr_module['@module_name'], $arr_module_names))
                 {
                 //update query if module is being updated
                 //standard module and module name not changed
-                $update_clause = "UPDATE modules_table SET module_path = '" . pg_escape_string($arr_module['@module_path']) . "',friendly_name = '" . pg_escape_string($arr_module['@friendly_name']) . "', " .
-                                 "interface = '" . pg_escape_string($arr_module['@interface']) . "', module_type = " . $arr_module['@module_type'] . ", module_version = '" . pg_escape_string($arr_module['@module_version']) . "', " .
-                                 "maintain_state = " . $arr_module['@maintain_state'] . ", module_files = '" . pg_escape_string($arr_module['@module_files']) . "'::xml, module_details = '" . pg_escape_string($arr_module['@module_details']) . "'::xml "; 
-                $where_clause =  "WHERE module_name = '" . pg_escape_string($arr_module['@module_name']) . "' AND standard_module NOT IN (0,2,5,6)";
+                $module_order = "(SELECT CASE WHEN module_type <> " . $arr_module['@module_type'] . " OR interface <> '" . $arr_module['@module_type'] . "' THEN max(module_order) + 1 ELSE module_order END FROM modules_table " .
+                                "WHERE module_name = '" . $arr_module['@module_name'] . "' GROUP BY interface, module_type, module_order)";    
+                $update_clause = "UPDATE modules_table SET module_order = " . $module_order . ", module_path = '" . pg_escape_string($arr_module['@module_path']) . "',friendly_name = '" . pg_escape_string($arr_module['@friendly_name']) . "', " .
+                                 "interface = '" . pg_escape_string($arr_module['@interface']) . "', module_type = " . $arr_module['@module_type'] . ", module_version = '" . pg_escape_string($arr_module['@module_version']) . "', standard_module = " . $standard_module . ", " .
+                                 "maintain_state = " . $arr_module['@maintain_state'] . ", module_files = '" . pg_escape_string($arr_module['@module_files']) . "', module_details = '" . pg_escape_string($arr_module['@module_details']) . "' "; 
+                $where_clause =  "WHERE module_name = '" . pg_escape_string($arr_module['@module_name']) . "'";
                 $query = $update_clause . $where_clause . ";";
                 $message_temp = "Module " . $arr_module['@module_name'] . " has been updated.";
+                $result = $main->query($con, $query);                
+                //reorder modules without deleted module    
+                $query = "UPDATE modules_table SET module_order = T1.order " .
+                    "FROM (SELECT row_number() OVER (PARTITION BY interface, module_type ORDER BY module_order) " .
+                    "as order, id FROM modules_table) T1 " .
+                    "WHERE modules_table.id = T1.id;";
+                $main->query($con, $query);
                 }
             //Install module
             else
-                { 
-                //$standard_module = 3, deactived
-                $standard_module = ($arr_module['@module_type'] == 0) ? 1 : 3;
-                $pattern_1 = "/^@json-.*/";
-                foreach ($arr_module as $key => $value)
-                    {
-                    if (preg_match($pattern_1, $key))
-                        { 
-                        array_push($arr_insert, "INSERT INTO json_table (lookup, jsondata) SELECT '" . pg_escape_string(substr($key,6)) . "' as lookup, '" . pg_escape_string($value) . "'::xml as xmldata WHERE NOT EXISTS (SELECT 1 FROM json_table WHERE lookup IN ('" . substr($key,5) ."'));");               
-                        }
-                    }
+                {
+                //$standard_module = 3, deactived                
                 //$module_order finds next available order number
                 $module_order = "(SELECT CASE WHEN max(module_order) > 0 THEN max(module_order) + 1 ELSE 1 END FROM modules_table WHERE interface = '" . $arr_module['@interface'] . "' AND module_type = " .  $arr_module['@module_type'] . ")";        
                 //INSERT query when inserting por reinstalling module
@@ -355,33 +343,24 @@ if ($main->button(2)) //submit_module
                                  $arr_module['@maintain_state'] . " as maintain_state, '" . pg_escape_string($arr_module['@module_files']) . "'::xml as module_files, '" . pg_escape_string($arr_module['@module_details']) . "'::xml as module_details";
                 $query = "INSERT INTO modules_table " . $insert_clause . " " .
                            "SELECT " . $select_clause . " WHERE NOT EXISTS (SELECT 1 FROM modules_table WHERE module_name IN ('" . $arr_module['@module_name'] . "','bb_logout'));";
+                $result = $main->query($con, $query); 
                 $message_temp = "Module " . $arr_module['@module_name'] . " has been installed.";
-                }
-                
-            //should not have excessive xml queries
-            foreach ($arr_insert as $value)
-                {
-                $main->query($con, $value);
-                }
-            $result = $main->query($con, $query);
-            
+                }                
+             //install or update modules
+                       
             //if update or insert worked
             if (pg_affected_rows($result) == 0)
                 {
-                if ($main->post('update', $module) == 1)
-                    {
-                    array_push($arr_message, "Error: Module information in module table has not been updated. Module might not exist.");
-                    }
-                else
-                    {
-                     array_push($arr_message, "Error: Module information has not been entered into module table. Module might already exist.");    
-                    }
+                $arr_message[] = "Error: Module " . $arr_module['@module_name'] . " information has not been installed.";                 
                 }
             else //installed or updated module
                 {
-                array_push($arr_message, $message_temp);   
+                $arr_message[] = $message_temp;   
                 }
-            } //foreach        
+            } //foreach
+        //move it all over
+        $main->copy_directory("bb-temp/", "bb-modules/");
+        //empty temp directory
         $main->empty_directory("bb-temp/", "bb-temp/");
         }
     } //install modules
@@ -478,14 +457,10 @@ echo "<div class=\"clear\"></div>";
 
 //install module
 echo "<div class=\"spaced border padded floatleft\">";
-echo "<label class=\"spaced\">Install Module: </label>";
+echo "<label class=\"spaced\">Install/Update Module(s): </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"module_file\" id=\"file\" />";
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Install Module");
 $main->echo_button("submit_module", $params);
-echo "<span class = \"border rounded padded shaded\">";
-echo "<input type=\"checkbox\" class=\"middle padded\" name=\"update\" value=\"1\" />";
-echo "<label class=\"padded\">Update Module</label>";
-echo "</span>";
 echo "</div>";
 echo "<div class=\"clear\"></div>";
 
@@ -523,6 +498,23 @@ echo "<div class=\"table spaced border\">";
     $i = 0;
     while($row = pg_fetch_array($result))
         {
+        //Hidden, functions and globals defined permanently
+        switch ($row['module_type'])
+            {
+            case 0:
+                $module_type = "Hidden";
+                break;
+            case -1:
+                $module_type = "Global";
+                break;
+            case -2:
+                $module_type = "Function";
+                break;
+            default:
+                //user defined
+                $module_type = $array_master[$row['interface']]['module_types'][$row['module_type']];
+                break;
+            }
         //row shading
         $shade_class = (($i % 2) == 0) ? "even" : "odd";
         echo "<div class=\"row " . $shade_class . "\">";
@@ -530,13 +522,13 @@ echo "<div class=\"table spaced border\">";
         echo "<div class=\"twice cell medium middle\">" . $row['module_name'] . "</div>";
         echo "<div class=\"twice cell long middle\">" . $row['friendly_name'] . "</div>";
         //combine interface and module type
-        echo "<div class=\"twice cell long middle\">" . $array_master[$row['interface']]['interface_name'] . ": " . $array_master[$row['interface']]['module_types'][$row['module_type']] . "</div>";
+        echo "<div class=\"twice cell long middle\">" . $array_master[$row['interface']]['interface_name'] . ": " . $module_type . "</div>";
         echo "<div class=\"twice cell short middle\">" . $row['module_version'] . "</div>";
         echo "<div class=\"twice cell short middle\">" . $arr_maintain_state[$row['maintain_state']] . "</div>";
         //form elements
         echo "<input type=\"hidden\"  name=\"module_type_" . $row['id'] . "\" value = \"" . $row['module_type'] . "-" . $row['interface'] . "\">";
         echo "<div class=\"cell short middle\">";
-        if ($row['module_type'] <> 0) //not hidden or hooks
+        if ($row['module_type'] <> 0) //not hidden, globals and functions have an order
             {
             echo "<select name=\"order_" . $row['id'] . "\">";
             for ($j=1; $j<=$row['cnt']; $j++) //reuse j

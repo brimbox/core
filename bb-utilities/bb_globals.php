@@ -33,7 +33,7 @@ $array_master['bb_brimbox']['interface_name'] = "Brimbox";
 $array_master['bb_brimbox']['userroles'] = array(0=>'Locked',1=>'Guest',2=>'Viewer',3=>'User',4=>'Superuser',5=>'Admin');
 //careful, standard install must have 0-5 populated, names may be changed, database stores the integer values
 //$array_module_types -- required
-$array_master['bb_brimbox']['module_types'] = array(0=>"Hidden",1=>"Guest",2=>"Viewer",3=>"Tab",4=>"Setup",5=>"Admin");
+$array_master['bb_brimbox']['module_types'] = array(1=>"Guest",2=>"Viewer",3=>"Tab",4=>"Setup",5=>"Admin");
 //this defines the tab layout
 //$array_interface_name -- required
 //type -> string
@@ -49,9 +49,6 @@ $array[] = array('interface_type'=>'Standard','userroles'=>array(3,4,5),'module_
 $array[] = array('interface_type'=>'Auxiliary','userroles'=>array(4,5),'module_type'=>4,'friendly_name'=>'Setup');
 $array[] = array('interface_type'=>'Auxiliary','userroles'=>array(5),'module_type'=>5,'friendly_name'=>'Admin');
 $array_master['bb_brimbox']['interface'] = $array;
-
-# INTERFACE MODULE TYPES #
-$array_master['bb_brimbox']['module_types'] = array(0=>'Hidden',1=>'Guest', 2=>'Viewer', 3=>'User', 4=>'Setup', 5=>'Admin');
 
 # DEFAULT SECURITY #
 //$array_security
