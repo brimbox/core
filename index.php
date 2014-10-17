@@ -26,6 +26,8 @@ header("Pragma: no-cache");
 define('BASE_CHECK', true);
 // need DB_NAME from bb_config, must not have html output including blank spaces
 include("bb-config/bb_config.php"); // need DB_NAME
+//set PHP and User/Interface timezone
+date_default_timezone_set(USER_TIMEZONE);
 
 // start session based on db name
 session_name(DB_NAME);
