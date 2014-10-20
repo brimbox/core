@@ -123,7 +123,7 @@ if (defined(DEFAULT_USERROLE_ASSIGN))
     }
 else
     {
-    $userrole_default = "1-bb_brimbox";    
+    $userrole_default = "1_bb_brimbox";    
     }
  
 //initialize for add new user
@@ -173,7 +173,7 @@ if ($main->button(1) || $main->button(2))
     $repasswd = $main->post('repasswd', $module);
     $userroles_work = $main->post('userroles_work', $module);
     sort($userroles_work);
-    $userrole_default = $main->post('userrole_default', $module, "1-bb_brimbox");
+    $userrole_default = $main->post('userrole_default', $module, "1_bb_brimbox");
     $arr_userrole_default = array($userrole_default);
     if ($userrole_default <> 0)
         {
@@ -441,7 +441,7 @@ if ($action == 0)
         echo "<td class=\"padded long middle\">";
         foreach ($userroles_work as $value)
             {
-            $arr_explode = explode("-" ,$value, 2);
+            $arr_explode = explode("_" ,$value, 2);
             $str_interface = isset($array_master[$arr_explode[1]]['interface_name']) ? $array_master[$arr_explode[1]]['interface_name'] : "Undefined";
             $str_userrole = isset($array_master[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
             $str_name =  $str_interface . ": " . $str_userrole;   
@@ -551,7 +551,7 @@ if (in_array($action, array(1,2,3,4))):
         $arr_display = array();
         foreach ($userroles_work as $value)
             {
-            $arr_explode = explode("-" ,$value, 2);
+            $arr_explode = explode("_" ,$value, 2);
             $str_interface = isset($array_master[$arr_explode[1]]['interface_name']) ? $array_master[$arr_explode[1]]['interface_name'] : "Undefined";
             $str_userrole = isset($array_master[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
             $str_name =  $str_interface . ": " . $str_userrole;   
@@ -572,7 +572,7 @@ if (in_array($action, array(1,2,3,4))):
         echo "<div class=\"cell middle\"><select name=\"userrole_default\" id=\"select_default\"  class=\"spaced\" />";
         foreach ($userroles_work as $value)
             {
-            $arr_explode = explode("-" ,$value, 2);
+            $arr_explode = explode("_" ,$value, 2);
             if (isset($array_master[$arr_explode[1]]['interface_name']) && isset($array_master[$arr_explode[1]]['userroles']))
                 {
                 $str_interface = $array_master[$arr_explode[1]]['interface_name'];
@@ -598,7 +598,7 @@ if (in_array($action, array(1,2,3,4))):
 
         foreach ($array_userroles_loop as $value)
             {
-            $userrole_value = $value['userrole_value'] . "-" . $value['interface_value'];
+            $userrole_value = $value['userrole_value'] . "_" . $value['interface_value'];
             $userrole_name = $value['interface_name'] . ": " . $value['userrole_name'];
             $checked = in_array($userrole_value, $userroles_work) ? "checked" : "";
             $handler = "onClick=\"populateDefault(this, '" . $userrole_value . "', '" . $userrole_name . " ')\"";

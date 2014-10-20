@@ -26,7 +26,7 @@ header("Pragma: no-cache");
 define('BASE_CHECK', true);
 // need DB_NAME from bb_config, must not have html output including blank spaces
 include("bb-config/bb_config.php"); // need DB_NAME
-//set PHP and User/Interface timezone
+//set PHP and User/Interface timezone based on bb_config
 date_default_timezone_set(USER_TIMEZONE);
 
 // start session based on db name
@@ -66,13 +66,11 @@ if (isset($_SESSION['email'])):
 
 //get SESSION STUFF -- designed for one user type per browser
 $email = $_SESSION['email']; //login of user
-$userrole = $_SESSION['userrole']; //only one session per browser per database
-$userroles = $_SESSION['userroles']; //careful with userroles session, used to check for valid userrole
-list($userwork, $interface) = explode("-", $userrole, 2);
-
+$userrole = $_SESSION['userrole']; //string containing userrole and interface
+$userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
+list($userwork, $interface) = explode("_", $_SESSION['userrole'], 2);
 $archive = $_SESSION['archive']; //archive mode
-
-$button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
+$button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0; //global button
 
 //logout algorithm used for both interface change, userrole change and logout
 if (isset($_POST['bb_module']))
@@ -82,12 +80,12 @@ if (isset($_POST['bb_module']))
 	if ($module == "bb_logout")
 		{
 		//explode on first dash only allows for dashes in interface name
-		list($userwork, $interface) = explode("-", $_POST['bb_interface'], 2);
+		list($userwork, $interwork) = explode("-", $_POST['bb_interface'], 2);
 		//logout and change interface/userrole could be on different or many pages
 		//check for session poisoning, array userroles should not be altered
 		//the conversion to string of string of $_POST['bb_submit'] and will stop injection
 		//$userroles variable should be protected and not used or altered anywhere		
-		if (((int)$userwork > 0) && in_array($_POST['bb_interface'], $userroles))
+		if (($userwork <> 0) && in_array($_POST['bb_interface'], explode(",", $_SESSION['userroles'])))
 			{
 			$_SESSION['userrole'] = $_POST['bb_interface']; 
 			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
@@ -440,9 +438,9 @@ if (isset($_POST['index_enter']))
 			$_SESSION['email'] = $row['email'];
 			$_SESSION['name'] = $main->build_name($row);
 			//this holds the possible permissions, be careful altering on the fly
-			$_SESSION['userroles'] = explode(",", $row['userroles']);
-			$_SESSION['userroles'][0];
-			$_SESSION['userrole'] = $_SESSION['userroles'][0];
+            $_SESSION['userroles'] = $row['userroles']; //userroles string from db
+            $arr_userroles = explode(",",$row['userroles']);
+            $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
 			$_SESSION['archive'] = 0;
 			//log entry
 			$main->log_entry($con, "Login Success");

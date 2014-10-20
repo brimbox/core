@@ -14,7 +14,7 @@ See the GNU GPL v3 for more details.
 You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
-/* Change Log
+/* Database Change Log
    2012.1.3 header added
    2012.1.4 locked column removed from users table
    2012.1.5 sample owner name data added to sample data
@@ -33,7 +33,17 @@ If not, see http://www.gnu.org/licenses/
    2012.1.18 added attempts field to users table
    2012.1.19 added index on row_type
    2013.1.20 dropdown xml root made plural and PHP string repeater function implemented for list column initialization
+   2014.1.21 users_table column userrole changed to array of smallint and renamed to userroles
+   2014.1.22 SQL statement added to GRANT user role to db owner
+   2014.1.23 JSON table added and XML table dropped, modules_table and users_table changes BIG change
 */
+
+/* Backup Change Log
+   2012.1.2 Compatable with Version 2014.3.275
+   2014.1.3 Database column userrole changed to userroles and from smallint to array of smallint
+   2014.1.4 Convesion to JSON data structure, modules_table and users_table changed
+*/
+
 ?>
 <html>
 <head>
@@ -42,14 +52,18 @@ If not, see http://www.gnu.org/licenses/
 This may or may not work in IE -->
 <meta http-equiv="expires" content="0">
 </head>
-<?php include("bb-config/bb_config.php") ?>
 <?php
+//defined here for include
+define('BASE_CHECK', true);
+//need connection string variables
+include("bb-config/bb_config.php");
+
 /* BRIMBOX LOGIN */
 $email = "admin";
 $passwd = "password";
-$db_version = "2013.1.20";
-$program_version = "2014.3.375";
-$backup_version = "2013.1.2";
+$db_version = "2014.1.22";
+$program_version = "2014.4.397";
+$backup_version = "2014.1.3";
 //SHA256 standard for the program
 //use a 36 char text salt instead of a binary one
 //simple but effective salt generator
@@ -88,12 +102,25 @@ if ($result)
 
 
 /* INSTALL plpgsql */
+// Generally you want to issue this command logged in as the db owner
 $query = "SELECT 1 FROM pg_language WHERE lanname='plpgsql';";
 $result = pg_query($con, $query);
 $num_rows = pg_num_rows($result);
 if ($num_rows == 0)
     {
     $query = "CREATE LANGUAGE plpgsql;";
+    @$result = pg_query($con, $query);
+    if (!pg_result_error($result))
+        {
+        die("<br>Error: Cannot proceed with installation. Please issue command \"CREATE LANGUAGE plpgsql;\" as the database owner."); 
+        }
+    }
+    
+/* GRANT PRIVILEGES TO OWNER */
+//This is generally used in cPanel installs so you don't run the db off your cPanel password
+if (DB_OWNER <> "")
+    {
+    $query = "GRANT " . DB_USER . " TO " . DB_OWNER . ";";
     pg_query($con, $query);
     }
 
@@ -491,16 +518,16 @@ CREATE TABLE modules_table
 (
   id serial NOT NULL,
   module_order int,
-  module_path character varying(65536),
+  module_path text,
   module_name character varying(255),
   friendly_name character varying(255),
-  module_version character varying(255),
+  interface character varying(255),
   module_type smallint,
-  userrole smallint,
+  module_version character varying(255),
   standard_module smallint,
   maintain_state smallint,
-  module_files xml,
-  module_details xml,
+  module_files text,
+  module_details text,
   change_date timestamp with time zone,
   CONSTRAINT modules_table_pkey PRIMARY KEY (id),
   CONSTRAINT modules_table_unique_module_name UNIQUE (module_name)
@@ -522,58 +549,58 @@ if ($do_modules_table)
     }
 
 $query = <<<EOT
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (0, 'bb-primary/bb_delete.php', 'bb_delete', 'Delete', '', 0, 3, 2, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the delete hidden page which is activated from the "delete" link when records are returned on the standard pages. It allows for deleting individual records or cascaded deletes which include all child records.</description></extras>'::xml); 
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (0, 'bb-primary/bb_archive.php', 'bb_archive', 'Archive', '', 0, 3, 2, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the archive hidden module which is activated from the "archive" link when records are returned on the standard pages. It allows for archiving cascaded records, which include all child records.</description></extras>'::xml); 
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (0, 'bb-primary/bb_secure.php', 'bb_secure', 'Secure', '', 0, 3, 2, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the secure hidden module which is activated from the "secure" link when records are returned on the standard pages. It allows for securing cascaded records, which include all child records, so that records can be hidden from guest users.</description></extras>'::xml); 
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (0, 'bb-primary/bb_listchoose.php', 'bb_listchoose', 'List Choose', '', 0, 3, 2, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is a hidden page which is activated from the "list" link when records are returned on the standard pages. It allows for adding an individual records to lists.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (1, 'bb-primary/bb_guest.php', 'bb_guest', 'Guest', '', 1, 1, 0, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the guest landing page which includes the logout link, basic session stats such as user an database, and space to place customized links and information regarding the database.</description></extras>'::xml); 
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (1, 'bb-primary/bb_viewer.php', 'bb_viewer', 'Viewer', '', 2, 2, 0, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the viewer landing page which includes the logout link, basic session stats such as user an database, and space to place customized links and information regarding the database.</description></extras>'::xml); 
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (1, 'bb-primary/bb_home.php', 'bb_home', 'Home', '', 3, 3, 0, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the home landing page for users, superusers, and admins which includes the logout link, basic session stats such as user an database, and space to place customized links and information regarding the database.</description></extras>'::xml); 
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (2, 'bb-primary/bb_browse.php', 'bb_browse', 'Browse', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard browse page for users. It allows users to browse data by choosing the first character of the data in a particular column.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (3, 'bb-primary/bb_lookup.php', 'bb_lookup', 'Lookup', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard lookup page for users. It allows users to browse data by choosing in a particular column by value or part of value.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (4, 'bb-primary/bb_search.php', 'bb_search', 'Search', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard search page for users. It allows user to search data based on content using boolean expressions.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (5, 'bb-primary/bb_view.php', 'bb_view', 'View', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard view page used when drilling down into child records.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (6, 'bb-primary/bb_details.php', 'bb_details', 'Details', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard details page used when viewing details of a particular record. It also has functionality for changing the linking of a record.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (7, 'bb-primary/bb_cascade.php', 'bb_cascade', 'Cascade', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard cascade tab used to view a record and all its child records all at once.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (8, 'bb-primary/bb_input.php', 'bb_input', 'Input', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard input page for inputting data to the database.  It checks for keys, required fields, and data validation.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (9, 'bb-primary/bb_queue.php', 'bb_queue', 'Queue', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard queue page used for receiving email sent to the database.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (10, 'bb-primary/bb_listview.php', 'bb_listview', 'List', '', 3, 3, 6, 1, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the standard page for viewing records conatined in a list.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (1, 'bb-admin/bb_create_lists.php', 'bb_create_lists', 'Manage Lists', '', 4, 4, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the superuser module used in creating lists by layout type.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (2, 'bb-admin/bb_dropdowns.php', 'bb_dropdowns', 'Manage Dropdowns', '', 4, 4, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the superuser module used when creating dropdowns for the input page.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (3, 'bb-admin/bb_upload_data.php', 'bb_upload_data', 'Upload Data', '', 4, 4, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the admin module used for bulk loads of data to the database.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (1, 'bb-admin/bb_manage_users.php', 'bb_manage_users', 'Manage Users', '', 5, 5, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the admin module used for managing users and their permissions.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (2, 'bb-admin/bb_manage_log.php', 'bb_manage_log', 'Manage Log', '', 5, 5, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the admin module used to log certain actions in the database.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (3, 'bb-admin/bb_layout_names.php', 'bb_layout_names', 'Set Layout Names', '', 5, 5, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the admin module used for setting up layouts and their respective links.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (4, 'bb-admin/bb_column_names.php', 'bb_column_names', 'Set Column Names', '', 5, 5, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the admin module used for setting up column names, their row and order properties, and their validation values.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (5, 'bb-admin/bb_create_key.php', 'bb_create_key', 'Create Key', '', 5, 5, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the admin module for defining a key column for unique values.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (6, 'bb-admin/bb_manage_modules.php', 'bb_manage_modules', 'Manage Modules', '', 5, 5, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the admin module for uploading modules and installing program updates.</description></extras>'::xml);
-INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, module_version, module_type, userrole, standard_module, maintain_state, module_files, module_details)
-VALUES (7, 'bb-admin/bb_backup_restore.php', 'bb_backup_restore', 'Backup and Restore', '', 5, 5, 6, 0, '<file/>'::xml, '<extras><company>Brimbox</company><author>Brimbox Staff</author><license>GNU v3</license><description>This is the module for backing up, cleansing, and restoring an encrypted brimbox database.</description></extras>'::xml);
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (0, 'bb-primary/bb_delete.php', 'bb_delete', 'Delete', 'bb_brimbox', 0, 'Core', 2, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the delete hidden page which is activated from the \"delete\" link when records are returned on the standard pages. It allows for deleting individual records or cascaded deletes which include all child records."}'); 
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (0, 'bb-primary/bb_archive.php', 'bb_archive', 'Archive', 'bb_brimbox', 0, 'Core', 2, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the archive hidden module which is activated from the \"archive\" link when records are returned on the standard pages. It allows for archiving cascaded records, which include all child records."}'); 
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (0, 'bb-primary/bb_secure.php', 'bb_secure', 'Secure', 'bb_brimbox', 0, 'Core', 2, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the secure hidden module which is activated from the \"secure\" link when records are returned on the standard pages. It allows for securing cascaded records, which include all child records, so that records can be hidden from guest users."}'); 
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (0, 'bb-primary/bb_listchoose.php', 'bb_listchoose', 'List Choose', 'bb_brimbox', 0, 'Core', 2, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is a hidden page which is activated from the \"list\" link when records are returned on the standard pages. It allows for adding an individual records to lists."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (1, 'bb-primary/bb_guest.php', 'bb_guest', 'Guest', 'bb_brimbox', 1, 'Core', 0, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the guest landing page which includes the logout link, basic session stats such as user an database, and space to place customized links and information regarding the database."}'); 
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (1, 'bb-primary/bb_viewer.php', 'bb_viewer', 'Viewer', 'bb_brimbox', 2, 'Core', 0, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the viewer landing page which includes the logout link, basic session stats such as user an database, and space to place customized links and information regarding the database."}'); 
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (1, 'bb-primary/bb_home.php', 'bb_home', 'Home', 'bb_brimbox', 3, 'Core', 0, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the home landing page for users, superusers, and admins which includes the logout link, basic session stats such as user an database, and space to place customized links and information regarding the database."}'); 
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (2, 'bb-primary/bb_browse.php', 'bb_browse', 'Browse', 'bb_brimbox', 3, 'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard browse page for users. It allows users to browse data by choosing the first character of the data in a particular column."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (3, 'bb-primary/bb_lookup.php', 'bb_lookup', 'Lookup', 'bb_brimbox', 3, 'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard lookup page for users. It allows users to browse data by choosing in a particular column by value or part of value."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (4, 'bb-primary/bb_search.php', 'bb_search', 'Search', 'bb_brimbox', 3, 'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard search page for users. It allows user to search data based on content using boolean expressions."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (5, 'bb-primary/bb_view.php', 'bb_view', 'View', 'bb_brimbox', 3, 'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard view page used when drilling down into child records."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (6, 'bb-primary/bb_details.php', 'bb_details', 'Details', 'bb_brimbox', 3,'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard details page used when viewing details of a particular record. It also has functionality for changing the linking of a record."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (7, 'bb-primary/bb_cascade.php', 'bb_cascade', 'Cascade', 'bb_brimbox', 3, 'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard cascade tab used to view a record and all its child records all at once."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (8, 'bb-primary/bb_input.php', 'bb_input', 'Input', 'bb_brimbox', 3, 'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard input page for inputting data to the database. It checks for keys, required fields, and data validation."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (9, 'bb-primary/bb_queue.php', 'bb_queue', 'Queue', 'bb_brimbox', 3, 'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard queue page used for receiving email sent to the database."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (10, 'bb-primary/bb_listview.php', 'bb_listview', 'List', 'bb_brimbox', 3, 'Core', 6, 1, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the standard page for viewing records contained in a list."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (1, 'bb-admin/bb_create_lists.php', 'bb_create_lists', 'Manage Lists', 'bb_brimbox', 4, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the superuser module used in creating lists by layout type."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (2, 'bb-admin/bb_dropdowns.php', 'bb_dropdowns', 'Manage Dropdowns', 'bb_brimbox', 4, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the superuser module used when creating dropdowns for the input page."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (3, 'bb-admin/bb_upload_data.php', 'bb_upload_data', 'Upload Data', 'bb_brimbox', 4, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the admin module used for bulk loads of data to the database."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (1, 'bb-admin/bb_manage_users.php', 'bb_manage_users', 'Manage Users', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the admin module used for managing users and their permissions."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (2, 'bb-admin/bb_manage_log.php', 'bb_manage_log', 'Manage Log', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the admin module used to log certain actions in the database."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (3, 'bb-admin/bb_layout_names.php', 'bb_layout_names', 'Set Layout Names', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the admin module used for setting up layouts and their respective links."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (4, 'bb-admin/bb_column_names.php', 'bb_column_names', 'Set Column Names', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the admin module used for setting up column names, their row and order properties, and their validation values."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (5, 'bb-admin/bb_create_key.php', 'bb_create_key', 'Create Key', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the admin module for defining a key column for unique values."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (6, 'bb-admin/bb_manage_modules.php', 'bb_manage_modules', 'Manage Modules', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the admin module for uploading modules and installing program updates."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (7, 'bb-admin/bb_backup_restore.php', 'bb_backup_restore', 'Backup and Restore', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU v3","description":"This is the module for backing up, cleansing, and restoring an encrypted brimbox database."}');
 EOT;
 if ($do_modules_table)
     {
@@ -598,7 +625,7 @@ CREATE TABLE users_table
   hash text,
   salt text,
   attempts smallint NOT NULL DEFAULT 0,
-  userrole smallint NOT NULL DEFAULT 0,
+  userroles text[] NOT NULL DEFAULT '{"5_bb_brimbox"}',
   fname character varying(255),
   minit character varying(255),
   lname character varying(255),
@@ -624,69 +651,68 @@ if ($do_users_table)
     }
 
 $query = <<<EOT
-INSERT INTO users_table(email, hash, salt, userrole)
-VALUES ('$email', '$hash', '$salt', 5);
+INSERT INTO users_table(email, hash, salt, userroles)
+VALUES ('$email', '$hash', '$salt', '{"5-bb_brimbox"}');
 EOT;
 if ($do_users_table)
     {
     $result = pg_query($con, $query);
     echo "Users Table Populated<br>";
     }
-
-
-$query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'xml_table'";
+    
+    
+$query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'json_table'";
 $result = pg_query($con, $query);
 $num_rows = pg_num_rows($result);
-$do_xml_table = false;
+$do_json_table = false;
 if ($num_rows == 0)
     {
-    $do_xml_table = true;
+    $do_json_table = true;
     }
    
 $query = <<<EOT
-CREATE TABLE xml_table
+CREATE TABLE json_table
 (
   id serial NOT NULL,
   lookup character varying(255) NOT NULL DEFAULT ''::character varying,
-  xmldata xml,
+  jsondata text,
   change_date timestamp with time zone,
-  CONSTRAINT xml_table_pkey PRIMARY KEY (id),
-  CONSTRAINT xml_table_unique_lookup UNIQUE (lookup)
+  CONSTRAINT json_table_pkey PRIMARY KEY (id),
+  CONSTRAINT json_table_unique_lookup UNIQUE (lookup)
 )
 WITH (
   OIDS=FALSE
 );
-ALTER SEQUENCE xml_table_id_seq RESTART CACHE 3 CYCLE;
+ALTER SEQUENCE json_table_id_seq RESTART CYCLE;
 -- Trigger: ts1_update_change_date on xml_table
 CREATE TRIGGER ts1_update_change_date
   BEFORE INSERT OR UPDATE
-  ON xml_table
+  ON json_table
   FOR EACH ROW
   EXECUTE PROCEDURE change_date();
 EOT;
-if ($do_xml_table)
+if ($do_json_table)
     {
     $result = pg_query($con, $query);
-    echo "XML Table Created<br>";
+    echo "JSON Table Created<br>";
+    }
+     
+$query = <<<EOT
+INSERT INTO json_table (lookup, jsondata)
+VALUES('bb_layout_names','{"1":{"singular":"Animal","plural":"Animals","parent":0,"order":1,"secure":0,"autoload":""},"2":{"singular":"Expense","plural":"Expenses","parent":1,"order":2,"secure":0,"autoload":""}}');
+INSERT INTO json_table (lookup, jsondata)
+VALUES('bb_column_names','{"2":{"layout":{"primary":1,"count":4,"unique":0},"1":{"name":"Topic","row":1,"length":"short","order":1,"type":"Text","required":1,"secure":0,"search":1},"2":{"name":"Cost","row":1,"length":"short","order":2,"type":"Money","required":0,"secure":0,"search":0},"3":{"name":"Type","row":1,"length":"short","order":3,"type":"Text","required":0,"secure":0,"search":1},"49":{"name":"Note","row":2,"length":"note","order":4,"type":"","required":0,"secure":0,"search":1}},"1":{"layout":{"primary":1,"count":6,"unique":0},"1":{"name":"Name","row":1,"length":"medium","order":1,"type":"Text","required":1,"secure":0,"search":1},"2":{"name":"Breed","row":1,"length":"medium","order":2,"type":"Text","required":0,"secure":0,"search":1},"6":{"name":"Type","row":2,"length":"medium","order":3,"type":"Text","required":0,"secure":0,"search":1},"4":{"name":"Birthday","row":2,"length":"medium","order":4,"type":"Date","required":0,"secure":0,"search":0},"3":{"name":"Owner","row":3,"length":"medium","order":5,"type":"Text","required":0,"secure":0,"search":1},"5":{"name":"Location","row":3,"length":"medium","order":6,"type":"Text","required":0,"secure":0,"search":1}}}');
+INSERT INTO json_table (lookup, jsondata)
+VALUES('bb_dropdowns','{"1":{"6":["Cat","Dog","Horse"]},"2":{"3":["Credit","Debit","No Charge"]}}');
+INSERT INTO json_table (lookup, jsondata)
+VALUES('bb_create_lists','{"1":{"1":{"name":"Dog","archive":0,"description":0},"2":{"name":"Cat","archive":0,"description":0}}}');
+EOT;
+if ($do_json_table)
+    {
+    $result = pg_query($con, $query);
+    echo "JSON Table Populated<br>";
     }
     
-$query = <<<EOT
-INSERT INTO xml_table (lookup, xmldata)
-VALUES('bb_layout_names','<layout><l01 row="1" singular="Animal" plural="Animals" parent="0" order="1" secure="0"/><l02 row="2" singular="Expense" plural="Expenses" parent="1" order="2" secure="0"/></layout>'::xml);
-INSERT INTO xml_table (lookup, xmldata)
-VALUES('bb_column_names','<columns><l02 primary="c01" count="4"><c01 leng="short" row="1" order="1" type="Text" req="1" secure="0" search="1">Topic</c01><c02 leng="short" row="1" order="2" type="Money" req="0" secure="0" search="0">Cost</c02><c03 leng="short" row="1" order="3" type="Text" req="0" secure="0" search="1">Type</c03><c49 leng="note" row="2" order="4" type="" req="0" secure="0" search="1">Note</c49></l02><l01 primary="c01" count="6"><c01 leng="medium" row="1" order="1" type="Text" req="1" secure="0" search="1">Name</c01><c02 leng="medium" row="1" order="2" type="Text" req="0" secure="0" search="1">Breed</c02><c06 leng="medium" row="2" order="3" type="Text" req="0" secure="0" search="1">Type</c06><c04 leng="medium" row="2" order="4" type="Date" req="0" secure="0" search="0">Birthday</c04><c03 leng="medium" row="3" order="5" type="Text" req="0" secure="0" search="1">Owner</c03><c05 leng="medium" row="3" order="6" type="Text" req="0" secure="0" search="1">Location</c05></l01></columns>'::xml);
-INSERT INTO xml_table (lookup, xmldata)
-VALUES('bb_dropdowns','<dropdowns><l01><c06><value>Cat</value><value>Dog</value><value>Horse</value></c06></l01><l02><c03><value>Credit</value><value>Debit</value><value>No Charge</value></c03></l02></dropdowns>'::xml);
-INSERT INTO xml_table (lookup, xmldata)
-VALUES('bb_create_lists','<lists><l0001 row_type="1" archive="0" description="This is the dog list.">Dog</l0001><l0002 row_type="1" archive="0" description="This is the cat list.">Cat</l0002></lists>'::xml);
-INSERT INTO xml_table (lookup, xmldata)
-VALUES('bb_manage_modules','<updates><program>$program_version</program><database>$db_version</database><backup>$backup_version</backup></updates>'::xml);
-EOT;
-if ($do_xml_table)
-    {
-    $result = pg_query($con, $query);
-    echo "XML Table Populated<br>";
-    }
     
 
 echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";

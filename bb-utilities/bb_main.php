@@ -603,7 +603,7 @@ class bb_main extends bb_report {
 		//waterfall
 		//this will also check that session is set
         $email = $_SESSION['email'];
-        list($userwork, $interface) = explode("-", $_SESSION['userrole'], 2);
+        list($userwork, $interface) = explode("_", $_SESSION['userrole'], 2);
         if (is_int($module_userroles)) //either int or string input
             {
             $module_userroles = array($module_userroles);    
@@ -1041,20 +1041,20 @@ class bb_main extends bb_report {
         global $userroles;
         global $userrole;
         global $interface;
-
-        $userstring = $userrole . "-" . $interface;         
-        $cnt = count($userroles);
+        
+        $arr_userroles = explode(",", $userroles);
+        $cnt = count($arr_userroles);
         if ($cnt > 1)
             {
             echo "<span class=\"" . $class_span . "\">Current userrole is: ";
             $i = 1;
-            foreach ($userroles as $value)
+            foreach ($arr_userroles as $value)
                 {
                 //careful with the globals
-                list($userwork, $interwork) = explode("-", $value, 2);
+                list($userwork, $interwork) = explode("_", $value, 2);
                 if (isset($array_master[$interface]['interface_name']) && isset($array_master[$interface]['userroles'][$userwork]))
                     {
-                    $bold = ($value == $userstring) ? " bold" : "";                
+                    $bold = ($value == $userrole) ? " bold" : "";                
                     $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interwork]['userroles'][$userwork], "onclick"=>"bb_logout_selector('" . $value . "')");
                     $this->echo_script_button("role" . $value, $params);
                     $separator = ($i <> $cnt) ? ", " : "";
