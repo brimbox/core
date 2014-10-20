@@ -147,7 +147,7 @@ function set_field(col)
 
 <?php
 /* BEGIN QUEUE AND STATE POSTBACK  */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 $arr_state = $main->load($module, $array_state);
 $email_number = $main->process('email_number', $module, $arr_state, -1);

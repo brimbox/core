@@ -98,7 +98,7 @@ $arr_error = array(); //if set there is an error in the form data, will display 
 $arr_message = array(); //friendly action and error message
 
 /* GET STATE AND POSTBACK */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //Note that action is for the update and delete links and add new user button in the list view
 //bb_button values are used for the update, delete, and enter buttons on individual records

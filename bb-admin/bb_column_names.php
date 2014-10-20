@@ -38,7 +38,7 @@ $arr_notes = array(49,50);
 $arr_reserved = array(47,48);
 
 /* RETRIEVE STATE */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //for sorting lists with uasort
 function cmp( $a, $b )
@@ -233,7 +233,7 @@ echo "</div>";
 
 //row_type select tag
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_select($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 
 //populate row_type select combo box from xml columns
 $arr_head = array("Column","Name","Row","Length","Order","Type","Required","Secure","Search");

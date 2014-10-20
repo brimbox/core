@@ -68,7 +68,7 @@ $default_row_type = $main->get_default_layout($arr_layouts);
 
 /* BROWSE AND STATE POSTBACK */
 //do browse postback, get variables from state
-$main->retrieve($con, $array_state, $userrole); //run first
+$main->retrieve($con, $array_state); //run first
     
 //get archive mode
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
@@ -160,11 +160,11 @@ $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $
 echo "&nbsp;&nbsp;";
 //layout types, this produces $row_type
 $params = array("onchange"=>"reload_on_layout()");
-$main->layout_select($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "&nbsp;&nbsp;";
 //column names, $column is currently selected column
 $params = array("onchange"=>"reload_on_column()");
-$main->column_select($arr_column, "col_type", $col_type, $params);
+$main->column_dropdown($arr_column, "col_type", $col_type, $params);
 
 //hidden element containing the current chosen letter
 echo "<input type = \"hidden\"  name = \"letter\" value = \"" . $letter . "\">";

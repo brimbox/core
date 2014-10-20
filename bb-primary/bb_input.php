@@ -52,7 +52,7 @@ $unique = "";
 $message = ""; //return message
 
 /*INPUT STATE AND POSTBACK */  
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 $arr_state = $main->load($module, $array_state);
 
 //include file for postback routines

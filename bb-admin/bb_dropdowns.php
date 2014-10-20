@@ -37,7 +37,7 @@ $arr_message = array();
 $arr_notes = array("49","50");
 
 /* GET STATE */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //This area creates the form for choosing the lists
 $arr_layouts = $main->get_json($con, "bb_layout_names");
@@ -153,10 +153,10 @@ $main->echo_module_vars();;
 
 //row_type select tag
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_select($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "<br>"; //why not
 $params = array("class"=>"spaced");
-$main->column_select($arr_column, "col_type", $col_type, $params);
+$main->column_dropdown($arr_column, "col_type", $col_type, $params);
 echo "<br>";
 echo "<input name=\"col_catch\" type=\"hidden\" value\"0\">";
 	

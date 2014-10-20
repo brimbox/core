@@ -28,7 +28,7 @@ function reload_on_layout()
 <?php
 
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 $arr_notes = array("49","50");
 
 //start code here
@@ -138,9 +138,9 @@ $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>tru
 $main->echo_button("check_column", $params);
 echo "<br>";
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_select($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 $params = array("class"=>"spaced");
-$main->column_select($arr_column, "col_number", $col_number, $params);
+$main->column_dropdown($arr_column, "col_number", $col_number, $params);
 echo "<br>";
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Create Key");
 $main->echo_button("add_key", $params);

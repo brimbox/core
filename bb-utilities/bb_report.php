@@ -21,29 +21,25 @@ If not, see http://www.gnu.org/licenses/
 /* HTML OUTPUT */
 
 /* PHP FUNCTIONS */
-//bb_report_type
-//bb_report_post
-//bb_report_vars
-//bb_output_report
-//bb_output_single_row
-//bb_result_to_select
-//bb_array_to_select
-
-/* JAVASCRIPT FUNCTIONS */
-//bb_clear_report
-//bb_paginate_table
-//bb_clear_textarea
-//bb_select_textarea
+//report_type
+//report_post
+//echo_report_vars
+//output_report
+//paged_report
+//full_report
+//textarea_report
+//build_sort
+//output_single_row
+//result_to_select
+//array_to_select
 
 /* FORM VARS */
 //textarea
 //page
 //report_type
 
-
 //four standard output types
-//textarea new is just a basic text area
-//textarea add appends data to textarea
+//textarea is just a basic text area
 //table full outputs whole table
 //paginated table display one page at a time
 
@@ -701,34 +697,5 @@ class bb_report extends bb_work {
 			  }
 		echo "</select>";
 		}
-		
-	function xml_to_select($xml, $name, $selected, $params = array())
-		{
-		//turns children of dropdown XML into select, all and onchange js optional
-		$all = isset($params['all']) ? $params['all'] : false;
-		$onchange = isset($params['onchange']) ? $params['onchange'] : ""; 
-		$usenode = isset($params['usenode']) ? $params['usenode'] : false;
-		$select_class = isset($params['select_class']) ? $params['select_class'] : "";
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
-		
-		if (!empty($label))
-			{
-			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
-			}
-		echo "<select name = \"" . $name . "\" class = \"" . $select_class . "\" onchange=\"" . $onchange . "\">";
-		if ($all)
-			  {
-			  echo "<option value=\"All\" " . ($selected == "All" ? "selected" : "") . ">All&nbsp;</option>";
-			  }
-		foreach ($xml->children() as $child)
-			  {
-			  $node = $child->getName();
-			  $key = $usenode ? $node : $child;
-			  echo "<option value=\"" . htmlentities($key) . "\" " . ($selected == $key ? "selected" : "") . ">" . htmlentities($child). "&nbsp;</option>";
-			  }
-		echo "</select>";
-		}
-	
-	} //end class
+} //end class
 ?>

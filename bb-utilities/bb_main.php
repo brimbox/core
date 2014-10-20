@@ -258,44 +258,8 @@ class bb_main extends bb_report {
 			
 	//this returns a standard header combo for selecting record type
 	//for this function the javascript function reload_on_layout() is uniquely tailored to the calling module    
-	function layout_dropdown($xml_layouts, $name, $row_type, $params = array())
-		{
-        ###DEPRACATED###
-		$class = isset($params['class']) ? $params['class'] : "";
-		$onchange = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$check = isset($params['check']) ? $params['check'] : false;
-		$empty = isset($params['empty']) ? $params['empty'] : false;
-		$all = isset($params['all']) ? $params['all'] : false;
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
-		
-		if (!empty($label))
-			{
-			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
-			}
-			
-		echo "<select name = \"" . $name . "\" class = \"" . $class . "\" onchange=\"" . $onchange  . "\">";
-		if ($empty)
-			{
-			echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
-			}
-		if ($all)
-			{
-			echo "<option value=\"0\" " . (0 == $row_type ? "selected" : "") . ">All&nbsp;</option>";
-			}
-		 foreach ($xml_layouts->children() as $child)
-				{
-				$secure = ($check && ($child['secure'] > 0)) ? 1 : 0;
-				if (!($secure))
-					{
-					$i = $this->rpad($child->getName());
-					echo "<option value=\"" . $i . "\" " . ($i == $row_type ? "selected" : "") . ">" . htmlentities((string)$child['plural']) . "&nbsp;</option>";
-					}
-				}
-		 echo "</select>";
-		}
         
-    function layout_select($arr_layouts, $name, $row_type, $params = array())
+    function layout_dropdown($arr_layouts, $name, $row_type, $params = array())
 		{
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
@@ -329,48 +293,8 @@ class bb_main extends bb_report {
 				}
 		echo "</select>";
 		}
-
-			 
-	function column_dropdown($xml_column, $name, $col_type, $params = array())
-		{
-        ###DEPRECATED###
-		$class = isset($params['class']) ? $params['class'] : "";
-		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$check = isset($params['check']) ? $params['check'] : false;
-		$empty = isset($params['empty']) ? $params['empty'] : false;
-		$all = isset($params['all']) ? $params['all'] : false;
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
-		
-		if (!empty($label))
-			{
-			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
-			}
-
-		//Security there should be no way to get column with secured row_type
-		echo "<select name=\"". $name . "\" class=\"". $class . "\" onchange=\"" . $onchange  . "\">";
-		//build field options for column names
-		if ($empty)
-			{
-			echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
-			}
-		if ($all)
-			{
-			echo "<option value=\"0\" " . (0 == $col_type ? "selected" : "") . ">All&nbsp;</option>";
-			}
-		foreach($xml_column->children() as $child)
-			{
-			$secure = ($check && ($child['secure'] > 0)) ? 1 : 0;
-			if (!($secure))
-				{
-				$i = $this->rpad($child->getName());
-				echo "<option value=\"" . $i . "\" " . ($i == $col_type ? "selected" : "") . ">" . htmlentities((string)$child) . "&nbsp;</option>";
-				}
-			}
-		echo "</select>";
-		}
         
-    function column_select($arr_column, $name, $col_type, $params = array())
+    function column_dropdown($arr_column, $name, $col_type, $params = array())
 		{
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
@@ -407,45 +331,8 @@ class bb_main extends bb_report {
 			}
 		echo "</select>";
 		}
-		
-	function list_dropdown($xml_lists, $name, $list_number, $row_type, $params = array())
-		{
-        ###DEPRECATED###
-		//Security there should be no way to get column with secured row_type
-		$class = isset($params['class']) ? $params['class'] : "";
-		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$archive = isset($params['archive']) ? $params['archive'] : false;
-		$empty = isset($params['empty']) ? $params['empty'] : false;
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
-		
-		if (!empty($label))
-			{
-			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
-			}
-
-		echo "<select name = \"" . $name . "\" class=\"" . $class . "\" onchange=\"" . $onchange  . "\">";
-		//list combo
-		if ($empty)
-			{
-			echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
-			}
-		$path = "//*[@row_type = " . $row_type . "]";
-		$arr_lists = $xml_lists->xpath($path);
-		foreach($arr_lists as $child)
-			{
-			//either 1 or 0 for archive
-			if (!(int)$child['archive'] || $archive)
-				{
-				$i = $this->rpad($child->getName());
-				$archive_flag = ((int)$child['archive']) ? "*" : "";
-				echo "<option value=\"" . $i. "\"" . ($i == $list_number   ? " selected " : "") . ">" . htmlentities((string)$child) . $archive_flag . "&nbsp;</option>";
-				}
-			}
-		echo "</select>";
-        }
         
-    function list_select($arr_list, $name, $list_number, $params = array())
+    function list_dropdown($arr_list, $name, $list_number, $params = array())
 		{
 		//Security there should be no way to get column with secured row_type
 		$class = isset($params['class']) ? $params['class'] : "";
@@ -481,10 +368,11 @@ class bb_main extends bb_report {
 		{
 		//when there are nodes like c001, c002, c004, c005 finds next empty value ie 3
 		//double quotes in path will not work
+        $arr_keys = array_keys($arr);
+        sort($arr);
 		$k = 0;  // initialize for first value
 		$bool = false;	
-		sort($arr);
-		foreach($arr as $i => $j)
+		foreach($arr_keys as $i => $j)
 			{
 			$k = $i + 1; //$i starts at 0, $k start at 1
 			if ($k <> $j)
@@ -492,8 +380,7 @@ class bb_main extends bb_report {
 				$bool = true; //insert value in middle
 				break;
 				}			
-			}
-            
+			}            
 		if (!$bool)
 			{
 			$k = $k + 1; //insert value at end
@@ -504,7 +391,7 @@ class bb_main extends bb_report {
 			}
 		else
 			{
-			return $k;//return next value
+			return $k;//return value
 			}
 		}
 
@@ -545,6 +432,7 @@ class bb_main extends bb_report {
 		$date->setTimezone(new DateTimeZone(USER_TIMEZONE));
 		return $date->format($format);
 		}
+        
 	//convert from user time to program time	
 	function rconvert_date($date, $format = "Y-m-d")
 		{
@@ -1162,13 +1050,12 @@ class bb_main extends bb_report {
             $i = 1;
             foreach ($userroles as $value)
                 {
-                $arr_split = explode("-", $value, 2);
-                $userrole = (int)$arr_split[0];
-                $interface = $arr_split[1];
-                if (isset($array_master[$interface]['interface_name']) && isset($array_master[$interface]['userroles'][$userrole]))
+                //careful with the globals
+                list($userwork, $interwork) = explode("-", $value, 2);
+                if (isset($array_master[$interface]['interface_name']) && isset($array_master[$interface]['userroles'][$userwork]))
                     {
                     $bold = ($value == $userstring) ? " bold" : "";                
-                    $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interface]['userroles'][$userrole], "onclick"=>"bb_logout_selector('" . $value . "')");
+                    $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interwork]['userroles'][$userwork], "onclick"=>"bb_logout_selector('" . $value . "')");
                     $this->echo_script_button("role" . $value, $params);
                     $separator = ($i <> $cnt) ? ", " : "";
                     echo $separator;

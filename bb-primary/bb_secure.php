@@ -25,7 +25,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 $arr_message = array();
 
 /* GET STATE */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 $post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;
 $row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;

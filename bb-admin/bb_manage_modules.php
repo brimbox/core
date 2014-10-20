@@ -36,12 +36,12 @@ function module_links(i,a)
 </script>
 <?php
 include("bb_manage_modules_extra.php");
+$arr_message = array();
 
 /* PRESERVE STATE */
 //retrieve state after updating database, all state for this module in database
 //$main->retrieve called at beginning of form
-$arr_message = array();
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 //state not preserved for this module
 $module_id = $main->post('module_id', $module, 0);
 $module_action = $main->post('module_action', $module, 0);
@@ -69,7 +69,6 @@ if ($main->button(3)) //set_module_order
     $result = $main->query($con, $query);
     $arr_id = pg_fetch_all_columns($result);
     //weird structure to check order integrity
-    $error = false;
     
     foreach ($arr_id as $id)
         {
@@ -85,16 +84,14 @@ if ($main->button(3)) //set_module_order
         else
             {
             //catch for missing id in post (vs id in table)
-            array_push($arr_message,"Error: There has been a change in the modules since last refresh. Order not changed.");
-            $error = true;
+            $arr_message[] = "Error: There has been a change in the modules since last refresh. Order not changed.";
             break;
             }
         }
-    if (!$error)
-        {
-        //check for ascending unique order values
+    //check for unique order values
+    if (!count($arr_message))
+        {        
         //all but module type hidden
-        //module types 1 to 4, skip hidden
         foreach ($arr_order as $key1 => $arr1)
             {
             foreach ($arr1 as $key2 => $arr2)
@@ -103,14 +100,13 @@ if ($main->button(3)) //set_module_order
                     {
                     if (count($arr2) <> count(array_unique($arr2)))
                         {
-                        array_push($arr_message,"Error: There are duplicate values in the order choices.");
-                        $error = true;
+                        $arr_message[] = "Error: There are duplicate values in the order choices.";
                         }
                     }
                 }
             }
         }
-    if (!$error)
+    if (!count($arr_message))
         {
         //build static query with post values
         $query_union = "";
@@ -137,11 +133,11 @@ if ($main->button(3)) //set_module_order
         
         if (pg_affected_rows($result) == 0)
             {
-            array_push($arr_message,"Error: Module order was not updated. There was a change in the table.");
+            $arr_message[] = "Error: Module order was not updated. There was a change in the table.";
             }
         else
             {
-            array_push($arr_message,"Module order has been updated.");  
+            $arr_message[] = "Module order has been updated.";  
             }
         }
     } // end set order
@@ -171,11 +167,11 @@ if ($module_action <> 0)
         
         if (pg_affected_rows($result) == 0) //will do nothing if error
             {
-            array_push($arr_message,"Error: No changes have been made.");    
+            $arr_message[] = "Error: No changes have been made.";    
             }
         else
             {
-            array_push($arr_message, $message_temp);       
+            $arr_message[] = $message_temp;       
             }
         }
     
@@ -200,11 +196,11 @@ if ($module_action <> 0)
                     "WHERE modules_table.id = T1.id;";
             $main->query($con, $query);
             
-            array_push($arr_message, "Module has been deleted.");
+            $arr_message[] = "Module has been deleted.";
             }
         else
             {
-            array_push($arr_message,"Error: No changes have been made."); 
+            $arr_message[] = "Error: No changes have been made."; 
             }
             
         //reorder modules without deleted module
@@ -242,12 +238,12 @@ if ($main->button(2)) //submit_module
             }
          else
             {
-            array_push($arr_message,"Error: Unable to open zip archive.");
+            $arr_message[] = "Error: Unable to open zip archive.";
             }
         }
     else
         {
-        array_push($arr_message, "Error: Must specify module file name.");
+        $arr_message[] = "Error: Must specify module file name.";
         }
        
     //process header with extra class $manage
@@ -265,11 +261,11 @@ if ($main->button(2)) //submit_module
 				//$arr_module passed as a reference
                 $arr_module['@module_path'] = $path;
                 //call bb_manage_modules object
-				$message = $manage->get_modules($con, $arr_module);
+				$message_temp = $manage->get_modules($con, $arr_module);
                 //check for errors
-                if (!empty($message))
+                if (!empty($message_temp))
                     {
-                    $arr_message[] = $message;
+                    $arr_message[] = $message_temp;
                     }
                 //populate if module_name is set, ignore included 
                 elseif (isset($arr_module['@module_name']))
@@ -294,7 +290,6 @@ if ($main->button(2)) //submit_module
             
             //insert json
             $arr_insert = array();
-            $standard_module = ($arr_module['@module_type'] == 0) ? 1 : 3;
             $pattern_1 = "/^@json-.*/";
             foreach ($arr_module as $key => $value)
                 {
@@ -308,12 +303,14 @@ if ($main->button(2)) //submit_module
                 {
                 $main->query($con, $value);
                 }
+            
+            //optional hidden or optional regular    
+            $standard_module = ($arr_module['@module_type'] == 0) ? 1 : 3;
 
             //Update module
             if (in_array($arr_module['@module_name'], $arr_module_names))
                 {
-                //update query if module is being updated
-                //standard module and module name not changed
+                //compensate when module is moved from one module type to another
                 $module_order = "(SELECT CASE WHEN module_type <> " . $arr_module['@module_type'] . " OR interface <> '" . $arr_module['@module_type'] . "' THEN max(module_order) + 1 ELSE module_order END FROM modules_table " .
                                 "WHERE module_name = '" . $arr_module['@module_name'] . "' GROUP BY interface, module_type, module_order)";    
                 $update_clause = "UPDATE modules_table SET module_order = " . $module_order . ", module_path = '" . pg_escape_string($arr_module['@module_path']) . "',friendly_name = '" . pg_escape_string($arr_module['@friendly_name']) . "', " .
@@ -332,8 +329,7 @@ if ($main->button(2)) //submit_module
                 }
             //Install module
             else
-                {
-                //$standard_module = 3, deactived                
+                {          
                 //$module_order finds next available order number
                 $module_order = "(SELECT CASE WHEN max(module_order) > 0 THEN max(module_order) + 1 ELSE 1 END FROM modules_table WHERE interface = '" . $arr_module['@interface'] . "' AND module_type = " .  $arr_module['@module_type'] . ")";        
                 //INSERT query when inserting por reinstalling module
@@ -353,7 +349,7 @@ if ($main->button(2)) //submit_module
                 {
                 $arr_message[] = "Error: Module " . $arr_module['@module_name'] . " information has not been installed.";                 
                 }
-            else //installed or updated module
+            else //good install or update
                 {
                 $arr_message[] = $message_temp;   
                 }
@@ -392,12 +388,12 @@ if ($main->button(1)) //submit_update
             }
         else
             {
-            array_push($arr_message, "Error: Does not appear to be a Brimbox update.");    
+            $arr_message[] = "Error: Does not appear to be a Brimbox update.";    
             }
         }
     else
         {
-        array_push($arr_message, "Error: Must specify update file name.");
+        $arr_message[] = "Error: Must specify update file name.";
         }
     $main->empty_directory("bb-temp/", "bb-temp/");
     }

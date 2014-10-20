@@ -39,7 +39,7 @@ function reload_on_layout()
 
 <?php
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 $arr_message = array();	
 $arr_notes = array("c49","c50");

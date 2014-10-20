@@ -41,7 +41,7 @@ $arr_message = array();
 
 /* START STATE AND DETAILS POSTBACK */
 //do details postback, get variables from state
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //get archive mode
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";

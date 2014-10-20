@@ -48,7 +48,7 @@ $arr_message = array();
 
 /* BEGIN STATE AND POSTBACK PROCESS */
 //do search postback
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //initialize values
 $search_array = array("","No Search Terms Entered");
@@ -89,7 +89,7 @@ echo "<div class=\"center\">";
 //search vars
 echo "<input type=\"text\" name=\"search\" class = \"spaced\" size=\"35\" value = \"" . htmlentities($search) . "\"/>";
 $params = array("all"=>true);
-$main->layout_select($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
 //echo state variables into form

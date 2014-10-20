@@ -20,7 +20,7 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", 5);
 
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //start of code
 $arr_layouts = $main->get_json($con, "bb_layout_names");

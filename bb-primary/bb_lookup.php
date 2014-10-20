@@ -55,7 +55,7 @@ $arr_messages = array();
 
 /* LOOKUP AND STATE POSTBACK */
 //do lookup state and postback
-$main->retrieve($con, $array_state, $userrole); //run first
+$main->retrieve($con, $array_state); //run first
     
 //get archive mode
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
@@ -108,7 +108,6 @@ $main->update($array_state, $module, $arr_state);
 
 /* GET COLUMN AND LAYOUT VALUES */
 //get column names based on row_type/record types
-
 $arr_column = $arr_columns[$row_type];
 $arr_layout = $arr_layouts[$row_type];
 $column_1 = $main->pad("c", $col_type_1);
@@ -170,7 +169,7 @@ if (ARCHIVE_INTERWORKING == "ON")
 		}
 	echo "<td class=\"borderleft nowrap padded middle\" rowspan=\"2\">";
 	echo "<span class = \"border rounded padded shaded\">";
-    $main->echo_input("archive_flag" . $i, 1, array('type'=>'checkbox','class'=>'middle padded','checked'=>$checked));
+    $main->echo_input("archive_flag", 1, array('type'=>'checkbox','class'=>'middle padded','checked'=>$checked));
 	echo "<label class=\"padded\">Check Archives</label>";
 	echo "</span>";
 	echo "</td>";
@@ -184,7 +183,7 @@ echo "<input type =\"text\" class=\"spaced short\" name = \"record_id\" value = 
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
 $params = array("onchange"=>"reload_on_layout()");
-$main->layout_select($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
 //column 1 values
@@ -195,7 +194,7 @@ echo "<span class=\"spaced middle\">Like:</span><input type=\"radio\" class=\"mi
 echo "<span class=\"spaced middle\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
 echo "&nbsp;";
 $params = array("class"=>"spaced");
-$main->column_select($arr_column, "col_type_1", $col_type_1, $params);
+$main->column_dropdown($arr_column, "col_type_1", $col_type_1, $params);
 echo "</td>";
 
 //column 2 values
@@ -207,7 +206,7 @@ echo "<span class=\"spaced\">Like:</span><input type=\"radio\" class=\"middle\" 
 echo "<span class=\"spaced\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"4\"" . ($radio_2 == 4 ? "checked" : "") . ">";
 echo "&nbsp;";
 $params = array("class"=>"spaced");
-$main->column_select($arr_column, "col_type_2", $col_type_2, $params);
+$main->column_dropdown($arr_column, "col_type_2", $col_type_2, $params);
 echo "</td>";
 
 echo "</tr></table>"; //table 1

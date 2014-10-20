@@ -33,7 +33,7 @@ $main->check_permission("bb_brimbox", 5);
 ?>
 <?php
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //This area is for truncating the table
 if ($main->button(1)) //truncate_table

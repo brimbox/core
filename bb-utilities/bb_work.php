@@ -164,19 +164,21 @@ class bb_work extends bb_form {
 	    return $var;	
 	    }
 			
-	function retrieve($con, &$array_state, $userrole)
+	function retrieve($con, &$array_state)
 	    //retrieves state from $_POST based on known tabs with state from tab table in database
 	    {
 		global $array_interface;
+		global $interface;
+		global $userrole;
 		
 		$array_state = array();		
-		$arr_modules_active = array();
+		$arr_modules_active = array();		
 		
 		foreach ($array_interface as $key => $value)
 			{
 			if (in_array($userrole, $value['userroles']))
 				{
-				array_push($arr_modules_active, (int)$value['module_type']);
+				array_push($arr_modules_active, $value['module_type']);
 				}
 			}
 	    //This function will also initalize state if not set
@@ -184,7 +186,7 @@ class bb_work extends bb_form {
 	    		    
 		//to create this as a base class call query with die
 	    $query = "SELECT module_name FROM modules_table WHERE maintain_state = 1 AND " . $and_clause . " AND standard_module IN (0,1,2,4,6);";
-	    //$this = new bb_database();
+	    //echo "<p>" . $query . "</p>";
 		$result = $this->query($con, $query);
 	    
 	    while($row = pg_fetch_array($result))

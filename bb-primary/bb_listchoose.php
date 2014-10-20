@@ -32,7 +32,7 @@ select.box
 /* INITIALIZE */
 /* BEGIN STATE */
 //State vars --- there is no listchoose state
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //get post_key
 $post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;

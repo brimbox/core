@@ -55,7 +55,7 @@ $default_row_type = $main->get_default_layout($arr_layouts);
 //view value is the list position
 
 /*** BEGIN LISTVIEW POSTBACK ***/
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //get archive mode
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
@@ -136,9 +136,9 @@ $main->echo_module_vars();
 echo "<div class=\"cell padded middle\">";
 echo "Choose List: ";
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_select($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","onchange"=>"reload_on_list()");
-$main->list_select($arr_list, "list_number", $list_number, $params);
+$main->list_dropdown($arr_list, "list_number", $list_number, $params);
 
 //list return
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";

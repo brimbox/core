@@ -42,7 +42,7 @@ $main->check_permission("bb_brimbox", array(4,5));
 $arr_message = array();
 
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state, $userrole);
+$main->retrieve($con, $array_state);
 
 //start code here
 $arr_lists = $main->get_json($con, "bb_create_lists");
@@ -96,8 +96,7 @@ if ($main->button(1))
         
         if (!$found)  
             {
-            $arr_keys = array_keys($arr_list);
-            $k = $main->get_next_node($arr_keys, 2000); //gets next lists number
+            $k = $main->get_next_node($arr_list, 2000); //gets next lists number, 1 to limit
             if ($k < 0) //over maximum number of lists
                 {
                 array_push($arr_message, "Error: Maximum number of lists exceeded."); 
@@ -254,7 +253,7 @@ echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\">List Type: </div>";
 echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced");
-$main->layout_select($arr_layouts, "row_type_1", $row_type_1, $params);
+$main->layout_dropdown($arr_layouts, "row_type_1", $row_type_1, $params);
 echo "</div>";
 echo "</div>";
 echo "<div class=\"row padded\">";
@@ -282,10 +281,10 @@ echo "<div class=\"table spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_row_type_2()");
-$main->layout_select($arr_layouts, "row_type_2", $row_type_2, $params);
+$main->layout_dropdown($arr_layouts, "row_type_2", $row_type_2, $params);
 $params = array("class"=>"spaced","empty"=>true,"archive"=>true,"onchange"=>"bb_reload_list_number_2()");
 $arr_pass = isset($arr_lists[$row_type_2]) ? $arr_lists[$row_type_2] : array();
-$main->list_select($arr_pass, "list_number_2", $list_number_2, $params);
+$main->list_dropdown($arr_pass, "list_number_2", $list_number_2, $params);
 echo "</div>";
 echo "</div>";
 echo "</div>";
@@ -322,10 +321,10 @@ echo "<div class=\"table border spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_row_type_3()");
-$main->layout_select($arr_layouts, "row_type_3", $row_type_3, $params);
+$main->layout_dropdown($arr_layouts, "row_type_3", $row_type_3, $params);
 $params = array("class"=>"spaced","empty"=>true,"archive"=>true);
 $arr_pass = isset($arr_lists[$row_type_3]) ? $arr_lists[$row_type_3] : array();
-$main->list_select($arr_pass, "list_number_3", $list_number_3, $params);
+$main->list_dropdown($arr_pass, "list_number_3", $list_number_3, $params);
 echo " | ";
 echo "</div>";
 echo "<div class=\"cell padded nowrap\">";
