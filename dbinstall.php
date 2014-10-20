@@ -652,7 +652,7 @@ if ($do_users_table)
 
 $query = <<<EOT
 INSERT INTO users_table(email, hash, salt, userroles)
-VALUES ('$email', '$hash', '$salt', '{"5-bb_brimbox"}');
+VALUES ('$email', '$hash', '$salt', '{"5_bb_brimbox"}');
 EOT;
 if ($do_users_table)
     {
