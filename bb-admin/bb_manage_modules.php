@@ -287,7 +287,7 @@ if ($main->button(2)) //submit_module
             {            
             //to reinstall xml you must delete the plugin                   
             $arr_module['@module_path'] = $main->replace_root($arr_module['@module_path'], "bb-temp/", "bb-modules/");
-            
+                        
             //insert json
             $arr_insert = array();
             $pattern_1 = "/^@json-.*/";
@@ -306,6 +306,8 @@ if ($main->button(2)) //submit_module
             
             //optional hidden or optional regular    
             $standard_module = ($arr_module['@module_type'] == 0) ? 1 : 3;
+            //functions and globals start activated
+            $standard_module = in_array($arr_module['@module_type'], array(-1,-2)) ? 4 : $standard_module;
 
             //Update module
             if (in_array($arr_module['@module_name'], $arr_module_names))
@@ -351,6 +353,12 @@ if ($main->button(2)) //submit_module
                 }
             else //good install or update
                 {
+                //include the globals so array_master is updated
+                if ($arr_module['@module_type'] == -1)
+                    {
+                    include($arr_module['@module_path']);   
+                    }
+                //update message
                 $arr_message[] = $message_temp;   
                 }
             } //foreach

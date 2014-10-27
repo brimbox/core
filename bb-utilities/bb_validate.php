@@ -28,7 +28,7 @@ If not, see http://www.gnu.org/licenses/
 //bb_validate_yesno
 	
 	
-class bb_validate extends bb_link {	
+class bb_validate extends bb_links {	
 	
 	function validate_text(&$value, $error = false)
 		{

@@ -360,7 +360,7 @@ if ($main->button(1))
 				if (pg_num_rows($result) == 1)
 					{
 					//retain state values
-					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\"."); 
+					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column[$unique_key]['name'] . "\"."); 
 					}
 				else
 					{

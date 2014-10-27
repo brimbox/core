@@ -35,7 +35,7 @@ If not, see http://www.gnu.org/licenses/
 
 
 /* POSTBACK ANBD STATE FUNCTIONS */	
-class bb_work extends bb_form {
+class bb_work extends bb_forms {
 	
 	function button($number, $check = "")
 		{

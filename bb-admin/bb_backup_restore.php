@@ -89,7 +89,7 @@ function decrypt_line($str, $passwd, $iv, $type)
 //removes tabs and cleans up new lines
 if ($main->button(1)) //submit_file
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5-bb_brimbox');
+	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5_bb_brimbox');
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
@@ -103,7 +103,7 @@ if ($main->button(1)) //submit_file
 //CLEAN DATABASE COLUMN	
 if ($main->button(2)) //clean_up_columns
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5-bb_brimbox');
+	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5_bb_brimbox');
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
@@ -118,7 +118,7 @@ if ($main->button(2)) //clean_up_columns
 //CLEAN DATABASE LAYOUT	
 if ($main->button(3)) //clean_up_columns
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5-bb_brimbox');
+	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5_bb_brimbox');
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
@@ -191,7 +191,7 @@ if ($main->button(4)) //submit_file
 						//get next line
 						$str = rtrim(fgets($handle));
 						//decrypt and split
-						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
+						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));                        
 						$query = "INSERT INTO json_table (lookup, jsondata, change_date) " .
 								 "VALUES ($1,$2,$3);";
 						//echo "<p>" . htmlentities($query) . "</p><br>";
@@ -200,7 +200,7 @@ if ($main->button(4)) //submit_file
 					//install triggers indexes etc
 					$query = $json_after_eot;
 					$main->query($con, $query);
-					array_push($arr_message, "XML table has been restored from backup.");
+					array_push($arr_message, "JSON table has been restored from backup.");
 					}
 				else //advance file pointer
 					{

@@ -38,8 +38,9 @@ session_start();
 if (isset($_SESSION['email'])):
 
 /* RESERVED VARIABLES (used in controller)*/
-//$userrole -- the security level
+//$userrole -- current security level string including the interface
 //$userroles -- valid security permissions
+//$usertype -- current userrole integer without interface
 //$interface -- current interface
 //$email -- the current email/username
 //$module -- the current module
@@ -68,7 +69,7 @@ if (isset($_SESSION['email'])):
 $email = $_SESSION['email']; //login of user
 $userrole = $_SESSION['userrole']; //string containing userrole and interface
 $userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
-list($userwork, $interface) = explode("_", $_SESSION['userrole'], 2);
+list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
 $archive = $_SESSION['archive']; //archive mode
 $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0; //global button
 
@@ -80,12 +81,12 @@ if (isset($_POST['bb_module']))
 	if ($module == "bb_logout")
 		{
 		//explode on first dash only allows for dashes in interface name
-		list($userwork, $interwork) = explode("-", $_POST['bb_interface'], 2);
+		list($usertype, $interwork) = explode("-", $_POST['bb_interface'], 2);
 		//logout and change interface/userrole could be on different or many pages
 		//check for session poisoning, array userroles should not be altered
 		//the conversion to string of string of $_POST['bb_submit'] and will stop injection
 		//$userroles variable should be protected and not used or altered anywhere		
-		if (($userwork <> 0) && in_array($_POST['bb_interface'], explode(",", $_SESSION['userroles'])))
+		if (((int)$usertype <> 0) && in_array($_POST['bb_interface'], explode(",", $_SESSION['userroles'])))
 			{
 			$_SESSION['userrole'] = $_POST['bb_interface']; 
 			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
@@ -105,41 +106,55 @@ if (isset($_POST['bb_module']))
 	
 /* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
 // contains bb_database class
+include("bb-utilities/bb_hooks.php");
+// contains bb_database class, extends bb_hooks
 include("bb-utilities/bb_database.php");
-// contains bb_links class extends bb_database
-include("bb-utilities/bb_link.php");
-//contains bb_validation class extend bb_link
+// contains bb_links class, extends bb_database
+include("bb-utilities/bb_links.php");
+//contains bb_validation class, extend bb_links
 include("bb-utilities/bb_validate.php");
-//contains bb_form class extends bb_validate
-include("bb-utilities/bb_form.php");
-//contains bb_work class extends bb_form
+//contains bb_form class, extends bb_validate
+include("bb-utilities/bb_forms.php");
+//contains bb_work class, extends bb_forms
 include("bb-utilities/bb_work.php");
-//contains bb_report class extend bb_work
-include("bb-utilities/bb_report.php");
-//contains bb_main class extends bb_report
+//contains bb_report class, extend bb_work
+include("bb-utilities/bb_reports.php");
+//contains bb_main class, extends bb_reports
 include("bb-utilities/bb_main.php");
-
-// User function include
-include("bb-config/bb_admin_functions.php");
 
 /* SET UP MAIN OBJECT */
 //objects are all daisy chained together
 $main = new bb_main();
-//constructs main and work, extends form
-/* END MAIN OBJECT */
 
 /* GET DATABASE CONNECTION */
 //database connection passed into modules globally
 $con = $main->connect();
-/* END DATABASE CONNECTION */
 
+/* DO HOOK MODULES */
+$arr_work['hooks'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-2) ORDER BY module_order;";
+$result = pg_query($con, $arr_work['hooks']);
+while($row = pg_fetch_array($result))
+    {
+    include($row['module_path']);
+    }
+// include adhoc functions
+include("bb-config/bb_admin_functions.php");
+
+/* DO GLOBALS */
 // Contains initial globals and global setup
 include("bb-utilities/bb_globals.php");
-//Contains the user defined globals
+//DO GLOBAL MODULES
+$arr_work['globals'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
+$result = pg_query($con, $arr_work['globals']);
+while($row = pg_fetch_array($result))
+    {
+    include($row['module_path']);
+    }
+// include adhoc globals
 include("bb-config/bb_admin_globals.php");
 
 //unpack $array_master
-foreach($array_master['bb_brimbox'] as $key => $value)
+foreach($array_master[$interface] as $key => $value)
 	{
 	${'array_' . $key} = $value;
 	}
@@ -151,7 +166,7 @@ foreach($array_master['bb_brimbox'] as $key => $value)
 <meta http-equiv="Content-Type" content="text/html; charset="utf-8" />
 
 <?php /* JAVASCRIPT AND CSS INCLUDES */ ?>
-<script type="text/javascript" src="bb-utilities/bb_script.js"></script>
+<script type="text/javascript" src="bb-utilities/bb_scripts.js"></script>
 <script type="text/javascript" src="bb-config/bb_admin_javascript.js"></script>
 
 <link rel=StyleSheet href="bb-utilities/bb_styles.css" type="text/css" media=screen>
@@ -187,7 +202,7 @@ $arr_work['module_types'] = array();
 //get the module types for current interface
 foreach($array_interface as $key => $value)
 	{
-	if (in_array($userrole, $value['userroles']))
+	if (in_array($usertype, $value['userroles']))
 		{
 		array_push($arr_work['module_types'], $value['module_type']);
 		}

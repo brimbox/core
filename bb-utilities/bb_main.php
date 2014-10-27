@@ -61,7 +61,7 @@ If not, see http://www.gnu.org/licenses/
 //database_stats
 //userrole_switch
 
-class bb_main extends bb_report {
+class bb_main extends bb_reports {
 	
 	//this quickly returns the query header stats including count and current time...
 	function return_stats($result)
@@ -602,7 +602,6 @@ class bb_main extends bb_report {
 		{
 		//waterfall
 		//this will also check that session is set
-        $email = $_SESSION['email'];
         list($userwork, $interface) = explode("_", $_SESSION['userrole'], 2);
         if (is_int($module_userroles)) //either int or string input
             {
@@ -669,42 +668,40 @@ class bb_main extends bb_report {
 		global $array_guest_index;
 		
 		$arr_union_query = array();
-		$xml_layouts = $this->get_xml($con, "bb_layout_names");
-		$xml_columns = $this->get_xml($con, "bb_column_names");
+		$arr_layouts = $this->get_json($con, "bb_layout_names");
+		$arr_columns = $this->get_json($con, "bb_column_names");
 		
 		$arr_row_type = array();    
-		if ($row_type == 0)
+		if ($row_type == 0) //all
 			{
-			foreach ($xml_layouts->children() as $child) 
+			foreach ($arr_layouts  as $key => $value) 
 				{
-				$row_type = (int)substr($child->getName(),1);
-				array_push($arr_row_type, $row_type);
+				array_push($arr_row_type, $key);
 				}
 			}
 		else
 			{
-			array_push($arr_row_type ,$row_type);   
+			array_push($arr_row_type, $row_type);   
 			}
 			
 		$arr_ts_vector_fts = array();
 		$arr_ts_vector_ftg = array();
 		foreach ($arr_row_type as $row_type)
 			{
-			$layout = "l" . str_pad($row_type,2,"0",STR_PAD_LEFT);
-			$xml_column = $xml_columns->$layout;
+			$arr_column = $this->filter_keys($arr_columns[$row_type]);
 			//loop through searchable columns
-			foreach($xml_column->children() as $child)
+			foreach($arr_column as $key => $value)
 				{
-				$col = $child->getName();
-				$search_flag = ($child['search'] == 1) ? true : false;
+				$col = $this->pad("c", $key);
+				$search_flag = ($value['search'] == 1) ? true : false;
 				//guest flag
 				if (empty($array_guest_index))
 					{
-					$guest_flag = (($child['search'] == 1) && ($child['secure'] == 0)) ? true : false;
+					$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
 					}
 				else
 					{
-					$guest_flag = (($child['search'] == 1) && in_array((int)$child['secure'], $array_guest_index)) ? true : false;						
+					$guest_flag = (($value['search'] == 1) && in_array((int)$value['secure'], $array_guest_index)) ? true : false;						
 					}
 				//build fts SQL code
 				if ($search_flag)
@@ -821,10 +818,12 @@ class bb_main extends bb_report {
 		
 	function output_links($row, $xml_layouts, $userrole)
 		{
+        //for standard interface
 		global $array_links;
 		
+        list($usertype, $interface) = explode("_", $userrole, 2); 
 		$arr_work = array();
-		switch ($userrole)
+		switch ($usertype)
             {
             case 1: //guest
 			if (isset($array_links[1]))
@@ -1040,7 +1039,6 @@ class bb_main extends bb_report {
         global $array_master;        
         global $userroles;
         global $userrole;
-        global $interface;
         
         $arr_userroles = explode(",", $userroles);
         $cnt = count($arr_userroles);
@@ -1051,11 +1049,11 @@ class bb_main extends bb_report {
             foreach ($arr_userroles as $value)
                 {
                 //careful with the globals
-                list($userwork, $interwork) = explode("_", $value, 2);
-                if (isset($array_master[$interface]['interface_name']) && isset($array_master[$interface]['userroles'][$userwork]))
+                list($usertype, $interface) = explode("_", $value, 2);
+                if (isset($array_master[$interface]['interface_name']) && isset($array_master[$interface]['userroles'][$usertype]))
                     {
                     $bold = ($value == $userrole) ? " bold" : "";                
-                    $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interwork]['userroles'][$userwork], "onclick"=>"bb_logout_selector('" . $value . "')");
+                    $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interface]['userroles'][$usertype], "onclick"=>"bb_logout_selector('" . $value . "')");
                     $this->echo_script_button("role" . $value, $params);
                     $separator = ($i <> $cnt) ? ", " : "";
                     echo $separator;

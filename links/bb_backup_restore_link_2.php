@@ -49,7 +49,7 @@ $new_lines = $_POST['new_lines'];
 $userrole = $_SESSION['userrole'];
 $email = $_SESSION['email'];
 
-$valid_password = $main->validate_login($con, $email, $passwd, "5-bb_brimbox");
+$valid_password = $main->validate_login($con, $email, $passwd, "5_bb_brimbox");
 
 if (!$valid_password)
 	{

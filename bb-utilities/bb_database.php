@@ -29,7 +29,7 @@ If not, see http://www.gnu.org/licenses/
 //search_xml
 //get_next_xml_node
 	
-class bb_database {
+class bb_database extends bb_hooks {
 	
 	function connect()
 		{
@@ -82,35 +82,6 @@ class bb_database {
 		$mbox = @imap_open($mailserver, $username, $password);
 				
 		return $mbox;
-		}
-	
-	function get_xml($con, $lookup)
-		{
-		//gets an xml object from the xml_table
-		$query = "SELECT xmldata FROM xml_table WHERE lookup IN ('" . pg_escape_string($lookup) . "');";
-	
-		$result = $this->query($con, $query);
-		
-		$row = pg_fetch_array($result);
-		$xml = simplexml_load_string($row['xmldata']);
-			
-		return $xml;		
-		}
-	
-	function update_xml($con, $xml, $lookup)
-		{
-		//update xml_table with a whole xml object
-		$query = "UPDATE xml_table SET xmldata = '" . pg_escape_string($xml->asXML()) . "'::xml WHERE lookup = '" . $lookup . "';";
-	
-		$this->query($con, $query);
-		}
-	
-	function search_xml($xml, $path)
-		{
-		//gets xml node based on path
-		//double quotes in path will not work
-		$node = $xml->xpath($path);
-		return $node;    
 		}
 		
 	function get_json($con, $lookup)

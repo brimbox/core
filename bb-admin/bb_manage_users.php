@@ -592,9 +592,9 @@ if (in_array($action, array(1,2,3,4))):
         echo "<div class=\"cell middle\">Roles:</div>";
         echo "<div class=\"cell middle\">";
         echo "<div class=\"spaced border padded\">";
-        //do not alter global $array_userroles
-        $result = $main->query($con, $query);
         
+        //do not alter global $array_userroles
+        //$result = $main->query($con, $query);        
 
         foreach ($array_userroles_loop as $value)
             {

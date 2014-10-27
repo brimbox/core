@@ -190,34 +190,32 @@ class bb_manage_modules {
             return "Error: Required module variable missing. Certain module variables are required in the module definition.";
             }
         
-        //check that interface exists
-        if (!in_array($arr_module['@interface'], array_keys($this->arr_master)))
-            {
-            return "Error: Invalid module type supplied in module header. Module type must hidden, global, or function or correspond to module types global array.";
-            }    
-    
-        //check the module types
-        //tricky to validate ints, deal with value as a string
-         if (filter_var((string)$arr_module['@module_type'], FILTER_VALIDATE_INT))
-            {
-            $arr_keys = array_keys($this->arr_master[$arr_module['@interface']]['module_types']);
-            $arr_keys = array_unique($arr_keys + array(0,-1,-2));
-            if (!in_array((string)$arr_module['@module_type'], array_map('strval',$arr_keys)))
+        //check if global interface array is set, only then can you check userroles and module types
+        if (in_array($arr_module['@interface'], array_keys($this->arr_master)))
+            {     
+            //check the module types
+            //tricky to validate ints, deal with value as a string
+             if (filter_var((string)$arr_module['@module_type'], FILTER_VALIDATE_INT))
                 {
-                return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";
+                $arr_keys = array_keys($this->arr_master[$arr_module['@interface']]['module_types']);
+                $arr_keys = array_unique($arr_keys + array(0,-1,-2));
+                if (!in_array((string)$arr_module['@module_type'], array_map('strval',$arr_keys)))
+                    {
+                    return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";
+                    }
                 }
-            }
-        else
-            {
-            $arr_values = $this->arr_master[$arr_module['@interface']]['module_types'];
-            unset($arr_values[0], $arr_values[-1], $arr_values[-2]);
-            $arr_values = array_map('strtolower', $arr_values + array(0=>"hidden", -1=>"global", -2=>"function"));
-            if (!in_array(strtolower($arr_module['@module_type']), $arr_values))
+            else
                 {
-                return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";        
+                $arr_values = $this->arr_master[$arr_module['@interface']]['module_types'];
+                unset($arr_values[0], $arr_values[-1], $arr_values[-2]);
+                $arr_values = array_map('strtolower', $arr_values + array(0=>"hidden", -1=>"global", -2=>"function"));
+                if (!in_array(strtolower($arr_module['@module_type']), $arr_values))
+                    {
+                    return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";        
+                    }
+                //module type set to numeric value for insert/update
+                $arr_module['@module_type'] = array_search(strtolower($arr_module['@module_type']), $arr_values);
                 }
-            //module type set to numeric value for insert/update
-            $arr_module['@module_type'] = array_search(strtolower($arr_module['@module_type']), $arr_values);
             }
 
         //check the maintaion state variable
