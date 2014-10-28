@@ -61,7 +61,7 @@ If not, see http://www.gnu.org/licenses/
 //database_stats
 //userrole_switch
 
-class bb_main extends bb_reports {
+class bb_main {
 	
 	//this quickly returns the query header stats including count and current time...
 	function return_stats($result)

@@ -181,7 +181,7 @@ if ($main->button(1))
         //see if unique key set
         if (isset($arr_column['layout']['unique']))
             {
-            $unique_key = $arr_column['layout']['unique']; //used in both update and insert\
+            $unique_key = $arr_column['layout']['unique']; //used in both update and insert
             $unique_column = $main->pad("c", $unique_key);
             }
         // update preexisting row
@@ -222,7 +222,7 @@ if ($main->button(1))
             //update query
             //check that row exists in update because of multiuser situation
 			$select_where_not = "SELECT 1 WHERE 1 = 0";
-            if (isset($unique_key)) //no key = 0
+            if ($unique_key > 0) //no key = 0
                 {
                 //get the vlaue to be checked
                 $unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
@@ -313,7 +313,7 @@ if ($main->button(1))
             $select_where_exists = "SELECT 1";
             $select_where_not = "SELECT 1 WHERE 1 = 0";
             //key exists must check for duplicate value
-            if (isset($unique_key)) //no key = 0
+            if ($unique_key > 0) //no key = 0
                 {
                 $unique_value = isset($arr_state[$unique_column]) ? (string)$arr_state[$unique_column] : ""; 
                 //key, will not insert on empty value, key must be populated
@@ -360,7 +360,7 @@ if ($main->button(1))
 				if (pg_num_rows($result) == 1)
 					{
 					//retain state values
-					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column[$unique_key]['name'] . "\"."); 
+					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\"."); 
 					}
 				else
 					{
@@ -427,36 +427,20 @@ if ($post_key > 0)
 				{
 				$archive_flag = ($row['archive'] == 0) ? "" : "*";
 				}
-			}
-			
-		/* AUTOFILL */
-        //autofill area, on post_key set or after insert with parent
-        if ($cnt_rows == 1)
-            {
-            //loop through each node
-            $arr_column_parent = $main->filter_keys($arr_columns[$parent_row_type]);
-            //build array for search
-            foreach ($arr_column_reduced as $key => $value)
+                
+            /* AUTOFILL HOOK */
+            if (isset($array_hooks['bb_autofill']))
                 {
-                $arr_search[$key] = $value['name'];
-                }
-            foreach ($arr_column_parent as $key1 => $value1)
-                {
-                $col1 = $main->pad("c", $key1);    
-                $key2 = array_search($value1['name'], $arr_search);
-                //if found
-                if (is_integer($key2))
+                foreach ($array_hooks['bb_autofill'] as $arr_hook)
                     {
-                    $col2 = $main->pad("c", $key2);
-                    //if autofill column is empty
-                    if (empty($arr_state[$col2]))
+                    foreach ($arr_hook[1] as &$value)
                         {
-                        $arr_state[$col2] = $row[$col1];   
+                        if (substr($value,0,1) == "&") $args_hook[] = &${substr($value,1)}; else  $args_hook[] = ${$value};	
                         }
+                    call_user_func_array($arr_hook[0], $args_hook);
                     }
                 }
-            }
-            /* END AUTOFILL */
+			}			
         }
     }
 /* END PARENT ROW */ 

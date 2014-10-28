@@ -15,16 +15,19 @@ See the GNU GPL v3 for more details.
 You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
-/* VERSION INFORMATION */
+/* NO HTML OUTPUT */
 
+/* VERSION INFORMATION */
 define('BRIMBOX_PROGRAM', '2014.5.400');
 define('BRIMBOX_DATABASE', '2014.1.23');
 define('BRIMBOX_BACKUP', '2014.1.4');
 
-  
-/* NO HTML OUTPUT */
+# START ARRAY HOOKS #
 
-# DEFAULT SESSION LEVEL SECURITY #
+$array_hooks = array();
+//$array_hooks['bb_autofill'][] = array(array($main,"autofill"), array("row", "&arr_state", "arr_columns", "row_type", "parent_row_type"), array("arr_state"));
+
+# BUILD DEFAULT ARRAY MASTER #
 //You should declare an interface name
 //$array_interface_name -- required
 $array_master['bb_brimbox']['interface_name'] = "Brimbox";

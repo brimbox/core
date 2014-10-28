@@ -29,7 +29,7 @@ If not, see http://www.gnu.org/licenses/
 //search_xml
 //get_next_xml_node
 	
-class bb_database extends bb_hooks {
+class bb_database extends bb_main {
 	
 	function connect()
 		{

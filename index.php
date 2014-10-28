@@ -105,9 +105,10 @@ if (isset($_POST['bb_module']))
 	}
 	
 /* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
-// contains bb_database class
-include("bb-utilities/bb_hooks.php");
-// contains bb_database class, extends bb_hooks
+
+//contains bb_main class
+include("bb-utilities/bb_main.php");
+// contains bb_database class, extends bb_main
 include("bb-utilities/bb_database.php");
 // contains bb_links class, extends bb_database
 include("bb-utilities/bb_links.php");
@@ -118,13 +119,15 @@ include("bb-utilities/bb_forms.php");
 //contains bb_work class, extends bb_forms
 include("bb-utilities/bb_work.php");
 //contains bb_report class, extend bb_work
+include("bb-utilities/bb_hooks.php");
+//contains bb_report class, extend bb_hooks
 include("bb-utilities/bb_reports.php");
-//contains bb_main class, extends bb_reports
-include("bb-utilities/bb_main.php");
+
 
 /* SET UP MAIN OBJECT */
 //objects are all daisy chained together
-$main = new bb_main();
+//set up main from last object
+$main = new bb_reports();
 
 /* GET DATABASE CONNECTION */
 //database connection passed into modules globally
@@ -376,15 +379,10 @@ else:
 
 //no html output in these libraries because of header calls
 //objects extended together
-include("bb-utilities/bb_database.php");
-include("bb-utilities/bb_link.php");
-include("bb-utilities/bb_validate.php");
-include("bb-utilities/bb_form.php");
-include("bb-utilities/bb_work.php");
-include("bb-utilities/bb_report.php");
 include("bb-utilities/bb_main.php");
+include("bb-utilities/bb_database.php");
 
-$main = new bb_main();
+$main = new bb_database();
 
 //initialize
 $email = "";

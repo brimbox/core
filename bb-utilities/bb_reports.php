@@ -43,7 +43,7 @@ If not, see http://www.gnu.org/licenses/
 //table full outputs whole table
 //paginated table display one page at a time
 
-class bb_reports extends bb_work {
+class bb_reports extends bb_hooks {
 	
 	function report_type($selected, $params = array())
 		{
