@@ -382,6 +382,7 @@ else:
 include("bb-utilities/bb_main.php");
 include("bb-utilities/bb_database.php");
 
+//set up main oject from second class (bb_database)
 $main = new bb_database();
 
 //initialize
@@ -454,7 +455,7 @@ if (isset($_POST['index_enter']))
             $_SESSION['userroles'] = $row['userroles']; //userroles string from db
             $arr_userroles = explode(",",$row['userroles']);
             $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
-			$_SESSION['archive'] = 0;
+			$_SESSION['archive'] = 1; //archive mode is off
 			//log entry
 			$main->log_entry($con, "Login Success");
 			//redirect with header call to index with session set

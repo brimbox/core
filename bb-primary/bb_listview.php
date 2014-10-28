@@ -57,8 +57,8 @@ $default_row_type = $main->get_default_layout($arr_layouts);
 /*** BEGIN LISTVIEW POSTBACK ***/
 $main->retrieve($con, $array_state);
 
-//get archive mode
-$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
+//get archive mode, default Off, show only zeros
+$mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
 $arr_state = $main->load($module, $array_state);
 

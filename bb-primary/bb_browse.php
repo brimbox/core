@@ -70,8 +70,8 @@ $default_row_type = $main->get_default_layout($arr_layouts);
 //do browse postback, get variables from state
 $main->retrieve($con, $array_state); //run first
     
-//get archive mode
-$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
+//get archive mode, default Off, show only zeros
+$mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
     
 //get browse_state variables are set use them
 $arr_state = $main->load($module, $array_state);

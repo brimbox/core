@@ -53,8 +53,8 @@ $main->retrieve($con, $array_state);
 //initialize values
 $search_array = array("","No Search Terms Entered");
 
-//get archive mode
-$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
+//get archive mode, default Off, show only zeros
+$mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
     
 //get search state variables are set use them
 $arr_state = $main->load($module, $array_state);

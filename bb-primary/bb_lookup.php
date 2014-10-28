@@ -57,8 +57,8 @@ $arr_messages = array();
 //do lookup state and postback
 $main->retrieve($con, $array_state); //run first
     
-//get archive mode
-$mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
+//get archive mode, default Off, show only zeros
+$mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
 //get lookup state variables are use them
 $arr_state = $main->load($module, $array_state);

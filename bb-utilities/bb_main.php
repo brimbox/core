@@ -369,7 +369,7 @@ class bb_main {
 		//when there are nodes like c001, c002, c004, c005 finds next empty value ie 3
 		//double quotes in path will not work
         $arr_keys = array_keys($arr);
-        sort($arr);
+        sort($arr_keys);
 		$k = 0;  // initialize for first value
 		$bool = false;	
 		foreach($arr_keys as $i => $j)
