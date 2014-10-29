@@ -618,7 +618,7 @@ class bb_main {
 		//this for when administratprs lock the db down
 		if (SINGLE_USER_ONLY <> '')
 			{
-            if ($email <> SINGLE_USER_ONLY)
+            if ($_SESSION['email'] <> SINGLE_USER_ONLY)
                 {
                 echo "Program switched to single user mode.";
                 session_destroy();
@@ -1004,7 +1004,7 @@ class bb_main {
         //careful not to use -1 on on pages with archive link
         global $button;
         global $module;
-        //on postback
+        //on postback toggle
         if ($this->button(-1))
             {
             if ($_SESSION['archive'] == 0)
@@ -1017,7 +1017,7 @@ class bb_main {
                 }
             }
             
-        $label = ($_SESSION['archive'] == 0) ? "Off" : "On";
+        $label = ($_SESSION['archive'] == 0) ? "On" : "Off";
         
         echo "<span class=\"" . $class_span . "\">Archive mode is: ";
         $params = array("class"=>$class_button,"number"=>-1,"target"=>$module, "passthis"=>true, "label"=>$label);

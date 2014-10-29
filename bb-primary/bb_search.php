@@ -104,13 +104,13 @@ $main->echo_script_button("post_search", $params);
 if (ARCHIVE_INTERWORKING == "ON")
 	{
 	$checked = "";
-	if ($archive == 1)
+	if ($archive_flag == 1)
 		{
 		$checked =  "checked";
 		$mode = " 1 = 1 ";
 		}
 	echo "<span class = \"border rounded padded shaded\">";
-    $main->echo_input("archive_flag", 1, array('type'=>'checkbox','class'=>'middle padded','checked'=>$checked));
+    $main->echo_input("archive_flag", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
     echo "<label class=\"padded\">Check Archives</label>";
 	echo "</span><br>";
 	}
