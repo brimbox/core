@@ -195,7 +195,7 @@ class bb_main {
         //$available is an array of available securities to allow
         $arr_layouts_reduced = $this->filter_keys($arr_layouts);
         //loop through $arr_layouts
-        foreach ($arr_layouts as $key => $value)
+        foreach ($arr_layouts_reduced as $key => $value)
             {
             $secure = ($check && ($value['secure'] >= $check)) ? true : false;
             if (!$secure) //check is true
@@ -213,7 +213,7 @@ class bb_main {
         //$available is an array of available securities to allow
         //loop through $arr_layouts
         $arr_column_reduced = $this->filter_keys($arr_column);
-        foreach ($arr_column as $key => $value)
+        foreach ($arr_column_reduced as $key => $value)
             {
             //integer values reserved for columns
             $secure = ($check && ($value['secure'] >= $check)) ? true : false;

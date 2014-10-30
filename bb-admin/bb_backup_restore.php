@@ -154,7 +154,7 @@ if ($main->button(4)) //submit_file
             //00000000 -- no encrypt before userrole => userroles
             //00000001 -- encrypt before userrole => userroles
 			if (hash('sha512', $passwd . $salt) == $hash)
-				{					
+				{
 				if (in_array($hex, array("00000000","00000002","00000004")))
 					{
 					$type = 0;
@@ -176,7 +176,7 @@ if ($main->button(4)) //submit_file
                 $json_json = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
                 $cnt = $json_json['count'];
 
-				//restore xml table if	
+				//restore json table if	
 				if ($main->post('json_table_checkbox', $module) == 1)
 					{
 					//cascaded drop

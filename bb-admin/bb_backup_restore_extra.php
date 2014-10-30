@@ -130,7 +130,7 @@ CREATE TRIGGER ts2_create_date
   FOR EACH ROW
   EXECUTE PROCEDURE create_date();
 --set up the sequence
-CREATE SEQUENCE data_table_id_seq CACHE 3 CYCLE;
+CREATE SEQUENCE data_table_id_seq CYCLE;
 ALTER SEQUENCE data_table_id_seq OWNED BY data_table.id;
 ALTER TABLE data_table ALTER COLUMN id SET DEFAULT NEXTVAL('data_table_id_seq');
 SELECT setval('data_table_id_seq', (SELECT max(id) + 1 FROM data_table));
@@ -150,7 +150,7 @@ WITH (
   OIDS=FALSE
 );
 --set up the sequence
-ALTER SEQUENCE log_table_id_seq RESTART CACHE 3 CYCLE;
+ALTER SEQUENCE log_table_id_seq RESTART CYCLE;
 EOT;
 $log_after_eot = <<<EOT
 --trigger: change_date
@@ -207,6 +207,7 @@ CREATE TABLE users_table
   fname character varying(255),
   minit character varying(255),
   lname character varying(255),
+  ips cidr[] NOT NULL DEFAULT '{0.0.0.0/0,0:0:0:0:0:0:0:0/0}',
   change_date timestamp with time zone,
   CONSTRAINT users_table_pkey PRIMARY KEY (id),
   CONSTRAINT users_table_unique_email UNIQUE (email)
