@@ -178,12 +178,6 @@ if ($main->button(1))
         {
         //produce empty form since we are going to load the data
         $owner = $main->custom_trim_string($_SESSION['email'],255); //used in both if and else
-        //see if unique key set
-        if (isset($arr_column['layout']['unique']))
-            {
-            $unique_key = $arr_column['layout']['unique']; //used in both update and insert
-            $unique_column = $main->pad("c", $unique_key);
-            }
         // update preexisting row
         if ($row_type == $row_join) 
             {
@@ -222,9 +216,11 @@ if ($main->button(1))
             //update query
             //check that row exists in update because of multiuser situation
 			$select_where_not = "SELECT 1 WHERE 1 = 0";
-            if ($unique_key > 0) //no key = 0
+            if (isset($arr_column['layout']['unique'])) //no key = unset
                 {
                 //get the vlaue to be checked
+                $unique_key = $arr_column['layout']['unique'];
+                $unique_column = $main->pad("c", $unique_key);
                 $unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
                 if (!empty($unique_value))
                     {
@@ -307,14 +303,18 @@ if ($main->button(1))
 			$str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
 			$str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
 			
-			$insert_clause .= ", fts, ftg, secure ";
+			$insert_clause .= ", fts, ftg, secure, archive ";
 			$select_clause .= ", to_tsvector(" . $str_ts_vector_fts . ") as fts, to_tsvector(" . $str_ts_vector_ftg . ") as ftg, ";
-            $select_clause .= "(CASE WHEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) = 1 THEN 1 ELSE 0 END) as secure";
+            $select_clause .= "CASE WHEN (SELECT  coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, "; 
+            $select_clause .= "CASE WHEN (SELECT  coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
             $select_where_exists = "SELECT 1";
             $select_where_not = "SELECT 1 WHERE 1 = 0";
             //key exists must check for duplicate value
-            if ($unique_key > 0) //no key = 0
+            if (isset($arr_column['layout']['unique'])) //no key = unset
                 {
+                //get the vlaue to be checked
+                $unique_key = $arr_column['layout']['unique'];
+                $unique_column = $main->pad("c", $unique_key);
                 $unique_value = isset($arr_state[$unique_column]) ? (string)$arr_state[$unique_column] : ""; 
                 //key, will not insert on empty value, key must be populated
                 if (!empty($unique_value))

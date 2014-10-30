@@ -326,7 +326,7 @@ for ($m = 1; $m <= 50; $m++)
 	echo "<input name=\"required_" . $m . "\" type=\"checkbox\"  class=\"spaced\" value=\"1\" " . ($required == 1 ? "checked" : "") . "/>";
     echo "</div>";
     //secure checkbox
-	if (empty($array_security))
+	if (empty($array_column_security))
 		{
 		echo "<div class = \"padded cell center middle\">";
         $checked = ($secure == 1) ? true : false;

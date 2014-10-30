@@ -57,14 +57,18 @@ $array_master['bb_brimbox']['interface'] = $array;
 //$array_security
 $array_master['bb_brimbox']['security'] = array(); //empty array causes standard 0 & 1 checkboxes
 //$array_security = array(0 => "Open", 1 => "Guarded", 2 => "Management"); //Populated example
-//$array_archive
 $array_master['bb_brimbox']['archive'] = array(); //empty array causes standard 0 & 1 checkboxes
 //$array_archive = array(0 => "Current", 1 => "Level 1", 2 => "Level 2"); //Populated example
+$array_master['bb_brimbox']['layout_security'] = array(); //empty array causes standard 0 & 1 checkboxes
+//$array_security = array(0 => "Open", 1 => "Guarded", 2 => "Management"); //Populated example
+$array_master['bb_brimbox']['column_security'] = array(); //empty array causes standard 0 & 1 checkboxes
+//$array_archive = array(0 => "Current", 1 => "Level 1", 2 => "Level 2"); //Populated example
+
 
 # GUEST INDEX #
 //$array_guest_index
 $array_master['bb_brimbox']['guest_index'] = array(); //will use default security = 0 and search = 1
-//$array_guest_index = array(0,2,3); //example compiles guest index on security 0, 2, and 3
+//$array_guest_index = array(0,2,3); //example compiles guest index on column security 0, 2, and 3
 
 # COMMON VARS SHARED WITH OTHER TABS #
 //will not be processed through the posting engine

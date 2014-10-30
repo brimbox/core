@@ -121,7 +121,7 @@ if ($main->button(1)) //layout_submit
                 {                
                 $parent = $main->post('parent_' . (string)$i, $module, 0); //not set = 0
                 $order = $main->post('order_' . (string)$i, $module); //always set
-                $secure = (int)$main->post('secure_' . (string)$i, $module, 0); //not set = 0
+                $secure = $main->post('secure_' . (string)$i, $module, 0); //not set = 0
                 $autoload = 0;
                 $arr_order[$i] = array('singular'=>$singular,'plural'=>$plural,'parent'=>$parent,'order'=>$order,'secure'=>$secure,'autoload'=>$autoload);
                 }
@@ -218,13 +218,14 @@ for ($i=1; $i<=$number_layouts; $i++)
 	echo "</div>";
 	
 	//secure checkbox	    
-	if (empty($array_security))
+	if (empty($array_layout_security))
 		{
-        $checked = "";
+        //has a zero or 1 value
+        $checked = false;
         if (isset($arr_layouts[$i]['secure']))
             {
             $checked = ($arr_layouts[$i]['secure'] == 1) ? true : false;
-            }            
+            }
 		echo "<div class=\"cell middle center spaced\">";
         $main->echo_input("secure_" . $i, 1, array('type'=>'checkbox','class'=>'spaced','checked'=>$checked));
 		echo "</div>";
@@ -232,7 +233,7 @@ for ($i=1; $i<=$number_layouts; $i++)
 	else
 		{
 		echo "<div class = \"cell middle\"><select name=\"secure_" . $i . "\"class = \"spaced\">";
-		foreach ($array_security as $key => $value)
+		foreach ($array_layouts as $key => $value)
 			{
             $selected = "";
             if (isset($arr_layouts[$i]['secure']))

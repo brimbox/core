@@ -629,6 +629,7 @@ CREATE TABLE users_table
   fname character varying(255),
   minit character varying(255),
   lname character varying(255),
+  ips cidr[] NOT NULL DEFAULT ''{0.0.0.0/0,0:0:0:0:0:0:0:0/0}'',
   change_date timestamp with time zone,
   CONSTRAINT users_table_pkey PRIMARY KEY (id),
   CONSTRAINT users_table_unique_email UNIQUE (email)

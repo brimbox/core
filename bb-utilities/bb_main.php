@@ -119,7 +119,7 @@ class bb_main {
 	//$col2 is the actual name of the columns from the xml, $row[$col2] is  $row['c03']
 	//$child is the visable name of the column the user name of the column
 	
-	function return_rows($row, $arr_column, $check = false)
+	function return_rows($row, $arr_column, $check = 0)
 		{
 		//you could always feed this function only non-secured columns
 		$row2 = 1;  //to catch row number change
@@ -144,7 +144,7 @@ class bb_main {
                     $pop = false; //start row again with pop  = false
                     }
                 //secure > 0 means true
-                $secure = ($check && ($value['secure'] > 0)) ? true : false;
+                $secure = ($check && ($value['secure'] >= $check)) ? true : false;
                 //check secure == 0
                 if (!$secure)
                     {
@@ -188,63 +188,41 @@ class bb_main {
 		return $i;
 	   }
        
-    function get_default_layout($arr_layouts, $available = null)
+    function get_default_layout($arr_layouts, $check = 0)
 		{
         //layouts are in order, will return first array if $check is false
         //if check is true, $available array of layout secure values will be considered
         //$available is an array of available securities to allow
-        if (is_integer($available))
-            {
-            $available = array($available);    
-            }
+        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
         //loop through $arr_layouts
         foreach ($arr_layouts as $key => $value)
             {
-            if (is_integer($key)) //integer is row_type
+            $secure = ($check && ($value['secure'] >= $check)) ? true : false;
+            if (!$secure) //check is true
                 {
-                if (!is_null($available)) //check is true
-                    {
-                    if (in_array($value['secure'], $available))
-                        {
-                        return $key;
-                        }
-                    }
-                else //check is false
-                    {
-                    return $key;   
-                    }
+                return $key;
                 }
             }
+        return 0;
 	    }
         
-    function get_default_column($arr_column, $available = null)
+    function get_default_column($arr_column, $check = null)
 		{
         //columns are in order, will return first array if $check is false
         //if check is true, $available array of layout secure values will be considered
         //$available is an array of available securities to allow
-        if (is_integer($available))
-            {
-            $available = array($available);    
-            }
         //loop through $arr_layouts
+        $arr_column_reduced = $this->filter_keys($arr_column);
         foreach ($arr_column as $key => $value)
             {
             //integer values reserved for columns
-            if (is_integer($key))
+            $secure = ($check && ($value['secure'] >= $check)) ? true : false;
+            if (!$secure) //check is true
                 {
-                if (!is_null($available)) //check is true
-                    {
-                    if (in_array($value['secure'], $available))
-                        {
-                        return $key;
-                        }
-                    }
-                else //check is false
-                    {
-                    return $key;
-                    }
+                return $key;
                 }
             }
+        return 0;
 	    }
     
     function filter_keys ($arr_in)
@@ -263,7 +241,7 @@ class bb_main {
 		{
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$check = isset($params['check']) ? $params['check'] : false;
+		$check = isset($params['check']) ? $params['check'] : 0;
 		$empty = isset($params['empty']) ? $params['empty'] : false;
 		$all = isset($params['all']) ? $params['all'] : false;
 		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
@@ -285,7 +263,7 @@ class bb_main {
 			}
 		 foreach ($arr_layouts as $key => $value)
 				{
-				$secure = ($check && ($value['secure'] > 0)) ? 1 : 0;
+				$secure = ($check && ($value['secure'] >= $check)) ? true : false;
 				if (!$secure)
 					{
 					echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . htmlentities($value['plural']) . "&nbsp;</option>";
@@ -323,8 +301,8 @@ class bb_main {
         $arr_column = $this->filter_keys($arr_column);
 		foreach($arr_column as $key => $value)
 			{
-            $secure = ($check && ($child['secure'] > 0)) ? 1 : 0;
-            if (!($secure))
+            $secure = ($check && ($value['secure'] >= $check)) ? true : false;
+            if (!$secure)
                 {
                 echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
                 }
