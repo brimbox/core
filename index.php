@@ -153,14 +153,13 @@ while($row = pg_fetch_array($result))
     {
     include($row['module_path']);
     }
-// include adhoc globals
-include("bb-config/bb_admin_globals.php");
-
-//unpack $array_master
+//UNPACK $array_master
 foreach($array_master[$interface] as $key => $value)
 	{
 	${'array_' . $key} = $value;
 	}
+// ADHOC globals
+include("bb-config/bb_admin_globals.php");
 ?>
 <?php /* START HTML OUTPUT */ ?>
 <!DOCTYPE html>    
@@ -280,7 +279,7 @@ foreach ($arr_reduce as $value)
 		foreach ($arr_controller[$value['module_type']] as $key => $value)       
 			{
 			$arr_work['selected'] = ($module == $key) ? "chosen" : "";
-			echo "<button class=\"tabs " . $arr_work['selected'] . "\" onclick=\"bb_submit_form(-1,'" . $key . "')\">" . $value['friendly_name'] . "</button>";
+			echo "<button class=\"tabs " . $arr_work['selected'] . "\" onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value['friendly_name'] . "</button>";
 			}
 		}
 	elseif ($value['interface_type'] == 'Auxiliary')
@@ -297,7 +296,7 @@ foreach ($arr_reduce as $value)
 				{
 				$arr_work['module'] = key($arr_controller[$value['module_type']]);
 				}
-			echo "<button class=\"tabs " . $arr_work['selected'] . "\"  onclick=\"bb_submit_form(-1,'" . $arr_work['module'] . "')\">" . $value['friendly_name'] . "</button>";
+			echo "<button class=\"tabs " . $arr_work['selected'] . "\"  onclick=\"bb_submit_form(0,'" . $arr_work['module'] . "')\">" . $value['friendly_name'] . "</button>";
 			}			
 		}		
 	}

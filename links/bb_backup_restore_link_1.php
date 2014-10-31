@@ -45,17 +45,11 @@ $str_encrypt = "";
 set_time_limit(0);
 $con = $main->connect();
 
-$passwd = $_POST['backup_passwd'];
-$type = (int)$_POST['encrypt_method'];
+$type = 1; //encrypted
+$passwd = "Update123";
 $userrole = $_SESSION['userrole'];
 $email = $_SESSION['email'];
 
-//validate password
-$valid_password = $main->validate_login($con, $email, $passwd, "5_bb_brimbox");
-if (!$valid_password)
-	{
-	die("Invalid Password");	
-	}
 
 //xml can be loaded with new line chars, which cause problems
 //used on xml, rest of table should already be clean

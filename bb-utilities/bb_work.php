@@ -53,6 +53,7 @@ class bb_work extends bb_forms {
 			return (($button == $number) && ($submit == $module))? true : false;	
 			}
 		}
+		
     function name($name, $module)
         {
 		//returns the name of variable with module prepended
@@ -145,22 +146,17 @@ class bb_work extends bb_forms {
 	    
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default; 
 	    $temp = $module . '_' . $name;
-	    if (!$this->button(0)) 
-		    {
-		    //if variable is set use variable
-		    if (isset($_POST[$temp]))
-			    {
-			    $var = $_POST[$temp];
-			    }
-		    //else use default in case of checkbox
-		    else
-			    {
-			    $var = $default;	
-			    }
-		    }
+
+		//if variable is set use variable
+		if (isset($_POST[$temp]))
+			{
+			$var = $_POST[$temp];
+			}
+
 	    //will format value if valid, otherwise leaves $var untouched
 	    call_user_func_array($array_validation[$type], array(&$var));	
 	    $arr_state[$name] = $var;
+		
 	    return $var;	
 	    }
 			

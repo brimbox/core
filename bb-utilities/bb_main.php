@@ -166,28 +166,7 @@ class bb_main {
 
 		return $row['cnt'];
 		}
-		
-	function get_default_row_type($xml_layouts, $check = false)
-		{
-        ###DEPRACATED###
-		//at least one layout should be set
-		//this finds the first layout as the default value
-		$i = 0; // no layouts
-		//no security implemented
-		$path = "//*[@secure>=0]";
-		if ($check)
-			{
-			//layout security implemented
-			$path = "//*[@secure=0]";	
-			}
-		$arr_simple = $xml_layouts->xpath($path);
-		if (count($arr_simple) > 0) //check if empty
-			{
-			$i = (int)substr($arr_simple[0]->getName(),1); //get row_type
-			}
-		return $i;
-	   }
-       
+		      
     function get_default_layout($arr_layouts, $check = 0)
 		{
         //layouts are in order, will return first array if $check is false

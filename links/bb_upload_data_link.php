@@ -44,7 +44,7 @@ $text = (empty($_POST['bb_data_area'])) ? "" :  $_POST['bb_data_area'];
     
 //Here go the headers
 header ("Content-Type: application/octet-stream");
-header ("Content-disposition: attachment; filename=" . $filename . "." . $extension);
+header ("Content-disposition: attachment; filename=" . $filename . "." . $extension . "\"");
 header ("Content-Transfer-Encoding: binary");
 ob_clean();
 flush();

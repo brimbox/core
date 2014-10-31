@@ -64,18 +64,18 @@ class bb_reports extends bb_hooks {
 		echo "</select>";
 		}
 		
-	function report_post(&$json_state, $module_submit, $module_display, $params = array())
+	function report_post(&$arr_state, $module_submit, $module_display, $params = array())
 		{
 		global $button;
 		
 		$maintain_state = isset($params['maintain_state']) ? $params['maintain_state'] : true;
 		
 		//get values from state
-		$report_type = $this->state('report_type', $json_state, 0);
-		$page = $this->state('page', $json_state, 0);		
-		$button_state = $this->state('button', $json_state, 0);
-		$sort = $this->state('sort', $json_state, "");
-        $order = $this->state('order', $json_state, "");
+		$report_type = $this->state('report_type', $arr_state, 0);
+		$page = $this->state('page', $arr_state, 0);		
+		$button_state = $this->state('button', $arr_state, 0);
+		$sort = $this->state('sort', $arr_state, "");
+        $order = $this->state('order', $arr_state, "");
 			
 		//only if page is set
         //order is taken through a waterfall
@@ -105,7 +105,7 @@ class bb_reports extends bb_hooks {
         //only if page is set   
         if ($this->check('page', $module_display) && !empty($module_display))
 			{
-			$page_post = (int)$this->post('page', $module_display, 0);
+			$page_post = $this->post('page', $module_display, 0);
             if ($page_post <> $page) 
                 {
                 $order =  $this->post('order', $module_display, "");
@@ -123,7 +123,7 @@ class bb_reports extends bb_hooks {
 		if ($this->check('report_type', $module_submit) && !empty($module_submit))
 			{
 			//only reset button if greater than zero
-			if (($button <> $button_state) && ($button <> 0))
+			if ($button <> 0)
 				{
 				$button_state = $button;
 				$page = 0;
@@ -133,14 +133,14 @@ class bb_reports extends bb_hooks {
 		//usually will maintain state
 		if ($maintain_state)
 			{
-			$this->set('report_type', $json_state, $report_type);
-			$this->set('page', $json_state, $page);
-			$this->set('sort', $json_state, $sort);
-            $this->set('order', $json_state, $order);
+			$this->set('report_type', $arr_state, $report_type);
+			$this->set('page', $arr_state, $page);
+			$this->set('sort', $arr_state, $sort);
+            $this->set('order', $arr_state, $order);
 			//keeps current button, different than bb_button
-			$this->set('button', $json_state, $button_state);
-			$this->set('module_submit', $json_state, $module_submit);
-			$this->set('module_display', $json_state, $module_submit);
+			$this->set('button', $arr_state, $button_state);
+			$this->set('module_submit', $arr_state, $module_submit);
+			$this->set('module_display', $arr_state, $module_submit);
 			}
 			
 		//set up array
