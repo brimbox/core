@@ -54,18 +54,8 @@ define('PAGE_TITLE', 'Brimbox');
 define('DB_TIMEZONE', 'America/New_York');
 // User Timezone, any valid PHP timezone 
 define('USER_TIMEZONE', 'America/New_York');
-// Standard number of rows returned at once
-define('RETURN_ROWS', 4);
-// Standard number pages in the page selector
-define('PAGINATION', 5);
-//Number of layouts possible, must be less than 26
-define('NUMBER_LAYOUTS', 12);
-//Archive interworking (ON/OFF)
-define('ARCHIVE_INTERWORKING', 'OFF');
 
 /* PROGRAM LOCK FOR ADMINISTRATORS FUNCTIONALITY */
-// Default userrole on the manage users page
-define('DEFAULT_USERROLE_ASSIGN', 1);
 // Allow only admins to use the database (YES/NO)
 define('ADMIN_ONLY', 'NO');
 // Allow only a single user to user the database (empty string/username)

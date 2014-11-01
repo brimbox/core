@@ -49,5 +49,20 @@ class bb_hooks extends bb_work {
                 }
             }
 		} //end function
+		
+	function infolinks()
+		{
+		echo "<div class=\"floatright\">";
+		$this->logout_link();
+		echo "</div>";
+		
+		echo "<div class=\"floatleft\">";
+		$this->database_stats();
+		$this->archive_link();
+		echo "<br>";
+		$this->userrole_switch();
+		echo "</div>";
+		echo "<div class=\"clear\"></div>";
+		}
 } //end class
 ?>

@@ -25,7 +25,12 @@ define('BRIMBOX_BACKUP', '2014.1.4');
 # START ARRAY HOOKS #
 
 $array_hooks = array();
-//$array_hooks['bb_autofill'][] = array(array($main,"autofill"), array("row", "&arr_state", "arr_columns", "row_type", "parent_row_type"), array("arr_state"));
+$array_hooks['bb_autofill'][] = array(array($main,"autofill"), array("row", "&arr_state", "arr_columns", "row_type", "parent_row_type"));
+$array_hooks['bb_guestinfo'][] = array(array($main,"infolinks"), array());
+$array_hooks['bb_viewerinfo'][] = array(array($main,"infolinks"), array());
+$array_hooks['bb_homeinfo'][] = array(array($main,"infolinks"), array());
+
+
 
 # BUILD DEFAULT ARRAY MASTER #
 //You should declare an interface name

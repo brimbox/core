@@ -927,18 +927,14 @@ class bb_main {
 		return $return_value;
 		}
 				
-	function validate_dropdown(&$value, $path, $xml, $error = false)
+	function validate_dropdown(&$value, $arr_dropdown, $error = false)
 		{
 		//validates dropdowns, primarily used in bulk loads (Upload Data)
 		//returns false on good, true or error string if bad
-		$test_value = strtolower($value);
-		//would be nice to have the lower case function, available in xPath 2.0
-		$test_path = $path . "[translate(text(), \"ABCDEFGHJIKLMNOPQRSTUVWXYZ\", \"abcdefghjiklmnopqrstuvwxyz\") = \"" . $test_value . "\"]";
-		$arr = $xml->xpath($test_path);
-		if (isset($arr[0]))
+		if ($key = array_search(strtolower($value), array_map('strtolower', $arr_dropdown)))
 			{
 			//update $value, return false for no error
-			$value = (string)$arr[0];
+			$value = $arr_dropdown[$key];
 			$return_value = false;
 			}
 		else

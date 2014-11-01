@@ -20,20 +20,20 @@ If not, see http://www.gnu.org/licenses/
 <?php
 $main->check_permission("bb_brimbox", 1);
 
-/* BEGIN DATABASE STATS */
-echo "<div class=\"floatright\">";
-$main->logout_link();
-echo "</div>";
-
-echo "<div class=\"floatleft\">";
-$main->database_stats();
-$main->archive_link();
-echo "<br>";
-$main->userrole_switch();
-echo "</div>";
-echo "<div class=\"clear\"></div>";
+/* BEGIN DATABASE STATS -- AUTOFILL HOOK */
+if (isset($array_hooks['bb_guestinfo']))
+    {                                                                                                                                                                                                                                                                                                               
+    foreach ($array_hooks['bb_guestinfo'] as $arr_hook)
+        {
+        $args_hook = array();
+        foreach ($arr_hook[1] as &$value)
+            {
+            if (substr($value,0,1) == "&") $args_hook[] = &${substr($value,1)}; else  $args_hook[] = ${$value};	
+            }
+        call_user_func_array($arr_hook[0], $args_hook);
+        }
+    }
 /* END DATABASE STATS */
-
 
 include("bb-config/bb_guest_extra.php");
 ?>

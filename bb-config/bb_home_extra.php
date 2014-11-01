@@ -18,10 +18,10 @@ If not, see http://www.gnu.org/licenses/
 ?>
 <?php
 /* BEGIN REQUIRED FORM */
-$main->retrieve($con, $array_state);
+$main->retrieve($con, $array_state, $userrole);
 		
 $main->echo_form_begin();
-$main->echo_module_vars();
+$main->echo_module_vars($module);
 
 /* In case you need to put a quick link on the home page */
 $main->echo_common_vars();
@@ -32,6 +32,8 @@ $main->echo_form_end();
 ?>
 
 <!-- Can simply include HTML content -->
+
+<div class=\"clear\"></div>
 
 <br><br>
 <div class="border padded note">This is where you can put custom HTML, company links or frequently used links, help or reference links, links to our forum, FAQs etc. These will be hard links and this page is made to be customizable for the user.</div>

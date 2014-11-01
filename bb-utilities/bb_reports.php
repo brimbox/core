@@ -233,12 +233,12 @@ class bb_reports extends bb_hooks {
 		//Note: cell_class and row class are returned in the while loop
 		
 		//button number
-		$number = isset($current['button']) ? $current['button'] : 0;
+		$number = isset($current['button']) ? $current['button'] : 0;		
+		//only vars as necessary
+		$page = isset($current['page']) ? $current['page'] : 0;
+		$sort = isset($current['sort']) ? $current['sort'] : ""; //empty key, redefined later
+        $order = isset($current['order']) ? $current['order'] : "ASC";
 		
-		//only var necessary
-		$page = $current['page'];
-        $sort = $current['sort']; //overwritten later
-        $order = $current['order'];
 		
 		//get while loop vars and update offset
 		$i = $page * $limit;
@@ -401,8 +401,9 @@ class bb_reports extends bb_hooks {
 
 		//button number
 		$number = isset($current['button']) ? $current['button'] : 0;
-        $sort = $current['sort']; //overwritten later
-        $order = $current['order'];
+		//only vars as necessary
+		$sort = isset($current['sort']) ? $current['sort'] : ""; //empty key, redefined later
+        $order = isset($current['order']) ? $current['order'] : "ASC";
 		
 		$count_rows = pg_num_rows($result);
 		

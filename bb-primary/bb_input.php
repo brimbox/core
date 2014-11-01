@@ -222,7 +222,7 @@ if ($main->button(1))
                 $unique_key = $arr_column['layout']['unique'];
                 $unique_column = $main->pad("c", $unique_key);
                 $unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
-                if (!empty($unique_value))
+                if ($unique_value <> "")
                     {
                     $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";                        
                     }

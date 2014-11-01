@@ -54,13 +54,16 @@ if (isset($_SESSION['email'])):
 //$main -- Brimbox objects invoked
 
 /* RESERVED OBJECTS */
-//bb_database
-//bb_link
-//bb_validate
-//bb_form
-//bb_work
-//bb_report
 //bb_main
+//bb_database
+//bb_links
+//bb_validate
+//bb_forms
+//bb_work
+//bb_hooks
+//bb_reports
+
+//bb_hooks
 //lessc -- LESS comnpiler
 
 //other vars are all disposed of with unset
@@ -103,9 +106,11 @@ if (isset($_POST['bb_module']))
 			}
 		}
 	}
+
+/* INCLUDE CONSTANTS */    
+include("bb-config/bb_constants.php");
 	
 /* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
-
 //contains bb_main class
 include("bb-utilities/bb_main.php");
 // contains bb_database class, extends bb_main
@@ -123,7 +128,6 @@ include("bb-utilities/bb_hooks.php");
 //contains bb_report class, extend bb_hooks
 include("bb-utilities/bb_reports.php");
 
-
 /* SET UP MAIN OBJECT */
 //objects are all daisy chained together
 //set up main from last object
@@ -133,33 +137,33 @@ $main = new bb_reports();
 //database connection passed into modules globally
 $con = $main->connect();
 
-/* DO HOOK MODULES */
+/* DO FUNCTION MODULES */
 $arr_work['hooks'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-2) ORDER BY module_order;";
 $result = pg_query($con, $arr_work['hooks']);
 while($row = pg_fetch_array($result))
     {
     include($row['module_path']);
     }
-// include adhoc functions
+/* ADHOC FUNCTIONS */
 include("bb-config/bb_admin_functions.php");
 
 /* DO GLOBALS */
 // Contains initial globals and global setup
 include("bb-utilities/bb_globals.php");
-//DO GLOBAL MODULES
+/* DO GLOBAL MODULES */
 $arr_work['globals'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
 $result = pg_query($con, $arr_work['globals']);
 while($row = pg_fetch_array($result))
     {
     include($row['module_path']);
     }
-//UNPACK $array_master
+/* ADHOC GLOBALS */
+include("bb-config/bb_admin_globals.php");
+/* UNPACK $array_master fopr given interface */
 foreach($array_master[$interface] as $key => $value)
 	{
 	${'array_' . $key} = $value;
 	}
-// ADHOC globals
-include("bb-config/bb_admin_globals.php");
 ?>
 <?php /* START HTML OUTPUT */ ?>
 <!DOCTYPE html>    
@@ -173,8 +177,10 @@ include("bb-config/bb_admin_globals.php");
 
 <link rel=StyleSheet href="bb-utilities/bb_styles.css" type="text/css" media=screen>
 <link rel=StyleSheet href="bb-config/bb_admin_css.css" type="text/css" media=screen>
-
 <?php
+/* INCLUDE HACKS LAST after all other bb-config includes */
+include("bb-config/bb_admin_globals.php");
+
 /* SET UP LESS PARSER */
 //see included license
 include("bb-less/lessc.inc.php");

@@ -27,7 +27,23 @@ $arr_layouts = $main->get_json($con, "bb_layout_names");
 $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_message = array();
 
-$number_layouts = (NUMBER_LAYOUTS <= 26) ? NUMBER_LAYOUTS : 26;
+//optional constant
+if (defined('NUMBER_LAYOUTS'))
+    {
+    if (NUMBER_LAYOUTS <= 26)
+        {
+        $number_layouts = NUMBER_LAYOUTS;    
+        }
+    else
+        {
+        //certain things are undefined if layout exceed the natural alphabet
+        $number_layouts = 26;    
+        }
+    }
+else
+    {
+    $number_layouts = 12;    
+    }
 
 function cmp( $a, $b )
     { 

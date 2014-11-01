@@ -86,8 +86,8 @@ $main->echo_form_end();
 //calculate lower limit of ordered query, return rows will be dealt with later
 //initialize $count_rows in case no rows are returned
 
-$return_rows = RETURN_ROWS;
-$pagination = PAGINATION;
+$return_rows = defined('RETURN_ROWS') ? RETURN_ROWS : 4;
+$pagination = defined('PAGINATION') ? PAGINATION : 5;
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
 

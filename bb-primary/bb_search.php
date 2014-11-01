@@ -126,8 +126,8 @@ $main->echo_form_end();
 /* BEGIN RETURN ROWS */
 //this function returns the repetitive rows from the search query
 
-$return_rows = RETURN_ROWS;
-$pagination = PAGINATION;
+$return_rows = defined('RETURN_ROWS') ? RETURN_ROWS : 4;
+$pagination = defined('PAGINATION') ? PAGINATION : 5;
 $count_rows = 0;
 
 //search array successfully parsed			

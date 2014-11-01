@@ -25,7 +25,7 @@ function submit_backup()
     {
     var frmobj = document.forms["bb_form"];
     
-    frmobj.action = "links/bb_backup_restore_link_1.php";
+    frmobj.action = "bb-links/bb_backup_restore_link_1.php";
     frmobj.submit();
     }
 
@@ -34,7 +34,7 @@ function submit_dump()
     {
     var frmobj = document.forms["bb_form"];
     
-    frmobj.action = "links/bb_backup_restore_link_2.php";
+    frmobj.action = "bb-links/bb_backup_restore_link_2.php";
     frmobj.submit();
     }
 //dump list definitions
@@ -42,7 +42,7 @@ function submit_listdefs()
     {
     var frmobj = document.forms["bb_form"];
     
-    frmobj.action = "links/bb_backup_restore_link_3.php";
+    frmobj.action = "bb-links/bb_backup_restore_link_3.php";
     frmobj.submit();
     }
 //dump list data with unique row_id
@@ -50,7 +50,7 @@ function submit_listdata()
     {
     var frmobj = document.forms["bb_form"];
     
-    frmobj.action = "links/bb_backup_restore_link_4.php";
+    frmobj.action = "bb-links/bb_backup_restore_link_4.php";
     frmobj.submit();
     }
 
