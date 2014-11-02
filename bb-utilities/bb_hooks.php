@@ -23,7 +23,22 @@ If not, see http://www.gnu.org/licenses/
 //autofill
 
 class bb_hooks extends bb_work {
-			
+	
+	function hook($hook_name)
+		{
+		global $array_hooks;
+		global $module;
+		
+		if (isset($array_hooks[$hook_name]))
+			{
+			if (substr($hook_name, 0, strlen($module) + 1) == ($module . "_"))
+				{
+				return $array_hooks[$hook_name];
+				}
+			}
+		return false;
+		}
+		
 	function autofill($row, &$arr_state, $arr_columns, $row_type, $parent_row_type)
 		{
 		$arr_column_parent = $this->filter_keys($arr_columns[$parent_row_type]);

@@ -21,9 +21,9 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", 1);
 
 /* BEGIN DATABASE STATS -- AUTOFILL HOOK */
-if (isset($array_hooks['bb_guestinfo']))
-    {                                                                                                                                                                                                                                                                                                               
-    foreach ($array_hooks['bb_guestinfo'] as $arr_hook)
+if ($arr_hooks = $main->hook("bb_guest_infolinks"))
+    {
+    foreach ($arr_hooks as $arr_hook)
         {
         $args_hook = array();
         foreach ($arr_hook[1] as &$value)

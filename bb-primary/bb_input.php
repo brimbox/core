@@ -429,10 +429,11 @@ if ($post_key > 0)
 				}
                 
             /* AUTOFILL HOOK */
-            if (isset($array_hooks['bb_autofill']))
+            if ($arr_hooks = $main->hook("bb_input_autofill"))
                 {
-                foreach ($array_hooks['bb_autofill'] as $arr_hook)
+                foreach ($arr_hooks as $arr_hook)
                     {
+                    $args_hook = array();
                     foreach ($arr_hook[1] as &$value)
                         {
                         if (substr($value,0,1) == "&") $args_hook[] = &${substr($value,1)}; else  $args_hook[] = ${$value};	
@@ -440,6 +441,7 @@ if ($post_key > 0)
                     call_user_func_array($arr_hook[0], $args_hook);
                     }
                 }
+            /* END AUOTFILL HOOK */
 			}			
         }
     }
