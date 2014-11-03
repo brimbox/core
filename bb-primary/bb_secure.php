@@ -153,7 +153,7 @@ $main->echo_module_vars();
 
 if (!$main->button(1))
 	{
-	if (empty($array_security))
+	if (empty($array_security['row_security']))
 		{
 		$button_value = ($setbit == 0) ? 1 : 0; //set value is value to set secure to
 		$button_text = ($setbit == 0) ? "Secure Cascade" : "Unsecure Cascade";
@@ -168,7 +168,7 @@ if (!$main->button(1))
 		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Set Security To");
 		$main->echo_button("secure_cascade", $params);
 		echo "<select name=\"setbit\" class=\"spaced\"\">";
-		foreach($array_security as $key => $value)
+		foreach($array_security['row_security'] as $key => $value)
 			{
 			echo "<option value=\"" . $key . "\" " . ($key == $setbit ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
 			}

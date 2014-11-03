@@ -234,7 +234,7 @@ for ($i=1; $i<=$number_layouts; $i++)
 	echo "</div>";
 	
 	//secure checkbox	    
-	if (empty($array_layout_security))
+	if (empty($array_security['layout_security']))
 		{
         //has a zero or 1 value
         $checked = false;
@@ -249,7 +249,7 @@ for ($i=1; $i<=$number_layouts; $i++)
 	else
 		{
 		echo "<div class = \"cell middle\"><select name=\"secure_" . $i . "\"class = \"spaced\">";
-		foreach ($array_layouts as $key => $value)
+		foreach ($array_security['layout_security'] as $key => $value)
 			{
             $selected = "";
             if (isset($arr_layouts[$i]['secure']))

@@ -55,7 +55,7 @@ $module_action = $main->post('module_action', $module, 0);
 $arr_details = array();
 
 //used in several routines, in
-$arr_maintain_state = array(0=>'No',1=>'Yes');
+$arr_maintain_state = array(-1=>"Code",0=>'No',1=>'Yes');
 
 //call helper class
 $manage = new bb_manage_modules();
@@ -306,8 +306,8 @@ if ($main->button(2)) //submit_module
             
             //optional hidden or optional regular    
             $standard_module = ($arr_module['@module_type'] == 0) ? 1 : 3;
-            //functions and globals start activated
-            $standard_module = in_array($arr_module['@module_type'], array(-1,-2)) ? 4 : $standard_module;
+            //headers, functions and globals start activated
+            $standard_module = in_array($arr_module['@module_type'], array(-1,-2,-3)) ? 4 : $standard_module;
 
             //Update module
             if (in_array($arr_module['@module_name'], $arr_module_names))
@@ -354,7 +354,7 @@ if ($main->button(2)) //submit_module
             else //good install or update
                 {
                 //include the globals so array_master is updated
-                if ($arr_module['@module_type'] == -1)
+                if ($arr_module['@module_type'] == -3)
                     {
                     include($arr_module['@module_path']);   
                     }
@@ -514,9 +514,12 @@ echo "<div class=\"table spaced border\">";
             case -2:
                 $module_type = "Function";
                 break;
+            case -3:
+                $module_type = "Header";
+                break;
             default:
                 //user defined
-                $module_type = $array_master[$row['interface']]['module_types'][$row['module_type']];
+                $module_type = $array_header[$row['interface']]['module_types'][$row['module_type']];
                 break;
             }
         //row shading
@@ -526,7 +529,7 @@ echo "<div class=\"table spaced border\">";
         echo "<div class=\"twice cell medium middle\">" . $row['module_name'] . "</div>";
         echo "<div class=\"twice cell long middle\">" . $row['friendly_name'] . "</div>";
         //combine interface and module type
-        echo "<div class=\"twice cell long middle\">" . $array_master[$row['interface']]['interface_name'] . ": " . $module_type . "</div>";
+        echo "<div class=\"twice cell long middle\">" . $array_header[$row['interface']]['interface_name'] . ": " . $module_type . "</div>";
         echo "<div class=\"twice cell short middle\">" . $row['module_version'] . "</div>";
         echo "<div class=\"twice cell short middle\">" . $arr_maintain_state[$row['maintain_state']] . "</div>";
         //form elements

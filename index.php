@@ -137,9 +137,22 @@ $main = new bb_reports();
 //database connection passed into modules globally
 $con = $main->connect();
 
+/* INCLUDE HEADER FILES */
+//global for all interfaces
+include("bb-utilities/bb_header.php");
+$arr_work['headers'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-3) ORDER BY module_order;";
+$result = pg_query($con, $arr_work['headers']);
+while($row = pg_fetch_array($result))
+    {
+    include($row['module_path']);
+    }
+/* ADHOC HEADERS */
+include("bb-config/bb_admin_headers.php");
+
 /* DO FUNCTION MODULES */
-$arr_work['hooks'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-2) ORDER BY module_order;";
-$result = pg_query($con, $arr_work['hooks']);
+//only for interface being loaded
+$arr_work['functions'] = "SELECT module_path FROM modules_table WHERE interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-2) ORDER BY module_order;";
+$result = pg_query($con, $arr_work['functions']);
 while($row = pg_fetch_array($result))
     {
     include($row['module_path']);
@@ -147,11 +160,10 @@ while($row = pg_fetch_array($result))
 /* ADHOC FUNCTIONS */
 include("bb-config/bb_admin_functions.php");
 
-/* DO GLOBALS */
-// Contains initial globals and global setup
-include("bb-utilities/bb_globals.php");
 /* DO GLOBAL MODULES */
-$arr_work['globals'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
+//only for interface being loaded
+include("bb-utilities/bb_globals.php");
+$arr_work['globals'] = "SELECT module_path FROM modules_table WHERE  interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
 $result = pg_query($con, $arr_work['globals']);
 while($row = pg_fetch_array($result))
     {
@@ -159,10 +171,12 @@ while($row = pg_fetch_array($result))
     }
 /* ADHOC GLOBALS */
 include("bb-config/bb_admin_globals.php");
-/* UNPACK $array_master fopr given interface */
-foreach($array_master[$interface] as $key => $value)
+
+/* UNPACK $array_master for given interface */
+//will overwrite existing arrays
+foreach($array_globals[$interface] as $key => $value)
 	{
-	${'array_' . $key} = $value;
+    ${'array_' . $key} = $value;
 	}
 ?>
 <?php /* START HTML OUTPUT */ ?>
@@ -179,7 +193,7 @@ foreach($array_master[$interface] as $key => $value)
 <link rel=StyleSheet href="bb-config/bb_admin_css.css" type="text/css" media=screen>
 <?php
 /* INCLUDE HACKS LAST after all other bb-config includes */
-include("bb-config/bb_admin_globals.php");
+include("bb-config/bb_admin_hacks.php");
 
 /* SET UP LESS PARSER */
 //see included license
@@ -231,7 +245,7 @@ $controller_path = ""; //path to included module
 while($row = pg_fetch_array($result))
     {
     //double check that user permission is consistant with module type
-	if ($row['module_type'] <> 0)
+	if ($row['module_type'] > 0)
 		{
 		if (!empty($module))
 			{

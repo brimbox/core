@@ -30,11 +30,11 @@ class bb_manage_modules {
     
     function __construct()
         {
-        global $array_master;
+        global $array_header;
         
-        $this->arr_maintain_state = $arr_maintain_state = array(0=>'No',1=>'Yes');
-        $this->arr_required = array("@module_path","@module_name","@friendly_name","@interface","@module_type","@module_version","@maintain_state");;
-        $this->arr_master = $array_master;
+        $this->arr_maintain_state = $arr_maintain_state = array(-1=>"Code",0=>'No',1=>'Yes');
+        $this->arr_required = array("@module_path","@module_name","@friendly_name","@interface","@module_type","@module_version","@maintain_state");
+        $this->arr_header = $array_header;
         }
 
     //This checks the php files calling function build_module_array
@@ -191,24 +191,25 @@ class bb_manage_modules {
             }
         
         //check if global interface array is set, only then can you check userroles and module types
-        if (in_array($arr_module['@interface'], array_keys($this->arr_master)))
+        if (in_array($arr_module['@interface'], array_keys($this->arr_header)))
             {     
             //check the module types
             //tricky to validate ints, deal with value as a string
              if (filter_var((string)$arr_module['@module_type'], FILTER_VALIDATE_INT))
                 {
-                $arr_keys = array_keys($this->arr_master[$arr_module['@interface']]['module_types']);
-                $arr_keys = array_unique($arr_keys + array(0,-1,-2));
-                if (!in_array((string)$arr_module['@module_type'], array_map('strval',$arr_keys)))
+                $arr_keys = array_keys($this->arr_header[$arr_module['@interface']]['module_types']);
+                $arr_keys = array_unique(array_merge($arr_keys, array(0,-1,-2,-3)));
+                if (!in_array($arr_module['@module_type'], $arr_keys))
                     {
+                    print_r($arr_keys);
                     return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";
                     }
                 }
             else
                 {
-                $arr_values = $this->arr_master[$arr_module['@interface']]['module_types'];
-                unset($arr_values[0], $arr_values[-1], $arr_values[-2]);
-                $arr_values = array_map('strtolower', $arr_values + array(0=>"hidden", -1=>"global", -2=>"function"));
+                $arr_values = $this->arr_header[$arr_module['@interface']]['module_types'];
+                unset($arr_values[0], $arr_values[-1], $arr_values[-2], $arr_values[-3]);
+                $arr_values = array_map('strtolower', array_merge($arr_values, array(0=>"hidden", -1=>"global", -2=>"function",-3=>"header")));
                 if (!in_array(strtolower($arr_module['@module_type']), $arr_values))
                     {
                     return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";        
@@ -222,17 +223,17 @@ class bb_manage_modules {
         //tricky to validate ints, deal with value as a string
         if (filter_var((string)$arr_module['@maintain_state'], FILTER_VALIDATE_INT))
             {
-            if (!in_array((string)$arr_module['@maintain_state'], array_map('strval',array(1,0))))
+            if (!in_array($arr_module['@maintain_state'], array(-1,0,1)))
                 {
-                return "Error: Invalid maintain state variable supplied in module header. Must be 1 or 0.";
+                return "Error: Invalid maintain state variable supplied in module header. Must be -1, 0 or 1.";
                 }
             }
         else
             {
-            $arr_values = array(0=>"no", 1=>"yes");
+            $arr_values = array(-1=>"code",0=>"no", 1=>"yes");
             if (!in_array(strtolower($arr_module['@maintain_state']), $arr_values))
                 {
-                return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";        
+                return "Error: Invalid maintain state supplied in module header. Maintain state must be Code, No or Yes (-1,0,1).";        
                 }
             //maintain state set to 0 or 1
             $arr_module['@maintain_state'] = array_search(strtolower($arr_module['@maintain_state']), $arr_values);

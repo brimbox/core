@@ -150,7 +150,7 @@ $main->echo_module_vars();
 
 if (!$main->button(1)) //not equal to 1
 	{
-	if (empty($array_archive))
+	if (empty($array_security['row_archive']))
 		{
 		$button_value = ($setbit == 0) ? 1 : 0; //set value is value to set secure to
 		$button_text = ($setbit == 0) ? "Archive Cascade" : "Retrieve Cascade";
@@ -165,7 +165,7 @@ if (!$main->button(1)) //not equal to 1
 		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Set Archive To");
 		$main->echo_button("archive_cascade", $params);
 		echo "<select name=\"setbit\" class=\"spaced\"\">";
-		foreach($array_archive as $key => $value)
+		foreach($array_security['row_archive'] as $key => $value)
 			{
 			echo "<option value=\"" . $key . "\" " . ($key == $setbit ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
 			}

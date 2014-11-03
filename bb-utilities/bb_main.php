@@ -989,7 +989,7 @@ class bb_main {
         
     function userrole_switch($class_span = "bold", $class_button = "link underline")
         {
-        global $array_master;        
+        global $array_header;        
         global $userroles;
         global $userrole;
         
@@ -1003,10 +1003,10 @@ class bb_main {
                 {
                 //careful with the globals
                 list($usertype, $interface) = explode("_", $value, 2);
-                if (isset($array_master[$interface]['interface_name']) && isset($array_master[$interface]['userroles'][$usertype]))
+                if (isset($array_header[$interface]['interface_name']) && isset($array_header[$interface]['userroles'][$usertype]))
                     {
                     $bold = ($value == $userrole) ? " bold" : "";                
-                    $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_master[$interface]['interface_name'] . ":" . $array_master[$interface]['userroles'][$usertype], "onclick"=>"bb_logout_selector('" . $value . "')");
+                    $params = array("class"=>$class_button . $bold, "passthis"=>true, "label"=>$array_header[$interface]['interface_name'] . ":" . $array_header[$interface]['userroles'][$usertype], "onclick"=>"bb_logout_selector('" . $value . "')");
                     $this->echo_script_button("role" . $value, $params);
                     $separator = ($i <> $cnt) ? ", " : "";
                     echo $separator;

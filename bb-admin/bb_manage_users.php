@@ -442,8 +442,8 @@ if ($action == 0)
         foreach ($userroles_work as $value)
             {
             $arr_explode = explode("_" ,$value, 2);
-            $str_interface = isset($array_master[$arr_explode[1]]['interface_name']) ? $array_master[$arr_explode[1]]['interface_name'] : "Undefined";
-            $str_userrole = isset($array_master[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
+            $str_interface = isset($array_header[$arr_explode[1]]['interface_name']) ? $array_header[$arr_explode[1]]['interface_name'] : "Undefined";
+            $str_userrole = isset($array_header[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_header[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
             $str_name =  $str_interface . ": " . $str_userrole;   
             array_push($arr_display, $str_name);
             }
@@ -473,10 +473,10 @@ if (in_array($action, array(1,2,3,4))):
     
     //assign global userroles to unset lock option
     $array_userroles_loop = array();
-    foreach ($array_master as $key1 => $value1)
+    foreach ($array_header as $key1 => $value1)
         {
         //interface info
-        $arr_master_work = $array_master[$key1];
+        $arr_master_work = $array_header[$key1];
         unset($arr_master_work['userroles'][0]);        
         $interface_name = $arr_master_work['interface_name'];
         foreach ($arr_master_work['userroles'] as $key2 => $value2)
@@ -552,8 +552,8 @@ if (in_array($action, array(1,2,3,4))):
         foreach ($userroles_work as $value)
             {
             $arr_explode = explode("_" ,$value, 2);
-            $str_interface = isset($array_master[$arr_explode[1]]['interface_name']) ? $array_master[$arr_explode[1]]['interface_name'] : "Undefined";
-            $str_userrole = isset($array_master[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
+            $str_interface = isset($array_header[$arr_explode[1]]['interface_name']) ? $array_header[$arr_explode[1]]['interface_name'] : "Undefined";
+            $str_userrole = isset($array_header[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_header[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
             $str_name =  $str_interface . ": " . $str_userrole;   
             array_push($arr_display, $str_name);
             }
@@ -573,10 +573,10 @@ if (in_array($action, array(1,2,3,4))):
         foreach ($userroles_work as $value)
             {
             $arr_explode = explode("_" ,$value, 2);
-            if (isset($array_master[$arr_explode[1]]['interface_name']) && isset($array_master[$arr_explode[1]]['userroles']))
+            if (isset($array_header[$arr_explode[1]]['interface_name']) && isset($array_header[$arr_explode[1]]['userroles']))
                 {
-                $str_interface = $array_master[$arr_explode[1]]['interface_name'];
-                $str_userrole =  $array_master[$arr_explode[1]]['userroles'][$arr_explode[0]];
+                $str_interface = $array_header[$arr_explode[1]]['interface_name'];
+                $str_userrole =  $array_header[$arr_explode[1]]['userroles'][$arr_explode[0]];
                 $str_name =  $str_interface . ": " . $str_userrole;   
                 $selected = ($value == $userroles_work[0]) ? "selected" : "";
                 echo "<option value=\"" . $value . "\" " . $selected . ">" . $str_name . "&nbsp;</option>";
