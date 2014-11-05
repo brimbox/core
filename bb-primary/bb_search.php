@@ -131,7 +131,7 @@ $pagination = defined('PAGINATION') ? PAGINATION : 5;
 $count_rows = 0;
 
 //search array successfully parsed			
-if (empty($message))
+if ($main->blank($message))
 	{	
 	$lower_limit = (($offset - 1) * $return_rows);
 	$escaped_search_parsed = pg_escape_string($search_parsed); //search array is decoded

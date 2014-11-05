@@ -67,6 +67,7 @@ $list_number = $main->state('list_number', $arr_state, 0);
 $offset = $main->process('offset', $module, $arr_state, 1);
 
 //entrance, get first value for default row type or state row_type
+//empty fine here, "0" is considered empty
 if (!$main->check('row_type', $module) && empty($list_number))
     {
     $arr_list = $arr_lists[$row_type];
@@ -103,7 +104,6 @@ else
 	$list_number = $main->process('list_number', $module, $arr_state, 0);  
     $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
     }
-
 
 /* back to string */
 $main->update($array_state, $module, $arr_state);
@@ -162,7 +162,8 @@ $pagination = defined('PAGINATION') ? PAGINATION : 5;
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
 
-if (!empty($list_number))
+//list numbers should always be positive
+if ($list_number > 0)
 	{
 	//if a list has been selected
     $arr_layout = $arr_layouts[$row_type];

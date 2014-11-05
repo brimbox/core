@@ -227,6 +227,7 @@ $main->echo_module_vars();
 		//status for seen/unseen etc
 		//status uses $mailserver
 		$status = imap_status($mbox, $mailserver, SA_ALL);
+		//empty should work here
 		$nbr_unseen = empty($status->unseen) ? 0 : (int)$status->unseen;
 		//quick message count
 		$nbr = imap_num_msg($mbox);

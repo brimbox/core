@@ -49,7 +49,7 @@ $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
 //get details state variables are set use them
 $arr_state = $main->load($module, $array_state);
 
-//coming from an add or edit link, reset $arr_state
+//coming from an add or edit link, reset $arr_state, row_type and post key should be positive
 if (!empty($_POST['bb_row_type']))
         {
         //global post variables		
@@ -209,7 +209,7 @@ if ($post_key > 0) // a detail of a record
 				$arr_record_ids = pg_fetch_all_columns($result, 0);
 				}
 				
-			//this will come from valid records
+			//this will come from valid records, post key should always be positive
 			$link_values = !empty($arr_record_ids) ? implode(",",$arr_record_ids) : "-1";
 			//this will come from valid layouts
 			$str_link_row_type = implode(",", $arr_link_row_type);  			

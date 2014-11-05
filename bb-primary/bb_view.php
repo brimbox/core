@@ -59,7 +59,7 @@ $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 $arr_state = $main->load($module, $array_state);
 
 //coming from an view link, set $arr_state
-//bb_row_type is empty if not set with javascript
+//bb_row_type is empty if not set with javascript, empty works here
 if (!empty($_POST['bb_row_type']))
         {
 		//global post_key and row_type

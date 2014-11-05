@@ -117,7 +117,7 @@ $column_2 = $main->pad("c", $col_type_2);
 /* PROCESS RECORD ID */
 //must be done before form output, if true then parse row_type for query later
 $valid_id = false;
-if (!empty($record_id) || $record_id === '0')
+if (!$main->blank($record_id))
 	{
 	if (preg_match("/^[A-Za-z]\d+/", $record_id))
 		{
@@ -260,8 +260,8 @@ if ($valid_id) //record_id
 	}
 else //value_1 or value_2
 	{
-	$test_1 = (boolean)(!empty($value_1) || ($value_1 === '0' || $radio_1 == 4));
-	$test_2 = (boolean)(!empty($value_2) || ($value_2 === '0' || $radio_2 == 4));
+	$test_1 = (boolean)(!$main->blank($value_1) || $radio_1 == 4));
+	$test_2 = (boolean)(!$main->blank($value_2) || $radio_2 == 4));
 	
 	// $and_clause_1, based on radio type
 	if ($test_1)

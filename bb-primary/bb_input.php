@@ -62,7 +62,7 @@ include("bb_input_extra.php");
 //constuct with default row type
 $input_class = new bb_input_extra($arr_columns, $arr_state, $main, $con, $module, $default_row_type);
 //process different input options
-if (!empty($_POST['bb_row_type'])) //row_type set in global link
+if (!empty($_POST['bb_row_type'])) //row_type set in global link, should be positive
     {
     $arr_input_class = $input_class->global_row_type();   
     }
@@ -158,7 +158,7 @@ if ($main->button(1))
                     $arr_errors[$col] = $return_required;
                     }
                 }            
-            //validate, field has data, trimmed already, will skip if empty
+            //validate, field has data, trimmed already, will skip if blank
             if (!$main->blank($value)) 
                 {
 				//value is passed a reference and may change in function if formatted
@@ -401,7 +401,6 @@ if ($post_key > 0)
 			{
 			$row = pg_fetch_array($result);
 			$parent_primary = isset($row['parent']) ? $row['parent'] : "";
-			$archive_flag = ($row['archive'] == 0) ? "" : "*";
 			//used to find the parent of sibling, becomes row_join, see edit successful
 			$inserted_row_type = $row_type;
 			$inserted_id = $post_key;
@@ -423,10 +422,6 @@ if ($post_key > 0)
 			$row = pg_fetch_array($result);
 			$parent_primary = isset($row['parent']) ? $row['parent'] : "";
 			$link_id = $post_key;
-			if (isset($row['archive']))
-				{
-				$archive_flag = ($row['archive'] == 0) ? "" : "*";
-				}
                 
             /* AUTOFILL HOOK */
             if ($arr_hooks = $main->hook("bb_input_autofill"))
@@ -513,12 +508,12 @@ if ($row_type > 0):
 if (!empty($arr_column))
 	{
 	//edit or insert mode and primaryt parent column		
-	$parent_string = empty($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $link_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
+	$parent_string = $this->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $link_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
 	echo "<p class=\"bold spaced\">" . $edit_or_insert . $parent_string . "</p>";
 	}
 
-//add children links
-if (!empty($inserted_id) && ($inserted_row_type > 0))
+//add children links, 
+if (($inserted_id > 0) && ($inserted_row_type > 0))
 	{
 	if ($main->check_child($inserted_row_type, $arr_layouts))
 		{
@@ -529,7 +524,7 @@ if (!empty($inserted_id) && ($inserted_row_type > 0))
 	}
 	
 //add sibling links
-if (!empty($parent_id) && ($parent_row_type > 0))
+if (($parent_id > 0) && ($parent_row_type > 0))
 	{
 	if ($main->check_child($parent_row_type, $arr_layouts))
 		{

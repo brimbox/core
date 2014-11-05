@@ -35,7 +35,7 @@ $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 $arr_state = $main->load($module, $array_state);
 
 //coming from an add or edit link, reset $arr_state
-//bb_row_type is empty if not set with javascript
+//bb_row_type is empty if not set with javascript, row_type should be 1 to 26, 0 will render as empty 
 if (!empty($_POST['bb_row_type']))
         {
 		$offset = $main->set('offset', $arr_state, 1);
