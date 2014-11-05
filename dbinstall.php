@@ -36,6 +36,7 @@ If not, see http://www.gnu.org/licenses/
    2014.1.21 users_table column userrole changed to array of smallint and renamed to userroles
    2014.1.22 SQL statement added to GRANT user role to db owner
    2014.1.23 JSON table added and XML table dropped, modules_table and users_table changes BIG change
+   2014.1.24 ips column added to users_table
 */
 
 /* Backup Change Log

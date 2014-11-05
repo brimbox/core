@@ -139,7 +139,7 @@ $con = $main->connect();
 
 /* INCLUDE HEADER FILES */
 //global for all interfaces
-include("bb-utilities/bb_header.php");
+include("bb-utilities/bb_headers.php");
 $arr_work['headers'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-3) ORDER BY module_order;";
 $result = pg_query($con, $arr_work['headers']);
 while($row = pg_fetch_array($result))
@@ -419,99 +419,112 @@ if (isset($_POST['index_enter']))
     $email = $main->custom_trim_string($_POST['username'],255);
     $passwd = $main->custom_trim_string($_POST['passwd'],255);
     
-    //query master database
-    $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0%' = ANY (userroles)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
-    
-    //get result
-    $result = $main->query($con, $query);
-    $num_rows = pg_num_rows($result);	
-     
-    //1 row, definate database //known username
-    if ($num_rows == 1)
-		{
-		$set_session = false;
-		$row = pg_fetch_array($result);
-		
-		//go through single user and admin waterfall
-		if (SINGLE_USER_ONLY <> '')
-			{
-			if ((SINGLE_USER_ONLY ==  $row['email']) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
-				{
-				$set_session = true;
-				}
-			$message = "Program in single user mode."; //only if failure
-			}
-		else //single user empty
-			{
-			if (ADMIN_ONLY == 'YES')
-				{
-				$arr_userroles = explode(",", $row['userroles']);
-				if (in_array(5,$arr_userroles) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
-					{
-					$set_session = true;
-					}
-				$message = "Program in Admin only mode."; //only if failure
-				}
-			else //regular check password admin only not YES
-				{
-				if (hash('sha512', $passwd . $row['salt']) == $row['hash'])
-					{
-					$set_session = true;	
-					}
-				$message = "Invalid Login/Password."; //only if failure	
-				}
-			}
-		
-		if ($set_session) //good login
-			{
-			//set attempts to zero
-			$query = "UPDATE users_table SET attempts = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
-			$main->query($con, $query);
-			//set sessions
-			$_SESSION['email'] = $row['email'];
-			$_SESSION['name'] = $main->build_name($row);
-			//this holds the possible permissions, be careful altering on the fly
-            $_SESSION['userroles'] = $row['userroles']; //userroles string from db
-            $arr_userroles = explode(",",$row['userroles']);
-            $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
-			$_SESSION['archive'] = 1; //archive mode is off
-			//log entry
-			$main->log_entry($con, "Login Success");
-			//redirect with header call to index with session set
-			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-			header($index_path);
-			die(); //important to stop script
-			}		
-		else //bad password or admin mode
-			{
-			$query = "UPDATE users_table SET attempts = attempts + 1 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "') RETURNING attempts;";
-			$result = $main->query($con, $query);
-			$row = pg_fetch_array($result);
-			if ($row['attempts'] >= 10)
-				{
-				$query = "UPDATE users_table SET userrole = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
-				$main->query($con, $query);
-				}
-			$main->log_entry($con, rtrim($message, ".") , $email);
-			//delay if invalid login
-			$rnd = rand(100000,200000);
-			$email = "";
-			$passwd = "";
-			usleep($rnd);
-			}
-		} //end row found
-		
-	else //no rows, bad username or locked
-		{
-		//bad username
-		$message = "Login Failure: Bad Username or Account Locked.";
-		$main->log_entry($con, rtrim($message, ".") , $email);
-		//delay if invalid login
-		$rnd = rand(100000,200000);
-		$email = "";
-		$passwd = "";
-		usleep($rnd);
-		}			
+    if (filter_var($ip = $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
+        {   
+        //query master database
+        $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0%' = ANY (userroles)) AND ('" . $ip . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
+        
+        //get result
+        $result = $main->query($con, $query);
+        $num_rows = pg_num_rows($result);	
+         
+        //1 row, definate database //known username
+        if ($num_rows == 1)
+            {
+            $set_session = false;
+            $row = pg_fetch_array($result);
+            
+            //go through single user and admin waterfall
+            if (SINGLE_USER_ONLY <> '')
+                {
+                if ((SINGLE_USER_ONLY ==  $row['email']) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
+                    {
+                    $set_session = true;
+                    }
+                $message = "Program in single user mode."; //only if failure
+                }
+            else //single user empty
+                {
+                if (ADMIN_ONLY == 'YES')
+                    {
+                    $arr_userroles = explode(",", $row['userroles']);
+                    if (in_array(5,$arr_userroles) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
+                        {
+                        $set_session = true;
+                        }
+                    $message = "Program in Admin only mode."; //only if failure
+                    }
+                else //regular check password admin only not YES
+                    {
+                    if (hash('sha512', $passwd . $row['salt']) == $row['hash'])
+                        {
+                        $set_session = true;	
+                        }
+                    $message = "Invalid Login/Password."; //only if failure	
+                    }
+                }
+            
+            if ($set_session) //good login
+                {
+                //set attempts to zero
+                $query = "UPDATE users_table SET attempts = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
+                $main->query($con, $query);
+                //set sessions
+                $_SESSION['email'] = $row['email'];
+                $_SESSION['name'] = $main->build_name($row);
+                //this holds the possible permissions, be careful altering on the fly
+                $_SESSION['userroles'] = $row['userroles']; //userroles string from db
+                $arr_userroles = explode(",",$row['userroles']);
+                $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
+                $_SESSION['archive'] = 1; //archive mode is off
+                //log entry
+                $main->log_entry($con, "Login Success");
+                //redirect with header call to index with session set
+                $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+                header($index_path);
+                die(); //important to stop script
+                }		
+            else //bad password or admin mode
+                {
+                $query = "UPDATE users_table SET attempts = attempts + 1 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "') RETURNING attempts;";
+                $result = $main->query($con, $query);
+                $row = pg_fetch_array($result);
+                if ($row['attempts'] >= 10)
+                    {
+                    $query = "UPDATE users_table SET userrole = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
+                    $main->query($con, $query);
+                    }
+                $main->log_entry($con, rtrim($message, ".") , $email);
+                //delay if invalid login
+                $rnd = rand(100000,200000);
+                $email = "";
+                $passwd = "";
+                usleep($rnd);
+                }
+            } //end row found   
+        else //no rows, bad username or locked
+            {
+            //bad username
+            $message = "Login Failure: Bad Username or Account Locked.";
+            $main->log_entry($con, rtrim($message, ".") , $email);
+            //delay if invalid login
+            $rnd = rand(100000,200000);
+            $email = "";
+            $passwd = "";
+            usleep($rnd);
+            }
+        }
+    //just in case there is something awry with the ip
+    else
+        {
+        $message = "Login Failure: Bad IP address detected.";
+        $main->log_entry($con, rtrim($message, ".") , $email);
+        //delay if invalid login
+        $rnd = rand(100000,200000);
+        $email = "";
+        $passwd = "";
+        usleep($rnd);                
+        }
 	} //end post
 
 

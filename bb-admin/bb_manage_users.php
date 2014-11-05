@@ -241,7 +241,7 @@ if ($main->button(2)) //postback update
 	
     //query_add_clause only if password is being updated
     $query_add_clause = "";
-    if (!$main->blank($passwd) && !$main->blank($repasswd))
+    if (!$main->blank($passwd) || !$main->blank($repasswd))
         {
         //call password function at top
         check_password($passwd, $repasswd, $arr_error);
