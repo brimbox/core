@@ -209,7 +209,7 @@ class bb_manage_modules {
                 {
                 $arr_values = $this->arr_header[$arr_module['@interface']]['module_types'];
                 unset($arr_values[0], $arr_values[-1], $arr_values[-2], $arr_values[-3]);
-                $arr_values = array_map('strtolower', array_merge($arr_values, array(0=>"hidden", -1=>"global", -2=>"function",-3=>"header")));
+                $arr_values = array_map('strtolower', $arr_values + array(0=>"hidden", -1=>"global", -2=>"function",-3=>"header"));
                 if (!in_array(strtolower($arr_module['@module_type']), $arr_values))
                     {
                     return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";        

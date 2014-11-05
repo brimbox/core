@@ -103,13 +103,18 @@ class bb_main {
 				echo "<span class=\"error bold\">" . $str . "</span>";
 				}
 			}
-		 if (!empty($row['hdr']) && $link)
-			 {
-			 //calls javascript in bb_link
-			 echo " <button class = \"link italic\" onclick=\"bb_links.standard(" . (int)$row['key1'] . "," . (int)$row['row_type_left'] . ", '" . $target . "'); return false;\">";
-			 echo htmlentities($row['hdr']) . "</button> / ";
-			 }
-			 
+		 if (!$this->blank($row['hdr']) && $link)
+			{
+			//calls javascript in bb_link
+			echo " <button class = \"link italic\" onclick=\"bb_links.standard(" . (int)$row['key1'] . "," . (int)$row['row_type_left'] . ", '" . $target . "'); return false;\">";
+			echo htmlentities($row['hdr']) . "</button> / ";
+			}
+        elseif (!$this->blank($row['hdr']) && !$link)
+            {
+            //non linked row
+            echo " <span class = \"colored italic\">";
+			echo htmlentities($row['hdr']) . "</span> / ";  
+            }			 
 		echo " Created: " .  $this->convert_date($row['create_date'], "Y-m-d h:i A") . " / ";	
 		echo "Modified: " .  $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
 		} //function
@@ -204,13 +209,24 @@ class bb_main {
         return 0;
 	    }
     
-    function filter_keys ($arr_in)
+    function filter_keys ($arr, $filter = array(), $mode = true)
         //function to return array with only integer keys
         {
-        $keys = array_filter(array_keys($arr_in), 'is_integer');
-        $arr_out = array_intersect_key($arr_in, array_flip($keys));
+        $keys = array_filter(array_keys($arr), 'is_integer');
+        $arr = array_intersect_key($arr, array_flip($keys));
         
-        return $arr_out;
+        if (!empty($filter))
+            {
+            if ($mode) //keep the keys in filter
+                {
+                $arr = array_intersect_key($arr, array_flip($filter));   
+                }
+            else //discard the keys in filter
+                {
+                $arr = array_diff_key($arr, array_flip($filter)); 
+                }
+            }
+        return $arr;
         }
 			
 	//this returns a standard header combo for selecting record type
@@ -448,7 +464,7 @@ class bb_main {
 			$objects = scandir($dir);
 			foreach ($objects as $object)
 				{
-				if (substr($object,0,1) != ".")
+				if (!in_array($object, array(".","..")))
 					{                    
 					if (is_dir($dir . $object))
 						{
@@ -902,21 +918,21 @@ class bb_main {
 		echo "<br>";
 		}
 		
-	function validate_logic($type, &$value, $error = false)
+	function validate_logic($type, &$field, $error = false)
 		{
 		//validates a data type set in "Set Column Names"
 		//returns false on good, true or error string if bad
 		global $array_validation;
-		$return_value = call_user_func_array($array_validation[$type], array(&$value, $error));	
+		$return_value = call_user_func_array($array_validation[$type], array(&$field, $error));	
 		return $return_value;
 		}
 		
-	function validate_required(&$value, $error = false)
+	function validate_required(&$field, $error = false)
 		{
 		//Checks to see that a field has some data
 		//returns false on good, true or error string if bad
-		$value = trim($value);
-		if (!$this->blank($value))
+		$field = trim($field);
+		if (!$this->blank($field))
 			{
 			$return_value = false;
 			}
@@ -927,16 +943,16 @@ class bb_main {
 		return $return_value;
 		}
 				
-	function validate_dropdown(&$value, $arr_dropdown, $error = false)
+	function validate_dropdown(&$field, $arr_dropdown, $error = false)
 		{
 		//validates dropdowns, primarily used in bulk loads (Upload Data)
 		//returns false on good, true or error string if bad
-        $key = array_search(strtolower($value), array_map('strtolower', $arr_dropdown));
+        $key = array_search(strtolower($field), array_map('strtolower', $arr_dropdown));
         //key will be false, otherwise int
 		if ($key !== false)
 			{
-			//update $value, return false for no error
-			$value = $arr_dropdown[$key];
+			//update $field, return false for no error
+			$field = $arr_dropdown[$key];
 			$return_value = false;
 			}
 		else

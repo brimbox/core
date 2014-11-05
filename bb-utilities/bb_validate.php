@@ -30,16 +30,16 @@ If not, see http://www.gnu.org/licenses/
 	
 class bb_validate extends bb_links {	
 	
-	function validate_text(&$value, $error = false)
+	function validate_text(&$field, $error = false)
 		{
 		//validate text -- do nothing
 		return false;
 		}
 		
-	function validate_numeric(&$value, $error = false)
+	function validate_numeric(&$field, $error = false)
 		{
 		//validate numeric	
-		if (!is_numeric($value))
+		if (!is_numeric($field))
 			{
 			$return_value = $error ? "Error: Must be numeric." : true;
 			}
@@ -50,11 +50,11 @@ class bb_validate extends bb_links {
 		return $return_value;
 		}
 			
-	function validate_date(&$value, $error = false)
+	function validate_date(&$field, $error = false)
 		{
 		//validate date
 		date_default_timezone_set(USER_TIMEZONE);
-		$new_value = strtotime($value);
+		$new_value = strtotime($field);
 		//blank is valid, handled at top if must be populated
 		if ($new_value == false)
 			{
@@ -63,16 +63,16 @@ class bb_validate extends bb_links {
 		else
 			{
 			//reformat value
-			$value = date("Y-m-d",$new_value);
+			$field = date("Y-m-d",$new_value);
 			$return_value = false;
 			}
 		return $return_value;	
 		}
 		
-	function validate_email(&$value, $error = false)
+	function validate_email(&$field, $error = false)
 		{
 		//validate email	
-		if (filter_var($value, FILTER_VALIDATE_EMAIL) == false)
+		if (filter_var($field, FILTER_VALIDATE_EMAIL) == false)
 			{
 			$return_value = $error ? "Error: Value is not a valid email." : true;
 			}
@@ -83,32 +83,32 @@ class bb_validate extends bb_links {
 		return $return_value;	
 		}
 		
-	function validate_money(&$value, $error = false)
+	function validate_money(&$field, $error = false)
 		{
 		//validate money	
-		if (!is_numeric($value))
+		if (!is_numeric($field))
 			{
 			$return_value = $error ? "Error: Value must be monetary." : true;
 			}
 		else
 			{
-			$value = round($value,2);
-			$value = (string)number_format($value, 2, '.', '');
+			$field = round($field,2);
+			$field = (string)number_format($field, 2, '.', '');
 			$return_value = false;
 			}
 		return $return_value;	
 		}
 			
-	function validate_yesno(&$value, $error  = false)
+	function validate_yesno(&$field, $error  = false)
 		{
 		//validate yes or no
-		if (!in_array(strtolower($value),array("yes","no")))
+		if (!in_array(strtolower($field),array("yes","no")))
 			{
 			$return_value = $error ? "Error: Value must be Yes or No." : true;
 			}
 		else
 			{
-			$value = ucfirst($value);
+			$field = ucfirst($field);
 			$return_value = false;
 			}
 		//do not use else

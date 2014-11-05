@@ -109,6 +109,7 @@ $main->update($array_state, $module, $arr_state);
 /* GET COLUMN AND LAYOUT VALUES */
 //get column names based on row_type/record types
 $arr_column = $arr_columns[$row_type];
+$arr_column_reduced = $main->filter_keys($arr_column);
 $arr_layout = $arr_layouts[$row_type];
 $column_1 = $main->pad("c", $col_type_1);
 $column_2 = $main->pad("c", $col_type_2);
@@ -194,7 +195,7 @@ echo "<span class=\"spaced middle\">Like:</span><input type=\"radio\" class=\"mi
 echo "<span class=\"spaced middle\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
 echo "&nbsp;";
 $params = array("class"=>"spaced");
-$main->column_dropdown($arr_column, "col_type_1", $col_type_1, $params);
+$main->column_dropdown($arr_column_reduced, "col_type_1", $col_type_1, $params);
 echo "</td>";
 
 //column 2 values
@@ -206,7 +207,7 @@ echo "<span class=\"spaced\">Like:</span><input type=\"radio\" class=\"middle\" 
 echo "<span class=\"spaced\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"4\"" . ($radio_2 == 4 ? "checked" : "") . ">";
 echo "&nbsp;";
 $params = array("class"=>"spaced");
-$main->column_dropdown($arr_column, "col_type_2", $col_type_2, $params);
+$main->column_dropdown($arr_column_reduced, "col_type_2", $col_type_2, $params);
 echo "</td>";
 
 echo "</tr></table>"; //table 1
@@ -254,7 +255,7 @@ if ($valid_id) //record_id
 	$layout = $main->pad("l", $row_type);
 	//reset column for output, and layout for parent row type, state will remain
 	$arr_layout = $arr_layouts[$row_type];
-	$arr_column = $arr_columns[$row_type];
+	$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 	$and_clause_3 = " 1 = 1 ";
 	$and_clause_4 = " id = " . $id . " ";
 	}
@@ -341,7 +342,7 @@ while($row = pg_fetch_array($result))
 	$main->return_header($row, "bb_cascade");
 	echo "<div class=\"clear\"></div>";
 	//returns the record data in appropriate row
-	$count_rows = $main->return_rows($row, $arr_column); 
+	$count_rows = $main->return_rows($row, $arr_column_reduced); 
 	echo "<div class=\"clear\"></div>";
 	//return the links along the bottom of a record
 	$main->output_links($row, $arr_layouts, $userrole);

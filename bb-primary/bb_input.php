@@ -146,29 +146,29 @@ if ($main->button(1))
 		else
 			{
             //regular column
-            $value = $main->custom_trim_string($main->post($col,$module),255);
+            $field = $main->custom_trim_string($main->post($col,$module),255);
             $return_required = false;
 			$return_validate = false;
             //required field  
             if ($required_flag) //false=not required, true=required
                 {
-                $return_required = $main->validate_required($value, true);
+                $return_required = $main->validate_required($field, true);
                 if (!is_bool($return_required)) 
                     {
                     $arr_errors[$col] = $return_required;
                     }
                 }            
             //validate, field has data, trimmed already, will skip if blank
-            if (!$main->blank($value)) 
+            if (!$main->blank($field)) 
                 {
 				//value is passed a reference and may change in function if formatted
-                $return_validate = $main->validate_logic($type, $value, true);
+                $return_validate = $main->validate_logic($type, $field, true);
                 if (!is_bool($return_validate))
                     {
                     $arr_errors[$col] = $return_validate;
                     }
                 }
-			$main->set($col, $arr_state, $value);
+			$main->set($col, $arr_state, $field);
 			}
 		}
         /* END VALIDATION */
