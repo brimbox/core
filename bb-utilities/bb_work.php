@@ -44,7 +44,7 @@ class bb_work extends bb_forms {
 		global $button;
 		
 		//tab or buttopn is always 0
-		if ($check <> "") //check where it was submitted from
+		if (!$this->blank($check)) //check where it was submitted from
 			{
 			return (($submit == $check) && ($button == $number)) ? true : false;
 			}
@@ -59,59 +59,54 @@ class bb_work extends bb_forms {
 		//returns the name of variable with module prepended
         return $module . "_" . $name;
 		}
-			
-	function load($module, $array_state)
-        {
-	    global $array_state;
-		
-	    //gets and loads arr from array state 
-	    $key = $module . "_bb_state";
-	    $arr_state = json_decode($array_state[$key], true);
-	    return $arr_state;	
-	    }
-		
-	function check($name, $module)
-	    {
-	    //checks to see if a $_POST variable is set
-	    $temp = $module . '_' . $name;
-	    $bool = false;
-	    if (isset($_POST[$temp]))
-			{
-			$bool = true;	
-			}
-	    return $bool;	
-	    }
-		
+					
 	function blank(&$var)
 		{
 		//anything that is empty but not identical to the '0' string
 		return empty($var) && $var !== '0';
 		}
 		
+	function check($name, $module)
+	    {
+	    //checks to see if a $_POST variable is set
+	    $temp = $module . '_' . $name;
+	    if (isset($_POST[$temp]))
+			{
+			return true;	
+			}
+		else
+			{
+			return false;	
+			}
+	    }		
+		
 	function full($name, $module)
 	    //to check if full, opposite of empty function, returns false if empty
 	    //post var must be set or you will get a notice
 	    {
-	    $var = false;
 	    $temp = $module . '_' . $name;
-	    $post_var = trim($_POST[$temp]);
-	    if ($post_var <> "")
+	    if (!$this->blank(trim($_POST[$temp])))
 		    {
-		    $var = true;
-		    }
-	    return $var;	
+		    return true;
+			}
+		else
+			{
+			return false;
+			}
 	    }
 		
 	function post($name, $module, $default = "")
 	    //gets the post value of a variable
 	    {
-	    $var = (string)$default; 
 	    $temp = $module . '_' . $name;
 	    if (isset($_POST[$temp]))
 		    {
-		    $var = $_POST[$temp];
+		    return $_POST[$temp];
 		    }
-	    return $var;	
+		else
+			{
+			return $default;	
+			}
 	    }	
 			
 	function state($name, $arr_state, $initial = "")
@@ -124,19 +119,15 @@ class bb_work extends bb_forms {
 	function set($name, &$arr_state, $value)
 	    {
 	    //sets the state value from a variable, $module var not needed
-	    $value = $value;
 	    $arr_state[$name] = $value;
 	    return $value;
 	    }	
 	
 	function process($name, $module, &$arr_state, $default = "")
 	    //fully processes $_POST variable into state setting with initial value
-		//on checkbox set default = 0
 	    {
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default;
 	    $temp = $module . '_' . $name;
-	    //check if bb_button set to incorporate checkboxes
-		//-1 is the controller button value
 		if (isset($_POST[$temp]))
 			{
 			$var = $_POST[$temp];
@@ -146,7 +137,7 @@ class bb_work extends bb_forms {
 	    }
 		
 	function render($name, $module, &$arr_state, $type, $default = "")
-	    //fully processes $_POST variable into state setting with initial value
+	    //fully processes $_POST variable into state rendering type if validated
 	    {
 	    global $array_validation;
 	    
@@ -165,6 +156,16 @@ class bb_work extends bb_forms {
 		
 	    return $var;	
 	    }
+		
+	function load($module, $array_state)
+        {
+		//gets and loads $arr_state from global $array_state
+	    global $array_state;
+		 
+	    $temp = $module . "_bb_state";
+	    $arr_state = json_decode($array_state[$temp], true);
+	    return $arr_state;	
+	    }
 			
 	function retrieve($con, &$array_state)
 	    //retrieves state from $_POST based on known tabs with state from tab table in database
@@ -176,6 +177,7 @@ class bb_work extends bb_forms {
 		$array_state = array();		
 		$arr_modules_active = array();		
 		
+		//got through $array_interface and get active modules based on interface
 		foreach ($array_interface as $key => $value)
 			{
 			if (in_array($userrole, $value['userroles']))
@@ -183,14 +185,15 @@ class bb_work extends bb_forms {
 				array_push($arr_modules_active, $value['module_type']);
 				}
 			}
-	    //This function will also initalize state if not set
+	    //explode module types
 	    $and_clause = " module_type IN (" . implode(",",$arr_modules_active) . ") ";
 	    		    
-		//to create this as a base class call query with die
+		//get module list from modules table WHERE maintain_state = 1
 	    $query = "SELECT module_name FROM modules_table WHERE maintain_state = 1 AND " . $and_clause . " AND standard_module IN (0,1,2,4,6);";
 	    //echo "<p>" . $query . "</p>";
 		$result = $this->query($con, $query);
 	    
+		//build $array_state
 	    while($row = pg_fetch_array($result))
 			{
 			$key = $row['module_name'] . '_bb_state';
@@ -207,10 +210,10 @@ class bb_work extends bb_forms {
 	    }
 	
 	function update(&$array_state, $module, $arr_state)
-		//updates array_state when arr_state is updated with new state variables
+		//updates $array_state with $arr_state
         {
-		$key = $module . '_bb_state';
-        $array_state[$key] = json_encode($arr_state);
+		$temp = $module . '_bb_state';
+        $array_state[$temp] = json_encode($arr_state);
         }
 			
 	private function hot_state(&$array_state, $userrole)
@@ -244,7 +247,8 @@ class bb_work extends bb_forms {
 					}
 				$update = true;
 				}
-			}		
+			}
+		//update $array_state
 	    if ($update)
 			{
 		    $this->update($array_state, $module, $arr_state);
