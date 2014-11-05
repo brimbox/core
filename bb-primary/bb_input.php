@@ -503,7 +503,7 @@ if ($row_type > 0):
         }
 	echo "<div class=\"clear\"></div>";    
 
-if (!empty($arr_column))
+if (!empty($arr_column_reduced))
 	{
 	//edit or insert mode and primaryt parent column		
 	$parent_string = $main->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $link_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
@@ -540,7 +540,7 @@ echo "</div>";
 /* POPULATE INPUT FIELDS */
 //check if empty, could be either empty or children not populated
 //this is dependent on admin module "Set Column Names"
-if (!empty($arr_column))
+if (!empty($arr_column_reduced))
 	{
 	$textarea_rows = (int)$arr_column['layout']['count'] > 4 ? (int)$arr_column['layout']['count'] : 4;
 	foreach($arr_column_reduced as $key => $value)
@@ -576,7 +576,7 @@ if (!empty($arr_column))
 	echo "<div class=\"clear\"></div>";
 	//check if children not populated
 	//this is dependent on admin module "Set Column Names"    
-	if (!empty($arr_column))
+	if (!empty($arr_column_reduced))
 		{
 		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
 		$main->echo_button("bottom_submit", $params);
