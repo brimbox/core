@@ -263,7 +263,7 @@ if ($main->button(2)) //submit_module
                 //call bb_manage_modules object
 				$message_temp = $manage->get_modules($con, $arr_module);
                 //check for errors
-                if (!empty($message_temp))
+                if (!$main->blank($message_temp))
                     {
                     $arr_message[] = $message_temp;
                     }

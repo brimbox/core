@@ -86,7 +86,7 @@ if ($main->button(2))
         {
         //check rows and order for integrity
         $col_name = $main->custom_trim_string($main->post("name_" . $i, $module), 50, true, true);
-        if (!empty($col_name))
+        if (!$main->blank($col_name))
             {
             array_push($arr_names, $col_name);
             $row_input = "row_" . $i;
@@ -171,7 +171,7 @@ if ($main->button(2))
             $col_name = $main->custom_trim_string($main->post("name_" . $i, $module),50, true, true);
             
             //makes life easier, an xpath sort is going to return an array anyway
-            if (!empty($col_name))
+            if (!$main->blank($col_name))
                 {
                 $name = (string)$col_name;
                 $row = (int)$main->post("row_" . $i, $module);

@@ -78,7 +78,7 @@ if ($main->button(1)) //layout_submit
 		$parent_forward = (string)$i . (string)$parent;
 		$parent_reverse = (string)$parent . (string)$i;
         
-        if (!empty($singular) && !empty($plural))
+        if (!$main->blank($singular) && !$main->blank($plural))
             {
             $empty = false;
             array_push($arr_singular, $singular);
@@ -133,7 +133,7 @@ if ($main->button(1)) //layout_submit
              //check again both plural and singular must be populated
             $singular = $main->custom_trim_string($main->post('singular_'. (string)$i, $module),50,true, true);
             $plural = $main->custom_trim_string($main->post('plural_'. (string)$i, $module),50, true, true);
-            if (!empty($singular) && !empty($plural))
+            if (!$main->blank($singular) && !$main->blank($plural))
                 {                
                 $parent = $main->post('parent_' . (string)$i, $module, 0); //not set = 0
                 $order = $main->post('order_' . (string)$i, $module); //always set

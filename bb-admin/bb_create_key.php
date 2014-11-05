@@ -44,14 +44,14 @@ $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_column = $arr_columns[$row_type];
 $arr_layout = $arr_layouts[$row_type];
 
-$col_number =  (isset($arr_column['layout']['unique'])) ? $arr_column['layout']['unique'] : $main->get_default_column($arr_column);
+$col_type =  (isset($arr_column['layout']['unique'])) ? $arr_column['layout']['unique'] : $main->get_default_column($arr_column);
 
 
 //check_column    
 if ($main->button(1) || $main->button(2)) 
     {
-    $col_number = $main->post('col_number', $module);
-	$column = $main->pad("c", $col_number);
+    $col_type = $main->post('col_type', $module);
+	$column = $main->pad("c", $col_type);
 	//unique key already set
     if (isset($arr_column['layout']['unique']))
         {
@@ -66,7 +66,7 @@ if ($main->button(1) || $main->button(2))
         $result = $main->query($con, $query);
         if (pg_num_rows($result) > 0)
             {    
-            array_push($arr_message, "Error: Column " . $arr_column[$col_number]['name'] . " contains duplicate values. Unique key cannot be created.");
+            array_push($arr_message, "Error: Column " . $arr_column[$col_type]['name'] . " contains duplicate values. Unique key cannot be created.");
             }
         
 		//check for empty keys
@@ -74,7 +74,7 @@ if ($main->button(1) || $main->button(2))
         $result = $main->query($con, $query);        
 		if (pg_num_rows($result) > 0)
             {
-            array_push($arr_message, "Error: Column " . $arr_column[$col_number]['name'] . " contains empty values. Unique key cannot be created.");
+            array_push($arr_message, "Error: Column " . $arr_column[$col_type]['name'] . " contains empty values. Unique key cannot be created.");
             }
         
 		//check if note column 
@@ -84,14 +84,14 @@ if ($main->button(1) || $main->button(2))
             }
         }
     }
-//if no message, inform administartor or add key
-if ($main->button(1) && !empty($col_number) && empty($arr_message)) //check_column
+//if no message, inform administartor or add key, col_type > 0 so empty works
+if ($main->button(1) && !empty($col_type) && empty($arr_message)) //check_column
     {
-    array_push($arr_message, "Unique key can be created on layout " . $arr_layout['plural'] . " column " . $arr_column[$col_number]['name'] . ".");       
+    array_push($arr_message, "Unique key can be created on layout " . $arr_layout['plural'] . " column " . $arr_column[$col_type]['name'] . ".");       
     }	
 elseif ($main->button(2) && empty($arr_message)) //add_key
 	{
-    $arr_columns[$row_type]['layout']['unique'] = $col_number;
+    $arr_columns[$row_type]['layout']['unique'] = $col_type;
     
     //Update xml row explicitly, check for valid key
     $query = "UPDATE json_table SET jsondata = '" . json_encode($arr_columns) . "' WHERE lookup = 'bb_column_names' " .
@@ -102,11 +102,11 @@ elseif ($main->button(2) && empty($arr_message)) //add_key
     
     if (pg_affected_rows($result) == 1) //key updated or set
         {
-        array_push($arr_message, "Unique Key has been created on layout " . $arr_layout['plural'] . ", column " . $arr_column[$col_number]['name'] . ".");     
+        array_push($arr_message, "Unique Key has been created on layout " . $arr_layout['plural'] . ", column " . $arr_column[$col_type]['name'] . ".");     
         }
     else //something changed
         {
-        array_push($arr_message, "Unique Key has not been created on layout " . $arr_layout['plural'] . ", column " . $arr_column[$col_number]['name'] . ". Underlying data change.");     
+        array_push($arr_message, "Unique Key has not been created on layout " . $arr_layout['plural'] . ", column " . $arr_column[$col_type]['name'] . ". Underlying data change.");     
         }
 	}
 	
@@ -140,7 +140,7 @@ echo "<br>";
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 $params = array("class"=>"spaced");
-$main->column_dropdown($arr_column, "col_number", $col_number, $params);
+$main->column_dropdown($arr_column, "col_type", $col_type, $params);
 echo "<br>";
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Create Key");
 $main->echo_button("add_key", $params);

@@ -260,8 +260,8 @@ if ($valid_id) //record_id
 	}
 else //value_1 or value_2
 	{
-	$test_1 = (boolean)(!$main->blank($value_1) || $radio_1 == 4));
-	$test_2 = (boolean)(!$main->blank($value_2) || $radio_2 == 4));
+	$test_1 = (boolean)(!$main->blank($value_1) || ($radio_1 == 4));
+	$test_2 = (boolean)(!$main->blank($value_2) || ($radio_2 == 4));
 	
 	// $and_clause_1, based on radio type
 	if ($test_1)

@@ -382,7 +382,6 @@ if ($main->button(1))
     
 /* PARENT ROW */
 // $post_key > 0 only on edit or insert with parent
-$parent_row_type = 0;
 if ($post_key > 0)
     {
     $parent_row_type = $arr_layout['parent'];
@@ -448,8 +447,6 @@ $main->echo_form_begin();
 $main->echo_module_vars();
 
 //echos input select object if row_type exists
-
-
 if ($row_type > 0):
 
     //has parent only one select value
@@ -468,8 +465,9 @@ if ($row_type > 0):
 	$main->echo_button("top_submit", $params);
 	$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
 	$main->echo_button("top_reset", $params);
-
-    if ($parent_row_type > 0)
+    
+    //empty works no zeros
+    if (!empty($parent_row_type))
         {
         echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
         echo "<option value=\"" . $row_type . "\" selected>" . $arr_layout['plural'] . "&nbsp;</option>";
@@ -508,12 +506,12 @@ if ($row_type > 0):
 if (!empty($arr_column))
 	{
 	//edit or insert mode and primaryt parent column		
-	$parent_string = $this->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $link_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
+	$parent_string = $main->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $link_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
 	echo "<p class=\"bold spaced\">" . $edit_or_insert . $parent_string . "</p>";
 	}
 
-//add children links, 
-if (($inserted_id > 0) && ($inserted_row_type > 0))
+//add children links, empty works no zeros
+if (!empty($inserted_id) && !empty($inserted_row_type))
 	{
 	if ($main->check_child($inserted_row_type, $arr_layouts))
 		{
@@ -523,8 +521,8 @@ if (($inserted_id > 0) && ($inserted_row_type > 0))
 		}
 	}
 	
-//add sibling links
-if (($parent_id > 0) && ($parent_row_type > 0))
+//add sibling links, empty works no zeros
+if (!empty($parent_id) && !empty($parent_row_type))
 	{
 	if ($main->check_child($parent_row_type, $arr_layouts))
 		{

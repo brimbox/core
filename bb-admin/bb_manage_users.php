@@ -139,10 +139,10 @@ $lname = "";
 
 /* LOCAL FUNCTIONS */
 //this function leaves an empty $arr_error for logic testing if no errors
-function check_is_empty($value, $index, &$arr_error, $error_message)
+function check_is_empty(&$value, $index, &$arr_error, $error_message)
     {
     //custom "is empty" function for this module 
-    if (empty($value))
+    if (empty($value) && ($value !== "0"))
         {
         $arr_error[$index] = $error_message;   
         }
@@ -241,7 +241,7 @@ if ($main->button(2)) //postback update
 	
     //query_add_clause only if password is being updated
     $query_add_clause = "";
-    if (!(empty($passwd) && empty($repasswd)))
+    if (!$main->blank($passwd) && !$main->blank($repasswd))
         {
         //call password function at top
         check_password($passwd, $repasswd, $arr_error);
