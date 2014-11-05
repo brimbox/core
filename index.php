@@ -505,7 +505,7 @@ if (isset($_POST['index_enter']))
         else //no rows, bad username or locked
             {
             //bad username
-            $message = "Login Failure: Bad Username or Account Locked.";
+            $message = "Login Failure: Bad Username, Invalid Ip, or Account Locked.";
             $main->log_entry($con, rtrim($message, ".") , $email);
             //delay if invalid login
             $rnd = rand(100000,200000);
