@@ -916,7 +916,7 @@ class bb_main {
 		//Checks to see that a field has some data
 		//returns false on good, true or error string if bad
 		$value = trim($value);
-		if (!empty($value) || ($value === '0'))
+		if (!$this->blank($value))
 			{
 			$return_value = false;
 			}
@@ -931,7 +931,9 @@ class bb_main {
 		{
 		//validates dropdowns, primarily used in bulk loads (Upload Data)
 		//returns false on good, true or error string if bad
-		if ($key = array_search(strtolower($value), array_map('strtolower', $arr_dropdown)))
+        $key = array_search(strtolower($value), array_map('strtolower', $arr_dropdown));
+        //key will be false, otherwise int
+		if ($key !== false)
 			{
 			//update $value, return false for no error
 			$value = $arr_dropdown[$key];

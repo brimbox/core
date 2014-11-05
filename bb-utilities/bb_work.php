@@ -44,7 +44,7 @@ class bb_work extends bb_forms {
 		global $button;
 		
 		//tab or buttopn is always 0
-		if (!empty($check)) //check where it was submitted from
+		if ($check <> "") //check where it was submitted from
 			{
 			return (($submit == $check) && ($button == $number)) ? true : false;
 			}
@@ -82,6 +82,12 @@ class bb_work extends bb_forms {
 	    return $bool;	
 	    }
 		
+	function blank(&$var)
+		{
+		//anything that is empty but not identical to the '0' string
+		return empty($var) && $var !== '0';
+		}
+		
 	function full($name, $module)
 	    //to check if full, opposite of empty function, returns false if empty
 	    //post var must be set or you will get a notice
@@ -89,7 +95,7 @@ class bb_work extends bb_forms {
 	    $var = false;
 	    $temp = $module . '_' . $name;
 	    $post_var = trim($_POST[$temp]);
-	    if (!empty($post_var))
+	    if ($post_var <> "")
 		    {
 		    $var = true;
 		    }

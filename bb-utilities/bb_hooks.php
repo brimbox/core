@@ -52,15 +52,15 @@ class bb_hooks extends bb_work {
             {
             $col1 = $this->pad("c", $key1);    
             $key2 = array_search($value1['name'], $arr_search);
-                //if found
+            //if found
             if (is_integer($key2))
                 {
                 $col2 = $this->pad("c", $key2);
                 //if autofill column is empty
-                if (empty($arr_state[$col2]))
-                    {
-                    $arr_state[$col2] = $row[$col1];   
-                    }
+				if ($this->blank($arr_state[$col2]))
+					{
+					$arr_state[$col2] = $row[$col1];
+					}
                 }
             }
 		} //end function

@@ -159,7 +159,7 @@ if ($main->button(1))
                     }
                 }            
             //validate, field has data, trimmed already, will skip if empty
-            if (!empty($value) || ($value === '0')) 
+            if (!$main->blank($value)) 
                 {
 				//value is passed a reference and may change in function if formatted
                 $return_validate = $main->validate_logic($type, $value, true);
@@ -222,7 +222,7 @@ if ($main->button(1))
                 $unique_key = $arr_column['layout']['unique'];
                 $unique_column = $main->pad("c", $unique_key);
                 $unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
-                if ($unique_value <> "")
+                if (!$main->blank($unique_value))
                     {
                     $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";                        
                     }
@@ -317,7 +317,7 @@ if ($main->button(1))
                 $unique_column = $main->pad("c", $unique_key);
                 $unique_value = isset($arr_state[$unique_column]) ? (string)$arr_state[$unique_column] : ""; 
                 //key, will not insert on empty value, key must be populated
-                if (!empty($unique_value))
+                if (!$main->blank($unique_value))
                     {
                     $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
                     }

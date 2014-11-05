@@ -217,7 +217,7 @@ if ($main->button(3)) //submit_data
                                 {
                                 //standard validatation on non empty rows
 								//empty row always valid in this sense
-								if (!empty($arr_line[$l]))
+								if (!$main->blank($arr_line[$l]))
 									{
 									$return_validate = $main->validate_logic($type, $arr_line[$l], true);
 									//string is error
@@ -226,7 +226,7 @@ if ($main->button(3)) //submit_data
 										{
 										$line_error = true;
 										break;
-										}
+                                        }
 									}
                                 //dropdown validation could could check for empty value
                                 //not used in input routine, could both validate on dropdown and type

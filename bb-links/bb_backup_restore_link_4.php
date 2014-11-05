@@ -18,16 +18,19 @@ If not, see http://www.gnu.org/licenses/
 
 define('BASE_CHECK', true);
 include("../bb-config/bb_config.php");
-//objects extended together
-include("../bb-utilities/bb_database.php");
-include("../bb-utilities/bb_link.php");
-include("../bb-utilities/bb_validate.php");
-include("../bb-utilities/bb_form.php");
-include("../bb-utilities/bb_work.php");
-include("../bb-utilities/bb_report.php");
-include("../bb-utilities/bb_main.php");
 
-$main = new bb_main(); //extends bb_database
+/* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
+include("../bb-utilities/bb_main.php");
+include("../bb-utilities/bb_database.php");
+include("../bb-utilities/bb_links.php");
+include("../bb-utilities/bb_validate.php");
+include("../bb-utilities/bb_forms.php");
+include("../bb-utilities/bb_work.php");
+include("../bb-utilities/bb_hooks.php");
+include("../bb-utilities/bb_reports.php");
+
+/* SET UP MAIN OBJECT */
+$main = new bb_reports();
 
 //userrole not passed in from controller
 session_name(DB_NAME);

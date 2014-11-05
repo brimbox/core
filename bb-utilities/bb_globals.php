@@ -80,25 +80,20 @@ $array_globals['bb_brimbox']['reports'] = $array;
 # HOT TAB SWITCH PRESERVE STATE #
 //array that updates state when tab are switched without postback
 $array = array();
-$array[1] = array();
-$array[2] = array();
-$array[3] = array();
-$array[4] = array();
-$array[5] = array();
 /* Hot state for guest post (bb_guest_post)*/
 if ($main->check("subject", "bb_guest_post"))
 	{
-	$array[1]['bb_guest_post'] = array("subject","body");
+	$array['1_bb_brimbox']['bb_guest_post'] = array("subject","body");
 	}
 /* Hot state for viewer post (bb_viewer_post)*/
 if ($main->check("subject", "bb_viewer_post"))
 	{
-	$array[2]['bb_viewer_post'] = array("subject","body");
+	$array['2_bb_brimbox']['bb_viewer_post'] = array("subject","body");
 	}
 /* Hot state for user details (bb_details)*/
 if ($main->check("link_values", "bb_details"))
 	{
-	$array[3]['bb_details'] = array("link_values");
+	$array['5_bb_brimbox']['bb_details'] = $array['4_bb_brimbox']['bb_details'] = $array['3_bb_brimbox']['bb_details'] = array("link_values");
 	}
 	
 /* Hot state for user input  (bb_input) */
@@ -120,12 +115,9 @@ if ($main->check("row_type", "bb_input"))
 			array_push($arr, $main->pad("c", $key));
 			}
 		}
-	$array[3]['bb_input'] = $arr;
+	$array['5_bb_brimbox']['bb_input'] = $array['4_bb_brimbox']['bb_input'] = $array['3_bb_brimbox']['bb_input'] = $arr;
 	unset($arr); //unset any variable used in global
 	}
-	
-$array[4] = $array[3];
-$array[5] = $array[3];
 $array_globals['bb_brimbox']['hot_state'] = $array;
 
 //clean up array, initialization does it previously in this file
