@@ -149,7 +149,7 @@ class bb_main {
                     $pop = false; //start row again with pop  = false
                     }
                 //secure > 0 means true
-                $secure = ($check && ($value['secure'] >= $check)) ? true : false;
+                $secure = ($check && ($value['secure'] < $check)) ? true : false;
                 //check secure == 0
                 if (!$secure)
                     {
@@ -181,7 +181,7 @@ class bb_main {
         //loop through $arr_layouts
         foreach ($arr_layouts_reduced as $key => $value)
             {
-            $secure = ($check && ($value['secure'] >= $check)) ? true : false;
+            $secure = ($check && ($value['secure'] < $check)) ? true : false;
             if (!$secure) //check is true
                 {
                 return $key;
@@ -190,7 +190,7 @@ class bb_main {
         return 0;
 	    }
         
-    function get_default_column($arr_column, $check = null)
+    function get_default_column($arr_column, $check = 0)
 		{
         //columns are in order, will return first array if $check is false
         //if check is true, $available array of layout secure values will be considered
@@ -200,7 +200,7 @@ class bb_main {
         foreach ($arr_column_reduced as $key => $value)
             {
             //integer values reserved for columns
-            $secure = ($check && ($value['secure'] >= $check)) ? true : false;
+            $secure = ($check && ($value['secure'] < $check)) ? true : false;
             if (!$secure) //check is true
                 {
                 return $key;
@@ -258,7 +258,7 @@ class bb_main {
 			}
 		 foreach ($arr_layouts as $key => $value)
 				{
-				$secure = ($check && ($value['secure'] >= $check)) ? true : false;
+				$secure = ($check && ($value['secure'] < $check)) ? true : false;
 				if (!$secure)
 					{
 					echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . htmlentities($value['plural']) . "&nbsp;</option>";
@@ -296,7 +296,7 @@ class bb_main {
         $arr_column = $this->filter_keys($arr_column);
 		foreach($arr_column as $key => $value)
 			{
-            $secure = ($check && ($value['secure'] >= $check)) ? true : false;
+            $secure = ($check && ($value['secure'] < $check)) ? true : false;
             if (!$secure)
                 {
                 echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
@@ -728,52 +728,46 @@ class bb_main {
 		}
 	function cleanup_database_layouts($con)
 		{
-		$xml_layouts = $this->get_xml($con,"bb_layout_names");
-		$xml_columns = $this->get_xml($con,"bb_column_names");
-		$xml_dropdowns = $this->get_xml($con, "bb_dropdowns");
+		$arr_layouts = $this->get_json($con,"bb_layout_names");
+		$arr_columns = $this->get_json($con,"bb_column_names");
+		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
 		for ($i=1; $i<=26; $i++)
 			{
-			$layout = $this->pad("l", $i);
-			if (!isset($xml_layouts->$layout)) //clean up rows
+			if (!isset($arr_layouts[$i])) //clean up rows
 				{
-				unset($xml_columns->$layout);
-				unset($xml_dropdowns->$layout);
+				unset($arr_columns[$i]);
+				unset($arr_dropdowns[$i]);
 				$query = "DELETE FROM data_table WHERE row_type IN (" . $i . ");";
 				$this->query($con, $query);
 				}
 			}
-		$this->update_xml($con, $xml_dropdowns, "bb_dropdowns");
-		$this->update_xml($con, $xml_columns, "bb_column_names");
+		$this->update_json($con, $arr_dropdowns, "bb_dropdowns");
+		$this->update_json($con, $arr_columns, "bb_column_names");
 		}
 		
 	function cleanup_database_columns($con)
 		{
-		$xml_columns = $this->get_xml($con,"bb_column_names");
-		$xml_dropdowns = $this->get_xml($con, "bb_dropdowns");
+		$arr_columns = $this->get_json($con,"bb_column_names");
+		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
 		for ($i=1; $i<=26; $i++)
 			{
-			$layout = $this->pad("l", $i);
-			$xml_column = $xml_columns->$layout;
+			$arr_column = isset($arr_columns[$i]) ? $arr_columns[$i] : array() ;
 			for ($j=1; $j<=50; $j++)
 				{
-				$col = $this->pad("c", $j);
-				if (!isset($xml_column->$col))
+				if (!isset($arr_column[$j]))
 					{
+                    $col = $this->pad("c", $j);
 					$set_clause = $col . " = ''";
-					if ($j == 46)
-						{
-						$set_clause = $col . " = '', key2 = -1";
-						}
 					$query = "UPDATE data_table SET " .  $set_clause . " WHERE row_type = " . $i . " AND " . $col . " <> '';";
 					$this->query($con, $query);
-					if (isset($xml_dropdowns->$layout))
+					if (isset($arr_dropdowns[$i][$j]))
 						{
-						unset($xml_dropdowns->$layout->$col);	
+						unset($arr_dropdowns[$i][$j]);	
 						}
 					}
 				}
 			}
-		$this->update_xml($con, $xml_dropdowns, "bb_dropdowns"); 	
+		$this->update_json($con, $arr_dropdowns, "bb_dropdowns"); 	
 		}
 
 	

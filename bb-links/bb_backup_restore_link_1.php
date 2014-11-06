@@ -30,6 +30,9 @@ include("../bb-utilities/bb_reports.php");
 /* SET UP MAIN OBJECT */
 $main = new bb_reports();
 
+//NEED VERSION INFORMATION
+include("../bb-utilities/bb_headers.php");
+
 session_name(DB_NAME);
 session_start();
 
@@ -45,11 +48,16 @@ $str_encrypt = "";
 set_time_limit(0);
 $con = $main->connect();
 
-$type = 1; //encrypted
-$passwd = "Update123";
-$userrole = $_SESSION['userrole'];
+$passwd = $_POST['backup_passwd'];
+$type = (int)$_POST['encrypt_method'];
 $email = $_SESSION['email'];
 
+//validate password
+$valid_password = $main->validate_login($con, $email, $passwd, 5);
+if (!$valid_password)
+	{
+	die("Invalid Password");	
+	}
 
 //xml can be loaded with new line chars, which cause problems
 //used on xml, rest of table should already be clean
