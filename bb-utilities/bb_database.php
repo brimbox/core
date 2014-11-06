@@ -97,30 +97,22 @@ class bb_database extends bb_main {
 		return json_decode($json, true);		
 		}
 	
-	function update_json($con, $array, $lookup)
+	function update_json($con, $arr, $lookup)
 		{
 		//update xml_table with a whole xml object
-		$query = "UPDATE json_table SET jsondata = '" . pg_escape_string(json_encode($array)) . "' WHERE lookup = '" . $lookup . "';";
+		$query = "UPDATE json_table SET jsondata = '" . pg_escape_string(json_encode($arr)) . "' WHERE lookup = '" . $lookup . "';";
 	
 		$this->query($con, $query);
-		}	
-	    
-	function get_next_xml_node($xml, $path, $limit)
+		}
+		
+	function get_next_node($arr, $limit)
 		{
-		//when there are nodes like c001, c002, c004, c005 finds next empty value ie 3
-		//double quotes in path will not work
+		//finds the next available node in a set of numeric keys
+        $arr_keys = array_keys($arr);
+        sort($arr_keys);
 		$k = 0;  // initialize for first value
 		$bool = false;	
-		$arr_xpath = $xml->xpath($path);
-		$arr_work = array();
-		foreach ($arr_xpath as $object)
-			{
-			//could use bb_rpad but main not invoked
-			$l = (int)substr($object->getName(),1);
-			array_push($arr_work, $l); //push next 001...007 on list
-			}
-		sort($arr_work);
-		foreach($arr_work as $i => $j)
+		foreach($arr_keys as $i => $j)
 			{
 			$k = $i + 1; //$i starts at 0, $k start at 1
 			if ($k <> $j)
@@ -128,7 +120,7 @@ class bb_database extends bb_main {
 				$bool = true; //insert value in middle
 				break;
 				}			
-			}
+			}            
 		if (!$bool)
 			{
 			$k = $k + 1; //insert value at end
@@ -139,9 +131,8 @@ class bb_database extends bb_main {
 			}
 		else
 			{
-			return $k;//return next value
+			return $k;//return value
 			}
-		}
-		
+		}		
 	} //end class
 ?>
