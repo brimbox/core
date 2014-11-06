@@ -230,8 +230,8 @@ if ($main->button(4)) //submit_file
 						{
 						$str = rtrim(fgets($handle));
 						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));                      
-						$query = "INSERT INTO users_table (email, hash, salt, attempts, userroles, fname, minit, lname, change_date) " .
-								 "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9);";	
+						$query = "INSERT INTO users_table (email, hash, salt, attempts, userroles, fname, minit, lname, ips, change_date) " .
+								 "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);";	
 						//echo "<p>" . htmlentities($query) . "</p><br>";
 						$main->query_params($con, $query, $row);		 
 						}

@@ -23,14 +23,12 @@ If not, see http://www.gnu.org/licenses/
 //return_stats
 //return_header
 //return_rows
-//get_default_row_type
-//layout_dropdown -- deprecated
-//layout_select
-//column_dropdown -- deprecated
-//column_select
-//list_dropdown -- deprecated
-//list_select
-//get_next_node
+//get_default_layout
+//get_default_column
+//filter_keys
+//layout_dropdown
+//column_dropdown
+//list_dropdown
 //pad
 //rpad
 //build_name
@@ -47,11 +45,13 @@ If not, see http://www.gnu.org/licenses/
 //check_permission
 //validate password
 //build_indexes
-//cleanup_database
+//cleanup_database_data
+//cleanup_database_layouts
+//cleanup_database_columns
 //log_entry
-//output_link
+//output_links
 //check_child
-//drill_link
+//drill_links
 //page_selector
 //validate_logic
 //validate_required
@@ -82,7 +82,7 @@ class bb_main {
 		}
 	
 	// this function returns a record header with a view_details link for each record returned
-	function return_header($row, $target, $link = true, $mark = true)
+	function return_header($row, $target, $link = 1, $mark = true)
 		 {    
 		 echo "<div class = \"left italic nowrap\">";
 		 $row_type = $row['row_type'];
@@ -103,18 +103,19 @@ class bb_main {
 				echo "<span class=\"error bold\">" . $str . "</span>";
 				}
 			}
-		 if (!$this->blank($row['hdr']) && $link)
+		 if (!$this->blank($row['hdr']) && ($link == 1))
 			{
 			//calls javascript in bb_link
 			echo " <button class = \"link italic\" onclick=\"bb_links.standard(" . (int)$row['key1'] . "," . (int)$row['row_type_left'] . ", '" . $target . "'); return false;\">";
 			echo htmlentities($row['hdr']) . "</button> / ";
 			}
-        elseif (!$this->blank($row['hdr']) && !$link)
+        elseif (!$this->blank($row['hdr']) && ($link == -1))
             {
             //non linked row
             echo " <span class = \"colored italic\">";
 			echo htmlentities($row['hdr']) . "</span> / ";  
-            }			 
+            }
+        //else link 0 no output
 		echo " Created: " .  $this->convert_date($row['create_date'], "Y-m-d h:i A") . " / ";	
 		echo "Modified: " .  $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
 		} //function
@@ -148,8 +149,8 @@ class bb_main {
                     $row3 = ""; //reset row data
                     $pop = false; //start row again with pop  = false
                     }
-                //secure > 0 means true
-                $secure = ($check && ($value['secure'] < $check)) ? true : false;
+                //not secure is $value['secure'] < $check OR $check = 0 (default no check)
+				$secure = ($check && ($value['secure'] >= $check)) ? true : false;
                 //check secure == 0
                 if (!$secure)
                     {
@@ -181,7 +182,8 @@ class bb_main {
         //loop through $arr_layouts
         foreach ($arr_layouts_reduced as $key => $value)
             {
-            $secure = ($check && ($value['secure'] < $check)) ? true : false;
+            //not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
             if (!$secure) //check is true
                 {
                 return $key;
@@ -199,8 +201,8 @@ class bb_main {
         $arr_column_reduced = $this->filter_keys($arr_column);
         foreach ($arr_column_reduced as $key => $value)
             {
-            //integer values reserved for columns
-            $secure = ($check && ($value['secure'] < $check)) ? true : false;
+            //not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
             if (!$secure) //check is true
                 {
                 return $key;
@@ -258,7 +260,8 @@ class bb_main {
 			}
 		 foreach ($arr_layouts as $key => $value)
 				{
-				$secure = ($check && ($value['secure'] < $check)) ? true : false;
+                //not secure is $value['secure'] < $check OR $check = 0 (default no check)
+				$secure = ($check && ($value['secure'] >= $check)) ? true : false;
 				if (!$secure)
 					{
 					echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . htmlentities($value['plural']) . "&nbsp;</option>";
@@ -296,7 +299,8 @@ class bb_main {
         $arr_column = $this->filter_keys($arr_column);
 		foreach($arr_column as $key => $value)
 			{
-            $secure = ($check && ($value['secure'] < $check)) ? true : false;
+            //not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
             if (!$secure)
                 {
                 echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
@@ -336,38 +340,6 @@ class bb_main {
 			}
 		echo "</select>";
         }
-        
-    function get_next_node($arr, $limit)
-		{
-		//when there are nodes like c001, c002, c004, c005 finds next empty value ie 3
-		//double quotes in path will not work
-        $arr_keys = array_keys($arr);
-        sort($arr_keys);
-		$k = 0;  // initialize for first value
-		$bool = false;	
-		foreach($arr_keys as $i => $j)
-			{
-			$k = $i + 1; //$i starts at 0, $k start at 1
-			if ($k <> $j)
-				{
-				$bool = true; //insert value in middle
-				break;
-				}			
-			}            
-		if (!$bool)
-			{
-			$k = $k + 1; //insert value at end
-			}			
-		if ($k > $limit)
-			{
-			return -1; //limit exceeded
-			}
-		else
-			{
-			return $k;//return value
-			}
-		}
-
 	
 	//pad a number to a column name	
 	function pad($char, $number, $padlen = 2)
@@ -783,7 +755,7 @@ class bb_main {
 		$this->query_params($con, $query, $arr_log);
 		}
 		
-	function output_links($row, $xml_layouts, $userrole)
+	function output_links($row, $arr_layouts, $userrole)
 		{
         //for standard interface
 		global $array_links;
@@ -826,7 +798,7 @@ class bb_main {
 		
 		foreach ($arr_work as $arr)
 			{
-			array_unshift($arr[1], $xml_layouts);	
+			array_unshift($arr[1], $arr_layouts);	
 			array_unshift($arr[1], $row);
 			call_user_func_array($arr[0], $arr[1]);
 			}

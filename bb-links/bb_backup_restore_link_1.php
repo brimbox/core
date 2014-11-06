@@ -39,7 +39,7 @@ session_start();
 $main->check_permission("bb_brimbox", 5);
 
 /* INITIALIZE */
-//version 2014.1.3
+//version 2014.1.4 added ips
 $backup = BRIMBOX_BACKUP; //probably change with database design, backup type
 $program = BRIMBOX_PROGRAM; //probably change with database design, backup type
 $database = BRIMBOX_DATABASE;
@@ -178,7 +178,7 @@ while ($row = pg_fetch_row($result))
 /* USERS TABLE */
 $query = "BEGIN; LOCK TABLE users_table;";
 $main->query($con,$query);
-$query = "SELECT email, hash, salt, attempts, userroles, fname, minit, lname, change_date FROM users_table;";
+$query = "SELECT email, hash, salt, attempts, userroles, fname, minit, lname, ips, change_date FROM users_table;";
 $result = $main->query($con,$query);
 $cnt = pg_num_rows($result);
 $query = "COMMIT;";
