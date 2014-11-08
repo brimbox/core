@@ -28,7 +28,11 @@ If not, see http://www.gnu.org/licenses/
 //echo_common_vars
 //echo_state
 //echo_button
+//echo_script_button
+//echo_input
+//echo_textarea
 //echo_form_end
+//
 
 class bb_forms extends bb_validate {
 	

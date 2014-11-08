@@ -58,7 +58,7 @@ if ($main->post('col_catch', $module) == 1)
 //null value flag
 $null_value = $main->post('null_value', $module, 0);
 $all_values = $main->post('all_values', $module, 0);      	
-$col_text = $arr_column[$col_type]['name'];
+$col_text = isset($arr_column[$col_type]['name']) ? $arr_column[$col_type]['name'] : "";
 
 //this area populates the textarea
 if ($main->button(1)) //populate_dropdown

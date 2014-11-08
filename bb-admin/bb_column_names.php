@@ -189,15 +189,15 @@ if ($main->button(2))
             //uses the cmp function to sort columns by order
             uasort($arr_order,'cmp');
 			
+            $arr_order['layout']['primary'] = key($main->filter_keys($arr_order)) >= 1 ? key($arr_order) : 1; //Always set
+            $arr_order['layout']['count'] = $count; //Always set
+
             //get unique, count and primary for layout key
-            $arr_order['layout'] = array();
             //preserve unique -- not set if no key
             if (isset($arr_column['layout']['unique']))
                 {
                 $arr_order['layout']['unique'] = $arr_column['layout']['unique'];
                 }
-            $arr_order['layout']['primary'] = key($arr_order); //Always set
-            $arr_order['layout']['count'] = $count; //Always set
                         
             $arr_column = $arr_order;
             $arr_columns[$row_type] =  $arr_order;

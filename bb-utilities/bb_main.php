@@ -189,7 +189,7 @@ class bb_main {
                 return $key;
                 }
             }
-        return 0;
+        return 1;
 	    }
         
     function get_default_column($arr_column, $check = 0)
@@ -208,7 +208,7 @@ class bb_main {
                 return $key;
                 }
             }
-        return 0;
+        return 1;
 	    }
     
     function filter_keys ($arr, $filter = array(), $mode = true)
@@ -543,16 +543,16 @@ class bb_main {
 			}  
 		}	
 	
-	function check_permission($module_interface, $module_userroles)
+	function check_permission($interface, $usertypes)
 		{
 		//waterfall
 		//this will also check that session is set
-        list($userwork, $interface) = explode("_", $_SESSION['userrole'], 2);
-        if (is_int($module_userroles)) //either int or string input
+        list($userwork, $interwork) = explode("_", $_SESSION['userrole'], 2);
+        if (is_int($usertypes)) //either int or string input
             {
-            $module_userroles = array($module_userroles);    
+            $usertypes = array($usertypes);    
             }            
-		if (!in_array($userwork, $module_userroles) || ($interface <> $module_interface))
+		if (!in_array($userwork, $usertypes) || (strcasecmp($interwork, $interface) <> 0))
 			{
 			echo "Insufficient Permission.";
             session_destroy();
@@ -572,7 +572,7 @@ class bb_main {
 			}
 		if (ADMIN_ONLY == "YES")
 			{
-			if (($userwork <> 5) || ($interface <> "bb_brimbox"))
+			if (($userwork <> 5) || (strcasecmp($interwork, "bb_brimbox") <> 0))
 				{
 				echo "Program switched to admin only mode.";
                 session_destroy();
@@ -581,11 +581,12 @@ class bb_main {
 			}    
 		}
 	
-	function validate_login($con, $email, $passwd, $userlevels)
+	function validate_password($con, $passwd, $userlevels)
 		{
 		//waterfall
 		//this will also check that session is set
         $userrole = $_SESSION['userrole'];
+        $email = $_SESSION['email'];
 		if (!is_array($userlevels))
 			{
 			$userlevels = array($userlevels);	
@@ -607,7 +608,7 @@ class bb_main {
 		return false; 
 		}
         
-	function build_indexes($con, $row_type)
+	function build_indexes($con, $row_type = 0)
 		{
 		//reduce xml_layout to include only 1 row_type for column update, all for rebuild indexes
 		global $array_guest_index;
@@ -807,16 +808,15 @@ class bb_main {
 	function check_child($row_type, $arr_layouts)
 		{
 		//checks for child records or record
-		$test = false;
 		foreach($arr_layouts as $key => $value)
 			{
 			if ($row_type == $value['parent'])
 				{
-				$test = true;
+				return true;
 				break;
 				}
 			}
-		return $test;
+		return false;
 		}
 		
 	function drill_links($post_key, $row_type, $arr_layouts, $module, $text)

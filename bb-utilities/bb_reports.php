@@ -42,6 +42,7 @@ If not, see http://www.gnu.org/licenses/
 //textarea is just a basic text area
 //table full outputs whole table
 //paginated table display one page at a time
+//single row report exists also
 
 class bb_reports extends bb_hooks {
 	
@@ -673,7 +674,7 @@ class bb_reports extends bb_hooks {
 		pg_result_seek($result, 0);
 		}
 		
-	function array_to_select($array, $name, $selected, $params = array())
+	function array_to_select($arr, $name, $selected, $params = array())
 		{
 		//turns an array to a select dropdown, all and onchange js optional
 		$all = isset($params['all']) ? $params['all'] : false;
@@ -691,7 +692,7 @@ class bb_reports extends bb_hooks {
 			  {
 			  echo "<option value=\"All\" " . ($selected == "All" ? "selected" : "") . ">All&nbsp;</option>";
 			  }
-		foreach ($array as $key => $value)
+		foreach ($arr as $key => $value)
 			  {
 			  $key = $usekey ? $key : $value;
 			  echo "<option value=\"" . htmlentities($key) . "\" " . ($selected == $key ? "selected" : "") . ">" . htmlentities($value). "&nbsp;</option>";

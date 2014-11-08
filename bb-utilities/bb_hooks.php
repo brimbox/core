@@ -24,19 +24,51 @@ If not, see http://www.gnu.org/licenses/
 
 class bb_hooks extends bb_work {
 	
-	function hook($hook_name)
+	function hook($name)
 		{
 		global $array_hooks;
 		global $module;
 		
-		if (isset($array_hooks[$hook_name]))
+		//hook must be named properly
+		if (isset($array_hooks[$name]))
 			{
-			if (substr($hook_name, 0, strlen($module) + 1) == ($module . "_"))
+			if (substr($name, 0, strlen($module) + 1) <> ($module . "_"))
 				{
-				return $array_hooks[$hook_name];
-				}
+				return false;	
+				}	
 			}
-		return false;
+		//hook loop
+		foreach ($array_hooks[$name] as $arr_hook)
+			{
+			$args_hook = array(); //must initialize
+			//build arguments and variables
+			foreach ($arr_hook[1] as $var)
+				{
+				//passed by value
+				if (substr($var,0,1) == "&")
+					{
+					$var = substr($var,1);
+					${$var} = $GLOBALS[$var];
+					$args_hook[] = &${$var};
+					}
+				//passed by reference
+				else
+					{
+					${$var} = $GLOBALS[$var];
+					$args_hook[] = ${$var};
+				   }
+				}
+			call_user_func_array($arr_hook[0], $args_hook);
+			//emulate passed by value
+			foreach ($arr_hook[1] as $var)
+				{
+				if (substr($var,0,1) == "&")
+					{
+					$var = substr($var,1);
+					$GLOBALS[$var] = ${$var};
+					}
+				}
+			}    
 		}
 		
 	function autofill($row, &$arr_state, $arr_columns, $row_type, $parent_row_type)
@@ -63,6 +95,7 @@ class bb_hooks extends bb_work {
 					}
                 }
             }
+		return true;
 		} //end function
 		
 	function infolinks()

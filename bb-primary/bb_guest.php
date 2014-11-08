@@ -20,21 +20,9 @@ If not, see http://www.gnu.org/licenses/
 <?php
 $main->check_permission("bb_brimbox", 1);
 
-/* BEGIN DATABASE STATS -- AUTOFILL HOOK */
-if ($arr_hooks = $main->hook("bb_guest_infolinks"))
-    {
-    foreach ($arr_hooks as $arr_hook)
-        {
-        $args_hook = array();
-        foreach ($arr_hook[1] as &$value)
-            {
-            if (substr($value,0,1) == "&") $args_hook[] = &${substr($value,1)}; else  $args_hook[] = ${$value};	
-            }
-        call_user_func_array($arr_hook[0], $args_hook);
-        }
-    }
-/* END DATABASE STATS */
-
+/* DATABASE STATS -- AUTOFILL HOOK */
+$main->hook("bb_guest_infolinks");
+ 
 include("bb-config/bb_guest_extra.php");
 ?>
 

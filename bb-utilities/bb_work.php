@@ -21,17 +21,21 @@ If not, see http://www.gnu.org/licenses/
 /* PHP FUNCTIONS */
 
 /* class bb_work() */
+//button
 //name
-//load
+//blank
 //check
 //full
 //post
 //state
 //set
 //process
+//render
+//load
 //retrieve
 //update
 //hot_state (private)
+//report
 
 
 /* POSTBACK ANBD STATE FUNCTIONS */	

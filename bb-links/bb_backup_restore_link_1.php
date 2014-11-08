@@ -50,10 +50,9 @@ $con = $main->connect();
 
 $passwd = $_POST['backup_passwd'];
 $type = (int)$_POST['encrypt_method'];
-$email = $_SESSION['email'];
 
 //validate password
-$valid_password = $main->validate_login($con, $email, $passwd, 5);
+$valid_password = $main->validate_password($con, $passwd, "5_bb_brimbox");
 if (!$valid_password)
 	{
 	die("Invalid Password");	

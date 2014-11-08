@@ -89,7 +89,7 @@ function decrypt_line($str, $passwd, $iv, $type)
 //removes tabs and cleans up new lines
 if ($main->button(1)) //submit_file
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5_bb_brimbox');
+	$valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
@@ -103,7 +103,7 @@ if ($main->button(1)) //submit_file
 //CLEAN DATABASE COLUMN	
 if ($main->button(2)) //clean_up_columns
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5_bb_brimbox');
+	$valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
@@ -118,7 +118,7 @@ if ($main->button(2)) //clean_up_columns
 //CLEAN DATABASE LAYOUT	
 if ($main->button(3)) //clean_up_columns
 	{
-	$valid_password = $main->validate_login($con, $email, $main->post("backup_passwd", $module), '5_bb_brimbox');
+	$valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
 	if (!$valid_password)
 		{
 		array_push($arr_message, "Invalid Password.");	
