@@ -44,12 +44,12 @@ $array_security['column_security'] = array(); //empty array causes standard 0 & 
 
 # DATA VALIDATION TYPES #
 //can be added to
-$array_validation['Text']	= array($main,'validate_text');
-$array_validation['Number'] = array($main,'validate_numeric');
-$array_validation['Date']	= array($main,'validate_date');
-$array_validation['Email']	= array($main,'validate_email');
-$array_validation['Money']	= array($main,'validate_money');
-$array_validation['Yes/No'] = array($main,'validate_yesno');
+$array_validation['bb_text'] = array('function'=>array($main,'validate_text'),'name'=>"Text");
+$array_validation['bb_number'] = array('function'=>array($main,'validate_numeric'),'name'=>"Number");
+$array_validation['bb_date'] = array('function'=>array($main,'validate_date'),'name'=>"Date");
+$array_validation['bb_email']	= array('function'=>array($main,'validate_email'),'name'=>"Email");
+$array_validation['bb_money']	= array('function'=>array($main,'validate_money'),'name'=>"Money");;
+$array_validation['bb_yesno'] = array('function'=>array($main,'validate_yesno'),'name'=>"Yes/No");
 
 # GUEST INDEX #
 //data table has one customizable full text column aside from the default column

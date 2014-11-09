@@ -189,6 +189,7 @@ if ($main->button(2))
             //uses the cmp function to sort columns by order
             uasort($arr_order,'cmp');
 			
+            //primary defaault is 1, use countto check if no columns set
             $arr_order['layout']['primary'] = key($main->filter_keys($arr_order)) >= 1 ? key($arr_order) : 1; //Always set
             $arr_order['layout']['count'] = $count; //Always set
 
@@ -318,7 +319,7 @@ for ($m = 1; $m <= 50; $m++)
 		//global $array_validation
 		foreach ($array_validation as $key => $value)
 			{
-			echo "<option value=\"" . htmlentities($key) . "\"" . ($key == $type ? "selected" : "") . ">" . htmlentities($key) . "</option>";
+			echo "<option value=\"" . $key . "\"" . ($key == $type ? "selected" : "") . ">" . $value['name'] . "</option>";
 			}
 		echo "</select></div>";
 		}

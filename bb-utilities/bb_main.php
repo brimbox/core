@@ -210,6 +210,26 @@ class bb_main {
             }
         return 1;
 	    }
+        
+    function get_default_list($arr_list, $archive = 1)
+		{
+        //default only ones that are not archived
+        //columns are in order, will return first array if $check is false
+        //if check is true, $available array of layout secure values will be considered
+        //$available is an array of available securities to allow
+        //loop through $arr_layouts
+        $arr_list_reduced = $this->filter_keys($arr_list);
+        foreach ($arr_list_reduced as $key => $value)
+            {
+            //not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$secure = ($archive && ($value['archive'] >= $archive)) ? true : false;
+            if (!$secure) //check is true
+                {
+                return $key;
+                }
+            }
+        return 1;
+	    }
     
     function filter_keys ($arr, $filter = array(), $mode = true)
         //function to return array with only integer keys
@@ -889,7 +909,7 @@ class bb_main {
 		//validates a data type set in "Set Column Names"
 		//returns false on good, true or error string if bad
 		global $array_validation;
-		$return_value = call_user_func_array($array_validation[$type], array(&$field, $error));	
+		$return_value = call_user_func_array($array_validation[$type]['function'], array(&$field, $error));	
 		return $return_value;
 		}
 		

@@ -156,7 +156,7 @@ class bb_work extends bb_forms {
 
 	    //will format value if valid, otherwise leaves $var untouched
 		//check becomes false on valid type, true opn error
-	    $check = call_user_func_array($array_validation[$type], array(&$var, false));	
+	    $check = call_user_func_array($array_validation[$type]['function'], array(&$var, false));	
 	    $arr_state[$name] = $var;
 		
 	    return $var;	

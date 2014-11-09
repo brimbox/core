@@ -63,7 +63,8 @@ $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 $arr_state = $main->load($module, $array_state);
 
 $row_type = $main->state('row_type', $arr_state, $default_row_type);
-$list_number = $main->state('list_number', $arr_state, 0);
+$default_list_number = $main->get_default_list($arr_lists[$row_type]);
+$list_number = $main->state('list_number', $arr_state, $default_list_number);
 $offset = $main->process('offset', $module, $arr_state, 1);
 
 //entrance, get first value for default row type or state row_type
