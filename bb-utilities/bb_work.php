@@ -140,7 +140,7 @@ class bb_work extends bb_forms {
 	    return $var;	
 	    }
 		
-	function render($name, $module, &$arr_state, $type, $default = "")
+	function render($name, $module, &$arr_state, $type, &$check, $default = "")
 	    //fully processes $_POST variable into state rendering type if validated
 	    {
 	    global $array_validation;
@@ -155,7 +155,8 @@ class bb_work extends bb_forms {
 			}
 
 	    //will format value if valid, otherwise leaves $var untouched
-	    call_user_func_array($array_validation[$type], array(&$var));	
+		//check becomes false on valid type, true opn error
+	    $check = call_user_func_array($array_validation[$type], array(&$var, false));	
 	    $arr_state[$name] = $var;
 		
 	    return $var;	
