@@ -63,46 +63,21 @@ $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 $arr_state = $main->load($module, $array_state);
 
 $row_type = $main->state('row_type', $arr_state, $default_row_type);
-$default_list_number = $main->get_default_list($arr_lists[$row_type]);
-$list_number = $main->state('list_number', $arr_state, $default_list_number);
 $offset = $main->process('offset', $module, $arr_state, 1);
 
-//entrance, get first value for default row type or state row_type
-//empty fine here, "0" is considered empty
-if (!$main->check('row_type', $module) && empty($list_number))
-    {
-    $arr_list = $arr_lists[$row_type];
-    if (isset($arr_list[key($arr_list)]))
-        {
-        $list_number = key($arr_list);
-        }
-    else
-        {
-        $list_number = 0;    
-        }
-	$list_number = $main->set('list_number', $arr_state, $list_number);
-    $row_type = $main->set('row_type', $arr_state, $row_type);
-    }
 //change row_type, get first value for that row type
-elseif ($main->check('row_type',$module) && ($row_type <> $main->post('row_type',$module)))
+if ($main->check('row_type',$module) && ($row_type <> $main->post('row_type',$module)))
     {
     $row_type = $main->post('row_type', $module, $default_row_type);
-    if (isset($arr_lists[$row_type]))
-        {
-        $arr_list = $arr_lists[$row_type];
-        $list_number = key($arr_list);
-        }
-    else
-        {
-        $list_number = 0;    
-        }
-	$list_number = $main->set('list_number', $arr_state, $list_number);
+    $default_list_number = isset($arr_lists[$row_type]) ? $main->get_default_list($arr_lists[$row_type]) : 1;
+	$list_number = $main->state('list_number', $arr_state, $default_list_number);
     $row_type = $main->set('row_type', $arr_state, $row_type);
     }
 //change list   
 else
     {
-	$list_number = $main->process('list_number', $module, $arr_state, 0);  
+    $default_list_number = isset($arr_lists[$row_type]) ? $main->get_default_list($arr_lists[$row_type]) : 1;
+	$list_number = $main->process('list_number', $module, $arr_state, $default_list_number);  
     $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
     }
 
