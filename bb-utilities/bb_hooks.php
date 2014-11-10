@@ -31,18 +31,12 @@ class bb_hooks extends bb_work {
 		global $module;
 		
 		//hook must be set
-		if (!isset($array_hooks[$name])
-			{
-			return false;		
-			}
+		if (!isset($array_hooks[$name]))
+			return false;
 		//hook must be named properly
-		if (isset($array_hooks[$name]))
-			{
-			if (substr($name, 0, strlen($module) + 1) <> ($module . "_"))
-				{
-				return false;	
-				}	
-			}
+		elseif (substr($name, 0, strlen($module) + 1) <> ($module . "_"))
+			return false;
+				
 		//hook loop
 		foreach ($array_hooks[$name] as $arr_hook)
 			{
