@@ -24,12 +24,17 @@ If not, see http://www.gnu.org/licenses/
 
 class bb_hooks extends bb_work {
 	
-	function hook(&$name)
+	function hook($name)
 		{
 		//name passed as values so no error if hooks aren't set
 		global $array_hooks;
 		global $module;
 		
+		//hook must be set
+		if (!isset($array_hooks[$name])
+			{
+			return false;		
+			}
 		//hook must be named properly
 		if (isset($array_hooks[$name]))
 			{
