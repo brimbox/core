@@ -24,8 +24,9 @@ If not, see http://www.gnu.org/licenses/
 
 class bb_hooks extends bb_work {
 	
-	function hook($name)
+	function hook(&$name)
 		{
+		//name passed as values so no error if hooks aren't set
 		global $array_hooks;
 		global $module;
 		
