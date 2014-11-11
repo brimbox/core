@@ -185,7 +185,7 @@ class bb_work extends bb_forms {
 		//go through $array_interface and get active modules based on interface
 		foreach ($array_interface as $key => $value)
 			{
-			if (in_array($userrole, $value['userroles']))
+			if (in_array($userrole, $value['usertypes']))
 				{
 				array_push($arr_modules_active, $value['module_type']);
 				}

@@ -25,11 +25,11 @@ $array_globals['bb_brimbox']['hooks']['bb_home_infolinks'][] = array(array($main
 
 # STANDARD INTERFACE DEFINITION #
 $array = array();
-$array[] = array('interface_type'=>'Standard','userroles'=>array(1),'module_type'=>1);
-$array[] = array('interface_type'=>'Standard','userroles'=>array(2),'module_type'=>2);
-$array[] = array('interface_type'=>'Standard','userroles'=>array(3,4,5),'module_type'=>3);
-$array[] = array('interface_type'=>'Auxiliary','userroles'=>array(4,5),'module_type'=>4,'friendly_name'=>'Setup');
-$array[] = array('interface_type'=>'Auxiliary','userroles'=>array(5),'module_type'=>5,'friendly_name'=>'Admin');
+$array[] = array('interface_type'=>'Standard','usertypes'=>array(1),'module_type'=>1);
+$array[] = array('interface_type'=>'Standard','usertypes'=>array(2),'module_type'=>2);
+$array[] = array('interface_type'=>'Standard','usertypes'=>array(3,4,5),'module_type'=>3);
+$array[] = array('interface_type'=>'Auxiliary','usertypes'=>array(4,5),'module_type'=>4,'friendly_name'=>'Setup');
+$array[] = array('interface_type'=>'Auxiliary','usertypes'=>array(5),'module_type'=>5,'friendly_name'=>'Admin');
 $array_globals['bb_brimbox']['interface'] = $array;
 
 # COMMON VARS SHARED WITH OTHER TABS #

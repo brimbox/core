@@ -224,12 +224,14 @@ $arr_work['module_types'] = array();
 //get the module types for current interface
 foreach($array_interface as $key => $value)
 	{
-	if (in_array($usertype, $value['userroles']))
+    //display appropriate modules, usertypes is array of numeric part of userroles
+	if (in_array($usertype, $value['usertypes']))
 		{
 		array_push($arr_work['module_types'], $value['module_type']);
 		}
 	else
 		{
+        //unset interface type
 		unset($arr_reduce[$key]);	
 		}
 	};
