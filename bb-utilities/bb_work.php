@@ -113,10 +113,10 @@ class bb_work extends bb_forms {
 			}
 	    }	
 			
-	function state($name, $arr_state, $initial = "")
+	function state($name, $arr_state, $default = "")
 	    {
 	    //gets the state value of a variable
-	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $initial;
+	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default;
 	    return $var;	
 	    }	
 	 
