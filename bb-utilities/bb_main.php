@@ -334,7 +334,7 @@ class bb_main {
 		//Security there should be no way to get column with secured row_type
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$archive = isset($params['archive']) ? $params['archive'] : false;
+		$archive = isset($params['archive']) ? $params['archive'] : 0;
 		$empty = isset($params['empty']) ? $params['empty'] : false;
 		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
 		$label = isset($params['label']) ? $params['label'] : "";
@@ -352,7 +352,8 @@ class bb_main {
 		foreach($arr_list as $key => $value)
 			{
 			//either 1 or 0 for archive
-			if (!$value['archive'] || $archive)
+            $archive = ($archive && ($value['archive'] >= $archive)) ? true : false;
+			if (!$archive)
 				{
 				$archive_flag = ($value['archive']) ? "*" : "";
 				echo "<option value=\"" . $key. "\"" . ($key == $list_number   ? " selected " : "") . ">" . htmlentities($value['name']) . $archive_flag . "&nbsp;</option>";
@@ -404,8 +405,7 @@ class bb_main {
 		$date = new DateTime($date, new DateTimeZone(USER_TIMEZONE));
 		$date->setTimezone(new DateTimeZone(DB_TIMEZONE));
 		return $date->format($format);
-		}
-	
+		}	
 	
 	//function to get all paths in a directory
 	//directory recursion function
@@ -762,8 +762,7 @@ class bb_main {
 			}
 		$this->update_json($con, $arr_dropdowns, "bb_dropdowns"); 	
 		}
-
-	
+        
 	function log_entry($con, $message, $email = "")
 		{
 		if (isset($_SESSION['email']))
@@ -904,12 +903,14 @@ class bb_main {
 		echo "<br>";
 		}
 		
-	function validate_logic($type, &$field, $error = false)
+	function validate_logic($con, $type, &$field, $error = false)
 		{
 		//validates a data type set in "Set Column Names"
 		//returns false on good, true or error string if bad
-		global $array_validation;
-		$return_value = call_user_func_array($array_validation[$type]['function'], array(&$field, $error));	
+        $arr_header = $this->get_json($con, "bb_interface_enable");
+        $arr_validation = $arr_header['validation'];
+
+		$return_value = call_user_func_array($arr_validation[$type]['function'], array(&$field, $error));	
 		return $return_value;
 		}
 		

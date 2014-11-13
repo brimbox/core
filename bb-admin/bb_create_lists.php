@@ -332,7 +332,7 @@ $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>tru
 $main->echo_button("remove_list", $params);
 echo "<span class = \"spaced border rounded padded shaded\">";
 echo "<label class=\"padded\">Confirm Remove: </label>";
-$main->echo_input("confirm_remove", 1, array('type'=>'checkbox','input_class'=>'middle padded'));
+$main->echo_input("confirm_remove", 1, array('type'=>'checkbox','input_class'=>'middle holderup'));
 echo "</span>";
 echo " | ";
 echo "</div>";
@@ -341,7 +341,7 @@ $params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>tru
 $main->echo_button("archive_list", $params);
 echo "</div>";
 echo "<div class=\"cell padded nowrap\">";
-$main->echo_input("archive_value", 1, array('type'=>'checkbox','input_class'=>'middle spaced'));
+$main->echo_input("archive_value", 1, array('type'=>'checkbox','input_class'=>'middle holderup'));
 echo "<span class=\"spaced\">Check to Archive/Uncheck to Retrieve</span></div>";
 echo "</div>";
 echo "</div>";

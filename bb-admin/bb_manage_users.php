@@ -604,7 +604,7 @@ if (in_array($action, array(1,2,3,4))):
             $handler = "onClick=\"populateDefault(this, '" . $userrole_value . "', '" . $userrole_name . " ')\"";
             echo "<div class=\"padded\">";
             //custom checkbox because of array
-            echo "<input type=\"checkbox\" value=\"" . $userrole_value . "\" name=\"userroles_work[]\" class=\"middle padded\" " . $checked . " " . $handler . "/>";
+            echo "<input type=\"checkbox\" value=\"" . $userrole_value . "\" name=\"userroles_work[]\" class=\"middle holderup\" " . $checked . " " . $handler . "/>";
             echo "<span class=\"middle padded\">" . $userrole_name . "</span>";
             echo "</div>";
             }

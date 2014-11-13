@@ -27,6 +27,9 @@ $arr_message = array();
 /* GET STATE */
 $main->retrieve($con, $array_state);
 
+$arr_header = $main->get_json($con, "bb_interface_enable");
+$arr_security = $arr_header['row_security']['value'];
+
 $post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;
 $row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;
 
@@ -144,8 +147,8 @@ else
 /* END RETURN RECORD */
 
 echo "<br>";
-
 $main->echo_messages($arr_message);
+echo "<br>";
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
@@ -153,22 +156,20 @@ $main->echo_module_vars();
 
 if (!$main->button(1))
 	{
-	if (empty($array_security['row_security']))
+	if (empty($arr_security))
 		{
 		$button_value = ($setbit == 0) ? 1 : 0; //set value is value to set secure to
 		$button_text = ($setbit == 0) ? "Secure Cascade" : "Unsecure Cascade";
-		echo "<br>";
 		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$button_text);
 		$main->echo_button("secure_cascade", $params);
 		echo "<input type = \"hidden\"  name = \"setbit\" value = \"" . $button_value . "\">";
 		}
 	else
 		{
-		echo "<br>";
 		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Set Security To");
 		$main->echo_button("secure_cascade", $params);
 		echo "<select name=\"setbit\" class=\"spaced\"\">";
-		foreach($array_security['row_security'] as $key => $value)
+		foreach($arr_security as $key => $value)
 			{
 			echo "<option value=\"" . $key . "\" " . ($key == $setbit ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
 			}

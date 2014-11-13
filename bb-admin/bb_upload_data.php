@@ -71,6 +71,9 @@ function check_header($arr_column_reduced, $str, $parent)
 //get layouts
 $arr_layouts = $main->get_json($con, "bb_layout_names");
 $default_row_type = $main->get_default_layout($arr_layouts);
+//get guest index
+$arr_header = $main->get_json($con, "bb_interface_enabler");
+$arr_guest_index = $arr_header['guest_index']['value'];
 
 //will handle postback
 $row_type = $main->post('row_type', $module, $default_row_type); 
@@ -219,7 +222,7 @@ if ($main->button(3)) //submit_data
 								//empty row always valid in this sense
 								if (!$main->blank($arr_line[$l]))
 									{
-									$return_validate = $main->validate_logic($type, $arr_line[$l], true);
+									$return_validate = $main->validate_logic($con, $type, $arr_line[$l], true);
 									//string is error
 									//$arr_line[$l] passed as a reference and may change
 									if (!is_bool($return_validate))
@@ -265,13 +268,13 @@ if ($main->button(3)) //submit_data
                     $select_clause .= ", '" . $str . "'";
                     $search_flag = ($child['search'] == 1) ? true : false;
 					//guest flag
-					if (empty($array_guest_index))
+					if (empty($arr_guest_index))
 						{
 						$guest_flag = (($child['search'] == 1) && ($child['secure'] == 0)) ? true : false;
 						}
 					else
 						{
-						$guest_flag = (($child['search'] == 1) && in_array((int)$child['secure'], $array_guest_index)) ? true : false;						
+						$guest_flag = (($child['search'] == 1) && in_array((int)$child['secure'], $arr_guest_index)) ? true : false;						
 						}
 					//build fts SQL code
                     if ($search_flag)

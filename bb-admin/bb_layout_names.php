@@ -25,6 +25,10 @@ $main->retrieve($con, $array_state);
 //start of code
 $arr_layouts = $main->get_json($con, "bb_layout_names");
 $arr_columns = $main->get_json($con, "bb_column_names");
+
+$arr_header = $main->get_json($con, "bb_interface_enable");
+$arr_layout_security = $arr_header['layout_security']['value'];
+
 $arr_message = array();
 
 //optional constant
@@ -234,7 +238,7 @@ for ($i=1; $i<=$number_layouts; $i++)
 	echo "</div>";
 	
 	//secure checkbox	    
-	if (empty($array_security['layout_security']))
+	if (empty($arr_layout_security))
 		{
         //has a zero or 1 value
         $checked = false;
@@ -242,14 +246,14 @@ for ($i=1; $i<=$number_layouts; $i++)
             {
             $checked = ($arr_layouts[$i]['secure'] == 1) ? true : false;
             }
-		echo "<div class=\"cell middle center spaced\">";
-        $main->echo_input("secure_" . $i, 1, array('type'=>'checkbox','class'=>'spaced','checked'=>$checked));
+		echo "<div class=\"cell padded middle center\">";
+        $main->echo_input("secure_" . $i, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
 		echo "</div>";
 		}
 	else
 		{
 		echo "<div class = \"cell middle\"><select name=\"secure_" . $i . "\"class = \"spaced\">";
-		foreach ($array_security['layout_security'] as $key => $value)
+		foreach ($arr_layout_security as $key => $value)
 			{
             $selected = "";
             if (isset($arr_layouts[$i]['secure']))

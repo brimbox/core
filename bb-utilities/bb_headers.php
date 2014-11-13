@@ -33,25 +33,25 @@ $array_header['bb_brimbox']['userroles'] = array(0=>'Locked',1=>'Guest',2=>'View
 $array_header['bb_brimbox']['module_types'] = array(1=>"Guest",2=>"Viewer",3=>"Tab",4=>"Setup",5=>"Admin");
 
 # DEFAULT SECURITY #
-$array_security['row_security'] = array(); //empty array causes standard 0 & 1 checkboxes
+$array_header['bb_brimbox']['row_security'] = array(); //empty array causes standard 0 & 1 checkboxes
 //row_security = array(0 => "Open", 1 => "Guarded", 2 => "Management"); //Populated example
-$array_security['row_archive'] = array(); //empty array causes standard 0 & 1 checkboxes
+$array_header['bb_brimbox']['row_archive'] = array(); //empty array causes standard 0 & 1 checkboxes
 //row_archive = array(0 => "Current", 1 => "Level 1", 2 => "Level 2"); //Populated example
-$array_security['layout_security'] = array(); //empty array causes standard 0 & 1 checkboxes
+$array_header['bb_brimbox']['layout_security'] = array(); //empty array causes standard 0 & 1 checkboxes
 //layout_security = array(0 => "Open", 1 => "Guarded", 2 => "Management"); //Populated example
-$array_security['column_security'] = array(); //empty array causes standard 0 & 1 checkboxes
+$array_header['bb_brimbox']['column_security'] = array(); //empty array causes standard 0 & 1 checkboxes
 //column_security = array(0 => "Current", 1 => "Level 1", 2 => "Level 2"); //Populated example
 
 # DATA VALIDATION TYPES #
 //can be added to
-$array_validation['bb_text'] = array('function'=>array($main,'validate_text'),'name'=>"Text");
-$array_validation['bb_number'] = array('function'=>array($main,'validate_numeric'),'name'=>"Number");
-$array_validation['bb_date'] = array('function'=>array($main,'validate_date'),'name'=>"Date");
-$array_validation['bb_email']	= array('function'=>array($main,'validate_email'),'name'=>"Email");
-$array_validation['bb_money']	= array('function'=>array($main,'validate_money'),'name'=>"Money");;
-$array_validation['bb_yesno'] = array('function'=>array($main,'validate_yesno'),'name'=>"Yes/No");
+$array_header['bb_brimbox']['validation']['text'] = array('function'=>'bb_validate::validate_text','name'=>"Text",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['numeric'] = array('function'=>'bb_validate::validate_numeric','name'=>"Number",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['date'] = array('function'=>'bb_validate::validate_date','name'=>"Date",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['email']	= array('function'=>'bb_validate::validate_email','name'=>"Email",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['money']	= array('function'=>'bb_validate::validate_money','name'=>"Money",'use'=>"Required");;
+$array_header['bb_brimbox']['validation']['yesno'] = array('function'=>'bb_validate::validate_yesno','name'=>"Yes/No",'use'=>"Required");
 
 # GUEST INDEX #
 //data table has one customizable full text column aside from the default column
-$array_guest_index = array(); //will use default security = 0 and search = 1
+$array_header['bb_brimbox']['guest_index'] = array(); //will use default security = 0 and search = 1
 ?>

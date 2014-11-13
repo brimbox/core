@@ -130,7 +130,6 @@ if ($main->button(3)) //clean_up_columns
 		}
     }
 
-
 //RESTORE DATABASE
 if ($main->button(4)) //submit_file
 	{
@@ -420,13 +419,15 @@ $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>tru
 $main->echo_button("clean_up_columns", $params);
 $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Clean Database Layouts");
 $main->echo_button("clean_up_columns", $params);
-echo "<br>";
+echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","label"=>"Backup Database","onclick"=>"submit_backup()");
 $main->echo_script_button("backup_database", $params);
 echo "<label class=\"spaced\">Password: </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"backup_passwd\"/>";
-echo "<label class=\"spaced\"> Encrypt: </label>";
-$main->echo_input("encrypt_method", 1, array('type'=>'checkbox','class'=>'spaced','checked'=>true));
+echo "<label class=\"spaced middle\"> Encrypt: </label>";
+$main->echo_input("encrypt_method", 1, array('type'=>"checkbox",'input_class'=>"middle holderup",'ckecked'=>true));
+echo "</div>";
+
 echo "</div>";
 echo "<div class=\"clear\"></div>";
 
@@ -455,24 +456,29 @@ echo "<input class=\"spaced\" type=\"file\" name=\"backup_file\" id=\"file\" /><
 echo "<div class=\"spaced border floatleft padded\">";
 echo "<div class=\"table\">";
 echo "<div class=\"row\">";
-$main->echo_input("json_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
-echo "<div class=\"cell middle padded\">Restore JSON Table</div>";
+echo "<div class=\"cell middle padded\">";
+$main->echo_input("json_table_checkbox", 1, array('type'=>'checkbox','input_class'=>'spaced'));
+echo " Restore JSON Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-$main->echo_input("users_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
-echo "<div class=\"cell middle padded\">Restore Users Table</div>";
+echo "<div class=\"cell middle padded\">";
+$main->echo_input("users_table_checkbox", 1, array('type'=>'checkbox','input_class'=>'spaced'));
+echo " Restore Users Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-$main->echo_input("modules_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
-echo "<div class=\"cell middle padded\">Restore Modules Table</div>";
+echo "<div class=\"cell middle padded\">";
+$main->echo_input("modules_table_checkbox", 1, array('type'=>'checkbox','input_class'=>'spaced'));
+echo " Restore Modules Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-$main->echo_input("log_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
-echo "<div class=\"cell middle padded\">Restore Log Table</div>";
+echo "<div class=\"cell middle padded\">";
+$main->echo_input("log_table_checkbox", 1, array('type'=>'checkbox','input_class'=>'spaced'));
+echo " Restore Log Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-$main->echo_input("data_table_checkbox", 1, array('type'=>'checkbox','class'=>'spaced'));
-echo "<div class=\"cell middle padded\">Restore Data Table</div>";
+echo "<div class=\"cell middle padded\">";
+$main->echo_input("data_table_checkbox", 1, array('type'=>'checkbox','input_class'=>'spaced'));
+echo " Restore Data Table</div>";
 echo "</div>";
 echo "</div>";
 echo "<div class=\"spaced\">Password: ";

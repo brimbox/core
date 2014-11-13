@@ -627,8 +627,7 @@ class bb_reports extends bb_hooks {
             $order_by = (!empty($current['sort'])) ? "ORDER BY " . $current['sort'] . " " . $current['order'] : "";    
             }
 		return $order_by;
-		}
-	
+		}	
 			
 	function output_single_row($result, $params = array())
 		{

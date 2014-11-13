@@ -178,7 +178,7 @@ $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>tru
 $main->echo_button("populate_dropdown", $params);
 echo "<span class = \"spaced border rounded padded shaded\">";
 $checked =  ($all_values == 1) ? true : false;
-$main->echo_input("all_values", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
+$main->echo_input("all_values", 1, array('type'=>'checkbox','input_class'=>'middle holderup','checked'=>$checked));
 echo "<label class=\"padded\">Populate With Existing Dropdown</label>";
 echo "</span>";
 echo "<br>";
@@ -186,7 +186,7 @@ $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>tru
 $main->echo_button("create_dropdown", $params);
 echo "<span class = \"spaced border rounded padded shaded\">";
 $checked =  ($null_value == 1) ? true : false;
-$main->echo_input("null_value", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
+$main->echo_input("null_value", 1, array('type'=>'checkbox','input_class'=>'middle holderup','checked'=>$checked));
 echo "<label class=\"padded\">Include Empty Value</label>";
 echo "</span>";
 echo "<br>";

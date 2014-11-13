@@ -37,6 +37,10 @@ $default_row_type = $main->get_default_layout($arr_layouts);
 $arr_notes = array(49,50);
 $arr_reserved = array(47,48);
 
+$arr_header = $main->get_json($con, "bb_interface_enable");
+$arr_validation = $arr_header['validation'];
+$arr_column_security = $arr_header['column_security']['value'];
+
 /* RETRIEVE STATE */
 $main->retrieve($con, $array_state);
 
@@ -317,7 +321,7 @@ for ($m = 1; $m <= 50; $m++)
 		{
 		echo "<div class = \"cell middle\"><select name = \"type_" . $m. "\" class=\"spaced\">";
 		//global $array_validation
-		foreach ($array_validation as $key => $value)
+		foreach ($arr_validation as $key => $value)
 			{
 			echo "<option value=\"" . $key . "\"" . ($key == $type ? "selected" : "") . ">" . $value['name'] . "</option>";
 			}
@@ -325,20 +329,21 @@ for ($m = 1; $m <= 50; $m++)
 		}
     //required checkbox
     echo "<div class = \"padded cell center middle\">";
-	echo "<input name=\"required_" . $m . "\" type=\"checkbox\"  class=\"spaced\" value=\"1\" " . ($required == 1 ? "checked" : "") . "/>";
+    $checked = ($required == 1) ? true : false;
+    $main->echo_input("required_" . $m, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
     echo "</div>";
     //secure checkbox
-	if (empty($array_security['column_security']))
+	if (empty($arr_column_security))
 		{
 		echo "<div class = \"padded cell center middle\">";
         $checked = ($secure == 1) ? true : false;
-        $main->echo_input("secure_" . $m, 1, array('type'=>'checkbox','class'=>'spaced','checked'=>$checked));
+        $main->echo_input("secure_" . $m, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
 		echo "</div>";
 		}
 	else
 		{
 		echo "<div class = \"cell middle\"><select name=\"secure_" . $m . "\"class = \"spaced\">";
-		foreach ($array_security['column_security'] as $key => $value)
+		foreach ($arr_column_security as $key => $value)
 			{
 			echo "<option value = \"" . $key . "\" " . ($secure == $key ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
 			}
@@ -347,7 +352,7 @@ for ($m = 1; $m <= 50; $m++)
     //search checkbox
     echo "<div class = \"padded cell center middle\">";
     $checked = ($search == 1) ? true : false;
-    $main->echo_input("search_" . $m, 1, array('type'=>'checkbox','class'=>'spaced','checked'=>$checked));
+    $main->echo_input("search_" . $m, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
     echo "</div>";
     echo "</div>";
     }

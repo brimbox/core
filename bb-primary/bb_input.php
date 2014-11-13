@@ -44,6 +44,9 @@ $default_row_type = $main->get_default_layout($arr_layouts);
 $arr_columns = $main->get_json($con, "bb_column_names");
 //get dropdown values while were at it
 $arr_dropdowns = $main->get_json($con, "bb_dropdowns");
+//get header for guest index
+$arr_header = $main->get_json($con, "bb_interface_enable");
+$arr_guest_index = $arr_header['guest_index']['value'];
 
 $arr_notes = array("49","50");
 $textarea_rows = 4; //minimum
@@ -162,7 +165,7 @@ if ($main->button(1))
             if (!$main->blank($field)) 
                 {
 				//value is passed a reference and may change in function if formatted
-                $return_validate = $main->validate_logic($type, $field, true);
+                $return_validate = $main->validate_logic($con, $type, $field, true);
                 if (!is_bool($return_validate))
                     {
                     $arr_errors[$col] = $return_validate;
@@ -192,13 +195,13 @@ if ($main->button(1))
 				//prepare fts and ftg
 				$search_flag = ($value['search'] == 1) ? true : false;
 				//guest flag
-				if (empty($array_guest_index))
+				if (empty($arr_guest_index))
 					{
 					$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
 					}
 				else
 					{
-					$guest_flag = (($value['search'] == 1) && in_array($value['secure'], $array_guest_index)) ? true : false;						
+					$guest_flag = (($value['search'] == 1) && in_array($value['secure'], $arr_guest_index)) ? true : false;						
 					}
 				//build fts SQL code
 				if ($search_flag)
