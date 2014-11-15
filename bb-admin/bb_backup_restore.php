@@ -133,264 +133,273 @@ if ($main->button(3)) //clean_up_columns
 //RESTORE DATABASE
 if ($main->button(4)) //submit_file
 	{
-	//file must be populated
-	if (!empty($_FILES[$main->name('backup_file', $module)]["tmp_name"]))
-		{
-		/* VERY LONG IFS FOR RESTORING DATABASE */
-		$handle = fopen($_FILES[$main->name('backup_file', $module)]["tmp_name"], "r");		
-		$str = rtrim(fgets($handle)); //get first line without encryption, has salt and hash
-		if (strlen($str) == 168) // correct header length
-			{
-			//get password
-			$passwd = $main->post('restore_passwd', $module);
-			//split up hash, salt and iv
-			$iv_size = mcrypt_get_iv_size(MCRYPT_3DES, MCRYPT_MODE_CBC);
-			$iv = substr($str, 8 , $iv_size); //from the salt
-			$hex = substr($str, 0, 8);
-			$salt = substr($str, 8, 32);
-			$hash = substr($str, 32 + 8, 128);
-			//check password
-            //00000000 -- no encrypt before userrole => userroles
-            //00000001 -- encrypt before userrole => userroles
-			if (hash('sha512', $passwd . $salt) == $hash)
-				{
-				if (in_array($hex, array("00000000","00000002","00000004")))
-					{
-					$type = 0;
-					}
-				elseif (in_array($hex, array("00000001","00000003","00000005")))
-					{
-					$type = 1;
-					}
-				//get next line, xml_backup has version and time stats	
-				$str = rtrim(fgets($handle));	
-				$json_header = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
-				
-				/* TABLES ORDERED FOR QUICKER RESTORE */
-				//since data table is last it can be skipped on upload if not restored
-
-				/* JSON TABLE */
-				//get next line, xml has xml table count
-				$str = rtrim(fgets($handle));
-                $json_json = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
-                $cnt = $json_json['count'];
-
-				//restore json table if	
-				if ($main->post('json_table_checkbox', $module) == 1)
-					{
-					//cascaded drop
-					$query = "DROP TABLE IF EXISTS json_table CASCADE";
-					$main->query($con, $query);
-					//install new table					
-					$query = $json_before_eot;
-					$main->query($con, $query);
-					//populate table
-					for ($i=0; $i<$cnt; $i++)
-						{
-						//get next line
-						$str = rtrim(fgets($handle));
-						//decrypt and split
-						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));                        
-						$query = "INSERT INTO json_table (lookup, jsondata, change_date) " .
-								 "VALUES ($1,$2,$3);";
-						//echo "<p>" . htmlentities($query) . "</p><br>";
-						$main->query_params($con, $query, $row);		 
-						}
-					//install triggers indexes etc
-					$query = $json_after_eot;
-					$main->query($con, $query);
-					array_push($arr_message, "JSON table has been restored from backup.");
-					}
-				else //advance file pointer
-					{
-					for ($i=0; $i<$cnt; $i++)
-						{
-						//read in lines and do nothing
-						$str = fgets($handle);
-						}
-					}
-				/* USER. MODULES AND LOG TABLES TABLES */
-				/* see xml comments, since they are the same as following table */
-				
-				/* USERS TABLE */
-				$str = rtrim(fgets($handle));
-                $json_users = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
-                $cnt = $json_users['count'];
-					
-				if ($main->post('users_table_checkbox', $module) == 1)
-					{
-					$query = "DROP TABLE IF EXISTS users_table CASCADE";
-					$main->query($con, $query);
-										
-					$query = $users_before_eot;
-					$main->query($con, $query);
-					
-					for ($i=0; $i<$cnt; $i++)
-						{
-						$str = rtrim(fgets($handle));
-						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));                      
-						$query = "INSERT INTO users_table (email, hash, salt, attempts, userroles, fname, minit, lname, ips, change_date) " .
-								 "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);";	
-						//echo "<p>" . htmlentities($query) . "</p><br>";
-						$main->query_params($con, $query, $row);		 
-						}
-					$query = $users_after_eot;
-					$main->query($con, $query);
-					array_push($arr_message, "Users table has been restored from backup.");
-					}
-				else
-					{
-					for ($i=0; $i<$cnt; $i++)
-						{
-						fgets($handle);
-						}
-					}				
-				
-				/* MODULES TABLE */
-				$str = rtrim(fgets($handle));
-                $json_modules = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
-                $cnt = $json_modules['count'];
-			
-				if ($main->post('modules_table_checkbox', $module) == 1)
-					{
-					$query = "DROP TABLE IF EXISTS modules_table CASCADE";
-					$main->query($con, $query);
-										
-					$query = $modules_before_eot;
-					$main->query($con, $query);
-					
-					for ($i=0; $i<$cnt; $i++)
-						{
-						$str = rtrim(fgets($handle));
-						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
-						$query = "INSERT INTO modules_table (module_order, module_path, module_name, friendly_name, interface, module_type, module_version, " .
-                                 "standard_module, maintain_state, module_files, module_details, change_date) " .
-								 "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);";	
-						//echo "<p>" . htmlentities($query) . "</p><br>";
-						//use query params because not updating or inserting full text columns
-						$main->query_params($con, $query, $row);		 
-						}
-					$query = $modules_after_eot;
-					$main->query($con, $query);
-					array_push($arr_message, "Modules table has been restored from backup.");
-					}
-				else
-					{
-					for ($i=0; $i<$cnt; $i++)
-						{
-						fgets($handle);	
-						}
-					}
-
-				/* LOG TABLE */					
-				$str = rtrim(fgets($handle));
-                $json_log = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
-                $cnt = $json_log['count'];
-								
-				if ($main->post('log_table_checkbox', $module) == 1)
-					{
-					$query = "DROP TABLE IF EXISTS log_table CASCADE";
-					$main->query($con, $query);
-										
-					$query = $log_before_eot;
-					$main->query($con, $query);
-					
-					for ($i=0; $i<$cnt; $i++)
-						{
-						$str = rtrim(fgets($handle));
-						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
-						$query = "INSERT INTO log_table (email, ip_address, action, change_date) " .
-								 "VALUES ($1,$2,$3,$4);";
-						//echo "<p>" . htmlentities($query) . "</p><br>";
-						$main->query_params($con, $query, $row);		 
-						}
-					$query = $log_after_eot;
-					$main->query($con, $query);
-					array_push($arr_message, "Log table has been restored from backup.");
-					}
-				else
-					{
-					for ($i=0; $i<$cnt; $i++)
-						{
-						fgets($handle);	
-						}
-					}
-
-				/* DATA TABLE */
-				/* slightly different than last foru tables */
-				//get count from header xml
-				$str = rtrim(fgets($handle));
-                $json_data = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
-                $cnt = $json_data['count'];
-				//restore data table	
-				if ($main->post('data_table_checkbox', $module) == 1)
-					{
-					//drop both table and sequence
-					$query = "DROP TABLE IF EXISTS data_table CASCADE";
-					$main->query($con, $query);
-					$query = "DROP SEQUENCE IF EXISTS data_table_id_seq CASCADE";
-					$main->query($con, $query);
-					//install table					
-					$query = $data_before_eot;
-					$main->query($con, $query);
-					//build insert clause (c01,c02...c50)
-					$arr_cols = array();
-					for ($i=1; $i<=50; $i++)
-						{
-						$col = "c" . str_pad((string)$i, 2, "0", STR_PAD_LEFT);
-						array_push($arr_cols, $col);
-						}
-					$str_cols = implode(",",$arr_cols);
-					//build values clause
-					$arr_params = array();
-						for ($i=1; $i<=61; $i++)
-						{
-						$param = "\$" .$i;
-						array_push($arr_params, $param);
-						}
-					$str_params = implode(",",$arr_params);	
-					//restore data from file
-					for ($i=0; $i<$cnt; $i++)
-						{
-						//get string and decrypt
-						$str = rtrim(fgets($handle));
-						$row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
-						//these are note rows, $main->query_params will handle new lines
-						//however the php splits will be wrong if new lines are not escaped, so unescape
-						$row[52] = str_replace("\\n","\n", $row[52]);
-						$row[53] = str_replace("\\n","\n", $row[53]);
-						
-						$query = "INSERT INTO data_table (id, row_type, key1, key2," . $str_cols . ", archive, secure, create_date, modify_date, owner_name, updater_name, list_string) " .
-								 "VALUES (" . $str_params . ");";	
-						//echo "<p>" . htmlentities($query) . "</p><br>";
-						//use query params because not updating or inserting full text columns
-						$main->query_params($con, $query, $row);		 
-						}
-					//install triggers, indexes, and sequence
-					$query = $data_after_eot;
-					$main->query($con, $query);
-					
-					array_push($arr_message, "Data table has been restored from backup.");
-					}
-				else //close file if not restoring data table
-					{
-					fclose($handle);
-					}
-				} //hash password test
-			else //bad password
-				{
-				array_push($arr_message, "Error: Password for backup not verified.");	
-				}
-			} //first line check
-		else //bad first line
-			{
-			array_push($arr_message, "Error: File is not a valid backup file.");	
-			}
-		} //file exists
-	else //no file at all
-		{
-		array_push($arr_message, "Error: Must choose backup file.");
-		}
+    //admin password
+    $valid_password = $main->validate_password($con, $main->post("restore_passwd", $module), "5_bb_brimbox");
+    if (!$valid_password)
+        {
+        $arr_message[] = "Error: Admin password not verified.";
+        }
+    else
+        {
+        //file must be populated
+        if (!empty($_FILES[$main->name('backup_file', $module)]["tmp_name"]))
+            {
+            /* VERY LONG IFS FOR RESTORING DATABASE */
+            $handle = fopen($_FILES[$main->name('backup_file', $module)]["tmp_name"], "r");		
+            $str = rtrim(fgets($handle)); //get first line without encryption, has salt and hash
+            if (strlen($str) == 168) // correct header length
+                {
+                //get backup file password
+                $passwd = $main->post('file_passwd', $module);
+                //split up hash, salt and iv
+                $iv_size = mcrypt_get_iv_size(MCRYPT_3DES, MCRYPT_MODE_CBC);
+                $iv = substr($str, 8 , $iv_size); //from the salt
+                $hex = substr($str, 0, 8);
+                $salt = substr($str, 8, 32);
+                $hash = substr($str, 32 + 8, 128);
+                //check password
+                //00000000 -- no encrypt before userrole => userroles
+                //00000001 -- encrypt before userrole => userroles
+                if (hash('sha512', $passwd . $salt) == $hash)
+                    {
+                    if (in_array($hex, array("00000000","00000002","00000004")))
+                        {
+                        $type = 0;
+                        }
+                    elseif (in_array($hex, array("00000001","00000003","00000005")))
+                        {
+                        $type = 1;
+                        }
+                    //get next line, xml_backup has version and time stats	
+                    $str = rtrim(fgets($handle));	
+                    $json_header = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                    
+                    /* TABLES ORDERED FOR QUICKER RESTORE */
+                    //since data table is last it can be skipped on upload if not restored
+    
+                    /* JSON TABLE */
+                    //get next line, xml has xml table count
+                    $str = rtrim(fgets($handle));
+                    $json_json = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                    $cnt = $json_json['count'];
+    
+                    //restore json table if	
+                    if ($main->post('json_table_checkbox', $module) == 1)
+                        {
+                        //cascaded drop
+                        $query = "DROP TABLE IF EXISTS json_table CASCADE";
+                        $main->query($con, $query);
+                        //install new table					
+                        $query = $json_before_eot;
+                        $main->query($con, $query);
+                        //populate table
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            //get next line
+                            $str = rtrim(fgets($handle));
+                            //decrypt and split
+                            $row = explode("\t", decrypt_line($str, $passwd, $iv, $type));                        
+                            $query = "INSERT INTO json_table (lookup, jsondata, change_date) " .
+                                     "VALUES ($1,$2,$3);";
+                            //echo "<p>" . htmlentities($query) . "</p><br>";
+                            $main->query_params($con, $query, $row);		 
+                            }
+                        //install triggers indexes etc
+                        $query = $json_after_eot;
+                        $main->query($con, $query);
+                        array_push($arr_message, "JSON table has been restored from backup.");
+                        }
+                    else //advance file pointer
+                        {
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            //read in lines and do nothing
+                            $str = fgets($handle);
+                            }
+                        }
+                    /* USER. MODULES AND LOG TABLES TABLES */
+                    /* see xml comments, since they are the same as following table */
+                    
+                    /* USERS TABLE */
+                    $str = rtrim(fgets($handle));
+                    $json_users = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                    $cnt = $json_users['count'];
+                        
+                    if ($main->post('users_table_checkbox', $module) == 1)
+                        {
+                        $query = "DROP TABLE IF EXISTS users_table CASCADE";
+                        $main->query($con, $query);
+                                            
+                        $query = $users_before_eot;
+                        $main->query($con, $query);
+                        
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            $str = rtrim(fgets($handle));
+                            $row = explode("\t", decrypt_line($str, $passwd, $iv, $type));                      
+                            $query = "INSERT INTO users_table (email, hash, salt, attempts, userroles, fname, minit, lname, ips, change_date) " .
+                                     "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);";	
+                            //echo "<p>" . htmlentities($query) . "</p><br>";
+                            $main->query_params($con, $query, $row);		 
+                            }
+                        $query = $users_after_eot;
+                        $main->query($con, $query);
+                        array_push($arr_message, "Users table has been restored from backup.");
+                        }
+                    else
+                        {
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            fgets($handle);
+                            }
+                        }				
+                    
+                    /* MODULES TABLE */
+                    $str = rtrim(fgets($handle));
+                    $json_modules = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                    $cnt = $json_modules['count'];
+                
+                    if ($main->post('modules_table_checkbox', $module) == 1)
+                        {
+                        $query = "DROP TABLE IF EXISTS modules_table CASCADE";
+                        $main->query($con, $query);
+                                            
+                        $query = $modules_before_eot;
+                        $main->query($con, $query);
+                        
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            $str = rtrim(fgets($handle));
+                            $row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
+                            $query = "INSERT INTO modules_table (module_order, module_path, module_name, friendly_name, interface, module_type, module_version, " .
+                                     "standard_module, maintain_state, module_files, module_details, change_date) " .
+                                     "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);";	
+                            //echo "<p>" . htmlentities($query) . "</p><br>";
+                            //use query params because not updating or inserting full text columns
+                            $main->query_params($con, $query, $row);		 
+                            }
+                        $query = $modules_after_eot;
+                        $main->query($con, $query);
+                        array_push($arr_message, "Modules table has been restored from backup.");
+                        }
+                    else
+                        {
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            fgets($handle);	
+                            }
+                        }
+    
+                    /* LOG TABLE */					
+                    $str = rtrim(fgets($handle));
+                    $json_log = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                    $cnt = $json_log['count'];
+                                    
+                    if ($main->post('log_table_checkbox', $module) == 1)
+                        {
+                        $query = "DROP TABLE IF EXISTS log_table CASCADE";
+                        $main->query($con, $query);
+                                            
+                        $query = $log_before_eot;
+                        $main->query($con, $query);
+                        
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            $str = rtrim(fgets($handle));
+                            $row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
+                            $query = "INSERT INTO log_table (email, ip_address, action, change_date) " .
+                                     "VALUES ($1,$2,$3,$4);";
+                            //echo "<p>" . htmlentities($query) . "</p><br>";
+                            $main->query_params($con, $query, $row);		 
+                            }
+                        $query = $log_after_eot;
+                        $main->query($con, $query);
+                        array_push($arr_message, "Log table has been restored from backup.");
+                        }
+                    else
+                        {
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            fgets($handle);	
+                            }
+                        }
+    
+                    /* DATA TABLE */
+                    /* slightly different than last foru tables */
+                    //get count from header xml
+                    $str = rtrim(fgets($handle));
+                    $json_data = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                    $cnt = $json_data['count'];
+                    //restore data table	
+                    if ($main->post('data_table_checkbox', $module) == 1)
+                        {
+                        //drop both table and sequence
+                        $query = "DROP TABLE IF EXISTS data_table CASCADE";
+                        $main->query($con, $query);
+                        $query = "DROP SEQUENCE IF EXISTS data_table_id_seq CASCADE";
+                        $main->query($con, $query);
+                        //install table					
+                        $query = $data_before_eot;
+                        $main->query($con, $query);
+                        //build insert clause (c01,c02...c50)
+                        $arr_cols = array();
+                        for ($i=1; $i<=50; $i++)
+                            {
+                            $col = "c" . str_pad((string)$i, 2, "0", STR_PAD_LEFT);
+                            array_push($arr_cols, $col);
+                            }
+                        $str_cols = implode(",",$arr_cols);
+                        //build values clause
+                        $arr_params = array();
+                            for ($i=1; $i<=61; $i++)
+                            {
+                            $param = "\$" .$i;
+                            array_push($arr_params, $param);
+                            }
+                        $str_params = implode(",",$arr_params);	
+                        //restore data from file
+                        for ($i=0; $i<$cnt; $i++)
+                            {
+                            //get string and decrypt
+                            $str = rtrim(fgets($handle));
+                            $row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
+                            //these are note rows, $main->query_params will handle new lines
+                            //however the php splits will be wrong if new lines are not escaped, so unescape
+                            $row[52] = str_replace("\\n","\n", $row[52]);
+                            $row[53] = str_replace("\\n","\n", $row[53]);
+                            
+                            $query = "INSERT INTO data_table (id, row_type, key1, key2," . $str_cols . ", archive, secure, create_date, modify_date, owner_name, updater_name, list_string) " .
+                                     "VALUES (" . $str_params . ");";	
+                            //echo "<p>" . htmlentities($query) . "</p><br>";
+                            //use query params because not updating or inserting full text columns
+                            $main->query_params($con, $query, $row);		 
+                            }
+                        //install triggers, indexes, and sequence
+                        $query = $data_after_eot;
+                        $main->query($con, $query);
+                        
+                        array_push($arr_message, "Data table has been restored from backup.");
+                        }
+                    else //close file if not restoring data table
+                        {
+                        fclose($handle);
+                        }
+                    } //hash password test
+                else //bad password
+                    {
+                    array_push($arr_message, "Error: Password for backup file not verified.");	
+                    }
+                } //first line check
+            else //bad first line
+                {
+                array_push($arr_message, "Error: File is not a valid backup file.");	
+                }
+            } //file exists
+        else //no file at all
+            {
+            array_push($arr_message, "Error: Must choose backup file.");
+            }
+        } //check admin password
 	}
 	
 //BUILD INDEXES
@@ -481,8 +490,10 @@ $main->echo_input("data_table_checkbox", 1, array('type'=>'checkbox','input_clas
 echo " Restore Data Table</div>";
 echo "</div>";
 echo "</div>";
-echo "<div class=\"spaced\">Password: ";
+echo "<div class=\"spaced\">Admin Password: ";
 echo "<input class=\"spaced\" type=\"password\" name=\"restore_passwd\"/></div>";
+echo "<div class=\"spaced\">File Password: ";
+echo "<input class=\"spaced\" type=\"password\" name=\"file_passwd\"/></div>";
 $params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Restore Database");
 $main->echo_button("restore_database", $params);
 $params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Build Indexes");

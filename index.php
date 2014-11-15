@@ -144,10 +144,14 @@ $arr_work['headers'] = "SELECT module_path FROM modules_table WHERE standard_mod
 $result = pg_query($con, $arr_work['headers']);
 while($row = pg_fetch_array($result))
     {
-    include($row['module_path']);
+    //false is good, string is bad, this little snippet makes sure the controller doesn't error, ionlcude must be global
+    //no files that have syntax errors or have been deleted will be included, will display custom brimbox messsge
+    if ($arr_work['message'] = $main->check_syntax($row['module_path'])) $main->echo_messages($arr_work['message']);
+    else include($row['module_path']);
     }
 /* ADHOC HEADERS */
-include("bb-config/bb_admin_headers.php");
+if ($arr_work['message'] = $main->check_syntax("bb-config/bb_admin_headers.php")) $main->echo_messages($arr_work['message']);
+else include("bb-config/bb_admin_headers.php");
 
 /* DO FUNCTION MODULES */
 //only for interface being loaded
@@ -155,10 +159,14 @@ $arr_work['functions'] = "SELECT module_path FROM modules_table WHERE interface 
 $result = pg_query($con, $arr_work['functions']);
 while($row = pg_fetch_array($result))
     {
-    include($row['module_path']);
+    //false is good, string is bad, this little snippet makes sure the controller doesn't error, ionlcude must be global
+    //no files that have syntax errors or have been deleted will be included, will display custom brimbox messsge
+    if ($arr_work['message'] = $main->check_syntax($row['module_path'])) $main->echo_messages($arr_work['message']);
+    else include($row['module_path']);
     }
 /* ADHOC FUNCTIONS */
-include("bb-config/bb_admin_functions.php");
+if ($arr_work['message'] = $main->check_syntax("bb-config/bb_admin_functions.php")) $main->echo_messages($arr_work['message']);
+else include("bb-config/bb_admin_functions.php");
 
 /* DO GLOBAL MODULES */
 //only for interface being loaded
@@ -167,10 +175,14 @@ $arr_work['globals'] = "SELECT module_path FROM modules_table WHERE  interface I
 $result = pg_query($con, $arr_work['globals']);
 while($row = pg_fetch_array($result))
     {
-    include($row['module_path']);
+    //false is good, string is bad, this little snippet makes sure the controller doesn't error
+    //no files that have syntax errors or have been deleted will be included, will display custom brimbox messsge
+    if ($arr_work['message'] = $main->check_syntax($row['module_path'])) $main->echo_messages($arr_work['message']);
+    else include($row['module_path']);
     }
 /* ADHOC GLOBALS */
-include("bb-config/bb_admin_globals.php");
+if ($arr_work['message'] = $main->check_syntax("bb-config/bb_admin_globals.php")) $main->echo_messages($arr_work['message']);
+else include("bb-config/bb_admin_globals.php");
 
 /* UNPACK $array_master for given interface */
 //will overwrite existing arrays
@@ -324,15 +336,12 @@ foreach ($arr_reduce as $value)
 	}
 /* END ECHO TABS */
 
-
+/* LINE UNDER TABS */
 //line either set under chosen tab or below all tabs and a hidden module
 $arr_work['lineclass'] = ($controller_type == 0) ? "line" : "under";
 echo "<div class=\"" . $arr_work['lineclass'] . "\"></div>";
 echo "</div>"; //bb_header
-/* END ECHO TABS */
-
-/* UNSET UNNEEDED VARS BEFORE INCLUDE */
-/* so not passed to modules */
+/* END LINE UNDER TABS */
 
 /* INCLUDE APPROPRIATE MODULE */
 echo "<div id=\"bb_wrapper\">";
@@ -356,8 +365,12 @@ if ($arr_work['interface_type'] == 'Auxiliary')
     unset($arr_controller);
 	//module include this is where modules are included
     echo "<div id=\"bb_admin_content\">";
-    //$controller_path is reserved, this "include" includes the current module
+    //$controller_path is reserved, this "include" includes the current module    
+    //the include must be done globally, will render standard php errors
+    //if it bombs it bombs, the controller should still execute
+    //Auxiliary type module is included here
     include($controller_path);
+    
     echo "</div>";
     echo "<div class=\"clear\"></div>";
     }
@@ -373,21 +386,24 @@ else
 	unset($arr_controller);
 	//module include this is where modules are included
     echo "<div id=\"bb_content\">";
-    //$controller_path is reserved, this "include" includes the current module
+    //$controller_path is reserved, this "include" includes the current module    
+    //the include must be done globally, will render standard php errors
+    //if it bombs it bombs, the controller should still execute
+    //Standard type module is included here
     include($controller_path);
-    echo "</div>";
-	
+    
+    echo "</div>";	
     echo "<div class=\"clear\"></div>";
     }
 echo "</div>"; //bb_wrapper
-
 /* END INCLUDE MODULE */
 
-//close connection 
+//close connection -- make the database happy 
 pg_close($con);
 ?>
 </body>
 </html>
+
 <?php
 
 /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */

@@ -504,6 +504,27 @@ class bb_main {
 		{
 		return $replace . substr($dir, strlen($search));
 		}
+                
+    function check_syntax($filepath, $display = true)
+        {
+        //return true is bad, false in good - false is no syntax errors
+        //parameters set up for controller
+        if (file_exists($filepath))
+            {
+            $fileesc = escapeshellarg($filepath);
+            $output = shell_exec("php-cli -l " .  $fileesc);
+            if (preg_match("/^No syntax errors/", trim($output)))
+                {
+                //will exit here on good check
+                return false;            
+                }            
+            return "Error: Syntax error in file " . $filepath . ".";
+            }
+        else
+            {
+            return "Error: File " . $filepath . " missing.";
+            }
+        }
 	
 	//array_unique not case sensitive for testing
 	function array_iunique($array)
@@ -544,7 +565,7 @@ class bb_main {
 	//$input can be either array or string   
 	function echo_messages($input)
 		{
-		if (!empty($input))
+		if (!$this->blank($input))
 			{
 			if (is_string($input))
 				{
@@ -909,6 +930,7 @@ class bb_main {
 		//returns false on good, true or error string if bad
         $arr_header = $this->get_json($con, "bb_interface_enable");
         $arr_validation = $arr_header['validation'];
+        //parse function
 
 		$return_value = call_user_func_array($arr_validation[$type]['function'], array(&$field, $error));	
 		return $return_value;
