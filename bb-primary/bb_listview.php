@@ -120,7 +120,7 @@ $main->list_dropdown($arr_list, "list_number", $list_number, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 echo "</div>";
 echo "<div class=\"cell padded middle\">";
-echo "<textarea name = \"description\" rows=\"2\" cols=\"50\" class=\"spaced border\">" . $description . "</textarea><br />";
+$main->echo_textarea("description", $description, $params = array("rows"=>2,"cols"=>50,"class"=>"spaced border","readonly"=>"readonly"));
 
 $main->echo_common_vars();
 
