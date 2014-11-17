@@ -47,14 +47,17 @@ class bb_work extends bb_forms {
 		global $module;
 		global $button;
 		
-		//tab or buttopn is always 0
+		if (is_int($number)) //convert int to array
+			{
+			$number = array($number);	
+			}		
 		if (!$this->blank($check)) //check where it was submitted from
 			{
-			return (($submit == $check) && ($button == $number)) ? true : false;
+			return (($submit == $check) && in_array($button, $number)) ? true : false;
 			}
-		else //postback
+		else //postback, submit is module
 			{
-			return (($button == $number) && ($submit == $module))? true : false;	
+			return (($submit == $module) && in_array($button, $number))? true : false;	
 			}
 		}
 		

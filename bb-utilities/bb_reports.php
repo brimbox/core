@@ -67,18 +67,21 @@ class bb_reports extends bb_hooks {
 		
 	function report_post(&$arr_state, $module_submit, $module_display, $params = array())
 		{
+		//do not alter global
 		global $button;
 		
 		$maintain_state = isset($params['maintain_state']) ? $params['maintain_state'] : true;
 		
 		//get values from state
 		$report_type = $this->state('report_type', $arr_state, 0);
-		$page = $this->state('page', $arr_state, 0);		
+		$page = $this->state('page', $arr_state, 0);
+		//button is global button
 		$button_state = $this->state('button', $arr_state, 0);
 		$sort = $this->state('sort', $arr_state, "");
         $order = $this->state('order', $arr_state, "");
-			
-		//only if page is set
+		
+		/* SORTING */	
+		//only if sort is set
         //order is taken through a waterfall
 		if ($this->check('sort', $module_display) && !empty($module_display))
 			{
@@ -103,6 +106,7 @@ class bb_reports extends bb_hooks {
             //populate sort
             $sort = $sort_post;
 			}
+		/* PAGINATION */	
         //only if page is set   
         if ($this->check('page', $module_display) && !empty($module_display))
 			{
@@ -113,18 +117,20 @@ class bb_reports extends bb_hooks {
                 }
             $page = $page_post;
 			}
-
+		
+		/* REPORT TYPE OR BUTTON CHANGE */
 		//if report_type is set, postback	
 		if ($this->check('report_type', $module_submit) && !empty($module_submit))
 			{
 			//postback variables used in report structure
-			$report_type = $this->post('report_type', $module_submit, 0);
-			}		
-		//if postback, save in report arr as button
-		if ($this->check('report_type', $module_submit) && !empty($module_submit))
-			{
+			$report_type_post = $this->post('report_type', $module_submit, 0);
+			if ($report_type_post <> $report_type)
+				{
+				$page = 0;
+				$report_type = $report_type_post;
+				}
 			//only reset button if greater than zero
-			if ($button <> 0)
+			if ($button <> 0 && ($button_state <> $button))
 				{
 				$button_state = $button;
 				$page = 0;
@@ -215,6 +221,7 @@ class bb_reports extends bb_hooks {
 		$arr = $setting[0];
 		
 		$ignore = isset($arr['ignore']) ? $arr['ignore'] : false;
+		$count = isset($arr['count']) ? $arr['count'] : false;
 		
 		$title = isset($arr['title']) ? $arr['title'] : "";		
 		$title_class = isset($arr['title_class']) ? $arr['title_class'] : "bold larger spaced";
@@ -240,11 +247,20 @@ class bb_reports extends bb_hooks {
 		$sort = isset($current['sort']) ? $current['sort'] : ""; //empty key, redefined later
         $order = isset($current['order']) ? $current['order'] : "ASC";
 		
+		$count_rows = pg_num_rows($result); //total row count
+		$count_data = $count_rows;
+		if ($count && !$ignore)
+			{
+			while($row = pg_fetch_array($result))
+				{
+				if ($row[0] <> 0) $count_data--;
+				}
+			pg_result_seek($result, 0);
+			}
 		
 		//get while loop vars and update offset
 		$i = $page * $limit;
 		$upper = $i + $limit;
-		$count_rows = pg_num_rows($result);
 		$min = $i + 1;
 		//handle upper limit
 		if ($count_rows <= $upper)
@@ -272,12 +288,19 @@ class bb_reports extends bb_hooks {
 				{
 				echo "<div class=\"" . $page_selector_class . "\">";
 				echo "&laquo;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $prev . ",'" . $sort . "','" . $order . "')\">Previous</button>&nbsp;--&nbsp;";
-				echo "<label>Showing Rows " . $min . "-" . $max . " of " . $count_rows . " </label>";
+				if ($count_rows <> $count_data)
+					{
+					echo "<label>Showing " . $min . "-" . $max . " of " . $count_rows . " Total Rows, including " . $count_data . " Data Rows</label>";
+					}
+				else
+					{
+					echo "<label>Showing rows " . $min . "-" . $max . " of " . $count_rows . "</label>";						
+					}
 				echo "&nbsp;--&nbsp;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $next . ",'" . $sort . "','" . $order . "')\">Next</button>&raquo;</div>";
 				}
 			else
 				{
-				echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";	
+				echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " rows</label></div>";	
 				}
 			}
 		
@@ -385,6 +408,7 @@ class bb_reports extends bb_hooks {
 		$arr = $setting[0];
 		
 		$ignore = isset($arr['ignore']) ? $arr['ignore'] : false;
+		$count = isset($arr['count']) ? $arr['count'] : false;
 		
 		$title = isset($arr['title']) ? $arr['title'] : "";
 		$title_class = isset($arr['title_class']) ? $arr['title_class'] : "bold larger spaced";
@@ -406,7 +430,16 @@ class bb_reports extends bb_hooks {
 		$sort = isset($current['sort']) ? $current['sort'] : ""; //empty key, redefined later
         $order = isset($current['order']) ? $current['order'] : "ASC";
 		
-		$count_rows = pg_num_rows($result);
+		$count_rows = pg_num_rows($result); //total row count
+		$count_data = $count_rows;
+		if ($count && !$ignore)
+			{
+			while($row = pg_fetch_array($result))
+				{
+				if ($row[0] <> 0) $count_data--;
+				}
+			pg_result_seek($result, 0);
+			}	
 		
 		//output title
 		if (!empty($title))
@@ -416,7 +449,15 @@ class bb_reports extends bb_hooks {
 		//output row_count
 		if ($header)
 			{
-			echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";	
+			if ($count && !$ignore && ($count_rows <> $count_data))
+				{
+				echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows, including " . $count_data . " Data Rows</label></div>";
+				}
+			else
+				{
+				echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";	
+				}
+			
 			}
 		//start table
 		echo "<div class=\"table " . $table_class . "\">";		
@@ -429,7 +470,7 @@ class bb_reports extends bb_hooks {
 			$sort = $this->pad("s",$j, 2);
 			if 	(isset($arr[$sort]))
 				{
-				echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . $field . "</button></div>";
+				echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link bold\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . $field . "</button></div>";
 				}
 		    else
 				{

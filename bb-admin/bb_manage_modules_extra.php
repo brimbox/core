@@ -54,6 +54,7 @@ class bb_manage_modules {
         //MAJOR FUNCTION CALL
         if (isset($arr_module['@module_name']))
             {
+            //check for errors in declaration
             $message = $this->error_waterfall($arr_module);
             if ($message)
                 {
@@ -79,19 +80,29 @@ class bb_manage_modules {
         {
         //path is php path
         $path = $arr_module['@module_path'];
-        //strip all the /* */ comments out of file
-        $file = file_get_contents($path);
-        //Empty error        
-        $found_module_name = false;
         
+        //this checks all php files for syntax
+        //there is a check syntax function but would have to bring in $main object
+        $fileesc = escapeshellarg($path);
+        $output = shell_exec("php-cli -l " .  $fileesc);
+        if (!preg_match("/^No syntax errors/", trim($output)))
+            {
+            //will exit here on good check
+            return "Error: Syntax error in file " . $path . ".";;            
+            }            
+         
+        //strip all the /* */ comments out of file
+        $file = file_get_contents($path);        
         //tricky regex, accounts for new lines
         $count_comments = preg_match_all('/\/\*(.*?)\*\//sm', $file, $comments);
         
+        //no comments found
         if ($count_comments == 0)
             {
             return "Error: Could not find comment block with Module header.";       
             }
 
+        //look for module name or included
         foreach ($comments[1] as $comment)
             {
             //if if finds @module_name returns with no dups return first first comment block
@@ -113,7 +124,7 @@ class bb_manage_modules {
                     //trim and put into key/value pairs
                     if (isset($arr_module[trim(strtolower($arr_pair[0]))]))
                         {
-                        return "Error: Duplicate module variable name. Module declarations must be unique.";
+                        return "Error: Duplicate module variable in " . $path . ". Module declarations must be unique.";
                         }
                     else
                         {
@@ -139,28 +150,37 @@ class bb_manage_modules {
     protected function error_waterfall(&$arr_module)
         {
         //check for valid module name
+        $path = $arr_module['@module_path'];
         $pattern = "/[^A-Za-z0-9_]/";
         if (preg_match($pattern, $arr_module['@module_name']))
             {
             //module name must be the same as principle php file name wihtout the .php extension
             //any other files should contain the principle php file name + _extra, or _css or _javascript etc
-            return "Error: Module name must contain only alphanumeric characters or underscores.";
+            return "Error: Module name in " . $path . " must contain only alphanumeric characters or underscores.";
             }
-            
-        if (preg_match($pattern, $arr_module['@interface']))
-            {
-            //module name must be the same as principle php file name wihtout the .php extension
-            //any other files should contain the principle php file name + _extra, or _css or _javascript etc
-            return"Error: Interface name must contain only alphanumeric characters or underscores.";
-            }
-    
+                
         //check that file name matches module name
         $pattern = "/" . $arr_module['@module_name'] . ".php$/";
         if (!preg_match($pattern, $arr_module['@module_path']))
             {
             //module name must be the same as principle php file name wihtout the .php extension
             //any other files should contain the principle php file name + extra, or _css or javascript etc
-            return "Error: Module name does not match file name. Module name must be the file name (without the extension).";
+            return "Error: Module name " . $path . " does not match file name. Module name must be the file name (without the extension).";
+            }
+            
+        //check for the required variables
+        $arr_keys = array_keys($arr_module);
+        $arr_intersect = array_intersect($this->arr_required, $arr_keys);
+        if (count($arr_intersect) <> count($this->arr_required))
+            {
+            return "Error: Required module variable missing in " . $path . ". Certain module variables are required in the module definition.";
+            }
+            
+        if (preg_match($pattern, $arr_module['@interface']))
+            {
+            //module name must be the same as principle php file name wihtout the .php extension
+            //any other files should contain the principle php file name + _extra, or _css or _javascript etc
+            return"Error: Interface name " . $path . " must contain only alphanumeric characters or underscores.";
             }
        
         //checks json declarations, will ignore all declarations not starting with @json
@@ -172,23 +192,15 @@ class bb_manage_modules {
                 $pattern_2 = "/^" . $arr_module['@module_name'] . ".*/";
                 if (!preg_match($pattern_2, substr($key,6)))
                     {
-                    return "Error: Invalid JSON lookup specification. Lookup value must start with module name.";
+                    return "Error: Invalid JSON lookup specification in " . $path . ". Lookup value must start with module name.";
                     }
                 //check for valid xml
                 if (!json_decode($value) && ($value <> "[]"))
                     {
-                    return "Error: Invalid JSON markup in module header. Please properly form your JSON in module declaration.";
+                    return "Error: Invalid JSON markup in " . $path . " module header. Please properly form your JSON in module declaration.";
                     }
                 }
             }   
-    
-        //check for the required variables
-        $arr_keys = array_keys($arr_module);
-        $arr_intersect = array_intersect($this->arr_required, $arr_keys);
-        if (count($arr_intersect) <> count($this->arr_required))
-            {
-            return "Error: Required module variable missing. Certain module variables are required in the module definition.";
-            }
         
         //check if global interface array is set, only then can you check userroles and module types
         if (in_array($arr_module['@interface'], array_keys($this->arr_header)))
@@ -202,7 +214,7 @@ class bb_manage_modules {
                 if (!in_array($arr_module['@module_type'], $arr_keys))
                     {
                     print_r($arr_keys);
-                    return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";
+                    return "Error: Invalid module type supplied in " . $path . " module header. Module type must correspond to module type keys global array.";
                     }
                 }
             else
@@ -212,7 +224,7 @@ class bb_manage_modules {
                 $arr_values = array_map('strtolower', $arr_values + array(0=>"hidden", -1=>"global", -2=>"function",-3=>"header"));
                 if (!in_array(strtolower($arr_module['@module_type']), $arr_values))
                     {
-                    return "Error: Invalid module type supplied in module header. Module type must correspond to module type keys global array.";        
+                    return "Error: Invalid module type supplied in " . $path . " module header. Module type must correspond to module type keys global array.";        
                     }
                 //module type set to numeric value for insert/update
                 $arr_module['@module_type'] = array_search(strtolower($arr_module['@module_type']), $arr_values);
@@ -225,7 +237,7 @@ class bb_manage_modules {
             {
             if (!in_array($arr_module['@maintain_state'], array(-1,0,1)))
                 {
-                return "Error: Invalid maintain state variable supplied in module header. Must be -1, 0 or 1.";
+                return "Error: Invalid maintain state variable supplied in " . $path . " module header. Must be -1, 0 or 1.";
                 }
             }
         else
@@ -233,7 +245,7 @@ class bb_manage_modules {
             $arr_values = array(-1=>"code",0=>"no", 1=>"yes");
             if (!in_array(strtolower($arr_module['@maintain_state']), $arr_values))
                 {
-                return "Error: Invalid maintain state supplied in module header. Maintain state must be Code, No or Yes (-1,0,1).";        
+                return "Error: Invalid maintain state supplied in " . $path . " module header. Maintain state must be Code, No or Yes (-1,0,1).";        
                 }
             //maintain state set to 0 or 1
             $arr_module['@maintain_state'] = array_search(strtolower($arr_module['@maintain_state']), $arr_values);

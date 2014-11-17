@@ -137,6 +137,8 @@ $main = new bb_reports();
 //database connection passed into modules globally
 $con = $main->connect();
 
+//NOTE: file_exists checked before header and module includes, therefore no missing file erros allowed
+
 /* INCLUDE HEADER FILES */
 //global for all interfaces
 include("bb-utilities/bb_headers.php");
@@ -144,14 +146,12 @@ $arr_work['headers'] = "SELECT module_path FROM modules_table WHERE standard_mod
 $result = pg_query($con, $arr_work['headers']);
 while($row = pg_fetch_array($result))
     {
-    //false is good, string is bad, this little snippet makes sure the controller doesn't error, ionlcude must be global
-    //no files that have syntax errors or have been deleted will be included, will display custom brimbox messsge
-    if ($arr_work['message'] = $main->check_syntax($row['module_path'])) $main->echo_messages($arr_work['message']);
-    else include($row['module_path']);
+    //will ignore file that does not exists so can debug by deleting file
+    //checking syntax would be too much overhead
+    if (file_exists($row['module_path'])) include($row['module_path']);
     }
 /* ADHOC HEADERS */
-if ($arr_work['message'] = $main->check_syntax("bb-config/bb_admin_headers.php")) $main->echo_messages($arr_work['message']);
-else include("bb-config/bb_admin_headers.php");
+if (file_exists("bb-config/bb_admin_headers.php")) include("bb-config/bb_admin_headers.php");
 
 /* DO FUNCTION MODULES */
 //only for interface being loaded
@@ -159,14 +159,13 @@ $arr_work['functions'] = "SELECT module_path FROM modules_table WHERE interface 
 $result = pg_query($con, $arr_work['functions']);
 while($row = pg_fetch_array($result))
     {
-    //false is good, string is bad, this little snippet makes sure the controller doesn't error, ionlcude must be global
-    //no files that have syntax errors or have been deleted will be included, will display custom brimbox messsge
-    if ($arr_work['message'] = $main->check_syntax($row['module_path'])) $main->echo_messages($arr_work['message']);
-    else include($row['module_path']);
+    //will ignore file that does not exists so can debug by deleting file
+    //checking syntax would be too much overhead
+    if (file_exists($row['module_path'])) include($row['module_path']);
     }
 /* ADHOC FUNCTIONS */
-if ($arr_work['message'] = $main->check_syntax("bb-config/bb_admin_functions.php")) $main->echo_messages($arr_work['message']);
-else include("bb-config/bb_admin_functions.php");
+//will ignore file if missing
+if (file_exists("bb-config/bb_admin_functions.php")) include("bb-config/bb_admin_functions.php");
 
 /* DO GLOBAL MODULES */
 //only for interface being loaded
@@ -175,21 +174,23 @@ $arr_work['globals'] = "SELECT module_path FROM modules_table WHERE  interface I
 $result = pg_query($con, $arr_work['globals']);
 while($row = pg_fetch_array($result))
     {
-    //false is good, string is bad, this little snippet makes sure the controller doesn't error
-    //no files that have syntax errors or have been deleted will be included, will display custom brimbox messsge
-    if ($arr_work['message'] = $main->check_syntax($row['module_path'])) $main->echo_messages($arr_work['message']);
-    else include($row['module_path']);
+    //will ignore file that does not exists so can debug by deleting file
+    //checking syntax would be too much overhead
+    if (file_exists($row['module_path'])) include($row['module_path']);
     }
 /* ADHOC GLOBALS */
-if ($arr_work['message'] = $main->check_syntax("bb-config/bb_admin_globals.php")) $main->echo_messages($arr_work['message']);
-else include("bb-config/bb_admin_globals.php");
+//will ignore file if missing
+if (file_exists("bb-config/bb_admin_globals.php")) include("bb-config/bb_admin_globals.php");
 
 /* UNPACK $array_master for given interface */
 //will overwrite existing arrays
-foreach($array_globals[$interface] as $key => $value)
-	{
-    ${'array_' . $key} = $value;
-	}
+if (isset($array_globals))
+    {
+    foreach($array_globals[$interface] as $key => $value)
+        {
+        ${'array_' . $key} = $value;
+        }
+    }
 ?>
 <?php /* START HTML OUTPUT */ ?>
 <!DOCTYPE html>    
@@ -258,22 +259,28 @@ $result = pg_query($con, $arr_work['query']);
 $controller_path = ""; //path to included module
 while($row = pg_fetch_array($result))
     {
-    //double check that user permission is consistant with module type
+    //check module type not hidden
 	if ($row['module_type'] > 0)
 		{
-		if (!empty($module))
-			{
-			if ($row['module_name'] == $module)
-				{
-				$controller_path = $row['module_path'];
-				$controller_type = $row['module_type']; 
-				}
-			}
-		$arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path']);
-		}
+        //check that file exists
+        if (file_exists($row['module_path']))
+            {
+            if (!empty($module))
+                {
+                //set current module
+                if ($row['module_name'] == $module)
+                    {
+                    $controller_path = $row['module_path'];
+                    $controller_type = $row['module_type']; 
+                    }
+                }
+            $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path']);
+            }		
+        }
     }
 
-//get default module to display initially	
+//get default module to display initially
+//will be first file where file exists
 if (empty($module))
 	{
 	//use $array[key($array)] to find first value

@@ -47,23 +47,24 @@ if ($main->button(1))
                 $arr_header['validation'][$key2] = $value1;
                 }
             }       
-        }
-        
+        } 
     $key2 = $main->post("guest_index", $module, "");
-    $arr_header['guest_index'] = array("value"=>$array_header[$key2]['guest_index'],'interface'=>$key);
+    $arr_header['guest_index'] = array("value"=>$array_header[$key2]['guest_index'],'interface'=>$key2);
     $key2 = $main->post("row_security", $module, "");
-    $arr_header['row_security'] = array("value"=>$array_header[$key2]['row_security'],'interface'=>$key);
+    $arr_header['row_security'] = array("value"=>$array_header[$key2]['row_security'],'interface'=>$key2);
     $key2 = $main->post("row_archive", $module, "");
-    $arr_header['row_archive'] = array("value"=>$array_header[$key2]['row_archive'],'interface'=>$key);
+    $arr_header['row_archive'] = array("value"=>$array_header[$key2]['row_archive'],'interface'=>$key2);
     $key2 = $main->post("layout_security", $module, "");
-    $arr_header['layout_security'] = array("value"=>$array_header[$key2]['layout_security'],'interface'=>$key);
+    $arr_header['layout_security'] = array("value"=>$array_header[$key2]['layout_security'],'interface'=>$key2);
     $key2 = $main->post("column_security", $module, "");
-    $arr_header['column_security'] = array("value"=>$array_header[$key2]['column_security'],'interface'=>$key);
+    $arr_header['column_security'] = array("value"=>$array_header[$key2]['column_security'],'interface'=>$key2);
 
     $main->update_json($con, $arr_header, "bb_interface_enable");
     }
     
 echo "<p class=\"spaced bold larger\">Interface Enabler</p>";
+
+
 
 echo "<div class=\"spaced\">";
 $main->echo_messages($arr_message);
@@ -141,7 +142,7 @@ foreach ($array_header as $key => $value)
     echo "<div class=\"cell padded borderleft\">";
     echo "<div class=\"bold spaced\">Guest Index:";
     $checked = ($arr_header['guest_index']['interface'] == $key) ? "checked" : "";
-    echo "<input class=\"holderup middle\"type=\"radio\" name=\"guest_index\" value=\"" . $key . "\" " . $checked . ">";
+    echo "<input class=\"holderup middle\" type=\"radio\" name=\"guest_index\" value=\"" . $key . "\" " . $checked . ">";
     echo "</div>";
     //initialize Default or Array
     if (empty($value['guest_index']))
@@ -172,7 +173,7 @@ foreach ($array_header as $key => $value)
     echo "<div class=\"cell padded bordertop\">";
     echo "<div class=\"bold spaced\">Row Security:";
     $checked = ($arr_header['row_security']['interface'] == $key) ? "checked" : "";
-    echo "<input class=\"holderup middle\"type=\"radio\" name=\"row_security\" value=\"" . $key . "\" " . $checked . ">";
+    echo "<input class=\"holderup middle\" type=\"radio\" name=\"row_security\" value=\"" . $key . "\" " . $checked . ">";
     echo "</div>";
     //initialize Default or Array
     if (empty($value['row_security']))
@@ -192,7 +193,7 @@ foreach ($array_header as $key => $value)
     echo "<div class=\"cell padded borderleft bordertop\">";
     echo "<div class=\"bold spaced\">Archive Levels:";
     $checked = ($arr_header['row_archive']['interface'] == $key) ? "checked" : "";
-    echo "<input class=\"holderup middle\"type=\"radio\" name=\"row_archive\" value=\"" . $key . "\" " . $checked . ">";
+    echo "<input class=\"holderup middle\" type=\"radio\" name=\"row_archive\" value=\"" . $key . "\" " . $checked . ">";
     echo "</div>";
     //initialize Default or Disabled
     if (empty($value['row_archive']))
@@ -212,7 +213,7 @@ foreach ($array_header as $key => $value)
     echo "<div class=\"cell padded borderleft bordertop\">";
     echo "<div class=\"bold spaced\">Layout Security: ";
     $checked = ($arr_header['layout_security']['interface'] == $key) ? "checked" : "";
-    echo "<input class=\"holderup middle\"type=\"radio\" name=\"layout_security\" value=\"" . $key . "\" " . $checked . ">";
+    echo "<input class=\"holderup middle\" type=\"radio\" name=\"layout_security\" value=\"" . $key . "\" " . $checked . ">";
     echo "</div>";
     //initialize Default or Array
     if (empty($value['layout_security']))
@@ -232,7 +233,7 @@ foreach ($array_header as $key => $value)
     echo "<div class=\"cell padded borderleft bordertop\">";
     echo "<div class=\"bold spaced\">Column Security: ";
     $checked = ($arr_header['column_security']['interface'] == $key) ? "checked" : "";
-    echo "<input class=\"holderup middle\"type=\"radio\" name=\"column_security\" value=\"" . $key . "\"  " . $checked . ">";
+    echo "<input class=\"holderup middle\" type=\"radio\" name=\"column_security\" value=\"" . $key . "\"  " . $checked . ">";
     echo "</div>";
     //initialize Default or Array
     if (empty($value['column_security']))

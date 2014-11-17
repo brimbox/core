@@ -46,6 +46,7 @@ $main->retrieve($con, $array_state);
 //state not preserved for this module
 $module_id = $main->post('module_id', $module, 0);
 $module_action = $main->post('module_action', $module, 0);
+$install_activated = $main->post('install_activated', $module, 1);
 
 /* END MODULE VARIABLES FOR OPTIONAL MODULE HEADERS */
 
@@ -138,12 +139,12 @@ if ($module_action <> 0)
 
 /* BEGIN UPDATE PROGRAM */
 $valid_password = $main->validate_password($con, $main->post("install_passwd", $module), "5_bb_brimbox");
-if (!$valid_password)
+if (!$valid_password && $main->button(array(1,2)))
     {
     //bad password
-    array_push($arr_message, "Invalid Password.");	
+    array_push($arr_message, "Error: Invalid or missing password.");	
     }
-else
+elseif ($main->button(array(1,2)))
     {
     //good password
     if ($main->button(1)) //submit_update
@@ -244,7 +245,8 @@ else
             $query = "SELECT module_name from modules_table;";
             $result = $main->query($con, $query);
             $arr_module_names = pg_fetch_all_columns($result);
-            foreach($arr_modules as $arr_module)
+            //will update $arr_module['@module_path']
+            foreach($arr_modules as &$arr_module)
                 {            
                 //to reinstall xml you must delete the plugin                   
                 $arr_module['@module_path'] = $main->replace_root($arr_module['@module_path'], "bb-temp/", "bb-modules/");
@@ -265,11 +267,16 @@ else
                     $main->query($con, $value);
                     }
                 
-                //optional hidden or optional regular    
-                $standard_module = ($arr_module['@module_type'] == 0) ? 1 : 3;
-                //headers, functions and globals start activated
-                $standard_module = in_array($arr_module['@module_type'], array(-1,-2,-3)) ? 4 : $standard_module;
-    
+                //optional install modules activated or unactivated
+                if ($install_activated == 1)
+                    {
+                    $standard_module = ($arr_module['@module_type'] == 0) ? 2 : 4;    
+                    }
+                else
+                    {
+                    $standard_module = ($arr_module['@module_type'] == 0) ? 1 : 3;   
+                    }
+                
                 //Update module
                 if (in_array($arr_module['@module_name'], $arr_module_names))
                     {
@@ -315,11 +322,6 @@ else
                 else //good install or update
                     {
                     //include the globals so array_master is updated
-                    if ($arr_module['@module_type'] == -3)
-                        {
-                        include($arr_module['@module_path']);   
-                        }
-                    //update message
                     $arr_message[] = $message_temp;   
                     }
                 } //foreach
@@ -327,90 +329,100 @@ else
             $main->copy_directory("bb-temp/", "bb-modules/");
             //empty temp directory
             $main->empty_directory("bb-temp/", "bb-temp/");
+            
+            //include header files before manage modules display
+            foreach ($arr_modules as $value)
+                {
+                if ($value['@module_type'] == -3)
+                    {
+                    include($value['@module_path']);   
+                    }
+                }
             }
         } //install modules
+    }//end password good
     /* END INSTALL OPTIONAL MODULES */
     
-    /* BEGIN RESET ORDER */
-    if ($main->button(3)) //set_module_order
+/* BEGIN RESET ORDER */
+if ($main->button(3)) //set_module_order
+    {
+    $query = "SELECT id FROM modules_table ORDER BY id;";
+    $result = $main->query($con, $query);
+    $arr_id = pg_fetch_all_columns($result);
+    //weird structure to check order integrity
+    
+    foreach ($arr_id as $id)
         {
-        $query = "SELECT id FROM modules_table ORDER BY id;";
-        $result = $main->query($con, $query);
-        $arr_id = pg_fetch_all_columns($result);
-        //weird structure to check order integrity
-        
-        foreach ($arr_id as $id)
+        //will else if something changed
+        if ($main->check('module_type_' . $id, $module))
             {
-            //will else if something changed
-            if ($main->check('module_type_' . $id, $module))
-                {
-                //push on order value to $arr_check array
-                list($type, $interface)= explode("-", $main->post('module_type_' . $id, $module), 2);
-                $order = $main->post('order_' . $id, $module);
-                //$arr_order used in constructing the query
-                $arr_order[$interface][$type][$id] = $order;
-                }
-            else
-                {
-                //catch for missing id in post (vs id in table)
-                $arr_message[] = "Error: There has been a change in the modules since last refresh. Order not changed.";
-                break;
-                }
+            //push on order value to $arr_check array
+            list($type, $interface)= explode("-", $main->post('module_type_' . $id, $module), 2);
+            $order = $main->post('order_' . $id, $module);
+            //$arr_order used in constructing the query
+            $arr_order[$interface][$type][$id] = $order;
             }
-        //check for unique order values
-        if (!count($arr_message))
-            {        
-            //all but module type hidden
-            foreach ($arr_order as $key1 => $arr1)
+        else
+            {
+            //catch for missing id in post (vs id in table)
+            $arr_message[] = "Error: There has been a change in the modules since last refresh. Order not changed.";
+            break;
+            }
+        }
+    //check for unique order values
+    if (!count($arr_message))
+        {        
+        //all but module type hidden
+        foreach ($arr_order as $key1 => $arr1)
+            {
+            foreach ($arr1 as $key2 => $arr2)
                 {
-                foreach ($arr1 as $key2 => $arr2)
+                if ($key1 <> 0) //ignore hidden values and hooks
                     {
-                    if ($key1 <> 0) //ignore hidden values and hooks
+                    if (count($arr2) <> count(array_unique($arr2)))
                         {
-                        if (count($arr2) <> count(array_unique($arr2)))
-                            {
-                            $arr_message[] = "Error: There are duplicate values in the order choices.";
-                            }
+                        $arr_message[] = "Error: There are duplicate values in the order choices.";
                         }
                     }
                 }
             }
-        if (!count($arr_message))
+        }
+    if (!count($arr_message))
+        {
+        //build static query with post values
+        $query_union = "";
+        $union = "";
             {
-            //build static query with post values
-            $query_union = "";
-            $union = "";
+            foreach ($arr_id as $id)
                 {
-                foreach ($arr_id as $id)
-                    {
-                    list($type, $interface)= explode("-", $main->post('module_type_' . $id, $module), 2);
-                    $query_union .= $union . " SELECT " . $id . " as id, " . $arr_order[$interface][$type][$id] . " as order ";
-                    $union = " UNION ";
-                    }
-                } 
-            //this is a long complex query that will only update modules table
-            //if there have been no changes to table since last post
-            //if any row has been deleted or inserted there will be a id conflict
-            //with modules_table and the post values and the table will not update
-            $query = "UPDATE modules_table SET module_order = T1.order " .
-                     "FROM (" . $query_union . ") T1 " .
-                     "WHERE modules_table.id = T1.id AND EXISTS (SELECT 1 WHERE " .
-                        "(SELECT count(*) FROM modules_table) = " .
-                        "(SELECT count(*) FROM (SELECT id FROM modules_table) T2 " .
-                        "INNER JOIN (" . $query_union . ") T3 ON T2.id = T3.id))";
-            $result = $main->query($con, $query);
-            
-            if (pg_affected_rows($result) == 0)
-                {
-                $arr_message[] = "Error: Module order was not updated. There was a change in the table.";
+                list($type, $interface)= explode("-", $main->post('module_type_' . $id, $module), 2);
+                $query_union .= $union . " SELECT " . $id . " as id, " . $arr_order[$interface][$type][$id] . " as order ";
+                $union = " UNION ";
                 }
-            else
-                {
-                $arr_message[] = "Module order has been updated.";  
-                }
+            } 
+        //this is a long complex query that will only update modules table
+        //if there have been no changes to table since last post
+        //if any row has been deleted or inserted there will be a id conflict
+        //with modules_table and the post values and the table will not update
+        $query = "UPDATE modules_table SET module_order = T1.order " .
+                 "FROM (" . $query_union . ") T1 " .
+                 "WHERE modules_table.id = T1.id AND EXISTS (SELECT 1 WHERE " .
+                    "(SELECT count(*) FROM modules_table) = " .
+                    "(SELECT count(*) FROM (SELECT id FROM modules_table) T2 " .
+                    "INNER JOIN (" . $query_union . ") T3 ON T2.id = T3.id))";
+        $result = $main->query($con, $query);
+        
+        if (pg_affected_rows($result) == 0)
+            {
+            $arr_message[] = "Error: Module order was not updated. There was a change in the table.";
             }
-        } // end set order
-    }//end password good
+        else
+            {
+            $arr_message[] = "Module order has been updated.";  
+            }
+        }
+    } // end set order
+   
 /* END SET ORDER */
 
 
@@ -455,33 +467,41 @@ $main->echo_messages($arr_message);
 echo "</div>";
 
 //update program
-echo "<div class=\"spaced border padded floatleft\">";
-echo "<label class=\"spaced\">Update Brimbox: </label>";
-echo "<input class=\"spaced\" type=\"file\" name=\"update_file\" id=\"file\" />";
-$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Update Brimbox");
-$main->echo_button("submit_update", $params);
-echo "<br>";
+//check password
+echo "<div class=\"cell spaced bottom border padded floatleft\">";
 echo "<div class=\"spaced border padded floatleft\">";
 echo "<label class=\"spaced\">Program Version: " . BRIMBOX_PROGRAM . "</label>";
 echo "<label class=\"spaced\"> -- Database Version: " . BRIMBOX_DATABASE . "</label>";
 echo "</div>";
 echo "<div class=\"clear\"></div>";
 
-//install module
-echo "<label class=\"spaced\">Install/Update Module(s): </label>";
-echo "<input class=\"spaced\" type=\"file\" name=\"module_file\" id=\"file\" />";
-$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Install Module");
-$main->echo_button("submit_module", $params);
-echo "<br>";
-
-//check password
-echo "<div class=\"spaced border padded floatleft\">";
+echo "<div class=\"spaced padded floatleft\">";
 echo "<div class=\"spaced floatleft\">Admin Password: ";
 echo "<input class=\"spaced\" type=\"password\" name=\"install_passwd\"/></div>";
 echo "</div>";
+echo "<div class=\"clear\"></div>";
+
+echo "<input class=\"spaced\" type=\"file\" name=\"update_file\" id=\"file\" />";
+$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Update Brimbox");
+$main->echo_button("submit_update", $params);
+echo "<div class=\"clear\"></div>";
+
+//install module
+echo "<input class=\"spaced\" type=\"file\" name=\"module_file\" id=\"file\" />";
+$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Install/Update Module(s)");
+$main->echo_button("submit_module", $params);
+
+echo "<span class = \"spaced border padded rounded shaded\">";
+echo "<label class=\"padded\">Install Activated: </label>";
+$main->echo_input("install_activated", 1, array('type'=>'checkbox','input_class'=>'middle','checked'=>true));
+echo "</span>";
+
+echo "</div>";
+echo "<div class=\"clear\"></div>";
 
 //submit order button
-echo "<div class=\"holderdown padded floatright\">";
+echo "<div class=\"spaced border padded floatleft\">";
+echo "<div class=\"spaced padded floatright\">";
 $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Set Module Order");
 $main->echo_button("set_module_order", $params);
 echo "</div>";
@@ -532,7 +552,8 @@ echo "<div class=\"table spaced border\">";
                 break;
             default:
                 //user defined
-                $module_type = $array_header[$row['interface']]['module_types'][$row['module_type']];
+                //account for possibility of unknown or undefined
+                $module_type = isset($array_header[$row['interface']]['module_types'][$row['module_type']]) ? $array_header[$row['interface']]['module_types'][$row['module_type']] : "Unknown";
                 break;
             }
         //row shading
@@ -541,8 +562,9 @@ echo "<div class=\"table spaced border\">";
         echo "<div class=\"twice cell long middle\">" . $row['module_path'] . "</div>";
         echo "<div class=\"twice cell medium middle\">" . $row['module_name'] . "</div>";
         echo "<div class=\"twice cell long middle\">" . $row['friendly_name'] . "</div>";
-        //combine interface and module type
-        echo "<div class=\"twice cell long middle\">" . $array_header[$row['interface']]['interface_name'] . ": " . $module_type . "</div>";
+        //combine interface and module type, account for possibility of unknown or undefined
+        $interface_name = isset($array_header[$row['interface']]['interface_name']) ? $array_header[$row['interface']]['interface_name']  : "Unknown";
+        echo "<div class=\"twice cell long middle\">" . $interface_name . ": " . $module_type . "</div>";
         echo "<div class=\"twice cell short middle\">" . $row['module_version'] . "</div>";
         echo "<div class=\"twice cell short middle\">" . $arr_maintain_state[$row['maintain_state']] . "</div>";
         //form elements
