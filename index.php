@@ -137,7 +137,20 @@ $main = new bb_reports();
 //database connection passed into modules globally
 $con = $main->connect();
 
-//NOTE: file_exists checked before header and module includes, therefore no missing file erros allowed
+/* USER LOCKED OR DELETED */
+//once con is set check live whether user is locked or deleted
+//0_bb_brimbox is only locked userrole
+$arr_work['locked'] = "SELECT id FROM users_table WHERE email = '" . pg_escape_string($email) . "' AND NOT '0_bb_brimbox' = ANY (userroles);";
+$result = pg_query($con, $arr_work['locked']);
+if (pg_num_rows($result) <> 1)
+    {
+    session_destroy();
+	$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+	header($index_path);
+	die(); //important to stop script    
+    }
+    
+//NOTE: file_exists checked before header and module includes, therefore no missing file errors allowed
 
 /* INCLUDE HEADER FILES */
 //global for all interfaces
@@ -447,7 +460,7 @@ if (isset($_POST['index_enter']))
     if (filter_var($ip = $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
         {   
         //query master database
-        $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0%' = ANY (userroles)) AND ('" . $ip . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
+        $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0_bb_brimbox' = ANY (userroles)) AND ('" . $ip . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
         
         //get result
         $result = $main->query($con, $query);

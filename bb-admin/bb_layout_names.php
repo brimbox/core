@@ -213,7 +213,7 @@ for ($i=1; $i<=$number_layouts; $i++)
 	echo "<option value=\"0\">&nbsp;</option>";
 	for ($j=1; $j<=$number_layouts; $j++)
 		{
-        $select = "";
+        $selected = "";
         if (isset($arr_layouts[$i]['parent']))
             {
             $selected  = ($arr_layouts[$i]['parent'] == $j) ? "selected" : "";

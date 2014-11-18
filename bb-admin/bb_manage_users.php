@@ -106,7 +106,7 @@ $main->retrieve($con, $array_state);
 $action = $main->post('action', $module, 0);
 $id = $main->post('id', $module, 0);
 $usersort = $main->post('usersort', $module, "lname");
-$filterrole = $main->post('filterrole', $module, -1);
+$filterrole = $main->post('filterrole', $module, "all");
 /* END POSTBACK */
 
 //* uses global $array_userroles *//
@@ -180,6 +180,7 @@ if ($main->button(1) || $main->button(2))
         $userroles_work = array_diff($userroles_work, $arr_userrole_default);
         array_unshift($userroles_work , $userrole_default);
         }
+    $userroles_work_esc = array_map('pg_escape_string', $userroles_work);
     $fname = $main->custom_trim_string($main->post('fname', $module),255);
     $minit = $main->custom_trim_string($main->post('minit', $module),255);
     $lname = $main->custom_trim_string($main->post('lname', $module),255);
@@ -212,7 +213,8 @@ if ($main->button(1)) //postback add new user
         {
         $salt = md5(microtime());
         $query = "INSERT INTO users_table (email, hash, salt, userroles, fname, minit, lname) " .
-                 "SELECT '" . pg_escape_string($email_work) . "', '" . hash('sha512', $passwd . $salt) . "', '" . $salt . "', '{" . implode(",", $userroles_work) . "}', '" . pg_escape_string($fname) . "', '" . pg_escape_string($minit) . "', '" . pg_escape_string($lname) . "' " .
+                 "SELECT '" . pg_escape_string($email_work) . "', '" . hash('sha512', pg_escape_string($passwd) . $salt) . "', '" . $salt . "', '{" . implode(",", $userroles_work_esc) . "}', " .
+                 "'" . pg_escape_string($fname) . "', '" . pg_escape_string($minit) . "', '" . pg_escape_string($lname) . "' " .
                  "WHERE NOT EXISTS (SELECT 1 FROM users_table WHERE email = '" . pg_escape_string($email_work) . "')";
         $result = $main->query($con,$query);
         $cnt = pg_affected_rows($result);
@@ -256,9 +258,10 @@ if ($main->button(2)) //postback update
     //do the update   
     if (empty($arr_error))
         {
-	$where_not_exists = "SELECT 1 from users_table WHERE  id <> " .  pg_escape_string($id) . " AND  email = '" .  pg_escape_string($email_work) . "'";
+        $where_not_exists = "SELECT 1 from users_table WHERE  id <> " .  pg_escape_string($id) . " AND  email = '" .  pg_escape_string($email_work) . "'";
         $query = "UPDATE users_table " .
-                 "SET email = '" .  pg_escape_string($email_work) . "', fname = '" . pg_escape_string($fname) . "', minit = '" . pg_escape_string($minit) . "', lname = '" . pg_escape_string($lname) . "', userroles = '{" . implode(",", $userroles_work) . "}', attempts = 0 " . $query_add_clause . " " .
+                 "SET email = '" .  pg_escape_string($email_work) . "', fname = '" . pg_escape_string($fname) . "', minit = '" . pg_escape_string($minit) . "', lname = '" . pg_escape_string($lname) . "', " .
+                 "userroles = '{" . implode(",", $userroles_work_esc) . "}', attempts = 0 " . $query_add_clause . " " .
                  "WHERE id = " .  pg_escape_string($id) . " AND NOT EXISTS (" . $where_not_exists . ");";
         $result = $main->query($con,$query);
         $cnt = pg_affected_rows($result);
@@ -285,7 +288,7 @@ if ($main->button(3)) //postback delete_user
     //deletes based on email
     $action = 0; // no validation
 
-    $query = "UPDATE users_table SET userroles = '{0-bb_brimbox}' WHERE id = " .  (int)$id . ";";
+    $query = "UPDATE users_table SET userroles = '{0_bb_brimbox}' WHERE id = " .  pg_escape_string($id) . ";";
     $result = $main->query($con,$query);
     $cnt = pg_affected_rows($result);
    
@@ -309,7 +312,7 @@ if ($main->button(4)) //postback delete_user
     //deletes based on email
     $action = 0; // no validation
 
-    $query = "DELETE FROM users_table WHERE id = " .  (int)$id . ";";
+    $query = "DELETE FROM users_table WHERE id = " .  pg_escape_string($id) . ";";
     $result = $main->query($con,$query);
     $cnt = pg_affected_rows($result);
    
@@ -350,6 +353,25 @@ if (in_array($action, array(2,3,4)) && !(in_array((int)$main->post('bb_button', 
         $userroles_work = explode(",",$row['userroles']);
         }
     }
+
+//get all possible userroles from $arr_header    
+if (in_array($action, array(0,1,2,3,4)))
+    {
+    $arr_userroles_loop = array();
+    $arr_userroles_loop[] = array('interface_name'=>"Brimbox", 'interface_value'=>"bb_brimbox", 'userrole_name'=>"Locked", 'userrole_value'=>0);  
+    foreach ($array_header as $key1 => $value1)
+        {
+        //interface info
+        $arr_master_work = $array_header[$key1];
+        unset($arr_master_work['userroles'][0]);        
+        $interface_name = $arr_master_work['interface_name'];
+        foreach ($arr_master_work['userroles'] as $key2 => $value2)
+            {
+            $arr_userroles_loop[] = array('interface_name'=>$interface_name, 'interface_value'=>$key1, 'userrole_name'=>$value2, 'userrole_value'=>$key2);    
+            }
+        }
+    }
+
         
 /* HTML OUTPUT */
 echo "<p class=\"spaced bold larger\">Manage Users</p>";
@@ -365,11 +387,10 @@ $main->echo_module_vars();;
 /* INITIAL PAGE */
 //gets the list of users for the administrator
 //also has add_new_user button
-
 if ($action == 0)
     {
     //retrieve everything
-    $where_clause = ($filterrole == -1) ? "1 = 1" : $filterrole . " = ANY (userroles)";
+    $where_clause = ($filterrole == "all") ? "1 = 1" : "'" . pg_escape_string($filterrole) . "' = ANY (userroles)";
     switch($usersort)
         {
         case 'lname':
@@ -393,9 +414,11 @@ if ($action == 0)
     echo "<table class=\"floatright\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"padded middle\">";
     echo "<span>Filter By: </span>";
     echo "<select class=\"middle\" name=\"filterrole\" onChange=\"reload_on_select()\">";
-    echo "<option value=\"-1\">All</option>";
-    foreach ($array_userroles as $key => $value)
+    echo "<option value=\"all\">All</option>";
+    foreach ($arr_userroles_loop as $arr_userrole_loop)
         {
+        $key = $arr_userrole_loop['userrole_value'] . "_" . $arr_userrole_loop['interface_value'];
+        $value = $arr_userrole_loop['interface_name'] . ":" . $arr_userrole_loop['userrole_name'];
         $selected = ($filterrole == $key) ? "selected" : "";
         echo "<option value=\"" . $key . "\" " . $selected . ">" . $value . "</option>";  
         }
@@ -444,7 +467,7 @@ if ($action == 0)
             $arr_explode = explode("_" ,$value, 2);
             $str_interface = isset($array_header[$arr_explode[1]]['interface_name']) ? $array_header[$arr_explode[1]]['interface_name'] : "Undefined";
             $str_userrole = isset($array_header[$arr_explode[1]]['userroles'][$arr_explode[0]]) ? $array_header[$arr_explode[1]]['userroles'][$arr_explode[0]] : "User";
-            $str_name =  $str_interface . ": " . $str_userrole;   
+            $str_name =  $str_interface . ":" . $str_userrole;   
             array_push($arr_display, $str_name);
             }
         echo implode(", ", $arr_display);
@@ -470,20 +493,6 @@ if (in_array($action, array(1,2,3,4))):
     echo "<input name=\"id\" type=\"hidden\" value=\"" . $id . "\" />";
     //for delete form output
     $readonly = in_array($action, array(3,4)) ?  "readonly=\"readonly\"" : "";
-    
-    //assign global userroles to unset lock option
-    $array_userroles_loop = array();
-    foreach ($array_header as $key1 => $value1)
-        {
-        //interface info
-        $arr_master_work = $array_header[$key1];
-        unset($arr_master_work['userroles'][0]);        
-        $interface_name = $arr_master_work['interface_name'];
-        foreach ($arr_master_work['userroles'] as $key2 => $value2)
-            {
-            $array_userroles_loop[] = array('interface_name'=>$interface_name, 'interface_value'=>$key1, 'userrole_name'=>$value2, 'userrole_value'=>$key2);    
-            }
-        }
     
     //echo out form
     echo "<div class=\"table spaced\">";
@@ -595,11 +604,12 @@ if (in_array($action, array(1,2,3,4))):
         
         //do not alter global $array_userroles
         //$result = $main->query($con, $query);        
-
-        foreach ($array_userroles_loop as $value)
+        //unset locked value
+        unset($arr_userroles_loop[0]);
+        foreach ($arr_userroles_loop as $value)
             {
             $userrole_value = $value['userrole_value'] . "_" . $value['interface_value'];
-            $userrole_name = $value['interface_name'] . ": " . $value['userrole_name'];
+            $userrole_name = $value['interface_name'] . ":" . $value['userrole_name'];
             $checked = in_array($userrole_value, $userroles_work) ? "checked" : "";
             $handler = "onClick=\"populateDefault(this, '" . $userrole_value . "', '" . $userrole_name . " ')\"";
             echo "<div class=\"padded\">";
