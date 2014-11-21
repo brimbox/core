@@ -76,9 +76,9 @@ if ($main->check('row_type',$module) && ($row_type <> $main->post('row_type',$mo
 //change list   
 else
     {
+    $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
     $default_list_number = isset($arr_lists[$row_type]) ? $main->get_default_list($arr_lists[$row_type]) : 1;
 	$list_number = $main->process('list_number', $module, $arr_state, $default_list_number);  
-    $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
     }
 
 /* back to string */

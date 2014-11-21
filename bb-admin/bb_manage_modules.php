@@ -236,7 +236,12 @@ elseif ($main->button(array(1,2)))
                         $arr_modules[] = $arr_module;
                         }					
                     }
-                }            
+                }
+            //array should be blank if no PHP files
+            if (empty($arr_modules))
+                {
+                $arr_message[] = "Error: Module zip file did not contain any valid PHP files.";    
+                }
             }        
         //no error continue
         if (!count($arr_message)) //!$message
@@ -247,8 +252,7 @@ elseif ($main->button(array(1,2)))
             $arr_module_names = pg_fetch_all_columns($result);
             //will update $arr_module['@module_path']
             foreach($arr_modules as &$arr_module)
-                {            
-                //to reinstall xml you must delete the plugin                   
+                {                          
                 $arr_module['@module_path'] = $main->replace_root($arr_module['@module_path'], "bb-temp/", "bb-modules/");
                             
                 //insert json
@@ -317,7 +321,7 @@ elseif ($main->button(array(1,2)))
                 //if update or insert worked
                 if (pg_affected_rows($result) == 0)
                     {
-                    $arr_message[] = "Error: Module " . $arr_module['@module_name'] . " information has not been installed.";                 
+                    $arr_message[] = "Error: Module " . $arr_module['@module_name'] . " has not been installed.";                 
                     }
                 else //good install or update
                     {

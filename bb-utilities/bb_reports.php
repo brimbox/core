@@ -456,8 +456,7 @@ class bb_reports extends bb_hooks {
 			else
 				{
 				echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";	
-				}
-			
+				}			
 			}
 		//start table
 		echo "<div class=\"table " . $table_class . "\">";		

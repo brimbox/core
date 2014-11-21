@@ -628,7 +628,7 @@ CREATE TABLE users_table
   hash text,
   salt text,
   attempts smallint NOT NULL DEFAULT 0,
-  userroles text[] NOT NULL DEFAULT '{"5_bb_brimbox"}',
+  userroles text[] NOT NULL DEFAULT '{"0_bb_brimbox"}',
   fname character varying(255),
   minit character varying(255),
   lname character varying(255),
@@ -709,7 +709,7 @@ VALUES('bb_column_names','{"2":{"1":{"name":"Topic","row":1,"length":"short","or
 INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_dropdowns','{"1":{"6":["Cat","Dog","Horse"]},"2":{"3":["Credit","Debit","No Charge"]}}');
 INSERT INTO json_table (lookup, jsondata)
-VALUES('bb_create_lists','{"1":{"2":{"name":"Cat","archive":0,"description":"This is the cat list."},"1":{"name":"Dog","archive":0,"description":"This is the dog list."}},"2":{"1":{"name":"Vet","description":"This is the Vet list.","archive":0}}}');
+VALUES('bb_create_lists','{"1":{"2":{"name":"Cat","archive":0,"description":"This is the cat list."},"1":{"name":"Dog","archive":0,"description":"This is the dog list."}},"2":{"1":{"name":"Vet","description":"This is the vet list.","archive":0}}}');
 INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_interface_enable','{"bb_brimbox":{"interface_name":"Brimbox","userroles":["Locked","Guest","Viewer","User","Superuser","Admin"],"module_types":{"1":"Guest","2":"Viewer","3":"Tab","4":"Setup","5":"Admin"}},"validation":{"bb_brimbox_text":{"function":"bb_validate::validate_text","name":"Text","use":"Required"},"bb_brimbox_numeric":{"function":"bb_validate::validate_numeric","name":"Number","use":"Required"},"bb_brimbox_date":{"function":"bb_validate::validate_date","name":"Date","use":"Required"},"bb_brimbox_email":{"function":"bb_validate::validate_email","name":"Email","use":"Required"},"bb_brimbox_money":{"function":"bb_validate::validate_money","name":"Money","use":"Required"},"bb_brimbox_yesno":{"function":"bb_validate::validate_yesno","name":"Yes\/No","use":"Required"}},"guest_index":{"value":[],"interface":"bb_brimbox"},"row_security":{"value":[],"interface":"bb_brimbox"},"row_archive":{"value":[],"interface":"bb_brimbox"},"layout_security":{"value":[],"interface":"bb_brimbox"},"column_security":{"value":[],"interface":"bb_brimbox"}}');
 EOT;

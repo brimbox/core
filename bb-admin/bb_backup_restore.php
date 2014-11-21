@@ -434,7 +434,7 @@ $main->echo_script_button("backup_database", $params);
 echo "<label class=\"spaced\">Password: </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"backup_passwd\"/>";
 echo "<label class=\"spaced middle\"> Encrypt: </label>";
-$main->echo_input("encrypt_method", 1, array('type'=>"checkbox",'input_class'=>"middle holderup",'ckecked'=>true));
+$main->echo_input("encrypt_method", 1, array('type'=>"checkbox",'input_class'=>"middle holderup",'checked'=>true));
 echo "</div>";
 
 echo "</div>";

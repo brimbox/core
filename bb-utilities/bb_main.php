@@ -505,7 +505,7 @@ class bb_main {
 		return $replace . substr($dir, strlen($search));
 		}
                 
-    function check_syntax($filepath, $display = true)
+    function check_syntax($filepath)
         {
         //return true is bad, false in good - false is no syntax errors
         //parameters set up for controller

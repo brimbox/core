@@ -164,7 +164,7 @@ while($row = pg_fetch_array($result))
     if (file_exists($row['module_path'])) include($row['module_path']);
     }
 /* ADHOC HEADERS */
-if (file_exists("bb-config/bb_admin_headers.php")) include("bb-config/bb_admin_headers.php");
+if (file_exists("bb-config/bb_admin_header.php")) include("bb-config/bb_admin_header.php");
 
 /* DO FUNCTION MODULES */
 //only for interface being loaded
@@ -178,7 +178,7 @@ while($row = pg_fetch_array($result))
     }
 /* ADHOC FUNCTIONS */
 //will ignore file if missing
-if (file_exists("bb-config/bb_admin_functions.php")) include("bb-config/bb_admin_functions.php");
+if (file_exists("bb-config/bb_admin_function.php")) include("bb-config/bb_admin_function.php");
 
 /* DO GLOBAL MODULES */
 //only for interface being loaded
