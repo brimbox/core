@@ -69,8 +69,7 @@ $offset = $main->process('offset', $module, $arr_state, 1);
 if ($main->check('row_type',$module) && ($row_type <> $main->post('row_type',$module)))
     {
     $row_type = $main->post('row_type', $module, $default_row_type);
-    $default_list_number = isset($arr_lists[$row_type]) ? $main->get_default_list($arr_lists[$row_type]) : 1;
-	$list_number = $main->state('list_number', $arr_state, $default_list_number);
+    $list_number = isset($arr_lists[$row_type]) ? $main->get_default_list($arr_lists[$row_type]) : 1;
     $row_type = $main->set('row_type', $arr_state, $row_type);
     }
 //change list   
