@@ -164,7 +164,7 @@ while($row = pg_fetch_array($result))
     if (file_exists($row['module_path'])) include($row['module_path']);
     }
 /* ADHOC HEADERS */
-if (file_exists("bb-config/bb_admin_header.php")) include("bb-config/bb_admin_header.php");
+if (file_exists("bb-config/bb_admin_headers.php")) include("bb-config/bb_admin_headers.php");
 
 /* DO FUNCTION MODULES */
 //only for interface being loaded
@@ -178,7 +178,7 @@ while($row = pg_fetch_array($result))
     }
 /* ADHOC FUNCTIONS */
 //will ignore file if missing
-if (file_exists("bb-config/bb_admin_function.php")) include("bb-config/bb_admin_function.php");
+if (file_exists("bb-config/bb_admin_functions.php")) include("bb-config/bb_admin_functions.php");
 
 /* DO GLOBAL MODULES */
 //only for interface being loaded
@@ -197,9 +197,9 @@ if (file_exists("bb-config/bb_admin_globals.php")) include("bb-config/bb_admin_g
 
 /* UNPACK $array_master for given interface */
 //will overwrite existing arrays
-if (isset($array_globals))
+if (isset($array_global))
     {
-    foreach($array_globals[$interface] as $key => $value)
+    foreach($array_global[$interface] as $key => $value)
         {
         ${'array_' . $key} = $value;
         }

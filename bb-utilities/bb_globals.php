@@ -18,10 +18,10 @@ If not, see http://www.gnu.org/licenses/
 /* NO HTML OUTPUT */
 
 # HOOKS #
-$array_globals['bb_brimbox']['hooks']['bb_input_autofill'][] = array(array($main,"autofill"), array("row", "&arr_state", "arr_columns", "row_type", "parent_row_type"));
-$array_globals['bb_brimbox']['hooks']['bb_guest_infolinks'][] = array(array($main,"infolinks"), array());
-$array_globals['bb_brimbox']['hooks']['bb_viewer_infolinks'][] = array(array($main,"infolinks"), array());
-$array_globals['bb_brimbox']['hooks']['bb_home_infolinks'][] = array(array($main,"infolinks"), array());
+$array_global['bb_brimbox']['hooks']['bb_input_autofill'][] = array(array($main,"autofill"), array("row", "&arr_state", "arr_columns", "row_type", "parent_row_type"));
+$array_global['bb_brimbox']['hooks']['bb_guest_infolinks'][] = array(array($main,"infolinks"), array());
+$array_global['bb_brimbox']['hooks']['bb_viewer_infolinks'][] = array(array($main,"infolinks"), array());
+$array_global['bb_brimbox']['hooks']['bb_home_infolinks'][] = array(array($main,"infolinks"), array());
 
 # STANDARD INTERFACE DEFINITION #
 $array = array();
@@ -30,7 +30,7 @@ $array[] = array('interface_type'=>'Standard','usertypes'=>array(2),'module_type
 $array[] = array('interface_type'=>'Standard','usertypes'=>array(3,4,5),'module_type'=>3);
 $array[] = array('interface_type'=>'Auxiliary','usertypes'=>array(4,5),'module_type'=>4,'friendly_name'=>'Setup');
 $array[] = array('interface_type'=>'Auxiliary','usertypes'=>array(5),'module_type'=>5,'friendly_name'=>'Admin');
-$array_globals['bb_brimbox']['interface'] = $array;
+$array_global['bb_brimbox']['interface'] = $array;
 
 # COMMON VARS SHARED WITH OTHER TABS #
 //will not be processed through the form posting engine
@@ -39,7 +39,7 @@ $array[] = 'bb_row_type';
 $array[] = 'bb_row_join';
 $array[] = 'bb_post_key';
 $array[] = 'bb_relate';
-$array_globals['bb_brimbox']['common_variables'] = $array;
+$array_global['bb_brimbox']['common_variables'] = $array;
 
 # LINK VARS TO DEFINE RECORD LINKS #
 //$row_type and $arr_layouts must be present $main->output_links($row, $arr_layouts, $userrole) call;
@@ -66,7 +66,7 @@ $array[3][] = array(array($main,'children'), array("bb_input","Add","bb_view","V
 //same for admin and superuser
 $array[4] = $array[3];
 $array[5] = $array[3];
-$array_globals['bb_brimbox']['links'] = $array;
+$array_global['bb_brimbox']['links'] = $array;
 
 # CURRENT REPORT TYPES #
 //must be declared when using report functionality
@@ -75,7 +75,7 @@ $array[0] = "";
 $array[1] = "Paginated";
 $array[2] = "Full";
 $array[3] = "Textarea";
-$array_globals['bb_brimbox']['reports'] = $array;
+$array_global['bb_brimbox']['reports'] = $array;
 
 # HOT TAB SWITCH PRESERVE STATE #
 //array that updates state when tab are switched without postback
@@ -118,7 +118,7 @@ if ($main->check("row_type", "bb_input"))
 	$array['5_bb_brimbox']['bb_input'] = $array['4_bb_brimbox']['bb_input'] = $array['3_bb_brimbox']['bb_input'] = $arr;
 	unset($arr); //unset any variable used in global
 	}
-$array_globals['bb_brimbox']['hot_state'] = $array;
+$array_global['bb_brimbox']['hot_state'] = $array;
 
 //clean up array, initialization does it previously in this file
 unset($array);
