@@ -62,9 +62,9 @@ include("bb-config/bb_config.php");
 /* BRIMBOX LOGIN */
 $email = "admin";
 $passwd = "password";
-$db_version = "2014.1.22";
-$program_version = "2014.4.397";
-$backup_version = "2014.1.3";
+$db_version = "1.24";
+$program_version = "1.5;
+$backup_version = "1.4";
 //SHA256 standard for the program
 //use a 36 char text salt instead of a binary one
 //simple but effective salt generator

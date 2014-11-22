@@ -203,7 +203,7 @@ CREATE TABLE users_table
   hash text,
   salt text,
   attempts smallint NOT NULL DEFAULT 0,
-  userroles text[] NOT NULL DEFAULT '{"0-bb_brimbox"}',
+  userroles text[] NOT NULL DEFAULT '{"0_bb_brimbox"}',
   fname character varying(255),
   minit character varying(255),
   lname character varying(255),
