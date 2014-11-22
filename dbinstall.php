@@ -63,7 +63,7 @@ include("bb-config/bb_config.php");
 $email = "admin";
 $passwd = "password";
 $db_version = "1.24";
-$program_version = "1.5;
+$program_version = "1.5";
 $backup_version = "1.4";
 //SHA256 standard for the program
 //use a 36 char text salt instead of a binary one
