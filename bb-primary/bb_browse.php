@@ -40,7 +40,7 @@ function reload_on_layout()
     
     var frmobj = document.forms["bb_form"];
     
-    frmobj.offset.value = 2;
+    frmobj.offset.value = 1;
     bb_submit_form(); //call javascript submit_form function
 	return false;
     }
