@@ -154,7 +154,7 @@ elseif ($main->button(array(1,2)))
         //upload zip file to temp directory
         if (!empty($_FILES[$main->name('update_file', $module)]["tmp_name"]))
             {
-            if (substr($_FILES[$main->name('update_file', $module)]["name"],0,14) == "Brimbox_Update")
+            if (substr($_FILES[$main->name('update_file', $module)]["name"],0,14) == "brimbox-update")
                 {
                 $zip = new ZipArchive;
                 $res = $zip->open($_FILES[$main->name('update_file', $module)]["tmp_name"]);

@@ -143,10 +143,11 @@ class bb_work extends bb_forms {
 	    return $var;	
 	    }
 		
-	function render($name, $module, &$arr_state, $type, &$check, $default = "")
+	function render($con, $name, $module, &$arr_state, $type, &$check, $default = "")
 	    //fully processes $_POST variable into state rendering type if validated
 	    {
-	    global $array_validation;
+	    $arr_header = $this->get_json($con, "bb_interface_enable");
+        $arr_validation = $arr_header['validation'];
 	    
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default; 
 	    $temp = $module . '_' . $name;
@@ -159,7 +160,7 @@ class bb_work extends bb_forms {
 
 	    //will format value if valid, otherwise leaves $var untouched
 		//check becomes false on valid type, true opn error
-	    $check = call_user_func_array($array_validation[$type]['function'], array(&$var, false));	
+	    $check = call_user_func_array($arr_validation[$type]['function'], array(&$var, false));	
 	    $arr_state[$name] = $var;
 		
 	    return $var;	

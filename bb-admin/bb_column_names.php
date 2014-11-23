@@ -260,7 +260,7 @@ for ($m = 1; $m <= 50; $m++)
     $column = $m;
     $name = "";
     $row = 0;
-    $leng = "";
+    $length = "";
     $order = 0;
     $type = "";
     $required = 0;
@@ -323,7 +323,7 @@ for ($m = 1; $m <= 50; $m++)
 		//global $array_validation
 		foreach ($arr_validation as $key => $value)
 			{
-			echo "<option value=\"" . $key . "\"" . ($key == $type ? "selected" : "") . ">" . $value['name'] . "</option>";
+			echo "<option value=\"" . $key . "\"" . ($key == $type ? "selected" : "") . " >" . $value['name'] . "</option>";
 			}
 		echo "</select></div>";
 		}

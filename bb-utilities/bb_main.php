@@ -334,10 +334,12 @@ class bb_main {
 		//Security there should be no way to get column with secured row_type
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$archive = isset($params['archive']) ? $params['archive'] : 0;
+		$check = isset($params['check']) ? $params['check'] : 1; //default checks
 		$empty = isset($params['empty']) ? $params['empty'] : false;
 		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
 		$label = isset($params['label']) ? $params['label'] : "";
+        
+        $archive = 1;
 		
 		if (!empty($label))
 			{
@@ -352,10 +354,10 @@ class bb_main {
 		foreach($arr_list as $key => $value)
 			{
 			//either 1 or 0 for archive
-            $archive = ($archive && ($value['archive'] >= $archive)) ? true : false;
+            $archive = ($check && ($value['archive'] >= $check)) ? true : false;
 			if (!$archive)
 				{
-				$archive_flag = ($value['archive']) ? "*" : "";
+				$archive_flag = ($value['archive']) ? str_repeat('*', $value['archive']) : "";
 				echo "<option value=\"" . $key. "\"" . ($key == $list_number   ? " selected " : "") . ">" . htmlentities($value['name']) . $archive_flag . "&nbsp;</option>";
 				}
 			}
