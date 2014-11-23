@@ -338,8 +338,6 @@ class bb_main {
 		$empty = isset($params['empty']) ? $params['empty'] : false;
 		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
 		$label = isset($params['label']) ? $params['label'] : "";
-        
-        $archive = 1;
 		
 		if (!empty($label))
 			{
