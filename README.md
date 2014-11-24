@@ -4,7 +4,7 @@
 
 <p>For documentation, click here <a href="http://www.brimbox.com/documentation/" target="_blank">http://www.brimbox.com/documentation/</a>.</p>
 
-<p>Brimbox Latest Release is v1.15 -- brimbox-build-1.5.zip</p>
+<p>Brimbox Latest Release is v1.5 -- brimbox-build-1.5.zip</p>
 
 <p>Released with:</p>
 <ul><li>guest-pack-1.2.zip</li>
