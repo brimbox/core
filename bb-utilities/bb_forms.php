@@ -136,7 +136,7 @@ class bb_forms extends bb_validate {
 		$end = "";
 		if (!$this->blank($label))
 			{
-			if (strcasecmp($position, "end")) //0 is good
+			if (strcasecmp($position, "end")) //0 is match
 				{
 				$begin = "<label  class=\"" . $label_class . "\">" . $label;
 				$end = "</label>";
