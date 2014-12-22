@@ -16,12 +16,13 @@ If not, see http://www.gnu.org/licenses/
 
 //this is the module submit javascript function
 //each time a tab is clicked this function executes
-function bb_submit_form(button, target, passthis)
+function bb_submit_form(button, target, passthis, image)
     {
     //button, target, and passthis are optional
     
     //all three parameters are optional, this nasty little piece of javascript works in all
     //current major browsers, it is a very important piece of code
+	//required form
     var frmobj=document.forms['bb_form'];
     //action set to self, always through the controller
     frmobj.action = "";
@@ -57,6 +58,12 @@ function bb_submit_form(button, target, passthis)
         //set bb_module as target module
         frmobj['bb_module'].value = target;
         }
+	
+	//set the processing image
+	if (image!=undefined)
+		{
+		frmobj.elements['bb_image'].value = image;
+		}
         
     for (var i=0; i<frmobj.length; i++)
         {

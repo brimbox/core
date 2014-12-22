@@ -60,7 +60,23 @@ body
 	 height: auto !important;
 	 height:1000px;
 	 }
-	 	 
+     
+#bb_processor
+     {
+     display: block;
+     position: absolute;
+     left: 0px;
+     top: 0px;
+     width:100%;
+     height:100%;
+     text-align:center;
+     z-index: 1000;
+     }
+     
+#bb_processor img {
+     margin: 200px auto;
+     }     
+
 /* this is how the contoller image is displayed */
 #bb_header #controller_image
 	 {
@@ -103,7 +119,8 @@ body
 	 border-radius: 0px;
  	 -moz-border-radius: 0px; 
 	 width:150px;
-	 margin-bottom: -1px;	 }
+	 margin-bottom: -1px;
+     }
 
 	 
 /* This is the wrapper for setup and admin content, position absolutely to bb_wrapper  */

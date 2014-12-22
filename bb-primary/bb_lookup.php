@@ -160,7 +160,7 @@ echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">Record ID</s
 echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">Layout</span></td>";
 echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">First Lookup Column</span></td>";
 echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">Second Lookup Column</span></td>";
-if (ARCHIVE_INTERWORKING == "ON")
+if (!strcasecmp(constant("ARCHIVE_INTERWORKING"),"ON"))
 	{
 	$checked = "";
 	if ($archive_flag == 1)
@@ -169,9 +169,10 @@ if (ARCHIVE_INTERWORKING == "ON")
 		$mode = " 1 = 1 ";
 		}
 	echo "<td class=\"borderleft nowrap padded middle\" rowspan=\"2\">";
-	echo "<span class = \"border rounded padded shaded\">";
-    $main->echo_input("archive_flag", 1, array('type'=>'checkbox','class'=>'middle padded','checked'=>$checked));
-	echo "<label class=\"padded\">Check Archives</label>";
+    echo "<span class = \"border rounded padded shaded\">";
+    $main->echo_input("archive_flag", 1, array('type'=>'checkbox','input_class'=>'middle padded','checked'=>$checked));
+    echo "<label class=\"padded\">Check Archives</label>";
+	echo "</span><br>";
 	echo "</span>";
 	echo "</td>";
 	}

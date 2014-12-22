@@ -27,5 +27,8 @@ define('NUMBER_LAYOUTS', 12);
 define('ARCHIVE_INTERWORKING', 'OFF');
 // Default userrole on the manage users page
 define('DEFAULT_USERROLE_ASSIGN', 1);
+// Use processing image in standard modules
+define('PROCESSING_IMAGE', 'OFF');
+
 
 ?>

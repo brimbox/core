@@ -80,7 +80,7 @@ echo "<div class=\"table padded\">";
     echo "<div class=\"row shaded\">";
     echo "<div class=\"padded bold cell medium middle\">Email/Username</div>";
     echo "<div class=\"padded bold cell medium middle\">IP Address/Bits</div>";
-    echo "<div class=\"padded bold cell medium middle\">Login Date/Time</div>";
+    echo "<div class=\"padded bold cell medium middle\">Log Date/Time</div>";
     echo "<div class=\"padded bold cell medium middle\">Action</div>";
     echo "</div>";
 

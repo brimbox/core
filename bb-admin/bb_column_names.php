@@ -31,15 +31,19 @@ function reload_on_layout()
 /* INITIALIZE */
 set_time_limit(0);
 
-//find default row_type, $xml_layouts must have one layout set
+//find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
 $default_row_type = $main->get_default_layout($arr_layouts);
 $arr_notes = array(49,50);
 $arr_reserved = array(47,48);
 
+//get validation and security info 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_validation = $arr_header['validation'];
 $arr_column_security = $arr_header['column_security']['value'];
+
+//deal with constants
+$processing_image = strcasecmp(constant("PROCESSING_IMAGE"),"ON") ? false : true ;
 
 /* RETRIEVE STATE */
 $main->retrieve($con, $array_state);
@@ -358,11 +362,11 @@ for ($m = 1; $m <= 50; $m++)
     }
 echo "</div>";
 
-$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Submit Columns");
+$params = array("class"=>"spaced","number"=>2, "passthis"=>true, "image"=>$processing_image, "label"=>"Submit Columns");
 $main->echo_button("submit_columnnames", $params);
-$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Refresh Columns");
+$params = array("class"=>"spaced","number"=>1, "passthis"=>true, "label"=>"Refresh Columns");
 $main->echo_button("refresh_columnnames", $params);
-$params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Rebuild Indexes");
+$params = array("class"=>"spaced","number"=>3, "passthis"=>true, "image"=>$processing_image, "label"=>"Rebuild Indexes");
 $main->echo_button("rebuild_indexes", $params);
 
 $main->echo_state($array_state);

@@ -563,7 +563,7 @@ class bb_reports extends bb_hooks {
 		$return_rows_class = isset($arr['return_rows_class']) ? $arr['return_rows_class'] : "spaced colored bold";
 	
 		$button_class = isset($arr['button_class']) ? $arr['button_class'] : "link bold underline spaced";
-		$textarea_class = isset($arr['textarea_class']) ? $arr['textarea_class'] : "link bold spaced";
+		$textarea_class = isset($arr['textarea_class']) ? $arr['textarea_class'] : "link spaced";
 		
 		$rows =  isset($arr['rows']) ? $arr['rows'] : 40;
 		$columns =  isset($arr['columns']) ? $arr['columns'] : 120;

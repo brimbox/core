@@ -57,8 +57,10 @@ class bb_forms extends bb_validate {
 		echo "<input rel=\"ignore\" name=\"bb_submit\" type=\"hidden\" value=\"\" />";
 		//working Brimbox button submitted processed in the controller, always set w/ javascript
 		echo "<input rel=\"ignore\" name=\"bb_button\" type=\"hidden\" value=\"\" />";
-		//used when loggin out or changing state
+		//used when logging out or changing state
 		echo "<input rel=\"ignore\" name=\"bb_interface\" type=\"hidden\" value=\"\" />";
+		//used for processing image
+		echo "<input rel=\"ignore\" name=\"bb_image\" type=\"hidden\" value=\"\" />";
 		}
 				
 	function echo_common_vars()
@@ -88,14 +90,33 @@ class bb_forms extends bb_validate {
 	
 	function echo_button($name, $params = array())
 		{
-		//function to output button
+		/* function to output button */
+		//class and label
 		$class = isset($params['class']) ? $params['class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
+		$label = isset($params['label']) ? $params['label'] : "";		
+		//javascript parameters
 		$number = isset($params['number']) ? $params['number'] : 0;
-		$target = isset($params['target']) ? ", '" . $params['target'] . "'" : "";
-		$passthis = isset($params['passthis']) ? ", this" : "";	
-		
-		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"bb_submit_form(" . $number . $target . $passthis . "); return false;\">" . $label . "</button>"; 
+		$target = isset($params['target']) ? "'" . $params['target'] . "'" : "undefined";
+		$passthis = isset($params['passthis']) ? "this" : "undefined";
+		//allows boolean true for default proicessing image		
+		if (isset($params['image']))
+			{
+			if (is_bool($params['image']))
+				{
+				$image = $params['image'] == true ? "'processing_image.gif'" : "undefined";
+				}
+			else
+				{
+				$image = "'" . $params['image'] . "'";	
+				}
+			}
+		else
+			{
+			$image = "undefined";	
+			}
+		//implode parameters with comma
+		$params_str = implode(",", array($number, $target, $passthis, $image));
+		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"bb_submit_form(" . $params_str . "); return false;\">" . $label . "</button>"; 
 		}
 		
 	function echo_script_button($name, $params = array())

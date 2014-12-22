@@ -64,6 +64,9 @@ $arr_layouts = $main->get_json($con,"bb_layout_names");
 //set default row_type and process later
 $row_type = 0;
 
+//deal with constants
+$processing_image = strcasecmp(constant("PROCESSING_IMAGE"),"ON") ? false : true ;
+
 /* RETRIEVE STATE */
 $main->retrieve($con, $array_state);
 
@@ -422,11 +425,11 @@ $main->echo_module_vars();;
 /* BACKUP AREA */
 echo "<p class=\"spaced bold larger\">Backup Database</p>";
 echo "<div class=\"spaced border floatleft padded\">";
-$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Clean Database Data");
+$params = array("class"=>"spaced","number"=>1,"image"=>$processing_image, "passthis"=>true, "label"=>"Clean Database Data");
 $main->echo_button("add_list", $params);
-$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Clean Database Columns");
+$params = array("class"=>"spaced","number"=>2,"image"=>$processing_image, "passthis"=>true, "label"=>"Clean Database Columns");
 $main->echo_button("clean_up_columns", $params);
-$params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Clean Database Layouts");
+$params = array("class"=>"spaced","number"=>3,"image"=>$processing_image, "passthis"=>true, "label"=>"Clean Database Layouts");
 $main->echo_button("clean_up_columns", $params);
 echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","label"=>"Backup Database","onclick"=>"submit_backup()");
@@ -494,9 +497,9 @@ echo "<div class=\"spaced\">Admin Password: ";
 echo "<input class=\"spaced\" type=\"password\" name=\"restore_passwd\"/></div>";
 echo "<div class=\"spaced\">File Password: ";
 echo "<input class=\"spaced\" type=\"password\" name=\"file_passwd\"/></div>";
-$params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Restore Database");
+$params = array("class"=>"spaced","number"=>4,"image"=>$processing_image, "passthis"=>true, "label"=>"Restore Database");
 $main->echo_button("restore_database", $params);
-$params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Build Indexes");
+$params = array("class"=>"spaced","number"=>5,"image"=>$processing_image, "passthis"=>true, "label"=>"Build Indexes");
 $main->echo_button("build_indexes", $params);
 echo "</div><br>";
 

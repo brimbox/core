@@ -101,7 +101,7 @@ $params = array("class"=>"spaced","onclick"=>"reset_return()", "label"=>"Search 
 $main->echo_script_button("post_search", $params);
 
 //archive interworking allows quick access to archived records
-if (ARCHIVE_INTERWORKING == "ON")
+if (!strcasecmp(constant("ARCHIVE_INTERWORKING"),"ON"))
 	{
 	$checked = "";
 	if ($archive_flag == 1)

@@ -172,7 +172,8 @@ class bb_work extends bb_forms {
 	    global $array_state;
 		 
 	    $temp = $module . "_bb_state";
-	    $arr_state = json_decode($array_state[$temp], true);
+		//will initialize array state if if not set set, happens in module install
+	    $arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
 	    return $arr_state;	
 	    }
 			

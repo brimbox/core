@@ -83,12 +83,10 @@ if (isset($_POST['bb_module']))
 	$submit = $_POST['bb_submit'];
 	if ($module == "bb_logout")
 		{
-		//explode on first dash only allows for dashes in interface name
-		list($usertype, $interwork) = explode("-", $_POST['bb_interface'], 2);
 		//logout and change interface/userrole could be on different or many pages
-		//check for session poisoning, array userroles should not be altered
-		//the conversion to string of string of $_POST['bb_submit'] and will stop injection
-		//$userroles variable should be protected and not used or altered anywhere		
+		//check for session poisoning, userroles string should not be altered
+		//$userroles variable should be protected and not used or altered anywhere
+        // non-integer or empty usertype will convert to 0
 		if (((int)$usertype <> 0) && in_array($_POST['bb_interface'], explode(",", $_SESSION['userroles'])))
 			{
 			$_SESSION['userrole'] = $_POST['bb_interface']; 
@@ -209,7 +207,7 @@ if (isset($array_global))
 <!DOCTYPE html>    
 <html>
 <head>    
-<meta http-equiv="Content-Type" content="text/html; charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 <?php /* JAVASCRIPT AND CSS INCLUDES */ ?>
 <script type="text/javascript" src="bb-utilities/bb_scripts.js"></script>
@@ -237,6 +235,15 @@ echo "</style>";
 </head>
 
 <body>
+<?php
+/* PROCESSING IMAGE */
+if (!$main->blank($_POST['bb_image']))
+    {
+    //seems to flush nicely without explicitly flushing the output buffer
+    echo "<div id=\"bb_processor\"><img src=\"bb-config/processing_image.gif\"></div>";
+    echo "<script>window.onload = function () { document.getElementById(\"bb_processor\").style.display = \"none\"; }</script>";
+    }
+?>
 <?php
 /* CONTROLLER ARRAYS*/
 //query the modules table to set up the interface according to $array_master
