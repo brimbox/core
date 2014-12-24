@@ -59,6 +59,7 @@ If not, see http://www.gnu.org/licenses/
 //logout_link
 //archive_link
 //database_stats
+//replicate_link
 //userrole_switch
 
 class bb_main {
@@ -1017,10 +1018,9 @@ class bb_main {
     function replicate_link($class_div = "bold",  $class_link = "colored")
         {        
         echo "<div class=\"" . $class_div . "\">To open in new window: ";
-        echo "<a class=\"" . $class_link . "\" href=\"" . $_SERVER['PHP_SELF'] . "\" target=\"_blank\">Click here</a>";
+        echo "<a class=\"" . $class_link . "\" href=\"" . dirname($_SERVER['PHP_SELF']) . "\" target=\"_blank\">Click here</a>";
         echo "</div>";
         }
-
         
     function userrole_switch($class_span = "bold", $class_button = "link underline")
         {
