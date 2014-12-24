@@ -107,7 +107,7 @@ class bb_hooks extends bb_work {
 		echo "<div class=\"floatleft\">";
 		$this->database_stats();
 		$this->archive_link();
-		echo "<br>";
+		$this->replicate_link();
 		$this->userrole_switch();
 		echo "</div>";
 		echo "<div class=\"clear\"></div>";

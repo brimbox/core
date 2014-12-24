@@ -979,7 +979,7 @@ class bb_main {
         $this->echo_script_button("logout", $params); 
         }
         
-    function archive_link($class_button = "link underline",  $class_span = "bold")
+    function archive_link($class_button = "link underline bold",  $class_span = "bold")
         {
         //careful not to use -1 on on pages with archive link
         global $button;
@@ -1013,6 +1013,14 @@ class bb_main {
         echo "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
         echo "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
         }
+        
+    function replicate_link($class_div = "bold",  $class_link = "colored")
+        {        
+        echo "<div class=\"" . $class_div . "\">To open in new window: ";
+        echo "<a class=\"" . $class_link . "\" href=\"" . $_SERVER['PHP_SELF'] . "\" target=\"_blank\">Click here</a>";
+        echo "</div>";
+        }
+
         
     function userrole_switch($class_span = "bold", $class_button = "link underline")
         {
