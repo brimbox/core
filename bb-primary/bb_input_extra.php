@@ -24,7 +24,6 @@ class bb_input_extra {
 //Load row_type from record links, populate state
 //Load if layout dropdown changes, empty state
 //Load row_type from state if coming from another tab
-/* FIRST PASS */
 
     /* BRING IN VARIABLES */
     function __construct($arr_columns, $arr_state, $main, $con, $module, $default_row_type)
@@ -36,6 +35,36 @@ class bb_input_extra {
         $this->arr_state = $arr_state;
         $this->arr_notes = array(49,50);
         $this->default_row_type = $default_row_type;
+        }
+    
+    /* MAIN FUNCTION FOR RECORD LINKS */    
+    function linkspost()
+        {        
+        if (!empty($_POST['bb_row_type'])) //row_type set in global link, should be positive
+            {
+            return $this->global_row_type();   
+            }
+        elseif ($this->main->button(1)) //postback
+            {
+            return $this->input_postback(); 
+            }
+        elseif ($this->main->button(2)) //clear form
+            {
+            return $this->clear_form();
+            }
+        elseif ($this->main->button(3))
+            {
+            return $this->load_textarea();
+            }
+        elseif ($this->main->button(4))
+            {
+            return $this->combo_change();    
+            }
+        else
+            {
+            return $this->load_from_state();    
+            }
+        //list variables from return
         }
         
     /* EITHER ADD OR EDIT FROM RECORD LINK */    
@@ -228,6 +257,27 @@ class bb_input_queue {
         $this->row_join = $row_join;
         $this->post_key = $post_key;
         $this->var_subject = $var_subject;
+        }
+        
+    /* MAIN FROM QUEUE TAB */
+    function queuepost($var_subject)
+        {
+        if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
+            {
+            return $this->queue_record_add();   
+            }
+        elseif (substr($var_subject,0,13) == "Record Edit: " && preg_match("/^[A-Z]\d+/", substr($var_subject,13)))
+            {
+            return $this->queue_record_edit();   
+            }
+        elseif (substr($var_subject,0,12) == "Record New: " && preg_match("/^[A-Z]$/", substr($var_subject,12)))    
+            {
+            return $this->queue_record_new();
+            }
+        else
+            {
+            return $this->queue_record_default();
+            }
         }
     
     /* SUBJECT RECORD ADD */

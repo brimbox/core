@@ -24,16 +24,20 @@ If not, see http://www.gnu.org/licenses/
 
 class bb_hooks extends bb_work {
 	
-	function hook($name)
+	function hook($name, $append = false)
 		{
 		//name passed as values so no error if hooks aren't set
+		//append is to make hook which which work when module name is changed
 		global $array_hooks;
 		global $module;
 		
+		//will use current module name if append = true
+		$name = $append ? $module . "_" . $name : $name;
+					
 		//hook must be set
 		if (!isset($array_hooks[$name]))
 			return false;
-		//hook must be named properly
+		//hook must be named properly, always good if append = true
 		elseif (substr($name, 0, strlen($module) + 1) <> ($module . "_"))
 			return false;
 				
@@ -48,13 +52,13 @@ class bb_hooks extends bb_work {
 				if (substr($var,0,1) == "&")
 					{
 					$var = substr($var,1);
-					${$var} = $GLOBALS[$var];
+					${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : "";
 					$args_hook[] = &${$var};
 					}
 				//passed by reference
 				else
 					{
-					${$var} = $GLOBALS[$var];
+					${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : "";
 					$args_hook[] = ${$var};
 				   }
 				}
@@ -111,6 +115,24 @@ class bb_hooks extends bb_work {
 		$this->userrole_switch();
 		echo "</div>";
 		echo "<div class=\"clear\"></div>";
+		}
+		
+	function postbackarea($main, $con, $module, $arr_layouts, $arr_columns, $default_row_type, &$arr_state, &$row_type, &$row_join, &$post_key, &$var_subject)
+		{	
+		if (file_exists("bb-primary/bb_input_extra.php"))
+			{
+			include("bb-primary/bb_input_extra.php");
+			$input = new bb_input_extra($arr_columns, $arr_state, $main, $con, $module, $default_row_type);
+			list($row_type, $row_join, $post_key, $arr_state) = $input->linkspost();
+			if ($main->button(2,'bb_queue'))
+				{
+				//var_subject will be set to blank if empty
+				$var_subject = $main->post('subject','bb_queue');
+				//constuct with row type from state
+				$queue = new bb_input_queue($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key, $var_subject);
+				list($row_type, $row_join, $post_key, $arr_state) = $queue->queuepost($var_subject);
+				}
+			}
 		}
 } //end class
 ?>

@@ -46,86 +46,28 @@ $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 //get header for guest index
 $arr_header = $main->get_json($con, "bb_interface_enable");
+//populate guest index array
 $arr_guest_index = $arr_header['guest_index']['value'];
 
-$arr_notes = array("49","50");
+$arr_notes = array("49","50"); //notes column
 $textarea_rows = 4; //minimum
 $arr_message = array(); //message pile
-$unique = "";
-$message = ""; //return message
+$message = ""; //blank return message
 
-/*INPUT STATE AND POSTBACK */  
+/* INPUT STATE AND POSTBACK */  
 $main->retrieve($con, $array_state);
 $arr_state = $main->load($module, $array_state);
 
-//include file for postback routines
-//this include handles input state and contains class bb_input_extra
-include("bb_input_extra.php");
-
-//constuct with default row type
-$input_class = new bb_input_extra($arr_columns, $arr_state, $main, $con, $module, $default_row_type);
-//process different input options
-if (!empty($_POST['bb_row_type'])) //row_type set in global link, should be positive
-    {
-    $arr_input_class = $input_class->global_row_type();   
-    }
-elseif ($main->button(1)) //postback
-    {
-    $arr_input_class = $input_class->input_postback(); 
-    }
-elseif ($main->button(2)) //clear form
-    {
-    $arr_input_class = $input_class->clear_form();
-    }
-elseif ($main->button(3))
-    {
-    $arr_input_class = $input_class->load_textarea();
-    }
-elseif ($main->button(4))
-    {
-    $arr_input_class = $input_class->combo_change();    
-    }
-else
-    {
-    $arr_input_class = $input_class->load_from_state();    
-    }
-//list variables from return    
-list($row_type, $row_join, $post_key, $arr_state) = $arr_input_class;
-
-//process if posted from queue page "Add To Input" button
-if ($main->button(2,'bb_queue'))
-    {
-    //constuct with row type from state
-    $var_subject = $main->post('subject','bb_queue');
-    $input_class = new bb_input_queue($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key, $var_subject);
-    
-    if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
-        {
-        $arr_input_class = $input_class->queue_record_add();   
-        }
-    elseif (substr($var_subject,0,13) == "Record Edit: " && preg_match("/^[A-Z]\d+/", substr($var_subject,13)))
-        {
-        $arr_input_class = $input_class->queue_record_edit();   
-        }
-    elseif (substr($var_subject,0,12) == "Record New: " && preg_match("/^[A-Z]$/", substr($var_subject,12)))    
-        {
-        $arr_input_class = $input_class->queue_record_new();
-        }
-    else
-        {
-        $arr_input_class = $input_class->queue_record_default();
-        }
-    //list variables from return 
-    list($row_type, $row_join, $post_key, $arr_state) = $arr_input_class;
-    }     
-    
-//$arr_layout will be needed
-$arr_layout = $arr_layouts[$row_type];
-$arr_column = $arr_columns[$row_type];
-$arr_column_reduced = $main->filter_keys($arr_column);
+//hook for postback routines, will include bb_input_extra
+$main->hook("postbackarea", true);
 
 //update state
 $main->update($array_state, $module, $arr_state);
+
+//reduce columns and layouts
+$arr_layout = $arr_layouts[$row_type];
+$arr_column = $arr_columns[$row_type];
+$arr_column_reduced = $main->filter_keys($arr_column);
 /*END INPUT STATE AND POSTBACK */
 	
 /* SUBMIT TO DATABASE */
