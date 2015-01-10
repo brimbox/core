@@ -244,7 +244,7 @@ class bb_input_queue {
 //will get row_type etc from general else above
 
     /* BRING IN VARIABLES */
-    function __construct($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key, $var_subject)
+    function __construct($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key)
         {
         $this->main = $main;
         $this->con = $con;
@@ -256,12 +256,13 @@ class bb_input_queue {
         $this->row_type = $row_type;
         $this->row_join = $row_join;
         $this->post_key = $post_key;
-        $this->var_subject = $var_subject;
+        $this->var_subject = $main->post('subject','bb_queue');
         }
         
     /* MAIN FROM QUEUE TAB */
-    function queuepost($var_subject)
+    function queuepost()
         {
+        $var_subject = $this->var_subject;
         if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
             {
             return $this->queue_record_add();   

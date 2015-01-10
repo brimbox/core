@@ -117,7 +117,7 @@ class bb_hooks extends bb_work {
 		echo "<div class=\"clear\"></div>";
 		}
 		
-	function postbackarea($main, $con, $module, $arr_layouts, $arr_columns, $default_row_type, &$arr_state, &$row_type, &$row_join, &$post_key, &$var_subject)
+	function postbackarea($main, $con, $module, $arr_layouts, $arr_columns, $default_row_type, &$arr_state, &$row_type, &$row_join, &$post_key)
 		{	
 		if (file_exists("bb-primary/bb_input_extra.php"))
 			{
@@ -126,11 +126,9 @@ class bb_hooks extends bb_work {
 			list($row_type, $row_join, $post_key, $arr_state) = $input->linkspost();
 			if ($main->button(2,'bb_queue'))
 				{
-				//var_subject will be set to blank if empty
-				$var_subject = $main->post('subject','bb_queue');
 				//constuct with row type from state
-				$queue = new bb_input_queue($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key, $var_subject);
-				list($row_type, $row_join, $post_key, $arr_state) = $queue->queuepost($var_subject);
+				$queue = new bb_input_queue($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key);
+				list($row_type, $row_join, $post_key, $arr_state) = $queue->queuepost();
 				}
 			}
 		}
