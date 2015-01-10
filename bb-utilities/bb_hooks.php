@@ -52,13 +52,13 @@ class bb_hooks extends bb_work {
 				if (substr($var,0,1) == "&")
 					{
 					$var = substr($var,1);
-					${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : "";
+					${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : NULL;
 					$args_hook[] = &${$var};
 					}
 				//passed by reference
 				else
 					{
-					${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : "";
+					${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : NULL;
 					$args_hook[] = ${$var};
 				   }
 				}
