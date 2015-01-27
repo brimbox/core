@@ -77,6 +77,7 @@ class bb_input_extra {
         $post_key = $this->main->set('post_key', $arr_state, $_POST['bb_post_key']);
         
         $arr_column = $this->arr_columns[$row_type];
+        $arr_column_reduced = $this->main->filter_keys($arr_column);
         
         //populate from database if edit
         if ($row_type == $row_join)
@@ -84,9 +85,8 @@ class bb_input_extra {
             $query = "SELECT * FROM data_table " .
                      "WHERE id = " . $post_key . ";";
             $result = $this->main->query($this->con, $query);
-            $row = pg_fetch_array($result);
+            $row = pg_fetch_array($result);            
             
-            $arr_column_reduced = $this->main->filter_keys($arr_column);
             foreach($arr_column_reduced as $key => $value)
                 {				
                 $col = $this->main->pad("c", $key);
@@ -100,11 +100,10 @@ class bb_input_extra {
                     }
                 $this->main->set($col, $arr_state, $str);
                 }
+            $this->main->set('secure', $arr_state, $row['secure']);
+            $this->main->set('archive', $arr_state, $row['archive']);
             }
-        else
-            {
-            $arr_column_reduced = $this->main->filter_keys($arr_column);    
-            }
+
         return array($row_type, $row_join, $post_key, $arr_state);
         }
 
@@ -116,9 +115,9 @@ class bb_input_extra {
         $post_key = $this->main->process('post_key', $this->module, $arr_state, -1);
     
         $arr_column = $this->arr_columns[$row_type];
+        $arr_column_reduced = $this->main->filter_keys($arr_column);
         $arr_state = $this->arr_state;
         
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
         foreach($arr_column_reduced as $key => $value)
             {				
             $col = $this->main->pad("c", $key);
@@ -132,6 +131,9 @@ class bb_input_extra {
                 }
             $this->main->set($col, $arr_state, $str);
             }
+        $archive = $this->main->process('archive', $this->module, $arr_state, 0); 
+        $secure = $this->main->process('secure', $this->module, $arr_state, 0); 
+            
         return array($row_type, $row_join, $post_key, $arr_state);
         }
 

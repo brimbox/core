@@ -59,7 +59,7 @@ $main->retrieve($con, $array_state);
 $arr_state = $main->load($module, $array_state);
 
 //hook for postback routines, will include bb_input_extra
-$main->hook("postbackarea", true);
+$main->hook("postback_area", true);
 
 //update state
 $main->update($array_state, $module, $arr_state);
@@ -157,9 +157,13 @@ if ($main->button(1))
 				}
 			$str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
 			$str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
-			
-            //update query
-            //check that row exists in update because of multiuser situation
+            
+            //secure can be unpdated if there is a form value being posted
+            $secure_clause = $main->check('secure', $module) ? ", secure = " . $secure . " "  : "";   
+            //archive is wired in for update, not generally used for standard interface
+            $archive_clause = $main->check('archive', $module) ? ", archive = " . $archive . " "  : "";			
+
+            //check for unique key
 			$select_where_not = "SELECT 1 WHERE 1 = 0";
             if (isset($arr_column['layout']['unique'])) //no key = unset
                 {
@@ -176,17 +180,18 @@ if ($main->button(1))
 					$select_where_not = "SELECT 1";	
 					}
 				}
-            //will not allow a blank if $unique is set
+                
 			$return_primary = $main->pad("c", $arr_column['layout']['primary']);
-            $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " .
-				     "WHERE id IN (" . $post_key . ") AND archive = 0 AND NOT EXISTS (" . $select_where_not . ") RETURNING id, " . $return_primary . " as primary;";                 
+            $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " .
+				     "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") RETURNING id, " . $return_primary . " as primary;";                 
             $result = $main->query($con, $query);
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
                 array_push($arr_message, "Record Succesfully Updated.");
-                $main->update($array_state, $module, $arr_state);												
-				//will find $parent_id, $inserted_id when finding parent
+                $main->update($array_state, $module, $arr_state);
+                //can add a recursive query to update child record when secure is altered
+                $main->hook("update_cascade", true);
                 }
             else //bad edit
                 {
@@ -250,8 +255,11 @@ if ($main->button(1))
 			
 			$insert_clause .= ", fts, ftg, secure, archive ";
 			$select_clause .= ", to_tsvector(" . $str_ts_vector_fts . ") as fts, to_tsvector(" . $str_ts_vector_ftg . ") as ftg, ";
-            $select_clause .= "CASE WHEN (SELECT  coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, "; 
-            $select_clause .= "CASE WHEN (SELECT  coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
+            //secure can be inserted if there is a form value being posted
+            $secure_clause = $main->check('secure', $module) ? " " . $secure . " as secure, "  : "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";   
+            //archive is wired in for insert, not generally used for standard interface
+            $archive_clause = $main->check('archive', $module) ? " " . $archive . " as archive "  : "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";;
+            
             $select_where_exists = "SELECT 1";
             $select_where_not = "SELECT 1 WHERE 1 = 0";
             //key exists must check for duplicate value
@@ -278,14 +286,15 @@ if ($main->button(1))
                 }
 				
 			$return_primary = $main->pad("c", $arr_column['layout']['primary']);
-            $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") RETURNING id, " . $return_primary . " as primary;";
-            //echo "<p>" . $query . "</p>";
+            $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") RETURNING id, " . $return_primary . " as primary;";
+            echo "<p>" . $query . "</p>";
             $result = $main->query($con, $query);
 			
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
                 array_push($arr_message, "Record Succesfully Inserted.");
+                $main->hook("insert_cascade", true);
                 //dispose of $arr_state
                 $arr_state = array();         
                 $main->update($array_state, $module, $arr_state);
@@ -349,9 +358,8 @@ if ($post_key > 0)
 			$inserted_row_type = $row_type;
 			$inserted_id = $post_key;
 			$inserted_primary = $row['child'];
-
-			$parent_id = $row['id'];			
-			$link_id = $parent_id; 
+			
+			$link_id = $parent_id = $row['id']; 
 			}
         }
     else
@@ -368,7 +376,7 @@ if ($post_key > 0)
 			$link_id = $post_key;
                 
             /* AUTOFILL HOOK */
-            $main->hook("bb_input_autofill");
+            $main->hook("autofill", true);
 			}			
         }
     }
@@ -399,7 +407,7 @@ if ($row_type > 0):
 	$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
 	$main->echo_button("top_reset", $params);
     
-    //empty works no zeros
+    //empty works no zeros, this when inserting child record
     if (!empty($parent_row_type))
         {
         echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
@@ -463,7 +471,9 @@ if (!empty($parent_id) && !empty($parent_row_type))
 		$main->drill_links($parent_id, $parent_row_type, $arr_layouts, "bb_input", "Add");
 		echo "</p>";
 		}
-	}	
+	}
+    
+$main->hook("form_archive_secure", true);
 
 echo "<div class=\"spaced\" id=\"input_message\">";
 $main->echo_messages($arr_message);
@@ -505,10 +515,8 @@ if (!empty($arr_column_reduced))
 				echo "<label class=\"error\">" . $error . "</label></div>";
 				}		
 		}
-	//submit button
 	echo "<div class=\"clear\"></div>";
-	//check if children not populated
-	//this is dependent on admin module "Set Column Names"    
+	//submit button and textarea load  
 	if (!empty($arr_column_reduced))
 		{
 		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
@@ -529,8 +537,7 @@ if (!empty($arr_column_reduced))
 	}
 /* END POPULATE INPUT FIELDS */    
 
-//hidden vars
-//$row_type is contained in the layout dropdown
+//hidden vars, $row_type is contained in the layout dropdown
 echo "<input type=\"hidden\"  name=\"post_key\" value = \"" . $post_key . "\">";
 echo "<input type=\"hidden\"  name=\"row_join\" value = \"" . $row_join . "\">";
 

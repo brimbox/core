@@ -117,7 +117,7 @@ class bb_hooks extends bb_work {
 		echo "<div class=\"clear\"></div>";
 		}
 		
-	function postbackarea($main, $con, $module, $arr_layouts, $arr_columns, $default_row_type, &$arr_state, &$row_type, &$row_join, &$post_key)
+	function postback_area($main, $con, $module, $arr_layouts, $arr_columns, $default_row_type, &$arr_state, &$row_type, &$row_join, &$post_key)
 		{	
 		if (file_exists("bb-primary/bb_input_extra.php"))
 			{

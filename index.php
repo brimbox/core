@@ -32,6 +32,7 @@ date_default_timezone_set(USER_TIMEZONE);
 // start session based on db name
 session_name(DB_NAME);
 session_start();
+session_regenerate_id();
 
 /* START IF, IF (logged in) THEN (controller) ELSE (login) END */
 

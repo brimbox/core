@@ -22,7 +22,7 @@ $array_global['bb_brimbox']['hooks']['bb_input_autofill'][] = array(array($main,
 $array_global['bb_brimbox']['hooks']['bb_guest_infolinks'][] = array(array($main,"infolinks"), array());
 $array_global['bb_brimbox']['hooks']['bb_viewer_infolinks'][] = array(array($main,"infolinks"), array());
 $array_global['bb_brimbox']['hooks']['bb_home_infolinks'][] = array(array($main,"infolinks"), array());
-$array_global['bb_brimbox']['hooks']['bb_input_postbackarea'][] = array(array($main,"postbackarea"), array("main", "con", "module", "arr_layouts", "arr_columns", "default_row_type", "&arr_state", "&row_type", "&row_join", "&post_key"));
+$array_global['bb_brimbox']['hooks']['bb_input_postback_area'][] = array(array($main,"postback_area"), array("main", "con", "module", "arr_layouts", "arr_columns", "default_row_type", "&arr_state", "&row_type", "&row_join", "&post_key"));
 
 # STANDARD INTERFACE DEFINITION #
 $array = array();
