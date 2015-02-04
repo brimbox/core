@@ -29,6 +29,13 @@ define('ARCHIVE_INTERWORKING', 'OFF');
 define('DEFAULT_USERROLE_ASSIGN', 1);
 // Use processing image in standard modules
 define('PROCESSING_IMAGE', 'OFF');
-
+//turn on log for insert
+define('INPUT_INSERT_LOG', 'OFF');
+//turn on log for update
+define('INPUT_UPDATE_LOG', 'OFF');
+//turn on post override for archive
+define('INPUT_ARCHIVE_POST', 'OFF');
+//turn on post override for secure
+define('INPUT_SECURE_POST', 'OFF');
 
 ?>

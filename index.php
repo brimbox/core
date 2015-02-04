@@ -235,7 +235,7 @@ echo "</style>";
 <title><?php echo PAGE_TITLE; ?></title> 
 </head>
 
-<body>
+<body id="bb_controller">
 <?php
 /* PROCESSING IMAGE */
 if (!$main->blank($_POST['bb_image']))
@@ -573,77 +573,43 @@ if (isset($_POST['index_enter']))
         }
 	} //end post
 
-
-    
 //echo html output
 ?>
 <!DOCTYPE html>    
 <html>   
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 <link rel=StyleSheet href="bb-utilities/bb_styles.css" type="text/css" media=screen>
-<?php
-/* SET UP LESS PARSER */
-//see included license
-include("bb-less/lessc.inc.php");
-$less = new lessc();
-echo "<style>";
-$less->setFormatter("compressed");
-echo $less->compileFile("bb-utilities/bb_styles.less");
-echo "</style>";
-/* END LESS PARSER */
-?>
+<link rel=StyleSheet href="bb-config/bb_admin_css.css" type="text/css" media=screen>
+    
 <title><?php echo PAGE_TITLE; ?></title>
-</head>
 
+</head>
 <body>
-<div id="bb_index">
+
 <?php
 /* LOGIN FORM (in table form, index_image is index image*/
-echo "<form id=\"index_form\" name=\"index_form\" method=\"post\">";
-echo "<div class=\"table\">";
-echo "<div class=\"row padded\">";
-echo "<div class=\"cell center\">";
+echo "<div id=\"bb_index\">";
+echo "<form name=\"index_form\" method=\"post\">";
 echo "<div id=\"index_image\"></div>";
-echo "</div>";
+
+//since it is centered use table
+echo "<div id=\"index_holder\">";
+echo "<table><tr><td class=\"left\">Username: </td>";
+echo "<td class=\"right\"><input name=\"username\" class=\"long\" type=\"text\" /></td></tr>";
+echo "<tr><td class=\"left\">Password: </td>";
+echo "<td class=\"right\"><input name=\"passwd\" class=\"long\" type=\"password\" /></td></tr></table>";
 echo "</div>";
 
-//since it is centered use table....no float:center
-echo "<div class=\"table\">";
-echo "<div class=\"table border padded\">";
-echo "<div class=\"row\">";
-echo "<div class=\"cell\">";
-echo "<div class=\"padded shaded right\"><p class=\"short\">Username: </p></div>";
-echo "</div>";
-echo "<div class=\"cell\">";
-echo "<div class=\"padded left \"><input name=\"username\" class=\"long\" type=\"text\" /></div>";
-echo "</div>";
-echo "</div>";
-echo "<div class=\"row\">";
-echo "<div class=\"cell\">";
-echo "<div class=\"padded shaded right\"><p class=\"short\">Password: </p></div>";
-echo "</div>";
-echo "<div class=\"cell\">";
-echo "<div class=\"padded left\"><input name=\"passwd\" class=\"long\" type=\"password\" /></div>";
-echo "</div>";
-echo "</div>";
-echo "</div>";
-echo "<div class=\"row padded\">";
-echo "<div class=\"cell padded center\">";
-echo "<button name=\"index_enter\" type=\"submit\" value=\"index_enter\" />Login</button>";
-echo "</div>";
-echo "</div>";
-echo "<div class=\"row padded\">";
-echo "<div class=\"cell padded center\">";
-echo "<p class=\"error\">" . $message . "</p>";
-echo "</div>";
-echo "</div>";
-echo "</div>";
+echo "<button id=\"index_button\" name=\"index_enter\" type=\"submit\" value=\"index_enter\" />Login</button>";
+
+echo "<p id=\"index_message\">" . $message . "</p>";
 echo "</form>";
+
+echo "</div>"; //end wrapper div
 /* END FORM */
 ?>
-</div>
 </body>
 </html>
 <?php

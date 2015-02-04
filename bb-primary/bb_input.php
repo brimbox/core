@@ -34,8 +34,14 @@ function bb_reload_on_layout()
 	return false;
     }
 </script>
-
 <?php
+/* DEAL WITH CONSTANTS */
+$input_insert_log = $main->on_constant('INPUT_INSERT_LOG');
+$input_update_log = $main->on_constant('INPUT_UPDATE_LOG');
+$input_secure_post = $main->on_constant('INPUT_SECURE_POST');
+$input_archive_post = $main->on_constant('INPUT_ARCHIVE_POST'); 
+
+/* END DEAL WITH CONSTANTS */
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
@@ -158,10 +164,13 @@ if ($main->button(1))
 			$str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
 			$str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
             
+            //will detect secure and archive form values
             //secure can be unpdated if there is a form value being posted
-            $secure_clause = $main->check('secure', $module) ? ", secure = " . $secure . " "  : "";   
+            if ($input_secure_post) $secure_clause = $main->check('secure', $module) ? ", secure = " . $secure . " "  : "";
+            else $secure_clause = "";
             //archive is wired in for update, not generally used for standard interface
-            $archive_clause = $main->check('archive', $module) ? ", archive = " . $archive . " "  : "";			
+            if ($input_archive_post) $archive_clause = $main->check('archive', $module) ? ", archive = " . $archive . " "  : "";
+            else $archive_clause = "";
 
             //check for unique key
 			$select_where_not = "SELECT 1 WHERE 1 = 0";
@@ -189,6 +198,11 @@ if ($main->button(1))
                 {
 				$row = pg_fetch_array($result);
                 array_push($arr_message, "Record Succesfully Updated.");
+                if ($input_update_log)
+                    {
+                    $message = "Record " . chr($row_type + 64) . $post_key . " updated.";
+                    $main->log_entry($con, $message , $email);
+                    }
                 $main->update($array_state, $module, $arr_state);
                 //can add a recursive query to update child record when secure is altered
                 $main->hook("update_cascade", true);
@@ -199,7 +213,12 @@ if ($main->button(1))
 				if (pg_num_rows($result) == 1)
 					{
 					//retain state values
-					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\"."); 
+					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\".");
+                    if ($input_update_log)
+                        {
+                        $message = "WHERE NOT error updating record " . chr($row_type + 64) . $post_key . "." ;
+                        $main->log_entry($con, $message , $email);
+                        }
 					}
 				else
 					{
@@ -212,6 +231,11 @@ if ($main->button(1))
 					$main->update($array_state, $module, $arr_state);
 	
 					array_push($arr_message, "Error: Record not updated. Record archived or underlying data change possible.");
+                    if ($input_update_log)
+                        {
+                        $message = "Error updating record " . chr($row_type + 64) . $post_key . "."; 
+                        $main->log_entry($con, $message , $email);
+                        }
 					}
                 }
             }
@@ -255,10 +279,15 @@ if ($main->button(1))
 			
 			$insert_clause .= ", fts, ftg, secure, archive ";
 			$select_clause .= ", to_tsvector(" . $str_ts_vector_fts . ") as fts, to_tsvector(" . $str_ts_vector_ftg . ") as ftg, ";
+            
+            //will detect secure and archive form values
             //secure can be inserted if there is a form value being posted
-            $secure_clause = $main->check('secure', $module) ? " " . $secure . " as secure, "  : "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";   
+            
+            if ($input_secure_post) $secure_clause = $main->check('secure', $module) ? " " . $secure . " as secure, "  : "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
+            else $secure_clause = "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
             //archive is wired in for insert, not generally used for standard interface
-            $archive_clause = $main->check('archive', $module) ? " " . $archive . " as archive "  : "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";;
+            if ($input_archive_post) $archive_clause = $main->check('archive', $module) ? " " . $archive . " as archive "  : "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
+            else $archive_clause = "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
             
             $select_where_exists = "SELECT 1";
             $select_where_not = "SELECT 1 WHERE 1 = 0";
@@ -287,13 +316,18 @@ if ($main->button(1))
 				
 			$return_primary = $main->pad("c", $arr_column['layout']['primary']);
             $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") RETURNING id, " . $return_primary . " as primary;";
-            echo "<p>" . $query . "</p>";
+            //echo "<p>" . $query . "</p>";
             $result = $main->query($con, $query);
 			
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
                 array_push($arr_message, "Record Succesfully Inserted.");
+                if ($input_insert_log)
+                    {
+                    $message = "New " . chr($row_type + 64) . $row['id'] . " record entered."; 
+                    $main->log_entry($con, $message , $email);
+                    }
                 $main->hook("insert_cascade", true);
                 //dispose of $arr_state
                 $arr_state = array();         
@@ -303,9 +337,6 @@ if ($main->button(1))
 				$inserted_row_type = $row_type;
 				$inserted_id = $row['id'];
 				$inserted_primary = $row['primary'];
-				
-				//$post_key is key1, the parent key/id
-				$parent_id = $post_key;
                 }
             else //bad insert
                 {
@@ -314,7 +345,12 @@ if ($main->button(1))
 				if (pg_num_rows($result) == 1)
 					{
 					//retain state values
-					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\"."); 
+					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\".");
+                    if ($input_insert_log)
+                        {
+                        $message = "WHERE NOT insert error on type " . chr($row_type + 64) . " record."; 
+                        $main->log_entry($con, $message , $email);
+                        }
 					}
 				else
 					{
@@ -324,15 +360,18 @@ if ($main->button(1))
 					$row_type = 0;
 					//dispose of $arr_state and update state
 					$arr_state = array();            
-					$main->update($array_state, $module, $arr_state);
-	
-					array_push($arr_message, "Error: Record not inserted. Parent record archived or underlying data change possible.");    
+					$main->update($array_state, $module, $arr_state);	
+					array_push($arr_message, "Error: Record not inserted. Parent record archived or underlying data change possible.");
+                    if ($input_insert_log)
+                        {
+                        $message = "Insert error entering type " . chr($row_type + 64) . " record."; 
+                        $main->log_entry($con, $message , $email);
+                        }
 					}
 				}                  		
             } //else insert row
         } //if no error message
     }// end if submit/enter data
-
     
 /* PARENT ROW */
 // $post_key > 0 only on edit or insert with parent
@@ -359,7 +398,7 @@ if ($post_key > 0)
 			$inserted_id = $post_key;
 			$inserted_primary = $row['child'];
 			
-			$link_id = $parent_id = $row['id']; 
+			$parent_id = $row['id']; 
 			}
         }
     else
@@ -368,12 +407,11 @@ if ($post_key > 0)
         $query = "SELECT *, " . $primary_parent . " as parent FROM data_table WHERE id = " . $post_key . " AND row_type = " . $parent_row_type . ";";    
         //echo "<p>" . $query . "</p>";
 		$result = $main->query($con, $query);
-		$cnt_rows = pg_num_rows($result);
-		if ($cnt_rows == 1)
+		if (pg_num_rows($result) == 1)
 			{
 			$row = pg_fetch_array($result);
 			$parent_primary = isset($row['parent']) ? $row['parent'] : "";
-			$link_id = $post_key;
+			$parent_id = $post_key;
                 
             /* AUTOFILL HOOK */
             $main->hook("autofill", true);
@@ -389,164 +427,90 @@ $main->echo_module_vars();
 
 //echos input select object if row_type exists
 if ($row_type > 0):
+          
+    //outputs top level records
+    $main->hook("top_level_records", true);    
+    //this when inserting child record
+    $main->hook("parent_record", true);
+    //this to add quick child and sibling links
+    $main->hook("quick_links", true);    
+    //for hooking archive or security levels
+    $main->hook("form_archive_secure", true);
 
-    //has parent only one select value
-    if ($row_type == $row_join)
-        {
-        $update_or_insert = "Update Record";
-        $edit_or_insert = "Edit Mode";
-        }
-    else
-        {
-        $update_or_insert = "Insert Record";
-        $edit_or_insert = "Insert Mode";
-        }
-        
-	$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
-	$main->echo_button("top_submit", $params);
-	$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
-	$main->echo_button("top_reset", $params);
+    echo "<div class=\"spaced\" id=\"input_message\">";
+    $main->echo_messages($arr_message);
+    echo "</div>";
+    /* END MESSAGES */
     
-    //empty works no zeros, this when inserting child record
-    if (!empty($parent_row_type))
+    /* POPULATE INPUT FIELDS */
+    //check if empty, could be either empty or children not populated
+    //this is dependent on admin module "Set Column Names"
+    if (!empty($arr_column_reduced))
         {
-        echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-        echo "<option value=\"" . $row_type . "\" selected>" . $arr_layout['plural'] . "&nbsp;</option>";
-        echo "</select>";
-        }
-	//no parent, all possible top level records
-    else
-        {
-        //get top level records
-        foreach($arr_layouts as $key => $value)
+        $textarea_rows = (int)$arr_column['layout']['count'] > 4 ? (int)$arr_column['layout']['count'] : 4;
+        foreach($arr_column_reduced as $key => $value)
             {
-            if ($value['parent'] == 0)
-                {
-                $arr_select[$key] = $value;
-                }
+            $col = $main->pad("c", $key);
+            $input = (isset($arr_state[$col])) ? $arr_state[$col] : "";
+            $error = (isset($arr_errors[$col])) ? $arr_errors[$col] : "";
+            if (isset($arr_dropdowns[$row_type][$key]))
+                    {
+                    echo "<div class=\"clear\"><label class = \"spaced padded floatleft right overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
+                    echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"remove_message(); return false;\">";
+                    $arr_dropdown = $arr_dropdowns[$row_type][$key];
+                    foreach ($arr_dropdown as $dropdown)
+                            {                            
+                            echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
+                            }
+                    echo "</select><label class=\"error\">" . $error . "</label></div>";
+                    }
+            elseif (in_array($key, $arr_notes))
+                    {
+                    echo "<div class = \"clear\"><label class = \"spaced padded floatleft left overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
+                    echo "<div class=\"clear\"></div>";
+                    echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" onFocus=\"remove_message(); return false;\">" . $input . "</textarea></div>";				
+                    }				
+            else
+                    {			
+                    echo "<div class=\"clear\"><label class = \"spaced padded floatleft right overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
+                    echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" onFocus=\"remove_message(); return false;\" />";
+                    echo "<label class=\"error\">" . $error . "</label></div>";
+                    }		
             }
-		//has top level records
-		if (count($arr_select) > 0)
-			{
-			//on reset, $arr_column already set if changing top level from select
-			echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-			foreach ($arr_select as $key => $value)
-				{
-				echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";
-				}
-			echo "</select>";
-			}
-		//no top level records, not common
-		else
-			{
-			unset($arr_column);
-			}
+        echo "<div class=\"clear\"></div>";
+        //submit button and textarea load  
+        if (!empty($arr_column_reduced))
+            {
+                
+            $update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
+            $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
+            $main->echo_button("bottom_submit", $params);
+            $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
+            $main->echo_button("bottom_reset", $params);
+            
+            echo "<div class=\"clear\"></div>";
+            echo "<br>";
+            //load textarea
+            echo "<div align=\"left\">";
+            echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . ($textarea_rows) ."\"></textarea>";
+            echo "<div class=\"clear\"></div>";
+            $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
+            $main->echo_button("load_textarea", $params);
+            echo "</div>";
+            }    
         }
-	echo "<div class=\"clear\"></div>";    
-
-if (!empty($arr_column_reduced))
-	{
-	//edit or insert mode and primaryt parent column		
-	$parent_string = $main->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $link_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
-	echo "<p class=\"bold spaced\">" . $edit_or_insert . $parent_string . "</p>";
-	}
-
-//add children links, empty works no zeros
-if (!empty($inserted_id) && !empty($inserted_row_type))
-	{
-	if ($main->check_child($inserted_row_type, $arr_layouts))
-		{
-		echo "<p class=\"spaced bold\">Add Child Record - Parent: <span class=\"colored\">" . $inserted_primary . "</span> - ";
-		$main->drill_links($inserted_id, $inserted_row_type, $arr_layouts, "bb_input", "Add");
-		echo "</p>";
-		}
-	}
-	
-//add sibling links, empty works no zeros
-if (!empty($parent_id) && !empty($parent_row_type))
-	{
-	if ($main->check_child($parent_row_type, $arr_layouts))
-		{
-		echo "<p class=\"spaced bold\">Add Sibling Record - Parent: <span class=\"colored\">" . $parent_primary . "</span> - ";
-		$main->drill_links($parent_id, $parent_row_type, $arr_layouts, "bb_input", "Add");
-		echo "</p>";
-		}
-	}
+    /* END POPULATE INPUT FIELDS */    
     
-$main->hook("form_archive_secure", true);
-
-echo "<div class=\"spaced\" id=\"input_message\">";
-$main->echo_messages($arr_message);
-echo "</div>";
-/* END MESSAGES */
-
-/* POPULATE INPUT FIELDS */
-//check if empty, could be either empty or children not populated
-//this is dependent on admin module "Set Column Names"
-if (!empty($arr_column_reduced))
-	{
-	$textarea_rows = (int)$arr_column['layout']['count'] > 4 ? (int)$arr_column['layout']['count'] : 4;
-	foreach($arr_column_reduced as $key => $value)
-		{
-        $col = $main->pad("c", $key);
-		$input = (isset($arr_state[$col])) ? $arr_state[$col] : "";
-		$error = (isset($arr_errors[$col])) ? $arr_errors[$col] : "";
-		if (isset($arr_dropdowns[$row_type][$key]))
-				{
-				echo "<div class=\"clear\"><label class = \"spaced padded floatleft right overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
-				echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"remove_message(); return false;\">";
-				$arr_dropdown = $arr_dropdowns[$row_type][$key];
-				foreach ($arr_dropdown as $dropdown)
-						{                            
-						echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
-						}
-				echo "</select><label class=\"error\">" . $error . "</label></div>";
-				}
-		elseif (in_array($key, $arr_notes))
-				{
-				echo "<div class = \"clear\"><label class = \"spaced padded floatleft left overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
-				echo "<div class=\"clear\"></div>";
-				echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" onFocus=\"remove_message(); return false;\">" . $input . "</textarea></div>";				
-				}				
-		else
-				{			
-				echo "<div class=\"clear\"><label class = \"spaced padded floatleft right overflow medium shaded\">" . htmlentities($value['name']) . ": </label>";
-				echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" onFocus=\"remove_message(); return false;\" />";
-				echo "<label class=\"error\">" . $error . "</label></div>";
-				}		
-		}
-	echo "<div class=\"clear\"></div>";
-	//submit button and textarea load  
-	if (!empty($arr_column_reduced))
-		{
-		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
-		$main->echo_button("bottom_submit", $params);
-		$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
-		$main->echo_button("bottom_reset", $params);
-		
-		echo "<div class=\"clear\"></div>";
-		echo "<br>";
-		//load textarea
-		echo "<div align=\"left\">";
-		echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . ($textarea_rows) ."\"></textarea>";
-		echo "<div class=\"clear\"></div>";
-		$params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
-		$main->echo_button("load_textarea", $params);
-		echo "</div>";
-		}    
-	}
-/* END POPULATE INPUT FIELDS */    
-
-//hidden vars, $row_type is contained in the layout dropdown
-echo "<input type=\"hidden\"  name=\"post_key\" value = \"" . $post_key . "\">";
-echo "<input type=\"hidden\"  name=\"row_join\" value = \"" . $row_join . "\">";
-
-//for Drill or quick edit links
-$main->echo_common_vars();
-
-//state variables
-$main->echo_state($array_state);
-$main->echo_form_end();
+    //hidden vars, $row_type is contained in the layout dropdown
+    echo "<input type=\"hidden\"  name=\"post_key\" value = \"" . $post_key . "\">";
+    echo "<input type=\"hidden\"  name=\"row_join\" value = \"" . $row_join . "\">";
+    
+    //for Drill or quick edit links
+    $main->echo_common_vars();
+    
+    //state variables
+    $main->echo_state($array_state);
+    $main->echo_form_end();
 
 endif;
 /* END FORM */ 

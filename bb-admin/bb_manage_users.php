@@ -91,7 +91,47 @@ select.box
     height:150px;
     }
 </style>
-
+<?php
+/* LOCAL FUNCTIONS */
+//this function leaves an empty $arr_error for logic testing if no errors
+function check_is_empty(&$value, $index, &$arr_error, $error_message)
+    {
+    //custom "is empty" function for this module 
+    if (empty($value) && $value !== '0')
+        {
+        $arr_error[$index] = $error_message;   
+        }
+    }
+    
+function check_password($passwd, $repasswd, &$arr_error)
+    {
+    if (!preg_match("/^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/", $passwd))
+        {
+        $arr_error['passwd'] = "Must contain an uppercase, lowercase, and number and be at least 8 characters.";     
+        }
+    if ($passwd <> $repasswd)
+        {
+        $arr_error['repasswd'] = "Passwords do not match.";        
+        }
+    }
+    
+function check_ips($con, $ips_esc, &$ips, &$arr_error)
+    {
+    //It's not a good idea to use the database to check for errors
+    //but in this case compatibility and integrity it makes sense
+    //rely on postgres to check for errors in cidr list
+    @$result = pg_query($con, "SELECT array_to_string('" . $ips_esc . "'::cidr[],'\\n') as ips");
+    if (!$result)
+        {
+        $arr_error['ips'] = "Invalid cidr in list.";   
+        }
+    else
+        {
+        $ips = $result;
+        }
+    }
+/* END LOCAL FUNCTIONS */
+?>
 <?php
 /* INITIAL VALUES */
 $arr_error = array(); //if set there is an error in the form data, will display inline
@@ -109,58 +149,28 @@ $usersort = $main->post('usersort', $module, "lname");
 $filterrole = $main->post('filterrole', $module, "all");
 /* END POSTBACK */
 
-//* uses global $array_userroles *//
-
+/* INITIAL VALUES */
+//module uses global $array_userroles
 //$userrole is a global var, so the userrole to be assigned is $userroles_work
 //userroles is userroles in database
 //$email is a global var, so the email that is assigned is $email_work
 //email is email in database
-
-//default value should probably be set to 1 or 2, guest or viewer
-if (defined(DEFAULT_USERROLE_ASSIGN))
-    {
-    $userrole_default = DEFAULT_USERROLE_ASSIGN;
-    }
-else
-    {
-    $userrole_default = "1_bb_brimbox";    
-    }
  
 //initialize for add new user
 //$email_work called $email_work because of global $email
-$email_work = "";
-$userroles_work = array($userrole_default); //initialize based on default
-$passwd = "";
-$repasswd = "";
-$fname = "";
-$minit = "";
-$lname = "";
+$email_work = $passwd = $repasswd = $fname = $minit = $lname = $ips = "";
+//hack for original constants file
+if (defined(DEFAULT_USERROLE_ASSIGN))
+    {
+    $userroles_default = is_int(DEFAULT_USERROLE_ASSIGN) ? array(DEFAULT_USERROLE_ASSIGN . "_bb_brimbox") : array(DEFAULT_USERROLE_ASSIGN);  
+    }
+else
+    {
+    $userroles_default = array("1_bb_brimbox");     
+    }
 /* END INITIAL VALUES */
 
-/* LOCAL FUNCTIONS */
-//this function leaves an empty $arr_error for logic testing if no errors
-function check_is_empty(&$value, $index, &$arr_error, $error_message)
-    {
-    //custom "is empty" function for this module 
-    if (empty($value) && ($value !== "0"))
-        {
-        $arr_error[$index] = $error_message;   
-        }
-    }
-function check_password($passwd, $repasswd, &$arr_error)
-    {
-    if (!preg_match("/^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/", $passwd))
-        {
-        $arr_error['passwd'] = "Must contain an uppercase, lowercase, and number and be at least 8 characters.";     
-        }
-    if ($passwd <> $repasswd)
-        {
-        $arr_error['repasswd'] = "Passwords do not match.";        
-        }
-    }
-/* END FUNCTIONS */
-
-/* POSTBACK */
+/* POSTBACK FOR NEW USER AND UPDATE USER */
 // note that navigation uses both bb_button (for postback) and assign (for display) 
 // add new user or edit user 
 if ($main->button(1) || $main->button(2))
@@ -173,7 +183,7 @@ if ($main->button(1) || $main->button(2))
     $repasswd = $main->post('repasswd', $module);
     $userroles_work = $main->post('userroles_work', $module);
     sort($userroles_work);
-    $userrole_default = $main->post('userrole_default', $module, "1_bb_brimbox");
+    $userrole_default = $main->post('userrole_default', $module, $userroles_default);
     $arr_userrole_default = array($userrole_default);
     if ($userrole_default <> 0)
         {
@@ -184,10 +194,13 @@ if ($main->button(1) || $main->button(2))
     $fname = $main->custom_trim_string($main->post('fname', $module),255);
     $minit = $main->custom_trim_string($main->post('minit', $module),255);
     $lname = $main->custom_trim_string($main->post('lname', $module),255);
+    $ips = $main->post('ips', $module);
+    //split, trim and remove empty values
+    $arr_ips = array_filter(array_map('trim',preg_split("/\n|\r\n?/", $ips)));
     }
-/* END POSTBACK */
+/* END POSTBACK FOR NEW USER AND UPDATE USER */
 
-/* ADD NEW USER POSTBACK */
+/* ADD NEW USER */
 if ($main->button(1)) //postback add new user
     {    
     $action = 1; //in case of validation error    
@@ -207,14 +220,17 @@ if ($main->button(1)) //postback add new user
     //check that they are non-empty
     check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty");
     check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty");
+    //ips
+    $ips_esc = empty($arr_ips) ? "{0.0.0.0/0,0:0:0:0:0:0:0:0/0}" : pg_escape_string("{" . implode(",",$arr_ips) . "}");
+    check_ips($con, $ips_esc, $ips, $arr_error);
    
     //insert user
     if (empty($arr_error))
         {
         $salt = md5(microtime());
-        $query = "INSERT INTO users_table (email, hash, salt, userroles, fname, minit, lname) " .
+        $query = "INSERT INTO users_table (email, hash, salt, userroles, fname, minit, lname, ips) " .
                  "SELECT '" . pg_escape_string($email_work) . "', '" . hash('sha512', pg_escape_string($passwd) . $salt) . "', '" . $salt . "', '{" . implode(",", $userroles_work_esc) . "}', " .
-                 "'" . pg_escape_string($fname) . "', '" . pg_escape_string($minit) . "', '" . pg_escape_string($lname) . "' " .
+                 "'" . pg_escape_string($fname) . "', '" . pg_escape_string($minit) . "', '" . pg_escape_string($lname) . "', '" . $ips_esc . "' " .
                  "WHERE NOT EXISTS (SELECT 1 FROM users_table WHERE email = '" . pg_escape_string($email_work) . "')";
         $result = $main->query($con,$query);
         $cnt = pg_affected_rows($result);
@@ -233,9 +249,9 @@ if ($main->button(1)) //postback add new user
             }       
         }
     }
-/* END ADD NEW USER POSTBACK */
+/* END ADD NEW USER*/
 
-/* UPDATE INFO POSTBACK */
+/* UPDATE INFO */
 if ($main->button(2)) //postback update
     {
 	//updates based on id
@@ -251,9 +267,12 @@ if ($main->button(2)) //postback update
         $salt = md5(microtime());    
         $query_add_clause = ", hash = '" . hash('sha512', $passwd . $salt) . "', salt = '" . $salt . "'";
         }   
-        
+    //names    
     check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty");
     check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty");
+    //ips
+    $ips_esc = empty($arr_ips) ? "{0.0.0.0/0,0:0:0:0:0:0:0:0/0}" : pg_escape_string("{" . implode(",",$arr_ips) . "}");
+    check_ips($con, $ips_esc, $ips, $arr_error);
     
     //do the update   
     if (empty($arr_error))
@@ -261,7 +280,7 @@ if ($main->button(2)) //postback update
         $where_not_exists = "SELECT 1 from users_table WHERE  id <> " .  pg_escape_string($id) . " AND  email = '" .  pg_escape_string($email_work) . "'";
         $query = "UPDATE users_table " .
                  "SET email = '" .  pg_escape_string($email_work) . "', fname = '" . pg_escape_string($fname) . "', minit = '" . pg_escape_string($minit) . "', lname = '" . pg_escape_string($lname) . "', " .
-                 "userroles = '{" . implode(",", $userroles_work_esc) . "}', attempts = 0 " . $query_add_clause . " " .
+                 "userroles = '{" . implode(",", $userroles_work_esc) . "}', attempts = 0, ips = '" .  $ips_esc . "' " . $query_add_clause . " " .
                  "WHERE id = " .  pg_escape_string($id) . " AND NOT EXISTS (" . $where_not_exists . ");";
         $result = $main->query($con,$query);
         $cnt = pg_affected_rows($result);
@@ -280,9 +299,9 @@ if ($main->button(2)) //postback update
             }       
         }    
     }
-/* UPDATE INFO POSTBACK */
+/* UPDATE INFO */
 
-/* LOCK */  
+/* LOCK USER */  
 if ($main->button(3)) //postback delete_user
     {
     //deletes based on email
@@ -331,13 +350,12 @@ if ($main->button(4)) //postback delete_user
 /* END DELETE USER */  
 
 /* POPULATE FORM IF DELETE, EDIT OR LOCK FROM INITIAL PAGE */
-//use action in this area, do bb_button = 0
-//skip if delete or edit buttons are set, action either edit(2) or delete (3)
-//get the specific record for edit or delete links on initial page from database to populate form 
+//use action in this area, do if bb_button = 0, action are from links on users list
+//get the specific record for edit, delete, or lock, not on postback
 if (in_array($action, array(2,3,4)) && !(in_array((int)$main->post('bb_button', $module), array(2,3,4))))
     {
     //edit or delete  
-    $query = "SELECT id, email, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE id IN (" . pg_escape_string($id) . ");";
+    $query = "SELECT id, email, array_to_string(userroles,',') as userroles, fname, minit, lname, array_to_string(ips,'\\n') as ips FROM users_table WHERE id IN (" . pg_escape_string($id) . ");";
 
     $result = $main->query($con, $query);
 	
@@ -349,6 +367,7 @@ if (in_array($action, array(2,3,4)) && !(in_array((int)$main->post('bb_button', 
         $fname = $row['fname'];
         $minit = $row['minit'];
         $lname = $row['lname'];
+        $ips = $row['ips'] == "0.0.0.0/0\n::/0" ? "" : $row['ips']; 
         //called assign since userrole is current (admin) user
         $userroles_work = explode(",",$row['userroles']);
         }
@@ -384,7 +403,7 @@ echo "</div>";
 $main->echo_form_begin();
 $main->echo_module_vars();;
 
-/* INITIAL PAGE */
+/* MAIN PAGE */
 //gets the list of users for the administrator
 //also has add_new_user button
 if ($action == 0)
@@ -483,8 +502,10 @@ if ($action == 0)
     //these hidden forms are used on the initial page
     echo "<input name=\"action\" type=\"hidden\" value=\"\" />";
     echo "<input name=\"id\" type=\"hidden\" value=\"\" />";
-    }   
- 
+    }
+/* END MAIN */
+
+/* ADD, EDIT, DELETE and LOCK */ 
 if (in_array($action, array(1,2,3,4))):
     //add user, edit user, and delete, email work is key
     //this is the form page, button are all postback
@@ -550,9 +571,10 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['lname'] )? $arr_error['lname'] : "") . "</div>";    
     echo "</div>";
     
+    //lock and delete
     if (in_array($action, array(3,4)))
         {    
-        //default role select
+        //display roles
         echo "<div class=\"row\">"; 
         echo "<div class=\"cell middle\"\">Roles:</div>";
         echo "<div class=\"cell middle\">";
@@ -566,19 +588,24 @@ if (in_array($action, array(1,2,3,4))):
             $str_name =  $str_interface . ": " . $str_userrole;   
             array_push($arr_display, $str_name);
             }
-        echo implode(", ", $arr_display);
+        echo implode("<br/ >", $arr_display);
         echo "</div></div>";
         echo "<div class=\"cell error middle\"></div>";    
         echo "</div>";
         }
-    
-    
+               
+    //add or edit user
     if (in_array($action, array(1,2)))
         {    
         //default role select
         echo "<div class=\"row\">"; 
         echo "<div class=\"cell middle\"\">Default Role:</div>";
         echo "<div class=\"cell middle\"><select name=\"userrole_default\" id=\"select_default\"  class=\"spaced\" />";
+        //if add user
+        if (in_array($action, array(1)))
+            {
+            $userroles_work = $userroles_default;    
+            }
         foreach ($userroles_work as $value)
             {
             $arr_explode = explode("_" ,$value, 2);
@@ -594,16 +621,12 @@ if (in_array($action, array(1,2,3,4))):
         echo "</select></div>";
         echo "<div class=\"cell error middle\"></div>";    
         echo "</div>";
-
  
-        //select userroles
+        //userroles select 
         echo "<div class=\"row\">"; 
         echo "<div class=\"cell middle\">Roles:</div>";
         echo "<div class=\"cell middle\">";
-        echo "<div class=\"spaced border padded\">";
-        
-        //do not alter global $array_userroles
-        //$result = $main->query($con, $query);        
+        echo "<div class=\"spaced border padded\">";          
         //unset locked value
         unset($arr_userroles_loop[0]);
         foreach ($arr_userroles_loop as $value)
@@ -620,12 +643,22 @@ if (in_array($action, array(1,2,3,4))):
             }
         echo "</div>";
         echo "</div>";
-        echo "<div class=\"cell middle\"></div>";
+        echo "<div class=\"cell middle\"></div>"; 
         echo "</div>";
+        
+        //id addresses textarea
+        echo "<div class=\"row\">";
+        echo "<div class=\"cell middle\">IP Addresses or Ranges (cidr):</div>";
+        echo "<div class=\"cell\">";
+        $main->echo_textarea("ips", $ips, array('class'=>"spaced",'rows'=>7,'cols'=>27));
+        echo "</div>";
+        echo "<div class=\"cell error middle\"> " . (isset($arr_error['ips'] )? $arr_error['ips'] : "") . "</div>";          
+        echo "</div>";        
         }
     
-    echo "</div>";
-     
+    echo "</div>"; //end table
+    
+    //buttons
     if ($action == 1)
         {
         $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Add User");
@@ -646,7 +679,7 @@ if (in_array($action, array(1,2,3,4))):
         $params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Delete User");
         $main->echo_button("delete_user", $params);
         }
-    echo "<p class=\"spaced\">Password must contain numbers and uppercase, letters, length must be 8 or greater.</p>";
+    echo "<p class=\"spaced\">Password must contain numbers, uppercase and lowercase letters, and length must be 8 or greater.</p>";
 
 endif;
 

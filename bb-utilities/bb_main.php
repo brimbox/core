@@ -61,6 +61,7 @@ If not, see http://www.gnu.org/licenses/
 //database_stats
 //replicate_link
 //userrole_switch
+//on_constant
 
 class bb_main {
 	
@@ -1050,6 +1051,27 @@ class bb_main {
                 }
             echo "</span>";
             }
-        }	
+        }
+    
+    //checks and processes OFF/ON constants   
+    function on_constant($constant)
+        {
+        if (defined($constant))
+            {
+            if (strcasecmp($constant, "ON"))
+                {
+                return true;    
+                }
+            else
+                {
+                //certain things are undefined if layout exceed the natural alphabet
+                return false;    
+                }
+            }
+        else
+            {
+            return false;    
+            }            
+        }
 	} //end class
 ?>

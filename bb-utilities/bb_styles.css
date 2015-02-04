@@ -30,27 +30,71 @@ If not, see http://www.gnu.org/licenses/
 /* defines the position of the login box */
 #bb_index
 	 {
-	 position:absolute;
-	 top:125px;
-	 left:0;
-	 right:0;
-	 margin: auto;
-	 width:300px;
-	 }
-/* this is how the index image is displayed */
+     padding-top: 150px;
+	 margin: 0 auto;
+     text-align: center;
+	 }/* this is how the index image is displayed */
+     
 #bb_index #index_image
 	 {
 	 /* image path related to css file */
+     margin: 0 auto;
 	 background-image: url("../bb-config/login_image.gif");
 	 background-repeat:no-repeat;
-	 background-position:center; 
+	 background-position:center;
+     width:300px;
+     height: 50px; 
+	 }	
+     
+#bb_index #index_holder
+	 {
+	 /* image path related to css file */
+     margin: 0px auto;
+     width:300px;
+     border:1px solid #A070B6;
+     padding:2px;
 	 }
-	 
+     
+#bb_index #index_holder input
+	 {
+	 /* image path related to css file */
+     border:1px solid #A070B6;
+     padding:2px;
+     width: 200px;
+	 }
+     
+#bb_index #index_holder td.left
+	 {
+	 /* image path related to css file */
+     width: 40%;
+     text-align: right;
+     background-color: #F2EAFF;
+	 }
+
+#bb_index #index_holder td.right
+	 {
+	 /* image path related to css file */
+     width: 60%;
+	 }
+     
+#bb_index #index_button 
+	 {
+	 /* image path related to css file */
+     margin: 5px;
+     border:1px solid #A070B6;
+     background-color: #F2EAFF;
+	 }
+     
+#bb_index #index_message 
+	 {
+	 /* image path related to css file */
+     color: red;
+	 }
 
 /*********************/
 /* controller styles */
 /* body -- define margins, draw left border, and set min height */
-body
+#bb_controller
 	 {
 	 margin: 0 6px 0 6px;
 	 
@@ -60,7 +104,8 @@ body
 	 height: auto !important;
 	 height:1000px;
 	 }
-     
+ 
+/* processing image */    
 #bb_processor
      {
      display: block;
@@ -76,15 +121,6 @@ body
 #bb_processor img {
      margin: 200px auto;
      }     
-
-/* this is how the contoller image is displayed */
-#bb_header #controller_image
-	 {
-	 /* image path related to css file */
-	 background-image: url("../bb-config/controller_image.gif");
-	 background-repeat:no-repeat;
-	 background-position:left; 
-	 }
 
 /******************/
 /* module wrapper */
@@ -104,39 +140,20 @@ body
 	 top:12px;
 	 }
 
-/* This is the wrapper for setup and admin menu, position absolutely to bb_wrapper */
-#bb_admin_menu
-	 {
-	 position: absolute;
-	 left:12px;
-	 top:12px;
-	 }
-
-/* This is the button style for the admin and setup button that align along left side */	 
-#bb_admin_menu button.menu
-	 {
-	 display:block;
-	 border-radius: 0px;
- 	 -moz-border-radius: 0px; 
-	 width:150px;
-	 margin-bottom: -1px;
-     }
-
-	 
-/* This is the wrapper for setup and admin content, position absolutely to bb_wrapper  */
-#bb_admin_content
-	 {
-	 position: absolute;
-	 padding-left:8px;
-	 left:175px;
-	 top:12px;
-	 }
-
 /***********************/
 /* controller top line */
 /* This is the line when no tab is selected, in other words when hidden module is selected */
 /* line moves under button tab, button tabs are padded 1px more when chosen */
 /* this is a Firefox hack, Firefox will not move a button over a div line */
+/* this is how the contoller image is displayed */
+#bb_header #controller_image
+	 {
+	 /* image path related to css file */
+	 background-image: url("../bb-config/controller_image.gif");
+	 background-repeat:no-repeat;
+	 background-position:left; 
+	 }
+
 #bb_header div.line
 	 {
 	 /* can be changed for wide layout */
@@ -202,6 +219,36 @@ body
 	font-weight: bold;
 	color: black;
 	}
+
+/* admin stuff */    
+/* This is the wrapper for setup and admin menu, position absolutely to bb_wrapper */
+#bb_admin_menu
+	 {
+	 position: absolute;
+	 left:12px;
+	 top:12px;
+	 }
+
+/* This is the button style for the admin and setup button that align along left side */	 
+#bb_admin_menu button.menu
+	 {
+	 display:block;
+	 border-radius: 0px;
+ 	 -moz-border-radius: 0px; 
+	 width:150px;
+	 margin-bottom: -1px;
+     }
+
+	 
+/* This is the wrapper for setup and admin content, position absolutely to bb_wrapper  */
+#bb_admin_content
+	 {
+	 position: absolute;
+	 padding-left:8px;
+	 left:175px;
+	 top:12px;
+	 }
+
 
 /* END CONTROLLER TABS */
 
