@@ -218,8 +218,8 @@ if ($main->button(1)) //postback add new user
     check_password($passwd, $repasswd, $arr_error);
     //names
     //check that they are non-empty
-    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty.");
-    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty.");
+    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty");
+    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty");
     //ips
     $ips_esc = empty($arr_ips) ? "{0.0.0.0/0,0:0:0:0:0:0:0:0/0}" : pg_escape_string("{" . implode(",",$arr_ips) . "}");
     check_ips($con, $ips_esc, $ips, $arr_error);
@@ -276,8 +276,8 @@ if ($main->button(2)) //postback update
         $query_add_clause = ", hash = '" . hash('sha512', $passwd . $salt) . "', salt = '" . $salt . "'";
         }   
     //names    
-    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty.");
-    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty.");
+    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty");
+    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty");
     //ips
     $ips_esc = empty($arr_ips) ? "{0.0.0.0/0,0:0:0:0:0:0:0:0/0}" : pg_escape_string("{" . implode(",",$arr_ips) . "}");
     check_ips($con, $ips_esc, $ips, $arr_error);

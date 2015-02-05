@@ -39,7 +39,7 @@ if (isset($_SESSION['email'])):
 
 /* RESERVED VARIABLES (used in controller)*/
 //$userrole -- current security level string including the interface
-//$userroles -- valid security permissions
+//$userroles -- valid security permissions, comma delimited string
 //$usertype -- current userrole integer without interface
 //$interface -- current interface
 //$email -- the current email/username
@@ -62,21 +62,22 @@ if (isset($_SESSION['email'])):
 //bb_work
 //bb_hooks
 //bb_reports
-
 //bb_hooks
+
 //lessc -- LESS comnpiler
 
 //other vars are all disposed of with unset
 
-//get SESSION STUFF -- designed for one user type per browser
+//SESSION STUFF
 $email = $_SESSION['email']; //login of user
 $userrole = $_SESSION['userrole']; //string containing userrole and interface
 $userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
 list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
 $archive = $_SESSION['archive']; //archive mode
+//button post
 $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0; //global button
 
-//logout algorithm used for both interface change, userrole change and logout
+//logout algorithm used for interface change, userrole change and logout
 if (isset($_POST['bb_module']))
 	{
 	$module = $_POST['bb_module'];
@@ -139,7 +140,7 @@ $con = $main->connect();
 
 /* USER LOCKED OR DELETED */
 //once con is set check live whether user is locked or deleted
-//0_bb_brimbox is only locked userrole
+//0_bb_brimbox is only locked userrole, for active lock
 $arr_work['locked'] = "SELECT id FROM users_table WHERE email = '" . pg_escape_string($email) . "' AND NOT '0_bb_brimbox' = ANY (userroles);";
 $result = pg_query($con, $arr_work['locked']);
 if (pg_num_rows($result) <> 1)
@@ -153,6 +154,7 @@ if (pg_num_rows($result) <> 1)
 //NOTE: file_exists checked before header and module includes, therefore no missing file errors allowed
 
 /* INCLUDE HEADER FILES */
+//do not want controller to bomb
 //global for all interfaces
 include("bb-utilities/bb_headers.php");
 $arr_work['headers'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-3) ORDER BY module_order;";
@@ -440,7 +442,8 @@ pg_close($con);
 else:
 
 /* LOGIN SECTION */
-/* check login and set session if not already set */
+/* all php, no libraries etc */
+/* check login and set session if valid */
 /* all var are local in this section */
 
 //initialize
@@ -454,8 +457,8 @@ if (isset($_POST['index_enter']))
 	$con = pg_connect($con_string);
     
     //get form variables
-    $email = substr($_POST['username'],0,255); //email must be < 255 by definition
-    $passwd = substr($_POST['passwd'],0,255); //password can be as long as you want since its hashed
+    $email = substr($_POST['username'],0,255); //email and password must be < 255 by definition
+    $passwd = substr($_POST['passwd'],0,255); //do not want to process big post
     
     if (filter_var($ip = $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
         {   
@@ -469,40 +472,51 @@ if (isset($_POST['index_enter']))
         //1 row, definate database //known username
         if ($num_rows == 1)
             {
-            $set_session = false;
+            $set_session = $set_attempts = false;
             $row = pg_fetch_array($result);
             
             //go through single user and admin waterfall
-            if (SINGLE_USER_ONLY <> '')
+            if (hash('sha512', $passwd . $row['salt']) == $row['hash']) //good password
                 {
-                if ((SINGLE_USER_ONLY ==  $row['email']) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
+                if (SINGLE_USER_ONLY <> "") //single user
                     {
-                    $set_session = true;
-                    }
-                $message = "Program in single user mode"; //only if failure
-                }
-            else //single user empty
-                {
-                if (ADMIN_ONLY == 'YES')
-                    {
-                    $arr_userroles = explode(",", $row['userroles']);
-                    if (in_array(5,$arr_userroles) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
+                    if ((SINGLE_USER_ONLY == $row['email']) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
                         {
                         $set_session = true;
+                        $message = "Login Success/Single User";
                         }
-                    $message = "Program in Admin only mode"; //only if failure
-                    }
-                else //regular check password admin only not YES
-                    {
-                    if (hash('sha512', $passwd . $row['salt']) == $row['hash'])
+                    else
                         {
-                        $set_session = true;	
+                        $message = "Program in Single User mode"; //only if failure
                         }
-                    $message = "Invalid Login/Password"; //only if failure	
+                    }
+                elseif (!strcasecmp(ADMIN_ONLY,"YES")) //admin only
+                    {
+                    $arr_userroles = explode(",", $row['userroles']);
+                    if (in_array("5_bb_brimbox", $arr_userroles) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
+                        {
+                        $set_session = true;
+                        $message = "Login Success/Admin Only";
+                        }
+                    else
+                        {
+                        $message = "Program in Admin Only mode";
+                        }//only if failure
+                    }
+                else //regular login
+                    {
+                    $set_session = true;
+                    $message = "Login Success";
                     }
                 }
+            else //bad password
+                {
+                $set_attempts = true;
+                //only one bad login message
+                $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
+                }
             
-            if ($set_session) //good login
+            if ($set_session) //good login and mode
                 {
                 //set attempts to zero
                 $query = "UPDATE users_table SET attempts = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
@@ -519,7 +533,7 @@ if (isset($_POST['index_enter']))
                 $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
                 $_SESSION['archive'] = 1; //archive mode is off
                 //log entry
-                $arr_log = array($email, $ip, "Login Success");
+                $arr_log = array($email, $ip, $message);
                 $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
                 pg_query_params($con, $query, $arr_log);
                 //redirect with header call to index with session set
@@ -527,7 +541,7 @@ if (isset($_POST['index_enter']))
                 header($index_path);
                 die(); //important to stop script
                 }		
-            else //bad password or admin mode
+            elseif ($set_attempts) //bad password
                 {
                 $query = "UPDATE users_table SET attempts = attempts + 1 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "') RETURNING attempts;";
                 $result = pg_query($con, $query);
@@ -546,11 +560,20 @@ if (isset($_POST['index_enter']))
                 $passwd = "";
                 usleep($rnd);
                 }
+            else  //admin or single user
+                {               
+                $arr_log = array($email, $ip, $message);
+                $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
+                pg_query_params($con, $query, $arr_log);
+                //delay if invalid login
+                $email = "";
+                $passwd = "";    
+                }
             } //end row found   
         else //no rows, bad username or locked
             {
-            //bad username
-            $message = "Login Failure: Bad Username, Invalid IP, or Account Locked";
+             //only one bad login message
+            $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
             $arr_log = array($email, $ip, $message);
             $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
             pg_query_params($con, $query, $arr_log);
@@ -561,10 +584,10 @@ if (isset($_POST['index_enter']))
             usleep($rnd);
             }
         }
-    //just in case there is something awry with the ip
+    //just in case there is something awry with the ip, not really possible
     else
         {
-        $message = "Login Failure: Bad IP address detected";
+        $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
         $arr_log = array($email, $ip, $message);
         $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
         pg_query_params($con, $query, $arr_log);

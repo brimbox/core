@@ -1058,7 +1058,7 @@ class bb_main {
         {
         if (defined($constant))
             {
-            if (strcasecmp($constant, "ON"))
+            if (!strcasecmp($constant, "ON"))
                 {
                 return true;    
                 }
