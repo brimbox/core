@@ -27,7 +27,6 @@ define('BASE_CHECK', true);
 // need DB_NAME from bb_config, must not have html output including blank spaces
 include("bb-config/bb_config.php"); // need DB_NAME
 //set PHP and User/Interface timezone based on bb_config
-date_default_timezone_set(USER_TIMEZONE);
 
 // start session based on db name
 session_name(DB_NAME);
@@ -108,6 +107,8 @@ if (isset($_POST['bb_module']))
 
 /* INCLUDE CONSTANTS */    
 include("bb-config/bb_constants.php");
+/* SET TIME ZONE */
+date_default_timezone_set(USER_TIMEZONE);
 	
 /* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
 //contains bb_main class
@@ -442,36 +443,27 @@ else:
 /* check login and set session if not already set */
 /* all var are local in this section */
 
-//no html output in these libraries because of header calls
-//objects extended together
-include("bb-utilities/bb_main.php");
-include("bb-utilities/bb_database.php");
-
-//set up main oject from second class (bb_database)
-$main = new bb_database();
-
 //initialize
-$email = "";
-$passwd = "";
-$message = "";
+$email = $passwd = $message = "";
 
 //postback, attempt to login	
 if (isset($_POST['index_enter']))
     {
     //get connection
-    $con = $main->connect();
+    $con_string = "host=" . DB_HOST . " dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
+	$con = pg_connect($con_string);
     
     //get form variables
-    $email = $main->custom_trim_string($_POST['username'],255);
-    $passwd = $main->custom_trim_string($_POST['passwd'],255);
+    $email = substr($_POST['username'],0,255); //email must be < 255 by definition
+    $passwd = substr($_POST['passwd'],0,255); //password can be as long as you want since its hashed
     
     if (filter_var($ip = $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
         {   
         //query master database
-        $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0_bb_brimbox' = ANY (userroles)) AND ('" . $ip . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
+        $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0_bb_brimbox' = ANY (userroles)) AND ('" . pg_escape_string($ip) . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
         
         //get result
-        $result = $main->query($con, $query);
+        $result = pg_query($con, $query);
         $num_rows = pg_num_rows($result);	
          
         //1 row, definate database //known username
@@ -487,7 +479,7 @@ if (isset($_POST['index_enter']))
                     {
                     $set_session = true;
                     }
-                $message = "Program in single user mode."; //only if failure
+                $message = "Program in single user mode"; //only if failure
                 }
             else //single user empty
                 {
@@ -498,7 +490,7 @@ if (isset($_POST['index_enter']))
                         {
                         $set_session = true;
                         }
-                    $message = "Program in Admin only mode."; //only if failure
+                    $message = "Program in Admin only mode"; //only if failure
                     }
                 else //regular check password admin only not YES
                     {
@@ -506,7 +498,7 @@ if (isset($_POST['index_enter']))
                         {
                         $set_session = true;	
                         }
-                    $message = "Invalid Login/Password."; //only if failure	
+                    $message = "Invalid Login/Password"; //only if failure	
                     }
                 }
             
@@ -514,17 +506,22 @@ if (isset($_POST['index_enter']))
                 {
                 //set attempts to zero
                 $query = "UPDATE users_table SET attempts = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
-                $main->query($con, $query);
+                pg_query($con, $query);
                 //set sessions
                 $_SESSION['email'] = $row['email'];
-                $_SESSION['name'] = $main->build_name($row);
+                //build name
+                $arr_name = array($row["fname"],$row["minit"],$row["lname"]);
+                $arr_name = array_filter(array_map('trim',$arr_name));  
+                $_SESSION['name'] = implode(" ", $arr_name);
                 //this holds the possible permissions, be careful altering on the fly
                 $_SESSION['userroles'] = $row['userroles']; //userroles string from db
                 $arr_userroles = explode(",",$row['userroles']);
                 $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
                 $_SESSION['archive'] = 1; //archive mode is off
                 //log entry
-                $main->log_entry($con, "Login Success");
+                $arr_log = array($email, $ip, "Login Success");
+                $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
+                pg_query_params($con, $query, $arr_log);
                 //redirect with header call to index with session set
                 $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
                 header($index_path);
@@ -533,14 +530,16 @@ if (isset($_POST['index_enter']))
             else //bad password or admin mode
                 {
                 $query = "UPDATE users_table SET attempts = attempts + 1 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "') RETURNING attempts;";
-                $result = $main->query($con, $query);
+                $result = pg_query($con, $query);
                 $row = pg_fetch_array($result);
                 if ($row['attempts'] >= 10)
                     {
-                    $query = "UPDATE users_table SET userrole = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
-                    $main->query($con, $query);
+                    $query = "UPDATE users_table SET userroles = '{0_bb_brimbox}' WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
+                    pg_query($con, $query);
                     }
-                $main->log_entry($con, rtrim($message, ".") , $email);
+                $arr_log = array($email, $ip, $message);
+                $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
+                pg_query_params($con, $query, $arr_log);
                 //delay if invalid login
                 $rnd = rand(100000,200000);
                 $email = "";
@@ -551,8 +550,10 @@ if (isset($_POST['index_enter']))
         else //no rows, bad username or locked
             {
             //bad username
-            $message = "Login Failure: Bad Username, Invalid Ip, or Account Locked.";
-            $main->log_entry($con, rtrim($message, ".") , $email);
+            $message = "Login Failure: Bad Username, Invalid IP, or Account Locked";
+            $arr_log = array($email, $ip, $message);
+            $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
+            pg_query_params($con, $query, $arr_log);
             //delay if invalid login
             $rnd = rand(100000,200000);
             $email = "";
@@ -563,8 +564,10 @@ if (isset($_POST['index_enter']))
     //just in case there is something awry with the ip
     else
         {
-        $message = "Login Failure: Bad IP address detected.";
-        $main->log_entry($con, rtrim($message, ".") , $email);
+        $message = "Login Failure: Bad IP address detected";
+        $arr_log = array($email, $ip, $message);
+        $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
+        pg_query_params($con, $query, $arr_log);
         //delay if invalid login
         $rnd = rand(100000,200000);
         $email = "";
@@ -580,8 +583,8 @@ if (isset($_POST['index_enter']))
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-<link rel=StyleSheet href="bb-utilities/bb_styles.css" type="text/css" media=screen>
-<link rel=StyleSheet href="bb-config/bb_admin_css.css" type="text/css" media=screen>
+<link rel=StyleSheet href="bb-utilities/bb_index.css" type="text/css" media=screen>
+<link rel=StyleSheet href="bb-config/bb_admin_index.css" type="text/css" media=screen>
     
 <title><?php echo PAGE_TITLE; ?></title>
 
@@ -596,15 +599,13 @@ echo "<div id=\"index_image\"></div>";
 
 //since it is centered use table
 echo "<div id=\"index_holder\">";
-echo "<table><tr><td class=\"left\">Username: </td>";
-echo "<td class=\"right\"><input name=\"username\" class=\"long\" type=\"text\" /></td></tr>";
-echo "<tr><td class=\"left\">Password: </td>";
-echo "<td class=\"right\"><input name=\"passwd\" class=\"long\" type=\"password\" /></td></tr></table>";
+echo "<table><tr><td class=\"left\"><label for=\"username\">Username: </label></td>";
+echo "<td class=\"right\"><input name=\"username\" id=\"username\" class=\"long\" type=\"text\" /></td></tr>";
+echo "<tr><td class=\"left\"><label for=\"passwd\">Password: </label></td>";
+echo "<td class=\"right\"><input name=\"passwd\" id=\"passwd\"class=\"long\" type=\"password\" /></td></tr></table>";
 echo "</div>";
-
 echo "<button id=\"index_button\" name=\"index_enter\" type=\"submit\" value=\"index_enter\" />Login</button>";
-
-echo "<p id=\"index_message\">" . $message . "</p>";
+echo "<div id=\"index_message\">" . $message . "</div>";
 echo "</form>";
 
 echo "</div>"; //end wrapper div

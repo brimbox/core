@@ -94,7 +94,7 @@ select.box
 <?php
 /* LOCAL FUNCTIONS */
 //this function leaves an empty $arr_error for logic testing if no errors
-function check_is_empty(&$value, $index, &$arr_error, $error_message)
+function check_is_empty($value, $index, &$arr_error, $error_message)
     {
     //custom "is empty" function for this module 
     if (empty($value) && $value !== '0')
@@ -102,7 +102,7 @@ function check_is_empty(&$value, $index, &$arr_error, $error_message)
         $arr_error[$index] = $error_message;   
         }
     }
-    
+        
 function check_password($passwd, $repasswd, &$arr_error)
     {
     if (!preg_match("/^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/", $passwd))
@@ -177,10 +177,11 @@ if ($main->button(1) || $main->button(2))
     {
     //if add new user on initial page is set, all of these are empty
     //if add new or update info pages are set these will be set, validate populatred values
+    //input form only allows 255 chars
 	
     $email_work = $main->custom_trim_string($main->post('email_work', $module),255);
-    $passwd = $main->post('passwd', $module);
-    $repasswd = $main->post('repasswd', $module);
+    $passwd = $main->custom_trim_string($main->post('passwd', $module), 255);
+    $repasswd = $main->custom_trim_string($main->post('repasswd', $module), 255);
     $userroles_work = $main->post('userroles_work', $module);
     sort($userroles_work);
     $userrole_default = $main->post('userrole_default', $module, $userroles_default);
@@ -205,21 +206,20 @@ if ($main->button(1)) //postback add new user
     {    
     $action = 1; //in case of validation error    
     //email work
-    check_is_empty($email_work, "email_work", $arr_error, "Email cannot be empty");
-    
+    check_is_empty($email_work, "email_work", $arr_error, "Email cannot be empty.");    
     if (!isset($arr_error['email_work'])) //non-empty email
         {            
         if (!filter_var($email_work, FILTER_VALIDATE_EMAIL)) //check for valid email
             {
-            $arr_error['email_work'] = " Email is not valid";     
+            $arr_error['email_work'] = "Email is not valid";     
             }   
         }   
-    //password    
+    //password
     check_password($passwd, $repasswd, $arr_error);
     //names
     //check that they are non-empty
-    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty");
-    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty");
+    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty.");
+    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty.");
     //ips
     $ips_esc = empty($arr_ips) ? "{0.0.0.0/0,0:0:0:0:0:0:0:0/0}" : pg_escape_string("{" . implode(",",$arr_ips) . "}");
     check_ips($con, $ips_esc, $ips, $arr_error);
@@ -256,6 +256,14 @@ if ($main->button(2)) //postback update
     {
 	//updates based on id
     $action = 2; //in case of validation error
+    check_is_empty($email_work, "email_work", $arr_error, "Email cannot be empty.");
+    if (!isset($arr_error['email_work'])) //non-empty email
+        {            
+        if (!filter_var($email_work, FILTER_VALIDATE_EMAIL)) //check for valid email
+            {
+            $arr_error['email_work'] = "Email is not valid";     
+            }   
+        }
 	
     //query_add_clause only if password is being updated
     $query_add_clause = "";
@@ -268,8 +276,8 @@ if ($main->button(2)) //postback update
         $query_add_clause = ", hash = '" . hash('sha512', $passwd . $salt) . "', salt = '" . $salt . "'";
         }   
     //names    
-    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty");
-    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty");
+    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty.");
+    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty.");
     //ips
     $ips_esc = empty($arr_ips) ? "{0.0.0.0/0,0:0:0:0:0:0:0:0/0}" : pg_escape_string("{" . implode(",",$arr_ips) . "}");
     check_ips($con, $ips_esc, $ips, $arr_error);

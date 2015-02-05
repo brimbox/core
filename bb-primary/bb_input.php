@@ -447,7 +447,6 @@ if ($row_type > 0):
     //this is dependent on admin module "Set Column Names"
     if (!empty($arr_column_reduced))
         {
-        $textarea_rows = (int)$arr_column['layout']['count'] > 4 ? (int)$arr_column['layout']['count'] : 4;
         foreach($arr_column_reduced as $key => $value)
             {
             $col = $main->pad("c", $key);
@@ -478,26 +477,9 @@ if ($row_type > 0):
                     }		
             }
         echo "<div class=\"clear\"></div>";
-        //submit button and textarea load  
-        if (!empty($arr_column_reduced))
-            {
-                
-            $update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
-            $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
-            $main->echo_button("bottom_submit", $params);
-            $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
-            $main->echo_button("bottom_reset", $params);
-            
-            echo "<div class=\"clear\"></div>";
-            echo "<br>";
-            //load textarea
-            echo "<div align=\"left\">";
-            echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . ($textarea_rows) ."\"></textarea>";
-            echo "<div class=\"clear\"></div>";
-            $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
-            $main->echo_button("load_textarea", $params);
-            echo "</div>";
-            }    
+        //submit button and textarea load
+        $main->hook("submit_buttons", true);        
+        $main->hook("textarea_load", true);  
         }
     /* END POPULATE INPUT FIELDS */    
     

@@ -220,5 +220,36 @@ class bb_hooks extends bb_work {
 				}
 			}	
 		}
+		
+	function submit_buttons($arr_column_reduced, $module, $row_type, $row_join)
+		{
+		if (!empty($arr_column_reduced))
+            {                
+            $update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
+            $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
+            $this->echo_button("bottom_submit", $params);
+            $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
+            $this->echo_button("bottom_reset", $params);
+            }			
+		}
+		
+	function textarea_load($arr_column_reduced, $arr_column, $module)
+		{
+		if (!empty($arr_column_reduced))
+            {
+			$textarea_rows = (int)$arr_column['layout']['count'] > 4 ? (int)$arr_column['layout']['count'] : 4;
+            echo "<div class=\"clear\"></div>";
+            echo "<br>";
+            //load textarea
+            echo "<div align=\"left\">";
+            echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . ($textarea_rows) ."\"></textarea>";
+            echo "<div class=\"clear\"></div>";
+            $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
+            $this->echo_button("load_textarea", $params);
+            echo "</div>";
+            }  	
+		}
+
+
 } //end class
 ?>
