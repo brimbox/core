@@ -447,7 +447,7 @@ else:
 /* all var are local in this section */
 
 //initialize
-$email = $passwd = $message = "";
+$email = $password = $message = "";
 
 //postback, attempt to login	
 if (isset($_POST['index_enter']))
@@ -458,7 +458,7 @@ if (isset($_POST['index_enter']))
     
     //get form variables
     $email = substr($_POST['username'],0,255); //email and password must be < 255 by definition
-    $passwd = substr($_POST['passwd'],0,255); //do not want to process big post
+    $password = substr($_POST['password'],0,255); //do not want to process big post
     
     //default error message, information only provided with accurate credentials
     $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
@@ -479,7 +479,7 @@ if (isset($_POST['index_enter']))
             $row = pg_fetch_array($result);
             
             //go through single user and admin waterfall
-            if (hash('sha512', $passwd . $row['salt']) == $row['hash']) //good password
+            if (hash('sha512', $password . $row['salt']) == $row['hash']) //good password
                 {
                 //single user takes precedence
                 if (SINGLE_USER_ONLY <> "") //single user
@@ -497,7 +497,7 @@ if (isset($_POST['index_enter']))
                 elseif (!strcasecmp(ADMIN_ONLY, "YES") && SINGLE_USER_ONLY == "") //admin only
                     {
                     $arr_userroles = explode(",", $row['userroles']);
-                    if (in_array("5_bb_brimbox", $arr_userroles) && (hash('sha512', $passwd . $row['salt']) == $row['hash']))
+                    if (in_array("5_bb_brimbox", $arr_userroles))
                         {
                         $set_session = true;
                         $message = $log_message = "Login Success/Admin Only";
@@ -562,7 +562,7 @@ if (isset($_POST['index_enter']))
                 //delay if invalid login
                 $rnd = rand(100000,200000);
                 $email = "";
-                $passwd = "";
+                $password = "";
                 usleep($rnd);
                 }
             else  //admin or single user
@@ -572,7 +572,7 @@ if (isset($_POST['index_enter']))
                 pg_query_params($con, $query, $arr_log);
                 //delay if invalid login
                 $email = "";
-                $passwd = "";    
+                $password = "";    
                 }
             } //end row found   
         else //no rows, bad username or locked
@@ -585,7 +585,7 @@ if (isset($_POST['index_enter']))
             //delay if invalid login
             $rnd = rand(100000,200000);
             $email = "";
-            $passwd = "";
+            $password = "";
             usleep($rnd);
             }
         }
@@ -599,7 +599,7 @@ if (isset($_POST['index_enter']))
         //delay if invalid login
         $rnd = rand(100000,200000);
         $email = "";
-        $passwd = "";
+        $password = "";
         usleep($rnd);                
         }
 	} //end post
@@ -629,8 +629,8 @@ echo "<div id=\"index_image\"></div>";
 echo "<div id=\"index_holder\">";
 echo "<table><tr><td class=\"left\"><label for=\"username\">Username: </label></td>";
 echo "<td class=\"right\"><input name=\"username\" id=\"username\" class=\"long\" type=\"text\" /></td></tr>";
-echo "<tr><td class=\"left\"><label for=\"passwd\">Password: </label></td>";
-echo "<td class=\"right\"><input name=\"passwd\" id=\"passwd\"class=\"long\" type=\"password\" /></td></tr></table>";
+echo "<tr><td class=\"left\"><label for=\"password\">Password: </label></td>";
+echo "<td class=\"right\"><input name=\"password\" id=\"password\"class=\"long\" type=\"password\" /></td></tr></table>";
 echo "</div>";
 echo "<button id=\"index_button\" name=\"index_enter\" type=\"submit\" value=\"index_enter\" />Login</button>";
 echo "<div id=\"index_message\">" . $message . "</div>";
