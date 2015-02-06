@@ -460,9 +460,12 @@ if (isset($_POST['index_enter']))
     $email = substr($_POST['username'],0,255); //email and password must be < 255 by definition
     $passwd = substr($_POST['passwd'],0,255); //do not want to process big post
     
+    //default error message, information only provided with accurate credentials
+    $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
+    
     if (filter_var($ip = $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
-        {   
-        //query master database
+        {
+        //query users table
         $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0_bb_brimbox' = ANY (userroles)) AND ('" . pg_escape_string($ip) . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
         
         //get result
@@ -512,9 +515,9 @@ if (isset($_POST['index_enter']))
                 }
             else //bad password
                 {
+                //$set_session is false
                 $set_attempts = true;
                 //only one bad login message
-                $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
                 $log_message = "Bad Password";
                 }
             
@@ -575,7 +578,6 @@ if (isset($_POST['index_enter']))
         else //no rows, bad username or locked
             {
              //only one bad login message
-            $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
             $log_message = "Login Failure: Bad Username, Invalid IP, or Account Locked";
             $arr_log = array($email, $ip, $log_message);
             $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
@@ -590,7 +592,6 @@ if (isset($_POST['index_enter']))
     //just in case there is something awry with the ip, not really possible
     else
         {
-        $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
         $log_message = "Malformed IP";
         $arr_log = array($email, $ip, $log_message);
         $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";

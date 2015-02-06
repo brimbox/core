@@ -74,7 +74,10 @@ $main->update($array_state, $module,  $arr_state);
 
 /* PARSE SEARCH STRING */
 //function parse_boolean_string calls four non-object functions, advance, token, open, operator
-$message = parse_boolean_string($search_parsed);
+$boolean_parse = new php_boolean_validator();
+$boolean_parse->splice_or_tokens = true;
+
+$message = $boolean_parse->parse_boolean_string($search_parsed);
 array_push($arr_message, $message); 
 
 /* GET LAYOUT */
