@@ -588,8 +588,9 @@ class bb_main {
 	
 	function check_permission($interface, $usertypes)
 		{
-		//waterfall
+		//waterfall function
 		//this will also check that session is set
+        //$usertypes can be int or array of int
         list($userwork, $interwork) = explode("_", $_SESSION['userrole'], 2);
         if (is_int($usertypes)) //either int or string input
             {
@@ -602,26 +603,27 @@ class bb_main {
 			die();
 			}
         
-		//will have sufficient permission
-		//this for when administratprs lock the db down
-		if (SINGLE_USER_ONLY <> '')
+		//single user takes precedence over admin only
+		//this for when administrators lock the db down
+        if (!strcasecmp(ADMIN_ONLY, "YES") && SINGLE_USER_ONLY == '')
 			{
-            if ($_SESSION['email'] <> SINGLE_USER_ONLY)
+            $arr_userroles = explode(",", $_SESSION['userroles']);           
+			if (!in_array("5_bb_brimbox", $arr_userroles))
+				{
+				echo "Program switched to Admin Only mode.";
+                session_destroy();
+				die();    
+				}
+			}
+		elseif (SINGLE_USER_ONLY <> '')
+			{
+            if (strcasecmp($_SESSION['email'], SINGLE_USER_ONLY))
                 {
-                echo "Program switched to single user mode.";
+                echo "Program switched to Single User mode.";
                 session_destroy();
                 die();
                 }
 			}
-		if (ADMIN_ONLY == "YES")
-			{
-			if (($userwork <> 5) || (strcasecmp($interwork, "bb_brimbox") <> 0))
-				{
-				echo "Program switched to admin only mode.";
-                session_destroy();
-				die();    
-				}
-			}    
 		}
 	
 	function validate_password($con, $passwd, $userlevels)
