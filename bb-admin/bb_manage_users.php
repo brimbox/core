@@ -123,11 +123,19 @@ function check_ips($con, $ips_esc, &$ips, &$arr_error)
     @$result = pg_query($con, "SELECT array_to_string('" . $ips_esc . "'::cidr[],'\\n') as ips");
     if (!$result)
         {
-        $arr_error['ips'] = "Invalid cidr in list.";   
+        $arr_error['ips'] = "Invalid cidr in list.";
         }
     else
         {
-        $ips = $result;
+        $row = pg_fetch_array($result);
+        if ($row['ips'] == "0.0.0.0/0\n::/0")
+            {
+            $ips = "";   
+            }
+        else
+            {
+            $ips = $row['ips'];
+            }
         }
     }
 /* END LOCAL FUNCTIONS */

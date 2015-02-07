@@ -400,7 +400,7 @@ if ($arr_work['interface_type'] == 'Auxiliary')
     //the include must be done globally, will render standard php errors
     //if it bombs it bombs, the controller should still execute
     //Auxiliary type module is included here
-    include($controller_path);
+    if (file_exists($controller_path)) include($controller_path);
     
     echo "</div>";
     echo "<div class=\"clear\"></div>";
@@ -421,7 +421,7 @@ else
     //the include must be done globally, will render standard php errors
     //if it bombs it bombs, the controller should still execute
     //Standard type module is included here
-    include($controller_path);
+    if (file_exists($controller_path)) include($controller_path);
     
     echo "</div>";	
     echo "<div class=\"clear\"></div>";
