@@ -29,8 +29,6 @@ $array_global['bb_brimbox']['hooks']['bb_input_quick_links'][] = array(array($ma
 $array_global['bb_brimbox']['hooks']['bb_input_submit_buttons'][] = array(array($main,"submit_buttons"), array("arr_column_reduced", "module", "row_type", "row_join"));
 $array_global['bb_brimbox']['hooks']['bb_input_textarea_load'][] = array(array($main,"textarea_load"), array("arr_column_reduced", "arr_column", "module"));
 
-
-
 # STANDARD INTERFACE DEFINITION #
 $array = array();
 $array[] = array('interface_type'=>'Standard','usertypes'=>array(1),'module_type'=>1);
@@ -111,6 +109,8 @@ if ($main->check("row_type", "bb_input"))
     array_push($arr, "row_type");
     array_push($arr, "row_join");
     array_push($arr, "post_key");
+    if ($main->check("security", "bb_input")) array_push($arr, "security");
+    if ($main->check("archive", "bb_input")) array_push($arr, "archive");
 	$row_type = $main->post("row_type", "bb_input");
 	$arr_columns = $main->get_json($con, "bb_column_names");
 	//removes a warning we there are no columns in a layout

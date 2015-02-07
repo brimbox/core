@@ -594,7 +594,7 @@ if (in_array($action, array(1,2,3,4))):
         echo "<div class=\"row\">"; 
         echo "<div class=\"cell middle\"\">Roles:</div>";
         echo "<div class=\"cell middle\">";
-        echo "<div class=\"padded spaced rounded border\">";
+        echo "<div class=\"padded spaced border\">";
         $arr_display = array();
         foreach ($userroles_work as $value)
             {
@@ -604,10 +604,17 @@ if (in_array($action, array(1,2,3,4))):
             $str_name =  $str_interface . ": " . $str_userrole;   
             array_push($arr_display, $str_name);
             }
-        echo implode("<br/ >", $arr_display);
+        echo implode("<br>", $arr_display);
         echo "</div></div>";
-        echo "<div class=\"cell error middle\"></div>";    
+        echo "<div class=\"cell middle\"></div>";    
         echo "</div>";
+        echo "<div class=\"row\">";
+        echo "<div class=\"cell middle\"\">IPs (cidr):</div>";
+        $ips_display = ($ips == "") ? "&nbsp" :  str_replace("\n", "<br>", $ips);
+        echo "<div class=\"padded spaced border\">" . $ips_display . "</div>";
+        echo "<div class=\"cell middle\"></div>";
+        echo "</div>";
+        
         }
                
     //add or edit user

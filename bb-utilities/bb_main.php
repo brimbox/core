@@ -594,7 +594,7 @@ class bb_main {
 		//waterfall function for single user and admin mode
 		//this will also check that session is set
         //$usertypes can be int or array of int
-        if (isset($_SESSION['email'])) 
+        if (isset($_SESSION['username'])) 
             {
             list($userwork, $interwork) = explode("_", $_SESSION['userrole'], 2);
             if (is_int($usertypes)) //either int or string input
@@ -622,7 +622,7 @@ class bb_main {
                 }
             elseif (SINGLE_USER_ONLY <> '')
                 {
-                if (strcasecmp($_SESSION['email'], SINGLE_USER_ONLY))
+                if (strcasecmp($_SESSION['username'], SINGLE_USER_ONLY))
                     {
                     echo "Program switched to Single User mode.";
                     session_destroy();
@@ -644,7 +644,7 @@ class bb_main {
 		//waterfall
 		//this will also check that session is set
         $userrole = $_SESSION['userrole'];
-        $email = $_SESSION['email'];
+        $email = $_SESSION['username'];
 		if (!is_array($userlevels))
 			{
 			$userlevels = array($userlevels);	
@@ -803,9 +803,9 @@ class bb_main {
         
 	function log_entry($con, $message, $email = "")
 		{
-		if (isset($_SESSION['email']))
+		if (isset($_SESSION['username']))
 			{
-			$email = $_SESSION['email'];    
+			$email = $_SESSION['username'];    
 			}
 		$ip = $_SERVER['REMOTE_ADDR'];
 		$arr_log = array($email,$ip, $message);
@@ -1025,7 +1025,7 @@ class bb_main {
     function database_stats($class_div = "bold", $class_span = "colored")
         {
         echo "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['email'] . "</span></div>";	
+        echo "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['username'] . "</span></div>";	
         echo "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
         echo "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
         echo "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
