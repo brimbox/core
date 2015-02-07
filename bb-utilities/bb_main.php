@@ -589,10 +589,12 @@ class bb_main {
 	function check_permission($interface, $usertypes)
 		{
         /* IMPORTANT FUNCTION SHOULD BE CALLED AT TOP OF EVERY MODULE */
+        //dies on everything except good permission
+        //should be invoked at the top od every module
 		//waterfall function for single user and admin mode
 		//this will also check that session is set
         //$usertypes can be int or array of int
-        if (isset($_SESSION['email'])) //do nothing if session not set
+        if (isset($_SESSION['email'])) 
             {
             list($userwork, $interwork) = explode("_", $_SESSION['userrole'], 2);
             if (is_int($usertypes)) //either int or string input
@@ -632,6 +634,7 @@ class bb_main {
         else
             {
             //empty die, no 404 in case there is html output before check permission
+            session_destroy();
             die();    
             }
 		}
