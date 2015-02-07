@@ -128,7 +128,7 @@ if ($main->button(1))
     if (empty($arr_errors)) //no errors
         {
         //produce empty form since we are going to load the data
-        $owner = $main->custom_trim_string($_SESSION['email'],255); //used in both if and else
+        $owner = $main->custom_trim_string($_SESSION['username'],255); //used in both if and else
         // update preexisting row
         if ($row_type == $row_join) 
             {
@@ -201,7 +201,7 @@ if ($main->button(1))
                 if ($input_update_log)
                     {
                     $message = "Record " . chr($row_type + 64) . $post_key . " updated.";
-                    $main->log_entry($con, $message , $email);
+                    $main->log_entry($con, $message , $username);
                     }
                 $main->update($array_state, $module, $arr_state);
                 //can add a recursive query to update child record when secure is altered
@@ -217,7 +217,7 @@ if ($main->button(1))
                     if ($input_update_log)
                         {
                         $message = "WHERE NOT error updating record " . chr($row_type + 64) . $post_key . "." ;
-                        $main->log_entry($con, $message , $email);
+                        $main->log_entry($con, $message , $username);
                         }
 					}
 				else
@@ -234,7 +234,7 @@ if ($main->button(1))
                     if ($input_update_log)
                         {
                         $message = "Error updating record " . chr($row_type + 64) . $post_key . "."; 
-                        $main->log_entry($con, $message , $email);
+                        $main->log_entry($con, $message , $username);
                         }
 					}
                 }
@@ -326,7 +326,7 @@ if ($main->button(1))
                 if ($input_insert_log)
                     {
                     $message = "New " . chr($row_type + 64) . $row['id'] . " record entered."; 
-                    $main->log_entry($con, $message , $email);
+                    $main->log_entry($con, $message , $username);
                     }
                 $main->hook("insert_cascade", true);
                 //dispose of $arr_state
@@ -349,7 +349,7 @@ if ($main->button(1))
                     if ($input_insert_log)
                         {
                         $message = "WHERE NOT insert error on type " . chr($row_type + 64) . " record."; 
-                        $main->log_entry($con, $message , $email);
+                        $main->log_entry($con, $message , $username);
                         }
 					}
 				else
@@ -365,7 +365,7 @@ if ($main->button(1))
                     if ($input_insert_log)
                         {
                         $message = "Insert error entering type " . chr($row_type + 64) . " record."; 
-                        $main->log_entry($con, $message , $email);
+                        $main->log_entry($con, $message , $username);
                         }
 					}
 				}                  		

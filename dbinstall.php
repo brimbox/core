@@ -717,8 +717,6 @@ if ($do_json_table)
     {
     $result = pg_query($con, $query);
     echo "JSON Table Populated<br>";
-    }
-    
-    
+    }    
 
 echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";
