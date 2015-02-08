@@ -435,7 +435,10 @@ if ($row_type > 0):
     //this to add quick child and sibling links
     $main->hook("quick_links", true);    
     //for hooking archive or security levels
-    $main->hook("form_archive_secure", true);
+    $main->hook("begin_archive_secure", true);
+    //for setting readonly and hidden values
+    $main->hook("before_render", true);
+
 
     echo "<div class=\"spaced\" id=\"input_message\">";
     $main->echo_messages($arr_message);
@@ -478,6 +481,8 @@ if ($row_type > 0):
             }
         echo "<div class=\"clear\"></div>";
         //submit button and textarea load
+        //for hooking archive or security levels
+        $main->hook("end_archive_secure", true);
         $main->hook("submit_buttons", true);        
         $main->hook("textarea_load", true);  
         }

@@ -48,7 +48,7 @@ $array_header['bb_brimbox']['validation']['text'] = array('function'=>'bb_valida
 $array_header['bb_brimbox']['validation']['numeric'] = array('function'=>'bb_validate::validate_numeric','name'=>"Number",'use'=>"Required");
 $array_header['bb_brimbox']['validation']['date'] = array('function'=>'bb_validate::validate_date','name'=>"Date",'use'=>"Required");
 $array_header['bb_brimbox']['validation']['email']	= array('function'=>'bb_validate::validate_email','name'=>"Email",'use'=>"Required");
-$array_header['bb_brimbox']['validation']['money']	= array('function'=>'bb_validate::validate_money','name'=>"Money",'use'=>"Required");;
+$array_header['bb_brimbox']['validation']['money']	= array('function'=>'bb_validate::validate_money','name'=>"Money",'use'=>"Required");
 $array_header['bb_brimbox']['validation']['yesno'] = array('function'=>'bb_validate::validate_yesno','name'=>"Yes/No",'use'=>"Required");
 
 # GUEST INDEX #
