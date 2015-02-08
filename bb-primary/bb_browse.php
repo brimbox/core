@@ -82,8 +82,8 @@ $offset = $main->process('offset', $module, $arr_state, 1);
 
 //must get post while preserving row_type state to reset col_type when row_type changes
 $row_type = $main->post('row_type', $module, $default_row_type);
-//must get xml_column on current row_type before setting default col_type
-$arr_column = $arr_columns[$row_type];
+//must get arr_column on current row_type before setting default col_type
+$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 
 //get default col_type or deal with possibility of no columns, then 1
 $default_col_type = $main->get_default_column($arr_column);
@@ -149,7 +149,7 @@ echo "<span class=\"padded larger\">"; //font size
 
 //get column names based on row_type/record types (repeated after state load but why not for clarity)
 $column = $main->pad("c", $col_type);
-$arr_column = $arr_columns[$row_type];
+$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $arr_layout = $arr_layouts[$row_type];
 
 //get column name from "primary" attribute in column array

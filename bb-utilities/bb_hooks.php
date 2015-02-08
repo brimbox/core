@@ -75,10 +75,10 @@ class bb_hooks extends bb_work {
 			}    
 		}
 		
-	function autofill($row, &$arr_state, $arr_columns, $row_type, $parent_row_type)
+	function autofill($arr_column_reduced, $row, &$arr_state, $arr_columns, $row_type, $parent_row_type)
 		{
 		$arr_column_parent = $this->filter_keys($arr_columns[$parent_row_type]);
-		$arr_column_reduced = $this->filter_keys($arr_columns[$row_type]);
+		$arr_search = array();
         //build array for search
         foreach ($arr_column_reduced as $key => $value)
             {
@@ -135,61 +135,63 @@ class bb_hooks extends bb_work {
 		}
 	
 	//top level record selector	
-	function top_level_records($module, $arr_layouts, &$arr_column_reduced, $row_type, $row_join, $parent_row_type)
+	function top_level_records($module, $arr_layouts, $arr_column_reduced, $row_type, $row_join, $parent_row_type)
 		{
-		$update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
-		 
-		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
-		$this->echo_button("top_submit", $params);
-		$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
-		$this->echo_button("top_reset", $params);
-
-		if (!empty($parent_row_type))
+		if (!empty($arr_column_reduced))
 			{
-			echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-			echo "<option value=\"" . $row_type . "\" selected>" . $arr_layouts[$row_type]['plural'] . "&nbsp;</option>";
-			echo "</select>";
-			}
-		//no parent, all possible top level records
-		else
-			{
-			//get top level records
-			foreach($arr_layouts as $key => $value)
+			$update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
+			 
+			$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
+			$this->echo_button("top_submit", $params);
+			$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
+			$this->echo_button("top_reset", $params);
+	
+			if (!empty($parent_row_type))
 				{
-				if ($value['parent'] == 0)
-					{
-					$arr_select[$key] = $value;
-					}
-				}
-			//has top level records
-			if (count($arr_select) > 0)
-				{
-				//on reset, $arr_column already set if changing top level from select
 				echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-				foreach ($arr_select as $key => $value)
-					{
-					echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";
-					}
+				echo "<option value=\"" . $row_type . "\" selected>" . $arr_layouts[$row_type]['plural'] . "&nbsp;</option>";
 				echo "</select>";
 				}
-			//no top level records, not common
+			//no parent, all possible top level records
 			else
 				{
-				unset($arr_column_reduced);
+				//get top level records
+				foreach($arr_layouts as $key => $value)
+					{
+					if ($value['parent'] == 0)
+						{
+						$arr_select[$key] = $value;
+						}
+					}
+				//has top level records
+				if (count($arr_select) > 0)
+					{
+					//on reset, $arr_column already set if changing top level from select
+					echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
+					foreach ($arr_select as $key => $value)
+						{
+						echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";
+						}
+					echo "</select>";
+					}
+				//no top level records, not common
 				}
+			echo "<div class=\"clear\"></div>";
 			}
-		echo "<div class=\"clear\"></div>";
 		}
 	
 	//parent record quick links	
 	function parent_record($arr_column_reduced, $row_type, $row_join, $parent_id, $parent_row_type, $parent_primary)
 		{
-		//$arr_column_reduced = check for some type of record				
-		$edit_or_insert = ($row_type == $row_join) ? "Edit Mode" : "Insert Mode";
-
-		//edit or insert mode and primary parent column		
-		$parent_string = $this->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $parent_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
-		echo "<p class=\"bold spaced\">" . $edit_or_insert . $parent_string . "</p>";
+		//$arr_column_reduced = check for some type of record
+		if (!empty($arr_column_reduced))
+			{
+			$edit_or_insert = ($row_type == $row_join) ? "Edit Mode" : "Insert Mode";
+	
+			//edit or insert mode and primary parent column		
+			$parent_string = $this->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $parent_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
+			echo "<p class=\"bold spaced\">" . $edit_or_insert . $parent_string . "</p>";
+			}
 		}
 	
 	//quick child and sibling links

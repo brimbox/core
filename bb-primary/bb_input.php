@@ -72,7 +72,8 @@ $main->update($array_state, $module, $arr_state);
 
 //reduce columns and layouts
 $arr_layout = $arr_layouts[$row_type];
-$arr_column = $arr_columns[$row_type];
+//consider empty columns
+$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $arr_column_reduced = $main->filter_keys($arr_column);
 /*END INPUT STATE AND POSTBACK */
 	

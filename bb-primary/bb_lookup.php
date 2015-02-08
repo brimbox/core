@@ -69,7 +69,7 @@ $record_id = $main->process('record_id', $module, $arr_state, "");
 
 // get row_type to find posted layout
 $row_type = $main->post('row_type', $module, $default_row_type);
-$arr_column = $arr_columns[$row_type];
+$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 
 //get default col_type or deal with possibility of no columns, then 1
 $default_col_type = $main->get_default_column($arr_column);
@@ -108,7 +108,7 @@ $main->update($array_state, $module, $arr_state);
 
 /* GET COLUMN AND LAYOUT VALUES */
 //get column names based on row_type/record types
-$arr_column = $arr_columns[$row_type];
+$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $arr_column_reduced = $main->filter_keys($arr_column);
 $arr_layout = $arr_layouts[$row_type];
 $column_1 = $main->pad("c", $col_type_1);

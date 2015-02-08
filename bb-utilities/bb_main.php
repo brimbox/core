@@ -236,9 +236,11 @@ class bb_main {
     function filter_keys ($arr, $filter = array(), $mode = true)
         //function to return array with only integer keys
         {
-        $keys = array_filter(array_keys($arr), 'is_integer');
-        $arr = array_intersect_key($arr, array_flip($keys));
-        
+        if (!empty($arr))
+            {
+            $keys = array_filter(array_keys($arr), 'is_integer');
+            $arr = array_intersect_key($arr, array_flip($keys));
+            }        
         if (!empty($filter))
             {
             if ($mode) //keep the keys in filter

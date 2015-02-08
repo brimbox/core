@@ -88,8 +88,7 @@ $main->update($array_state, $module, $arr_state);
             
 //get xml_column and sort column type
 $arr_columns = $main->get_json($con, "bb_column_names");
-$layout = $main->pad("l", $row_type);
-$arr_column = $arr_columns[$row_type];
+$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $arr_layout = $arr_layouts[$row_type];
 
 //for the header left join

@@ -76,7 +76,9 @@ class bb_input_extra {
         $row_join = $this->main->set('row_join', $arr_state, $_POST['bb_row_join']);
         $post_key = $this->main->set('post_key', $arr_state, $_POST['bb_post_key']);
         
-        $arr_column = $this->arr_columns[$row_type];
+        //consider empty possibility
+
+        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
         $arr_column_reduced = $this->main->filter_keys($arr_column);
         
         //populate from database if edit
@@ -230,7 +232,7 @@ class bb_input_extra {
         
         if ($row_type > 0)
             {
-            $arr_column = $this->arr_columns[$row_type];
+            $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
             }
         $arr_column_reduced = $this->main->filter_keys($arr_column);   
         return array($row_type, $row_join, $post_key, $arr_state);
