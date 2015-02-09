@@ -132,52 +132,52 @@ class bb_hooks extends bb_work {
 				list($row_type, $row_join, $post_key, $arr_state) = $queue->queuepost();
 				}
 			}
-		}
+		}		
 	
 	//top level record selector	
-	function top_level_records($module, $arr_layouts, $arr_column_reduced, $row_type, $row_join, $parent_row_type)
+	function top_level_records($module, $arr_layouts, &$arr_column_reduced, $row_type, $row_join, $parent_row_type)
 		{
-		if (!empty($arr_column_reduced))
+		//buttons an record selector
+		$update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
+		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
+		$this->echo_button("top_submit", $params);
+		$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
+		$this->echo_button("top_reset", $params);
+		if (!empty($parent_row_type))
 			{
-			$update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
-			 
-			$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
-			$this->echo_button("top_submit", $params);
-			$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
-			$this->echo_button("top_reset", $params);
-	
-			if (!empty($parent_row_type))
+			echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
+			echo "<option value=\"" . $row_type . "\" selected>" . $arr_layouts[$row_type]['plural'] . "&nbsp;</option>";
+			echo "</select>";
+			}
+		//no parent, all possible top level records
+		else
+			{
+			//get top level records
+			foreach($arr_layouts as $key => $value)
 				{
+				if ($value['parent'] == 0)
+					{
+					$arr_select[$key] = $value;
+					}
+				}
+			//has top level records
+			if (count($arr_select) > 0)
+				{
+				//on reset, $arr_column already set if changing top level from select
 				echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-				echo "<option value=\"" . $row_type . "\" selected>" . $arr_layouts[$row_type]['plural'] . "&nbsp;</option>";
+				foreach ($arr_select as $key => $value)
+					{
+					echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";
+					}
 				echo "</select>";
 				}
-			//no parent, all possible top level records
 			else
 				{
-				//get top level records
-				foreach($arr_layouts as $key => $value)
-					{
-					if ($value['parent'] == 0)
-						{
-						$arr_select[$key] = $value;
-						}
-					}
-				//has top level records
-				if (count($arr_select) > 0)
-					{
-					//on reset, $arr_column already set if changing top level from select
-					echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-					foreach ($arr_select as $key => $value)
-						{
-						echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";
-						}
-					echo "</select>";
-					}
-				//no top level records, not common
+				$arr_column_reduced = array();
 				}
-			echo "<div class=\"clear\"></div>";
+			//no top level records, not common
 			}
+			echo "<div class=\"clear\"></div>";
 		}
 	
 	//parent record quick links	
@@ -195,7 +195,7 @@ class bb_hooks extends bb_work {
 		}
 	
 	//quick child and sibling links
-	function quick_links($arr_column_reduced, $arr_layouts, $inserted_id, $inserted_row_type, $inserted_primary, $parent_row_type, $parent_string, $parent_primary)
+	function quick_links($arr_column_reduced, $arr_layouts, $inserted_id, $inserted_row_type, $inserted_primary, $parent_id, $parent_row_type,  $parent_primary)
 		{
 		//$arr_column_reduced = check for some type of record
 		if (!empty($arr_column_reduced))
@@ -211,12 +211,12 @@ class bb_hooks extends bb_work {
 					}
 				}	
 			//add sibling links, empty works no zeros
-			if (!empty($parent_id) && !empty($parent_row_type))
+			if (!empty($inserted_id) && !empty($parent_id) && !empty($parent_row_type))
 				{
-				if ($main->check_child($parent_row_type, $arr_layouts))
+				if ($this->check_child($parent_row_type, $arr_layouts))
 					{
 					echo "<p class=\"spaced bold\">Add Sibling Record - Parent: <span class=\"colored\">" . $parent_primary . "</span> - ";
-					$main->drill_links($parent_id, $parent_row_type, $arr_layouts, "bb_input", "Add");
+					$this->drill_links($parent_id, $parent_row_type, $arr_layouts, "bb_input", "Add");
 					echo "</p>";
 					}
 				}

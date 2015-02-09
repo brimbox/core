@@ -115,10 +115,11 @@ class bb_input_extra {
         $row_type = $this->main->process('row_type', $this->module, $arr_state, $this->default_row_type);
         $row_join = $this->main->process('row_join', $this->module, $arr_state, -1);
         $post_key = $this->main->process('post_key', $this->module, $arr_state, -1);
-    
-        $arr_column = $this->arr_columns[$row_type];
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
-        $arr_state = $this->arr_state;
+        
+        $arr_state = $this->arr_state; //returned
+        
+        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
+        $arr_column_reduced = $this->main->filter_keys($arr_column);        
         
         foreach($arr_column_reduced as $key => $value)
             {				
@@ -147,7 +148,7 @@ class bb_input_extra {
         $arr_column = array();
         if ($this->default_row_type > 0)
             {
-            $arr_column = $this->arr_columns[$this->default_row_type];
+            $arr_column = isset($this->arr_columns[$this->default_row_type]) ? $this->arr_columns[$this->default_row_type] : array();
             }
         $arr_column_reduced = $this->main->filter_keys($arr_column);
         //reset state
@@ -164,14 +165,13 @@ class bb_input_extra {
     //textarea load gets the populated values only, keep values in state
     function load_textarea()
         {
-        $arr_state = $this->arr_state;
-        $arr_columns = $this->arr_columns;
+        $arr_state = $this->arr_state; //returned
         
         $row_type = $arr_state['row_type'];
         $row_join = $arr_state['row_join'];
         $post_key = $arr_state['post_key'];
         
-        $arr_column = $arr_columns[$row_type];
+        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
     
         $str_textarea = $this->main->post('input_textarea',$this->module);
         $arr_textarea =  explode(PHP_EOL, $str_textarea);	
@@ -213,7 +213,7 @@ class bb_input_extra {
         
         if ($row_type > 0)
             {
-            $arr_column = $arr_columns[$row_type];
+            $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
             }
         $arr_column_reduced = $this->main->filter_keys($arr_column);
         return array($row_type, $row_join, $post_key, $arr_state);
@@ -266,16 +266,16 @@ class bb_input_queue {
     /* MAIN FROM QUEUE TAB */
     function queuepost()
         {
-        $var_subject = $this->var_subject;
-        if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
+        $this->var_subject = $this->var_subject;
+        if (substr($this->var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($this->var_subject,12)))
             {
             return $this->queue_record_add();   
             }
-        elseif (substr($var_subject,0,13) == "Record Edit: " && preg_match("/^[A-Z]\d+/", substr($var_subject,13)))
+        elseif (substr($this->var_subject,0,13) == "Record Edit: " && preg_match("/^[A-Z]\d+/", substr($this->var_subject,13)))
             {
             return $this->queue_record_edit();   
             }
-        elseif (substr($var_subject,0,12) == "Record New: " && preg_match("/^[A-Z]$/", substr($var_subject,12)))    
+        elseif (substr($this->var_subject,0,12) == "Record New: " && preg_match("/^[A-Z]$/", substr($this->var_subject,12)))    
             {
             return $this->queue_record_new();
             }
@@ -290,16 +290,13 @@ class bb_input_queue {
     function queue_record_add()
         {
         $arr_state = array();
-        $var_subject = $this->var_subject;
-        $arr_layouts = $this->arr_layouts;
-        $arr_columns = $this->arr_columns;
         
-        $row_type = ord(substr($var_subject,12,1)) - 64;
-        $row_join = ord(substr($var_subject,14,1)) - 64;
-        $post_key = (int)substr($var_subject,15);
+        $row_type = ord(substr($this->var_subject,12,1)) - 64;
+        $row_join = ord(substr($this->var_subject,14,1)) - 64;
+        $post_key = (int)substr($this->var_subject,15);
         
-		$arr_layout = $arr_layouts[$row_type];
-        $arr_column = $arr_columns[$row_type];
+		$arr_layout = $this->arr_layouts[$row_type];
+        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
         
         $arr_column_reduced = $this->main->filter_keys($arr_column);
         
@@ -329,7 +326,7 @@ class bb_input_queue {
 		else
 			{
 			$row_type = 0;
-			foreach ($arr_layouts as $key => $value)
+			foreach ($this->arr_layouts as $key => $value)
 				 {
 				 if ($value['parent'] == 0)
 					 {
@@ -339,7 +336,7 @@ class bb_input_queue {
 				 }
             
             $arr_column_reduced = $this->main->filter_keys($arr_column);   
-            $arr_column = $arr_columns[$row_type];
+            $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
 
 			$post_key = -1;
 			$row_join = -1;
@@ -356,15 +353,12 @@ class bb_input_queue {
     function queue_record_edit()
         {
 		$arr_state = array();
-        $var_subject = $this->var_subject;
-        $arr_layouts = $this->arr_layouts;
-        $arr_columns = $this->arr_columns;
 		
-        $row_type = ord(substr($var_subject,13,1)) - 64;
-        $post_key = (int)substr($var_subject,14);
+        $row_type = ord(substr($this->var_subject,13,1)) - 64;
+        $post_key = (int)substr($this->var_subject,14);
         $row_join = $row_type;
         
-        $arr_column = $arr_columns[$row_type];
+        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
         
         $query = "SELECT * FROM data_table " .
              "WHERE row_type = " . $row_type . " AND id = " . $post_key . ";";
@@ -407,7 +401,7 @@ class bb_input_queue {
 		else
 			{
 			$row_type = 0;
-			foreach ($arr_layouts as $key => $value)
+			foreach ($this->arr_layouts as $key => $value)
 				 {
 				 if ($value['parent'] == 0)
 					 {
@@ -415,7 +409,7 @@ class bb_input_queue {
 					 break;
 					 }
 				 }
-			$arr_column = $arr_columns[$row_type];
+			$arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
             $arr_column_reduced = $this->main->filter_keys($arr_column);
 
 			$post_key = -1;
@@ -433,16 +427,13 @@ class bb_input_queue {
 	function queue_record_new()
 		{
 		$arr_state = array();
-        $var_subject = $this->var_subject;
-        $arr_layouts = $this->arr_layouts;
-        $arr_columns = $this->arr_columns;
 		
-        $row_type = ord(substr($var_subject,12,1)) - 64;
+        $row_type = ord(substr($this->var_subject,12,1)) - 64;
         $post_key = -1;
         $row_join = -1;
     
-        $arr_layout = $arr_layouts[$row_type];
-        $arr_column = $arr_columns[$row_type];
+        $arr_layout = $this->arr_layouts[$row_type];
+        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
         $arr_column_reduced = $this->main->filter_keys($arr_column);
 		
         
@@ -465,7 +456,7 @@ class bb_input_queue {
 		else
 			{
 			$row_type = 0;
-			foreach ($arr_layouts as $key => $value)
+			foreach ($this->arr_layouts as $key => $value)
 				 {
 				 if ($value['parent'] == 0)
 					 {
@@ -473,7 +464,7 @@ class bb_input_queue {
 					 break;
 					 }
 				 }
-			$arr_column = $arr_columns[$row_type];
+			$arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
 
 			$post_key = -1;
 			$row_join = -1;
@@ -492,9 +483,8 @@ class bb_input_queue {
         $row_join = $this->row_join;
         $post_key = $this->post_key;
         $arr_state = $this->arr_state;
-        $arr_columns = $this->arr_columns;
-
-        $arr_column = $arr_columns[$row_type];
+ 
+        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
         $arr_column_reduced = $this->main->filter_keys($arr_column);
        
         foreach($arr_column_reduced as $key => $value)
