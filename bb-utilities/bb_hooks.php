@@ -20,7 +20,16 @@ If not, see http://www.gnu.org/licenses/
 
 /* PHP FUNCTIONS */
 /* class bb_hooks() */
+//hook
 //autofill
+//infolinks
+//postback_area
+//top_level_records
+//parent_record
+//quick_links
+//submit_buttons
+//textarea_load
+
 
 class bb_hooks extends bb_work {
 	
