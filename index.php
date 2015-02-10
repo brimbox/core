@@ -457,6 +457,9 @@ if (isset($_POST['index_enter']))
     $con_string = "host=" . DB_HOST . " dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
 	$con = pg_connect($con_string);
     
+    //no connection die
+    if (!$con) die();    
+    
     //get form variables
     $email = substr($_POST['username'],0,255); //email and password must be < 255 by definition
     $password = substr($_POST['password'],0,255); //do not want to process big post
@@ -471,6 +474,7 @@ if (isset($_POST['index_enter']))
         
         //get result
         $result = pg_query($con, $query);
+                    
         $num_rows = pg_num_rows($result);	
          
         //1 row, definate database //known username

@@ -144,6 +144,11 @@ if ($main->button(1)) //layout_submit
                 $secure = $main->post('secure_' . (string)$i, $module, 0); //not set = 0
                 $autoload = 0;
                 $arr_order[$i] = array('singular'=>$singular,'plural'=>$plural,'parent'=>$parent,'order'=>$order,'secure'=>$secure,'autoload'=>$autoload);
+                //initialize empty array for columns
+                if (!isset($arr_columns[$i]))
+                    {
+                    $arr_columns[$i] = array();    
+                    }
                 }
             }
         //sort  
@@ -156,10 +161,11 @@ if ($main->button(1)) //layout_submit
         array_push($arr_message,"Error: Singular and plural must be populated for at least one layout.");
         }
     
-    //not empty and unique, update xml
+    //not empty and unique, update json
     if ($unique && !$empty && $count && $relationship)
         {
         $main->update_json($con, $arr_layouts, "bb_layout_names");
+        $main->update_json($con, $arr_columns, "bb_column_names");
         array_push($arr_message,"Layouts have been updated.");    
         }
     } //submit

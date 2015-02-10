@@ -120,7 +120,7 @@ function check_ips($con, $ips_esc, &$ips, &$arr_error)
     //It's not a good idea to use the database to check for errors
     //but in this case compatibility and integrity it makes sense
     //rely on postgres to check for errors in cidr list
-    @$result = pg_query($con, "SELECT array_to_string('" . $ips_esc . "'::cidr[],'\\n') as ips");
+    @$result = pg_query($con, "SELECT array_to_string('" . $ips_esc . "'::cidr[],'\n') as ips");
     if (!$result)
         {
         $arr_error['ips'] = "Invalid cidr in list.";
@@ -265,13 +265,6 @@ if ($main->button(2)) //postback update
 	//updates based on id
     $action = 2; //in case of validation error
     check_is_empty($email_work, "email_work", $arr_error, "Email cannot be empty.");
-    if (!isset($arr_error['email_work'])) //non-empty email
-        {            
-        if (!filter_var($email_work, FILTER_VALIDATE_EMAIL)) //check for valid email
-            {
-            $arr_error['email_work'] = "Email is not valid";     
-            }   
-        }
 	
     //query_add_clause only if password is being updated
     $query_add_clause = "";
@@ -371,7 +364,7 @@ if ($main->button(4)) //postback delete_user
 if (in_array($action, array(2,3,4)) && !(in_array((int)$main->post('bb_button', $module), array(2,3,4))))
     {
     //edit or delete  
-    $query = "SELECT id, email, array_to_string(userroles,',') as userroles, fname, minit, lname, array_to_string(ips,'\\n') as ips FROM users_table WHERE id IN (" . pg_escape_string($id) . ");";
+    $query = "SELECT id, email, array_to_string(userroles,',') as userroles, fname, minit, lname, array_to_string(ips,'\n') as ips FROM users_table WHERE id IN (" . pg_escape_string($id) . ");";
 
     $result = $main->query($con, $query);
 	

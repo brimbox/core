@@ -497,7 +497,7 @@ class bb_input_queue {
                     //html specials chars added in javascript
                     if (in_array($key,$this->arr_notes))
                         {
-                        $temp_note = $this->main->custom_trim_string((string)$arr_state->$col . " " . $this->main->post($col,'bb_queue'),65536, false);
+                        $temp_note = $this->main->custom_trim_string($arr_state[$col] . " " . $this->main->post($col,'bb_queue'),65536, false);
                         $this->main->set($col, $arr_state, $temp_note);
                         }
                     else

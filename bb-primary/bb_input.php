@@ -191,7 +191,7 @@ if ($main->button(1))
 					}
 				}
                 
-			$return_primary = $main->pad("c", $arr_column['layout']['primary']);
+			$return_primary = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
             $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " .
 				     "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") RETURNING id, " . $return_primary . " as primary;";                 
             $result = $main->query($con, $query);
@@ -315,7 +315,7 @@ if ($main->button(1))
                 $select_where_exists = "SELECT 1 FROM data_table WHERE archive = 0 AND id IN (" . $post_key . ")";
                 }
 				
-			$return_primary = $main->pad("c", $arr_column['layout']['primary']);
+			$return_primary = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
             $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") RETURNING id, " . $return_primary . " as primary;";
             //echo "<p>" . $query . "</p>";
             $result = $main->query($con, $query);
