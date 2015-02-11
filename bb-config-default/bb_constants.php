@@ -33,6 +33,10 @@ define('PROCESSING_IMAGE', 'OFF');
 define('INPUT_INSERT_LOG', 'OFF');
 //turn on log for update
 define('INPUT_UPDATE_LOG', 'OFF');
+//turn on log for insert
+define('DELETE_LOG', 'OFF');
+//turn on log for update
+define('ARCHIVE_LOG', 'OFF');
 //turn on post override for archive
 define('INPUT_ARCHIVE_POST', 'OFF');
 //turn on post override for secure

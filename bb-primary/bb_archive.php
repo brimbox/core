@@ -22,6 +22,8 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 <?php
 /* INITIALIZE */
 $arr_message = array();
+
+$archive_log = $main->on_constant('ARCHIVE_LOG');
  
 //State vars --- there is no delete state
 $main->retrieve($con, $array_state);
@@ -66,20 +68,40 @@ if ($main->button(1))
     $cnt_affected = pg_affected_rows($result);
 	if ($cnt_affected > 0)
 		{
+        if ($archive_log)
+            {
+            $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children archived.";
+            $main->log_entry($con, $message , $username);
+            }
 		if (empty($arr_archive))
 			{
 			if ($setbit)
 				{
-				array_push($arr_message, "This Cascade Archive archived " . $cnt_affected . " rows.");   
+				array_push($arr_message, "This Cascade Archive archived " . $cnt_affected . " rows.");
+                if ($archive_log)
+                    {
+                    $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children archived.";
+                    $main->log_entry($con, $message , $username);
+                    }
 				}
 			elseif (!$setbit)
 				{
-				array_push($arr_message, "This Retrieve Cascade retrieved " . $cnt_affected . " rows.");   
+				array_push($arr_message, "This Retrieve Cascade retrieved " . $cnt_affected . " rows.");
+                if ($archive_log)
+                    {
+                    $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children retrieved.";
+                    $main->log_entry($con, $message , $username);
+                    }
 				}
 			}
 		else
 			{
-			array_push($arr_message, "This Cascade action set " . $cnt_affected . " rows to archive level \"" . $arr_archive[$setbit] . "\"."); 	
+			array_push($arr_message, "This Cascade set " . $cnt_affected . " rows to archive level \"" . $arr_archive[$setbit] . "\".");
+            if ($archive_log)
+                {
+                $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children set to archive level " . $arr_archive[$setbit] . ".";
+                $main->log_entry($con, $message , $username);
+                }
 			}
 		}
     else

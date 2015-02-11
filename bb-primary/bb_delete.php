@@ -29,6 +29,8 @@ $main->retrieve($con, $array_state);
 $post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;
 $row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;
 
+$delete_log = $main->on_constant('DELETE_LOG');
+
 /* BEGIN DELETE CASCADE */
 if ($main->button(1))
 	{
@@ -60,7 +62,12 @@ if ($main->button(1))
     $cnt_affected = pg_affected_rows($result);
     if ($cnt_affected > 0)
         {
-        array_push($arr_message, "This Cascade Delete deleted " . $cnt_affected . " rows.");   
+        array_push($arr_message, "This Cascade Delete deleted " . $cnt_affected . " rows.");
+        if ($delete_log)
+            {
+            $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children deleted.";
+            $main->log_entry($con, $message , $username);
+            }
         }
     else
         {

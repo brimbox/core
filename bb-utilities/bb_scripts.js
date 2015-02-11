@@ -97,7 +97,7 @@ function bb_page_selector(e,of)
 function bb_logout_selector(i)
 	{
 	var frmobj = document.forms['bb_form'];
-	var frmele = frmobj.elements['bb_interface'];
+	var frmele = frmobj.elements['bb_userrole'];
 	frmele.value = i;
 	bb_submit_form(0,'bb_logout');
 	return false;

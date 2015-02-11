@@ -89,9 +89,9 @@ if (isset($_POST['bb_module']))
 		//check for session poisoning, userroles string should not be altered
 		//$userroles variable should be protected and not used or altered anywhere
         // non-integer or empty usertype will convert to 0
-		if (((int)$usertype <> 0) && in_array($_POST['bb_interface'], explode(",", $_SESSION['userroles'])))
+		if (((int)$usertype <> 0) && in_array($_POST['bb_userrole'], explode(",", $_SESSION['userroles'])))
 			{
-			$_SESSION['userrole'] = $_POST['bb_interface']; 
+			$_SESSION['userrole'] = $_POST['bb_userrole']; 
 			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
 			header($index_path);
 			die(); //important to stop script
@@ -455,13 +455,12 @@ if (isset($_POST['index_enter']))
     {
     //get connection
     $con_string = "host=" . DB_HOST . " dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
-	$con = pg_connect($con_string);
-    
+	$con = pg_connect($con_string);    
     //no connection die
     if (!$con) die();    
     
     //get form variables
-    $email = substr($_POST['username'],0,255); //email and password must be < 255 by definition
+    $email = $username = substr($_POST['username'],0,255); //email and password must be < 255 by definition
     $password = substr($_POST['password'],0,255); //do not want to process big post
     
     //default error message, information only provided with accurate credentials

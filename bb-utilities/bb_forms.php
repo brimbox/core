@@ -58,7 +58,7 @@ class bb_forms extends bb_validate {
 		//working Brimbox button submitted processed in the controller, always set w/ javascript
 		echo "<input rel=\"ignore\" name=\"bb_button\" type=\"hidden\" value=\"\" />";
 		//used when logging out or changing state
-		echo "<input rel=\"ignore\" name=\"bb_interface\" type=\"hidden\" value=\"\" />";
+		echo "<input rel=\"ignore\" name=\"bb_userrole\" type=\"hidden\" value=\"\" />";
 		//used for processing image
 		echo "<input rel=\"ignore\" name=\"bb_image\" type=\"hidden\" value=\"\" />";
 		}
