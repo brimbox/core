@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright (C) 2012 - 2014  Kermit Will Richardson, Brimbox LLC
+Copyright (C) 2012 - 2015  Kermit Will Richardson, Brimbox LLC
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)

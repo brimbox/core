@@ -1,7 +1,7 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
 /*
-Copyright (C) 2012 - 2013  Kermit Will Richardson, Brimbox LLC
+Copyright (C) 2012 - 2015  Kermit Will Richardson, Brimbox LLC
 
 The GNU GPL v3 license does not grant licensee any rights in the trademarks, service marks,
 or logos of any Contributor except as may be necessary to comply with the notice requirements
