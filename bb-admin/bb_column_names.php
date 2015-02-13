@@ -43,7 +43,7 @@ $arr_validation = $arr_header['validation'];
 $arr_column_security = $arr_header['column_security']['value'];
 
 //deal with constants
-$processing_image = strcasecmp(constant("PROCESSING_IMAGE"),"ON") ? false : true ;
+$processing_image = $main->on_constant("PROCESSING_IMAGE");
 
 /* RETRIEVE STATE */
 $main->retrieve($con, $array_state);

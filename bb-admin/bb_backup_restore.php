@@ -65,7 +65,7 @@ $arr_layouts = $main->get_json($con,"bb_layout_names");
 $row_type = 0;
 
 //deal with constants
-$processing_image = strcasecmp(constant("PROCESSING_IMAGE"),"ON") ? false : true ;
+$processing_image = $main->on_constant("PROCESSING_IMAGE");
 
 /* RETRIEVE STATE */
 $main->retrieve($con, $array_state);

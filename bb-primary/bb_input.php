@@ -456,42 +456,38 @@ if ($row_type > 0):
             $col = $main->pad("c", $key);
             $input = (isset($arr_state[$col])) ? $arr_state[$col] : "";
             $error = (isset($arr_errors[$col])) ? $arr_errors[$col] : "";
-            $readonly = isset($arr_column_reduced['readonly']) ? $arr_column_reduced['readonly'] : false;
-            $hidden =  isset($arr_column_reduced['hidden']) ? $arr_column_reduced['hidden'] : false;
-            if (!$hidden) //skip field
+            $readonly = isset($arr_column_reduced[$key]['readonly']) ? $arr_column_reduced[$key]['readonly'] : false;
+            $hidden =  isset($arr_column_reduced[$key]['hidden']) ? $arr_column_reduced[$key]['hidden'] : false;
+            if (isset($arr_dropdowns[$row_type][$key]))
                 {
-                if (isset($arr_dropdowns[$row_type][$key]))
-                    {
-                    //dropdown
-                    $arr_dropdown = $readonly ? array($input) : $arr_dropdowns[$row_type][$key]; //single item select for readonly
-                    echo "<div class=\"clear\">";
-                    echo "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                    echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"remove_message(); return false;\">";
-                    $arr_dropdown = $arr_dropdowns[$row_type][$key];
-                    foreach ($arr_dropdown as $dropdown)
-                        {                            
-                        echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
-                        }
-                    echo "</select><label class=\"error\">" . $error . "</label></div>";
+                //dropdown
+                $arr_dropdown = $readonly ? array($input) : $arr_dropdowns[$row_type][$key]; //single item select for readonly
+                echo "<div class=\"clear " . $hidden . "\">";
+                echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
+                echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"remove_message(); return false;\">";
+                foreach ($arr_dropdown as $dropdown)
+                    {                            
+                    echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
                     }
-                elseif (in_array($key, $arr_notes))
-                    {
-                    //textarea
-                    $attribute = $readonly ? "readonly" : ""; //readonly attribute    
-                    echo "<div class = \"clear\">";
-                    echo "<label class = \"spaced padded floatleft left overflow medium shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                    echo "<div class=\"clear\"></div>";
-                    echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" " . $attribute . " onFocus=\"remove_message(); return false;\">" . $input . "</textarea></div>";				
-                    }				
-                else
-                    {
-                    //standard input
-                    $attribute = $readonly ? "readonly" : "";  //readonly attribute 
-                    echo "<div class=\"clear\">";
-                    echo "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                    echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . "onFocus=\"remove_message(); return false;\" />";
-                    echo "<label class=\"error\">" . $error . "</label></div>";
-                    }
+                echo "</select><label class=\"error\">" . $error . "</label></div>";
+                }
+            elseif (in_array($key, $arr_notes))
+                {
+                //textarea
+                $attribute = $readonly ? "readonly" : ""; //readonly attribute    
+                echo "<div class = \"clear " . $hidden . "\">";
+                echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
+                echo "<div class=\"clear " . $hidden . "\"></div>";
+                echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" " . $attribute . " onFocus=\"remove_message(); return false;\">" . $input . "</textarea></div>";				
+                }				
+            else
+                {
+                //standard input
+                $attribute = $readonly ? "readonly" : "";  //readonly attribute
+                echo "<div class=\"clear " . $hidden . "\">";
+                echo "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
+                echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"remove_message(); return false;\" />";
+                echo "<label class=\"error\">" . $error . "</label></div>";
                 }
             }
         echo "<div class=\"clear\"></div>";
