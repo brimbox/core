@@ -17,4 +17,9 @@ If not, see http://www.gnu.org/licenses/
 */
 
 $main->check_permission("bb_brimbox", 5);
+
+@unlink("bb-less/lessc.inc.php");
+@unlink("bb-less/license.txt");
+@unlink("bb-config/bb_admin_index.css");
+@unlink("bb-config-default/bb_admin_index.css");
 ?>
