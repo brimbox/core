@@ -226,12 +226,10 @@ include("bb-config/bb_admin_hacks.php");
 
 /* SET UP LESS PARSER */
 //see included license
-include("bb-less/lessc.inc.php");
-$less = new lessc();
+include("bb-less/bb_less_substituter.php");
+$less = new bb_less_substituter();
 echo "<style>";
-$less->setFormatter("compressed");
-echo $less->compileFile("bb-utilities/bb_styles.less");
-echo $less->compileFile("bb-config/bb_admin_less.less");
+echo $less->parse_less_file("bb-utilities/bb_styles.less");
 echo "</style>";
 /* END LESS PARSER */
 ?>
@@ -614,8 +612,14 @@ if (isset($_POST['index_enter']))
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 <link rel=StyleSheet href="bb-utilities/bb_index.css" type="text/css" media=screen>
-<link rel=StyleSheet href="bb-config/bb_admin_index.css" type="text/css" media=screen>
-    
+<?php
+include("bb-less/bb_less_substituter.php");
+$less = new bb_less_substituter();
+echo "<style>";
+echo $less->parse_less_file("bb-utilities/bb_index.less");
+echo "</style>";
+?>
+
 <title><?php echo PAGE_TITLE; ?></title>
 
 </head>
