@@ -144,7 +144,7 @@ if ($list_number > 0)
     $arr_layout = $arr_layouts[$row_type];
     $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
     $arr_column_reduced = $main->filter_keys($arr_column);
-	$col1 = isset($arr_column['layout']['primary']) ? $main->pad($arr_column['layout']['primary']) : "c01";
+	$col1 = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
     
     //get column name from "primary" attribute in column array
     //this is used to populate the record header link to parent record
