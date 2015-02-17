@@ -18,7 +18,7 @@ If not, see http://www.gnu.org/licenses/
 
 <?php
 //it is good idea to check the permission 
-$main->check_permission("bb_brimbox", array(3,4,5));
+$main->check_permission("bb_brimbox", 5);
 
 //it is necessary to retrieve the state to echo it back into the form
 $main->retrieve($con, $array_state);
