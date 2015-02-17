@@ -379,14 +379,14 @@ if ($main->button(1))
 if ($post_key > 0)
     {
     $parent_row_type = $arr_layout['parent'];
-    $primary_parent = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
+    $parent = isset($arr_columns[$parent_row_type]['layout']['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['layout']['primary']) : "c01";
 	 
 	 //edit, must join to parent
     if ($row_type == $row_join)
         {       
-		$primary_child = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";		
+		$child = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";		
 		
-        $query = "SELECT T2.id, T2." . $primary_parent . " as parent, T1." . $primary_child . " as child, T2.archive FROM data_table T1 LEFT JOIN data_table T2 " .
+        $query = "SELECT T2.id, T2." . $parent . " as parent, T1." . $child . " as child, T2.archive FROM data_table T1 LEFT JOIN data_table T2 " .
                  "ON T2.id = T1.key1 WHERE T1.id = " . $post_key . ";";
         $result = $main->query($con, $query);
 		//find parent information after edit
@@ -405,7 +405,7 @@ if ($post_key > 0)
     else
 		//input, have parent id
         {        
-        $query = "SELECT *, " . $primary_parent . " as parent FROM data_table WHERE id = " . $post_key . " AND row_type = " . $parent_row_type . ";";    
+        $query = "SELECT *, " . $parent . " as parent FROM data_table WHERE id = " . $post_key . " AND row_type = " . $parent_row_type . ";";    
         //echo "<p>" . $query . "</p>";
 		$result = $main->query($con, $query);
 		if (pg_num_rows($result) == 1)
@@ -419,8 +419,7 @@ if ($post_key > 0)
 			}			
         }
     }
-/* END PARENT ROW */ 
-    
+/* END PARENT ROW */     
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
