@@ -164,6 +164,7 @@ if ($main->button(array(1,2,3)))
                         $zip->close();
                         $main->copy_directory("bb-temp/update/", "");                
                         include("bb-utilities/bb_update.php");
+                        array_push($arr_message, "Brimbox has been updated.");
                         }
                      else
                         {
@@ -197,8 +198,8 @@ if ($main->button(array(1,2,3)))
                         {
                         $zip->extractTo('bb-temp/');
                         $zip->close();
-                        $main->copy_directory("bb-temp/theme/", "");                
-                        include("bb-utilities/bb_update.php");
+                        $main->copy_directory("bb-temp/theme/", "");
+                        array_push($arr_message, "Theme has been installed.");
                         }
                      else
                         {
