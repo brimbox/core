@@ -106,15 +106,16 @@ if ($post_key > 0) // a detail of a record
             $col2 = $main->pad("c", $key);  
             if (in_array($key, $arr_notes))
                 {
+                $str_details = str_replace("\n", "<br>",  htmlentities($row[$col2]));
                 echo "<div class = \"clear\"><label class = \"margin padded left floatleft overflow medium shaded\">" . htmlentities($value['name']) . ":</label>";
                 echo "<div class = \"clear\"></div>";
-                echo "<textarea class=\"margin notearea\" readonly=\"readonly\">" . htmlentities($row[$col2]) . "</textarea>";				
+                echo "<div class=\"border padded margin half\">" . $str_details . "</div>";				
                 echo "</div>";
                 }		
             else
                 {
                 echo "<div class=\"clear\"><label class=\"margin padded right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
-                echo "<label class=\"margin padded left floatleft\">" . htmlentities($row[$col2]) . "</label>";
+                echo "<div class=\"margin padded left floatleft\">" . htmlentities($row[$col2]) . "</div>";
                 echo "</div>";
                 }
             }

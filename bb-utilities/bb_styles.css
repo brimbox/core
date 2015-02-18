@@ -374,7 +374,12 @@ div.clear
 .auto
 	 {
 	 overflow: auto;	 
-	 }    
+	 }
+.shorter
+     {
+	 min-height:1px;
+	 width:50px;     
+     }
 .short
 	{
 	 min-height:1px;
@@ -405,7 +410,12 @@ div.clear
 	{
 	 min-height:1px;
 	 min-width:200px;
-	}	
+	}
+.half
+	{
+    min-height:1px;
+	width:50%;
+	}
 .note
 	{
     min-height:1px;

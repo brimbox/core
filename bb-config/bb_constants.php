@@ -26,7 +26,7 @@ define('NUMBER_LAYOUTS', 12);
 //Archive interworking (ON/OFF), allows for quick archive access on lookup and search tabs
 define('ARCHIVE_INTERWORKING', 'OFF');
 // Default userrole on the manage users page
-define('DEFAULT_USERROLE_ASSIGN', 1);
+define('DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox');
 // Use processing image in standard modules
 define('PROCESSING_IMAGE', 'OFF');
 //turn on log for insert

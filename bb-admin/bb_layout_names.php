@@ -30,24 +30,8 @@ $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_layout_security = $arr_header['layout_security']['value'];
 
 $arr_message = array();
-
-//optional constant
-if (defined('NUMBER_LAYOUTS'))
-    {
-    if (NUMBER_LAYOUTS <= 26)
-        {
-        $number_layouts = NUMBER_LAYOUTS;    
-        }
-    else
-        {
-        //certain things are undefined if layout exceed the natural alphabet
-        $number_layouts = 26;    
-        }
-    }
-else
-    {
-    $number_layouts = 12;    
-    }
+//check for constant
+$number_layouts = $main->set_constant('NUMBER_LAYOUTS', 12 ,26);
 
 function cmp( $a, $b )
     { 

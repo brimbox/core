@@ -62,6 +62,7 @@ If not, see http://www.gnu.org/licenses/
 //replicate_link
 //userrole_switch
 //on_constant
+//set_constant
 
 class bb_main {
 	
@@ -1090,5 +1091,46 @@ class bb_main {
             return false;    
             }            
         }
-	} //end class
+    
+    //for numeric and string constants    
+    function set_constant($constant, $default, $limit = NULL)
+        {
+        //if type doesn't match return default
+        if (defined($constant))
+            {
+            if (gettype(constant($constant)) === gettype($default))
+                {
+                if (is_null($limit))
+                    {
+                    //no limit, use for string
+                    return constant($constant);
+                    }
+                else
+                    {
+                    //$limit use for integers
+                    if (constant($constant) < $limit)
+                        {
+                        //proper constant
+                        return constant($constant);   
+                        }
+                    else
+                        {
+                        //return limit
+                        return $limit;    
+                        }
+                    }
+                }
+            else
+                {
+                //type doesn't match
+                return $default;    
+                }
+            }
+        else
+            {
+            //return default if not set
+            return $default;    
+            }
+        }      
+} //end class
 ?>

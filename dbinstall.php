@@ -37,12 +37,17 @@ If not, see http://www.gnu.org/licenses/
    2014.1.22 SQL statement added to GRANT user role to db owner
    2014.1.23 JSON table added and XML table dropped, modules_table and users_table changes BIG change
    2014.1.24 ips column added to users_table
+   2014.1.25 added username and note column to users_table, username to log table
 */
 
 /* Backup Change Log
    2012.1.2 Compatable with Version 2014.3.275
    2014.1.3 Database column userrole changed to userroles and from smallint to array of smallint
    2014.1.4 Convesion to JSON data structure, modules_table and users_table changed
+   2014.1.5 added username to log and users tables and text field to users table
+*/
+
+/* Program Version 1.7
 */
 
 ?>
@@ -61,10 +66,9 @@ include("bb-config/bb_config.php");
 
 /* BRIMBOX LOGIN */
 $email = "admin";
+$username = "admin";
 $passwd = "password";
-$db_version = "1.24";
-$program_version = "1.5";
-$backup_version = "1.4";
+
 //SHA256 standard for the program
 //use a 36 char text salt instead of a binary one
 //simple but effective salt generator
@@ -302,7 +306,7 @@ CREATE TABLE data_table
   id bigserial NOT NULL,
   row_type integer NOT NULL DEFAULT (0),
   key1 bigint NOT NULL DEFAULT (-1),
-  key2 bigint NOT NULL DEFAULT (-1),
+  key2 bigint[] NOT NULL DEFAULT '{-1}',
   c01 character varying(255) NOT NULL DEFAULT ''::character varying,
   c02 character varying(255) NOT NULL DEFAULT ''::character varying,
   c03 character varying(255) NOT NULL DEFAULT ''::character varying,
@@ -386,7 +390,7 @@ CREATE INDEX data_table_idx_key1
   (key1);
 CREATE INDEX data_table_idx_key2
   ON data_table
-  USING btree
+  USING gin
   (key2);
 -- Trigger: ts1_modify_date on data_table
 CREATE TRIGGER ts1_modify_date
@@ -481,6 +485,7 @@ $query = <<<EOT
 CREATE TABLE log_table
 (
   id bigserial NOT NULL,
+  username character varying(255) NOT NULL DEFAULT ''::character varying,
   email character varying(255) NOT NULL DEFAULT ''::character varying,
   ip_address cidr,
   action character varying(255) NOT NULL DEFAULT ''::character varying,
@@ -624,6 +629,7 @@ $query = <<<EOT
 CREATE TABLE users_table
 (
   id serial NOT NULL,
+  username character varying(255),
   email character varying(255),
   hash text,
   salt text,
@@ -632,6 +638,7 @@ CREATE TABLE users_table
   fname character varying(255),
   minit character varying(255),
   lname character varying(255),
+  notes character varying(65536),
   ips cidr[] NOT NULL DEFAULT '{0.0.0.0/0,0:0:0:0:0:0:0:0/0}',
   change_date timestamp with time zone,
   CONSTRAINT users_table_pkey PRIMARY KEY (id),
@@ -655,15 +662,14 @@ if ($do_users_table)
     }
 
 $query = <<<EOT
-INSERT INTO users_table(email, hash, salt, userroles)
-VALUES ('$email', '$hash', '$salt', '{"5_bb_brimbox"}');
+INSERT INTO users_table(username, email, hash, salt, userroles)
+VALUES ('$username', '$email', '$hash', '$salt', '{"5_bb_brimbox"}');
 EOT;
 if ($do_users_table)
     {
     $result = pg_query($con, $query);
     echo "Users Table Populated<br>";
-    }
-    
+    }    
     
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'json_table'";
 $result = pg_query($con, $query);

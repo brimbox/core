@@ -71,6 +71,7 @@ if (isset($_SESSION['email'])):
 //SESSION STUFF
 $email = $_SESSION['email'];
 $username = $_SESSION['username'];
+$timeout = $_SESSION['timeout'];
 $userrole = $_SESSION['userrole']; //string containing userrole and interface
 $userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
 list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
@@ -467,7 +468,7 @@ if (isset($_POST['index_enter']))
     if (filter_var($ip = $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
         {
         //query users table
-        $query = "SELECT email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0_bb_brimbox' = ANY (userroles)) AND ('" . pg_escape_string($ip) . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
+        $query = "SELECT username, email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0_bb_brimbox' = ANY (userroles)) AND ('" . pg_escape_string($ip) . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
         
         //get result
         $result = pg_query($con, $query);
@@ -528,10 +529,13 @@ if (isset($_POST['index_enter']))
                 //set attempts to zero
                 $query = "UPDATE users_table SET attempts = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
                 pg_query($con, $query);
-                //set sessions
+                //set username and email
+                $_SESSION['username'] = $row['username'];
                 $_SESSION['email'] = $row['email'];
-                $_SESSION['username'] = $row['email'];
-                //build name
+                //set session timeout variable
+                date_default_timezone_set(USER_TIMEZONE);
+                $_SESSION['timeout'] = time();
+                //build name for display
                 $arr_name = array($row["fname"],$row["minit"],$row["lname"]);
                 $arr_name = array_filter(array_map('trim',$arr_name));  
                 $_SESSION['name'] = implode(" ", $arr_name);

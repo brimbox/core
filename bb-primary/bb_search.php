@@ -104,7 +104,7 @@ $params = array("class"=>"spaced","onclick"=>"reset_return()", "label"=>"Search 
 $main->echo_script_button("post_search", $params);
 
 //archive interworking allows quick access to archived records
-if (!strcasecmp(constant("ARCHIVE_INTERWORKING"),"ON"))
+if ($main->on_constant('ARCHIVE_INTERWORKING'))
 	{
 	$checked = "";
 	if ($archive_flag == 1)
@@ -129,8 +129,8 @@ $main->echo_form_end();
 /* BEGIN RETURN ROWS */
 //this function returns the repetitive rows from the search query
 
-$return_rows = defined('RETURN_ROWS') ? RETURN_ROWS : 4;
-$pagination = defined('PAGINATION') ? PAGINATION : 5;
+$return_rows = $main->set_constant('RETURN_ROWS',4);
+$pagination = $main->set_constant('PAGINATION',5);
 $count_rows = 0;
 
 //search array successfully parsed			
