@@ -306,7 +306,7 @@ CREATE TABLE data_table
   id bigserial NOT NULL,
   row_type integer NOT NULL DEFAULT (0),
   key1 bigint NOT NULL DEFAULT (-1),
-  key2 bigint NOT NULL DEFAULT (-1)',
+  key2 bigint NOT NULL DEFAULT (-1),
   c01 character varying(255) NOT NULL DEFAULT ''::character varying,
   c02 character varying(255) NOT NULL DEFAULT ''::character varying,
   c03 character varying(255) NOT NULL DEFAULT ''::character varying,

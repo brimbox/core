@@ -115,12 +115,12 @@ $iv = substr($salt,0,8);
 if ($type == 0) //no encrypt 
 	{
 	//left 2 digits should be encrypt method
-	$hex = "00000004";
+	$hex = "00000006";
 	$eol = "\r\n";
 	}
 elseif ($type == 1) //MCRYPT_3DES + Compression
 	{
-	$hex = "00000005";
+	$hex = "00000007";
 	$eol = "\r\n";
 	}
 	
@@ -144,8 +144,8 @@ echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 /* TABLES ORDERED FOR QUICKER RESTORE */
 //since data table is last it can be skipped on upload if not restored
 
-/* XML TABLE */
-//lock and get xml table
+/* JSON TABLE */
+//lock and get json table
 $query = "BEGIN; LOCK TABLE json_table;";
 $main->query($con,$query);
 //get exact columns desired
@@ -172,12 +172,12 @@ while ($row = pg_fetch_row($result))
 	}
 
 /* USERS, MODULES, LOG, AND DATA TABLES */
-/* ALL FOLLOW COMMENTS OF XML TABLE */
+/* ALL FOLLOW COMMENTS OF JSON TABLE */
 
 /* USERS TABLE */
 $query = "BEGIN; LOCK TABLE users_table;";
 $main->query($con,$query);
-$query = "SELECT email, hash, salt, attempts, userroles, fname, minit, lname, ips, change_date FROM users_table;";
+$query = "SELECT username, email, hash, salt, attempts, userroles, fname, minit, lname, notes, ips, change_date FROM users_table;";
 $result = $main->query($con,$query);
 $cnt = pg_num_rows($result);
 $query = "COMMIT;";
@@ -220,12 +220,11 @@ while ($row = pg_fetch_row($result))
 /* LOG TABLE */
 $query = "BEGIN; LOCK TABLE log_table;";
 $main->query($con,$query);
-$query = "SELECT email, ip_address, action, change_date FROM log_table;";
+$query = "SELECT username, email, ip_address, action, change_date FROM log_table;";
 $result = $main->query($con,$query);
 $cnt = pg_num_rows($result);
 $query = "COMMIT;";
 $main->query($con,$query);
-
 
 $json_log = array();
 $json_log['count'] = $cnt;

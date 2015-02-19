@@ -815,6 +815,17 @@ class bb_main {
 		$query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
 		$this->query_params($con, $query, $arr_log);
 		}
+        
+    function log($con, $message, $username = NULL, $email = NULL)
+		{
+        if (is_null($username)) $username = $_SESSION['username'];
+        if (is_null($email)) $email = $_SESSION['email'];
+		$ip = $_SERVER['REMOTE_ADDR'];
+		$arr_log = array($username, $email,$ip, $message);
+		$query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
+		$this->query_params($con, $query, $arr_log);
+		}
+
 		
 	function output_links($row, $arr_layouts, $userrole)
 		{
@@ -1098,32 +1109,24 @@ class bb_main {
         //if type doesn't match return default
         if (defined($constant))
             {
-            if (gettype(constant($constant)) === gettype($default))
+            if (is_null($limit))
                 {
-                if (is_null($limit))
-                    {
-                    //no limit, use for string
-                    return constant($constant);
-                    }
-                else
-                    {
-                    //$limit use for integers
-                    if (constant($constant) < $limit)
-                        {
-                        //proper constant
-                        return constant($constant);   
-                        }
-                    else
-                        {
-                        //return limit
-                        return $limit;    
-                        }
-                    }
+                //no limit, use for string
+                return constant($constant);
                 }
             else
                 {
-                //type doesn't match
-                return $default;    
+                //$limit use for integers
+                if (constant($constant) < $limit)
+                    {
+                    //proper constant
+                    return constant($constant);   
+                    }
+                else
+                    {
+                    //return limit
+                    return $limit;    
+                    }
                 }
             }
         else

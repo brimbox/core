@@ -165,11 +165,11 @@ if ($main->button(4)) //submit_file
                 //00000001 -- encrypt before userrole => userroles
                 if (hash('sha512', $passwd . $salt) == $hash)
                     {
-                    if (in_array($hex, array("00000000","00000002","00000004")))
+                    if (in_array($hex, array("00000000","00000002","00000004","00000006")))
                         {
                         $type = 0;
                         }
-                    elseif (in_array($hex, array("00000001","00000003","00000005")))
+                    elseif (in_array($hex, array("00000001","00000003","00000005","00000007")))
                         {
                         $type = 1;
                         }
@@ -240,8 +240,8 @@ if ($main->button(4)) //submit_file
                             {
                             $str = rtrim(fgets($handle));
                             $row = explode("\t", decrypt_line($str, $passwd, $iv, $type));                      
-                            $query = "INSERT INTO users_table (email, hash, salt, attempts, userroles, fname, minit, lname, ips, change_date) " .
-                                     "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);";	
+                            $query = "INSERT INTO users_table (username, email, hash, salt, attempts, userroles, fname, minit, lname, notes, ips, change_date) " .
+                                     "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);";	
                             //echo "<p>" . htmlentities($query) . "</p><br>";
                             $main->query_params($con, $query, $row);		 
                             }
@@ -310,8 +310,8 @@ if ($main->button(4)) //submit_file
                             {
                             $str = rtrim(fgets($handle));
                             $row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
-                            $query = "INSERT INTO log_table (email, ip_address, action, change_date) " .
-                                     "VALUES ($1,$2,$3,$4);";
+                            $query = "INSERT INTO log_table (username, email, ip_address, action, change_date) " .
+                                     "VALUES ($1,$2,$3,$4,$5);";
                             //echo "<p>" . htmlentities($query) . "</p><br>";
                             $main->query_params($con, $query, $row);		 
                             }

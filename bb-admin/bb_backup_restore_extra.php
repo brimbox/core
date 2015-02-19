@@ -140,6 +140,7 @@ $log_before_eot = <<<EOT
 CREATE TABLE log_table
 (
   id bigserial NOT NULL,
+  username character varying(255) NOT NULL DEFAULT ''::character varying,
   email character varying(255) NOT NULL DEFAULT ''::character varying,
   ip_address cidr,
   action character varying(255) NOT NULL DEFAULT ''::character varying,
@@ -199,6 +200,7 @@ $users_before_eot = <<<EOT
 CREATE TABLE users_table
 (
   id serial NOT NULL,
+  username character varying(255),
   email character varying(255),
   hash text,
   salt text,
@@ -207,6 +209,7 @@ CREATE TABLE users_table
   fname character varying(255),
   minit character varying(255),
   lname character varying(255),
+  notes character varying(65536), 
   ips cidr[] NOT NULL DEFAULT '{0.0.0.0/0,0:0:0:0:0:0:0:0/0}',
   change_date timestamp with time zone,
   CONSTRAINT users_table_pkey PRIMARY KEY (id),

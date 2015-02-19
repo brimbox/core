@@ -459,7 +459,8 @@ if (isset($_POST['index_enter']))
     if (!$con) die();    
     
     //get form variables
-    $email = $username = substr($_POST['username'],0,255); //email and password must be < 255 by definition
+    $username = substr($_POST['username'],0,255); //email and password must be < 255 by definition
+    $email = substr($_POST['email'],0,255); //email and password must be < 255 by definition
     $password = substr($_POST['password'],0,255); //do not want to process big post
     
     //default error message, information only provided with accurate credentials
@@ -468,7 +469,7 @@ if (isset($_POST['index_enter']))
     if (filter_var($ip = $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP))
         {
         //query users table
-        $query = "SELECT username, email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0_bb_brimbox' = ANY (userroles)) AND ('" . pg_escape_string($ip) . "' <<= ANY (ips)) AND UPPER(email) = UPPER('". pg_escape_string($email) . "') AND attempts <= 10;";
+        $query = "SELECT username, email, hash, salt, attempts, array_to_string(userroles,',') as userroles, fname, minit, lname FROM users_table WHERE NOT ('0_bb_brimbox' = ANY (userroles)) AND ('" . pg_escape_string($ip) . "' <<= ANY (ips)) AND UPPER(username) = UPPER('". pg_escape_string($username) . "') AND attempts <= 10;";
         
         //get result
         $result = pg_query($con, $query);
@@ -545,8 +546,8 @@ if (isset($_POST['index_enter']))
                 $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
                 $_SESSION['archive'] = 1; //archive mode is off
                 //log entry
-                $arr_log = array($username, $ip, $log_message);
-                $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
+                $arr_log = array($username, $email, $ip, $log_message);
+                $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
                 pg_query_params($con, $query, $arr_log);
                 //redirect with header call to index with session set
                 $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
@@ -563,9 +564,8 @@ if (isset($_POST['index_enter']))
                     $query = "UPDATE users_table SET userroles = '{0_bb_brimbox}' WHERE UPPER(email) = UPPER('". pg_escape_string($username) . "');";
                     pg_query($con, $query);
                     }
-                $arr_log = array($username, $ip, $log_message);
-                $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
-                pg_query_params($con, $query, $arr_log);
+                $arr_log = array($username, $email, $ip, $log_message);
+                $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
                 //delay if invalid login
                 $rnd = rand(100000,200000);
                 $email = $username = $password = "";
@@ -575,8 +575,8 @@ if (isset($_POST['index_enter']))
             else  //admin or single user
                 {               
                 $arr_log = array($email, $ip, $log_message);
-                $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
-                pg_query_params($con, $query, $arr_log);
+                $arr_log = array($username, $email, $ip, $log_message);
+                $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
                 //delay if invalid login
                 $email = $username = $password = "";   
                 }
@@ -585,8 +585,8 @@ if (isset($_POST['index_enter']))
             {
              //only one bad login message
             $log_message = "Login Failure: Bad Username, Invalid IP, or Account Locked";
-            $arr_log = array($email, $ip, $log_message);
-            $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
+            $arr_log = array($username, $email, $ip, $log_message);
+            $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
             pg_query_params($con, $query, $arr_log);
             //delay if invalid login
             $rnd = rand(100000,200000);
@@ -598,8 +598,8 @@ if (isset($_POST['index_enter']))
     else
         {
         $log_message = "Malformed IP";
-        $arr_log = array($username, $ip, $log_message);
-        $query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
+        $arr_log = array($username, $email, $ip, $log_message);
+        $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
         pg_query_params($con, $query, $arr_log);
         //delay if invalid login
         $rnd = rand(100000,200000);

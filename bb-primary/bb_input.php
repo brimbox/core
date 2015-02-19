@@ -202,7 +202,7 @@ if ($main->button(1))
                 if ($input_update_log)
                     {
                     $message = "Record " . chr($row_type + 64) . $post_key . " updated.";
-                    $main->log_entry($con, $message , $username);
+                    $main->log($con, $message);
                     }
                 $main->update($array_state, $module, $arr_state);
                 //can add a recursive query to update child record when secure is altered
@@ -218,7 +218,7 @@ if ($main->button(1))
                     if ($input_update_log)
                         {
                         $message = "WHERE NOT error updating record " . chr($row_type + 64) . $post_key . "." ;
-                        $main->log_entry($con, $message , $username);
+                        $main->log($con, $message);
                         }
 					}
 				else
@@ -235,7 +235,7 @@ if ($main->button(1))
                     if ($input_update_log)
                         {
                         $message = "Error updating record " . chr($row_type + 64) . $post_key . "."; 
-                        $main->log_entry($con, $message , $username);
+                        $main->log($con, $message);
                         }
 					}
                 }
@@ -327,7 +327,7 @@ if ($main->button(1))
                 if ($input_insert_log)
                     {
                     $message = "New " . chr($row_type + 64) . $row['id'] . " record entered."; 
-                    $main->log_entry($con, $message , $username);
+                    $main->log($con, $message);
                     }
                 $main->hook("insert_cascade", true);
                 //dispose of $arr_state
@@ -350,7 +350,7 @@ if ($main->button(1))
                     if ($input_insert_log)
                         {
                         $message = "WHERE NOT insert error on type " . chr($row_type + 64) . " record."; 
-                        $main->log_entry($con, $message , $username);
+                        $main->log($con, $messagee);
                         }
 					}
 				else
@@ -366,7 +366,7 @@ if ($main->button(1))
                     if ($input_insert_log)
                         {
                         $message = "Insert error entering type " . chr($row_type + 64) . " record."; 
-                        $main->log_entry($con, $message , $username);
+                        $main->log($con, $message , $username);
                         }
 					}
 				}                  		
