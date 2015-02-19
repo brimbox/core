@@ -460,7 +460,7 @@ if (isset($_POST['index_enter']))
     
     //get form variables
     $username = substr($_POST['username'],0,255); //email and password must be < 255 by definition
-    $email = substr($_POST['email'],0,255); //email and password must be < 255 by definition
+    $email = "";
     $password = substr($_POST['password'],0,255); //do not want to process big post
     
     //default error message, information only provided with accurate credentials
@@ -531,8 +531,8 @@ if (isset($_POST['index_enter']))
                 $query = "UPDATE users_table SET attempts = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
                 pg_query($con, $query);
                 //set username and email
-                $_SESSION['username'] = $row['username'];
-                $_SESSION['email'] = $row['email'];
+                $_SESSION['username'] = $username = $row['username'];
+                $_SESSION['email'] = $email = $row['email'];
                 //set session timeout variable
                 date_default_timezone_set(USER_TIMEZONE);
                 $_SESSION['timeout'] = time();

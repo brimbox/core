@@ -78,7 +78,8 @@ echo "<div class=\"table padded\">";
 
     //table header
     echo "<div class=\"row shaded\">";
-    echo "<div class=\"padded bold cell medium middle\">Email/Username</div>";
+    echo "<div class=\"padded bold cell medium middle\">Username</div>";
+    echo "<div class=\"padded bold cell medium middle\">Email</div>";
     echo "<div class=\"padded bold cell medium middle\">IP Address/Bits</div>";
     echo "<div class=\"padded bold cell medium middle\">Log Date/Time</div>";
     echo "<div class=\"padded bold cell medium middle\">Action</div>";
@@ -91,6 +92,7 @@ echo "<div class=\"table padded\">";
         //row shading
         $shade_class = ($i % 2) == 0 ? "even" : "odd";
         echo "<div class=\"row " . $shade_class . "\">";
+        echo "<div class=\"padded cell medium middle\">" . $row['username'] . "</div>";
         echo "<div class=\"padded cell medium middle\">" . $row['email'] . "</div>";
         echo "<div class=\"padded cell medium middle\">" . $row['ip_address'] . "</div>";
         $date = $main->convert_date($row['change_date'],"Y-m-d h:i:s.u"); 
