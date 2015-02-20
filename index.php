@@ -143,7 +143,7 @@ $con = $main->connect();
 /* USER LOCKED OR DELETED */
 //once con is set check live whether user is locked or deleted
 //0_bb_brimbox is only locked userrole, for active lock
-$arr_work['locked'] = "SELECT id FROM users_table WHERE email = '" . pg_escape_string($email) . "' AND NOT '0_bb_brimbox' = ANY (userroles);";
+$arr_work['locked'] = "SELECT id FROM users_table WHERE username = '" . pg_escape_string($username) . "' AND NOT '0_bb_brimbox' = ANY (userroles);";
 $result = pg_query($con, $arr_work['locked']);
 if (pg_num_rows($result) <> 1)
     {

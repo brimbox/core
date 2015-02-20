@@ -256,7 +256,7 @@ if ($main->button(1)) //postback add new user
             {
             //since action is zero, only email_work needs to be blanked
             $email_work = "";
-            array_push($arr_message, "User " . $email_work . " has been added.");
+            array_push($arr_message, "User " . $username_work . " has been added.");
             $action = 0; //success
             }       
         }
@@ -323,7 +323,7 @@ if ($main->button(2)) //postback update
         else
             {
             //since action is zero, only email needs to be blanked            
-            array_push($arr_message, "User " . $email_work . " information has been updated.");
+            array_push($arr_message, "User " . $username_work . " information has been updated.");
             $email_work = "";
             $action = 0; //successful update
             }       
