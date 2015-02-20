@@ -80,9 +80,9 @@ echo "<div class=\"table padded\">";
     echo "<div class=\"row shaded\">";
     echo "<div class=\"padded bold cell medium middle\">Username</div>";
     echo "<div class=\"padded bold cell medium middle\">Email</div>";
-    echo "<div class=\"padded bold cell medium middle\">IP Address/Bits</div>";
-    echo "<div class=\"padded bold cell medium middle\">Log Date/Time</div>";
-    echo "<div class=\"padded bold cell medium middle\">Action</div>";
+    echo "<div class=\"padded bold cell long middle\">IP Address/Bits</div>";
+    echo "<div class=\"padded bold cell long middle\">Log Date/Time</div>";
+    echo "<div class=\"padded bold cell long middle\">Action</div>";
     echo "</div>";
 
     //table rows
@@ -94,10 +94,10 @@ echo "<div class=\"table padded\">";
         echo "<div class=\"row " . $shade_class . "\">";
         echo "<div class=\"padded cell medium middle\">" . $row['username'] . "</div>";
         echo "<div class=\"padded cell medium middle\">" . $row['email'] . "</div>";
-        echo "<div class=\"padded cell medium middle\">" . $row['ip_address'] . "</div>";
+        echo "<div class=\"padded cell long middle\">" . $row['ip_address'] . "</div>";
         $date = $main->convert_date($row['change_date'],"Y-m-d h:i:s.u"); 
-        echo "<div class=\"padded cell medium middle\">" . $date . "</div>";
-        echo "<div class=\"padded cell medium middle\">" . $row['action'] . "</div>";
+        echo "<div class=\"padded cell long middle\">" . $date . "</div>";
+        echo "<div class=\"padded cell long middle\">" . $row['action'] . "</div>";
         echo "</div>";
         $i++;
         }

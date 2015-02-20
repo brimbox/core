@@ -566,6 +566,7 @@ if (isset($_POST['index_enter']))
                     }
                 $arr_log = array($username, $email, $ip, $log_message);
                 $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
+                pg_query_params($con, $query, $arr_log);
                 //delay if invalid login
                 $rnd = rand(100000,200000);
                 $email = $username = $password = "";
@@ -577,6 +578,7 @@ if (isset($_POST['index_enter']))
                 $arr_log = array($email, $ip, $log_message);
                 $arr_log = array($username, $email, $ip, $log_message);
                 $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
+                pg_query_params($con, $query, $arr_log);
                 //delay if invalid login
                 $email = $username = $password = "";   
                 }
