@@ -529,7 +529,7 @@ if (isset($_POST['index_login']))
             if ($set_session) //good login and mode
                 {
                 //set attempts to zero
-                $query = "UPDATE users_table SET attempts = 0 WHERE UPPER(email) = UPPER('". pg_escape_string($email) . "');";
+                $query = "UPDATE users_table SET attempts = 0 WHERE UPPER(username) = UPPER('". pg_escape_string($username) . "');";
                 pg_query($con, $query);
                 //set username and email
                 $_SESSION['username'] = $username = $row['username'];

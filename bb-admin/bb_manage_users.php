@@ -168,7 +168,7 @@ $filterrole = $main->post('filterrole', $module, "all");
 //$email_work called $email_work because of global $email
 $username_work = $email_work = $passwd = $repasswd = $fname = $minit = $lname = $ips = $notes = "";
 //hack for original constants file
-$userroles_default = array($main->set_constant('DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox'));    
+$userrole_constant = $main->set_constant('DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox');    
 /* END INITIAL VALUES */
 
 /* POSTBACK FOR NEW USER AND UPDATE USER */
@@ -183,17 +183,16 @@ if ($main->button(1) || $main->button(2))
     $email_work = $main->custom_trim_string($main->post('email_work', $module),255);
     $passwd = $main->custom_trim_string($main->post('passwd', $module), 255);
     $repasswd = $main->custom_trim_string($main->post('repasswd', $module), 255);
-    $userroles_work = $main->post('userroles_work', $module);
+    $userroles_work = $main->post('userroles_work', $module, array($userrole_constant));
     $notes = $main->custom_trim_string($main->post('notes', $module), 65536, false);
     sort($userroles_work);
-    $userrole_default = $main->post('userrole_default', $module, $userroles_default);
+    $userrole_default = $main->post('userrole_default', $module, $userrole_constant);
     $arr_userrole_default = array($userrole_default);
-    if ($userrole_default <> 0)
+    if ($userrole_default <> "0_bb_brimbox")
         {
         $userroles_work = array_diff($userroles_work, $arr_userrole_default);
         array_unshift($userroles_work , $userrole_default);
         }
-    $userroles_work_esc = array_map('pg_escape_string', $userroles_work);
     $fname = $main->custom_trim_string($main->post('fname', $module),255);
     $minit = $main->custom_trim_string($main->post('minit', $module),255);
     $lname = $main->custom_trim_string($main->post('lname', $module),255);
@@ -241,22 +240,22 @@ if ($main->button(1)) //postback add new user
         {
         $salt = md5(microtime());
         $query = "INSERT INTO users_table (username, email, hash, salt, userroles, fname, minit, lname, notes, ips) " .
-                 "SELECT '" . pg_escape_string($username_work) . "', '" . pg_escape_string($email_work) . "', '" . hash('sha512', pg_escape_string($passwd) . $salt) . "', '" . $salt . "', '{" . implode(",", $userroles_work_esc) . "}', " .
+                 "SELECT '" . pg_escape_string($username_work) . "', '" . pg_escape_string($email_work) . "', '" . hash('sha512', pg_escape_string($passwd) . $salt) . "', '" . $salt . "', '{" . implode(",", array_map('pg_escape_string', $userroles_work)) . "}', " .
                  "'" . pg_escape_string($fname) . "', '" . pg_escape_string($minit) . "', '" . pg_escape_string($lname) . "', '" . pg_escape_string($notes) . "', '" . $ips_esc . "' " .
-                 "WHERE NOT EXISTS (SELECT 1 FROM users_table WHERE email = '" . pg_escape_string($email_work) . "')";
+                 "WHERE NOT EXISTS (SELECT 1 FROM users_table WHERE username = '" . pg_escape_string($username_work) . "')";
         $result = $main->query($con,$query);
         $cnt = pg_affected_rows($result);
         
         if (pg_affected_rows($result) == 0)
             {
             //only get here with good email
-            $arr_error['email_work'] = "Email " . $email_work . " already exists for another user.";      
+            $arr_error['email_work'] = "Username \"" . $username_work . "\" already exists for another user.";      
             }
         else
             {
             //since action is zero, only email_work needs to be blanked
             $email_work = "";
-            array_push($arr_message, "User " . $username_work . " has been added.");
+            array_push($arr_message, "User \"" . $username_work . "\" has been added.");
             $action = 0; //success
             }       
         }
@@ -307,10 +306,10 @@ if ($main->button(2)) //postback update
     //do the update   
     if (empty($arr_error))
         {
-        $where_not_exists = "SELECT 1 from users_table WHERE  id <> " .  pg_escape_string($id) . " AND  email = '" .  pg_escape_string($email_work) . "'";
+        $where_not_exists = "SELECT 1 from users_table WHERE id <> " .  pg_escape_string($id) . " AND username = '" .  pg_escape_string($username_work) . "'";
         $query = "UPDATE users_table " .
                  "SET username = '" .  pg_escape_string($username_work) . "', email = '" .  pg_escape_string($email_work) . "', fname = '" . pg_escape_string($fname) . "', minit = '" . pg_escape_string($minit) . "', lname = '" . pg_escape_string($lname) . "', " .
-                 "userroles = '{" . implode(",", $userroles_work_esc) . "}', attempts = 0, notes = '" . pg_escape_string($notes) . "', ips = '" .  $ips_esc . "' " . $query_add_clause . " " .
+                 "userroles = '{" . implode(",", array_map('pg_escape_string', $userroles_work)) . "}', attempts = 0, notes = '" . pg_escape_string($notes) . "', ips = '" .  $ips_esc . "' " . $query_add_clause . " " .
                  "WHERE id = " .  pg_escape_string($id) . " AND NOT EXISTS (" . $where_not_exists . ");";
         $result = $main->query($con,$query);
         $cnt = pg_affected_rows($result);
@@ -318,12 +317,12 @@ if ($main->button(2)) //postback update
         if (pg_affected_rows($result) == 0)
             {
             //only get here with good email
-            array_push($arr_message, "Error: Cannot update, email duplicated or underlying data change possible.");     
+            array_push($arr_message, "Error: Cannot update, username duplicated or underlying data change possible.");     
             }
         else
             {
             //since action is zero, only email needs to be blanked            
-            array_push($arr_message, "User " . $username_work . " information has been updated.");
+            array_push($arr_message, "User \"" . $username_work . "\" information has been updated.");
             $email_work = "";
             $action = 0; //successful update
             }       
@@ -660,7 +659,7 @@ if (in_array($action, array(1,2,3,4))):
         //if add user
         if (in_array($action, array(1)))
             {
-            $userroles_work = $userroles_default;    
+            $userroles_work = array($userrole_constant);    
             }
         foreach ($userroles_work as $value)
             {
