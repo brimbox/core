@@ -35,7 +35,7 @@ session_regenerate_id();
 
 /* START IF, IF (logged in) THEN (controller) ELSE (login) END */
 
-if (isset($_SESSION['email'])):
+if (isset($_SESSION['username'])):
 
 /* RESERVED VARIABLES (used in controller)*/
 //$userrole -- current security level string including the interface
@@ -69,8 +69,8 @@ if (isset($_SESSION['email'])):
 //other vars are all disposed of with unset
 
 //SESSION STUFF
-$email = $_SESSION['email'];
 $username = $_SESSION['username'];
+$email = $_SESSION['email'];
 $timeout = $_SESSION['timeout'];
 $userrole = $_SESSION['userrole']; //string containing userrole and interface
 $userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
@@ -82,6 +82,7 @@ $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0; //global button
 //logout algorithm used for interface change, userrole change and logout
 if (isset($_POST['bb_module']))
 	{
+    //sets the module and submit
 	$module = $_POST['bb_module'];
 	$submit = $_POST['bb_submit'];
 	if ($module == "bb_logout")
@@ -97,7 +98,7 @@ if (isset($_POST['bb_module']))
 			header($index_path);
 			die(); //important to stop script
 			}
-		//if logout, destroy session and force index, button < 0 or invalid userrrole
+		//if logout, destroy session and force index, invalid $userrrole or $usertpye
 		else
 			{
 			session_destroy();
@@ -141,7 +142,7 @@ $main = new bb_reports();
 $con = $main->connect();
 
 /* USER LOCKED OR DELETED */
-//once con is set check live whether user is locked or deleted
+//once $con is set check live whether user is locked or deleted
 //0_bb_brimbox is only locked userrole, for active lock
 $arr_work['locked'] = "SELECT id FROM users_table WHERE username = '" . pg_escape_string($username) . "' AND NOT '0_bb_brimbox' = ANY (userroles);";
 $result = pg_query($con, $arr_work['locked']);
@@ -199,7 +200,7 @@ while($row = pg_fetch_array($result))
 //will ignore file if missing
 if (file_exists("bb-config/bb_admin_globals.php")) include("bb-config/bb_admin_globals.php");
 
-/* UNPACK $array_master for given interface */
+/* UNPACK $array_global for given interface */
 //will overwrite existing arrays
 if (isset($array_global))
     {
@@ -223,16 +224,16 @@ if (isset($array_global))
 <link rel=StyleSheet href="bb-config/bb_admin_css.css" type="text/css" media=screen>
 <?php
 /* INCLUDE HACKS LAST after all other bb-config includes */
-include("bb-config/bb_admin_hacks.php");
+//hacks file useful for debugging
+if (file_exists("bb-config/bb_admin_hacks.php")) include("bb-config/bb_admin_hacks.php");
 
-/* SET UP LESS PARSER */
-//see included license
+/* SET UP LESS SUBSTITUTER */
 include("bb-less/bb_less_substituter.php");
 $less = new bb_less_substituter();
 echo "<style>";
 echo $less->parse_less_file("bb-utilities/bb_styles.less");
 echo "</style>";
-/* END LESS PARSER */
+/* END LESS LESS SUBSTITUTER */
 ?>
 
 <title><?php echo PAGE_TITLE; ?></title> 
@@ -244,7 +245,8 @@ echo "</style>";
 if (!$main->blank($_POST['bb_image']))
     {
     //seems to flush nicely without explicitly flushing the output buffer
-    echo "<div id=\"bb_processor\"><img src=\"bb-config/processing_image.gif\"></div>";
+    $processing_image = $_POST['bb_image'];
+    echo "<div id=\"bb_processor\"><img src=\"bb-config/" . $processing_image . "\"></div>";
     echo "<script>window.onload = function () { document.getElementById(\"bb_processor\").style.display = \"none\"; }</script>";
     }
 ?>
@@ -450,7 +452,7 @@ else:
 $email = $password = $message = "";
 
 //postback, attempt to login	
-if (isset($_POST['index_enter']))
+if (isset($_POST['index_login']))
     {
     //get connection
     $con_string = "host=" . DB_HOST . " dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
@@ -460,7 +462,6 @@ if (isset($_POST['index_enter']))
     
     //get form variables
     $username = substr($_POST['username'],0,255); //email and password must be < 255 by definition
-    $email = "";
     $password = substr($_POST['password'],0,255); //do not want to process big post
     
     //default error message, information only provided with accurate credentials
@@ -556,12 +557,12 @@ if (isset($_POST['index_enter']))
                 }		
             elseif ($set_attempts) //bad password
                 {
-                $query = "UPDATE users_table SET attempts = attempts + 1 WHERE UPPER(email) = UPPER('". pg_escape_string($username) . "') RETURNING attempts;";
+                $query = "UPDATE users_table SET attempts = attempts + 1 WHERE UPPER(username) = UPPER('". pg_escape_string($username) . "') RETURNING attempts;";
                 $result = pg_query($con, $query);
                 $row = pg_fetch_array($result);
                 if ($row['attempts'] >= 10)
                     {
-                    $query = "UPDATE users_table SET userroles = '{0_bb_brimbox}' WHERE UPPER(email) = UPPER('". pg_escape_string($username) . "');";
+                    $query = "UPDATE users_table SET userroles = '{0_bb_brimbox}' WHERE UPPER(username) = UPPER('". pg_escape_string($username) . "');";
                     pg_query($con, $query);
                     }
                 $arr_log = array($username, $email, $ip, $log_message);
@@ -569,8 +570,7 @@ if (isset($_POST['index_enter']))
                 pg_query_params($con, $query, $arr_log);
                 //delay if invalid login
                 $rnd = rand(100000,200000);
-                $email = $username = $password = "";
-                $password = "";
+                $username = $password = "";
                 usleep($rnd);
                 }
             else  //admin or single user
@@ -580,7 +580,7 @@ if (isset($_POST['index_enter']))
                 $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
                 pg_query_params($con, $query, $arr_log);
                 //delay if invalid login
-                $email = $username = $password = "";   
+                $username = $password = "";   
                 }
             } //end row found   
         else //no rows, bad username or locked
@@ -592,7 +592,7 @@ if (isset($_POST['index_enter']))
             pg_query_params($con, $query, $arr_log);
             //delay if invalid login
             $rnd = rand(100000,200000);
-            $email = $username = $password = "";
+            $username = $password = "";
             usleep($rnd);
             }
         }
@@ -605,7 +605,7 @@ if (isset($_POST['index_enter']))
         pg_query_params($con, $query, $arr_log);
         //delay if invalid login
         $rnd = rand(100000,200000);
-        $email = $username = $password = "";
+        $username = $password = "";
         usleep($rnd);                
         }
 	} //end post
@@ -644,7 +644,7 @@ echo "<td class=\"right\"><input name=\"username\" id=\"username\" class=\"long\
 echo "<tr><td class=\"left\"><label for=\"password\">Password: </label></td>";
 echo "<td class=\"right\"><input name=\"password\" id=\"password\"class=\"long\" type=\"password\" /></td></tr></table>";
 echo "</div>";
-echo "<button id=\"index_button\" name=\"index_enter\" type=\"submit\" value=\"index_enter\" />Login</button>";
+echo "<button id=\"index_button\" name=\"index_login\" type=\"submit\" value=\"index_login\" />Login</button>";
 echo "<div id=\"index_message\">" . $message . "</div>";
 echo "</form>";
 

@@ -43,7 +43,7 @@ If not, see http://www.gnu.org/licenses/
 //custom_trim_string
 //echo_messages
 //check_permission
-//validate password
+//validate_password
 //build_indexes
 //cleanup_database_data
 //cleanup_database_layouts
@@ -593,9 +593,9 @@ class bb_main {
 		{
         /* IMPORTANT FUNCTION SHOULD BE CALLED AT TOP OF EVERY MODULE */
         //dies on everything except good permission
-        //should be invoked at the top od every module
+        //should be invoked at the top of every module
 		//waterfall function for single user and admin mode
-		//this will also check that session is set
+		//this check that session is set
         //$usertypes can be int or array of int
         if (isset($_SESSION['username'])) 
             {
