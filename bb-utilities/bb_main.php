@@ -647,7 +647,7 @@ class bb_main {
 		//waterfall
 		//this will also check that session is set
         $userrole = $_SESSION['userrole'];
-        $email = $_SESSION['username'];
+        $username = $_SESSION['username'];
 		if (!is_array($userlevels))
 			{
 			$userlevels = array($userlevels);	
@@ -655,7 +655,7 @@ class bb_main {
         //waterfall
         if (in_array($userrole, $userlevels))
             {
-            $query = "SELECT * FROM users_table WHERE '" . $userrole . "' = ANY (userroles) AND UPPER(email) = UPPER('". pg_escape_string($email) . "');";
+            $query = "SELECT * FROM users_table WHERE '" . $userrole . "' = ANY (userroles) AND UPPER(username) = UPPER('". pg_escape_string($username) . "');";
             $result = $this->query($con, $query);
             if (pg_num_rows($result) == 1)
                 {
