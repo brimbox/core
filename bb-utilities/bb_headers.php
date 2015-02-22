@@ -18,9 +18,9 @@ If not, see http://www.gnu.org/licenses/
 /* NO HTML OUTPUT */
 
 /* VERSION INFORMATION */
-define('BRIMBOX_PROGRAM', '1.6.1');
-define('BRIMBOX_DATABASE', '1.24');
-define('BRIMBOX_BACKUP', '1.4');
+define('BRIMBOX_PROGRAM', '1.7');
+define('BRIMBOX_DATABASE', '1.25');
+define('BRIMBOX_BACKUP', '1.5');
 
 # STANDARD INTERFACE #
 //global header array includes required interface information

@@ -109,7 +109,7 @@ if ($post_key > 0) // a detail of a record
                 $str_details = str_replace("\n", "<br>",  htmlentities($row[$col2]));
                 echo "<div class = \"clear\"><label class = \"margin padded left floatleft overflow medium shaded\">" . htmlentities($value['name']) . ":</label>";
                 echo "<div class = \"clear\"></div>";
-                echo "<div class=\"border padded margin half\">" . $str_details . "</div>";				
+                echo "<div class=\"border padded margin half emheight\">" . $str_details . "</div>";				
                 echo "</div>";
                 }		
             else

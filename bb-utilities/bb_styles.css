@@ -440,6 +440,10 @@ div.clear
      {
      width:300px;    
      }
+.emheight
+     {
+     min-height: 1em;   
+     }
 .nobullets
 	{
 	list-style-type: none;
