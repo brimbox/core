@@ -22,4 +22,7 @@ $main->check_permission("bb_brimbox", 5);
 @unlink("bb-less/license.txt");
 @unlink("bb-config/bb_admin_index.css");
 @unlink("bb-config-default/bb_admin_index.css");
+
+$query = "ALTER TABLE users_table ADD CONSTRAINT users_table_unique_username UNIQUE (username);";
+@pg_query($con, $query);
 ?>
