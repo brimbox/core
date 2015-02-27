@@ -36,8 +36,9 @@ If not, see http://www.gnu.org/licenses/
    2014.1.21 users_table column userrole changed to array of smallint and renamed to userroles
    2014.1.22 SQL statement added to GRANT user role to db owner
    2014.1.23 JSON table added and XML table dropped, modules_table and users_table changes BIG change
-   2014.1.24 ips column added to users_table
-   2014.1.25 added username and note column to users_table, username to log table
+   2015.1.24 ips column added to users_table
+   2015.1.25 added username and note column to users_table, username to log table
+   2015.1.26 added unique constraint to username column
 */
 
 /* Backup Change Log
@@ -642,6 +643,7 @@ CREATE TABLE users_table
   ips cidr[] NOT NULL DEFAULT '{0.0.0.0/0,0:0:0:0:0:0:0:0/0}',
   change_date timestamp with time zone,
   CONSTRAINT users_table_pkey PRIMARY KEY (id),
+  CONSTRAINT users_table_unique_username UNIQUE (username),
   CONSTRAINT users_table_unique_email UNIQUE (email)
 )
 WITH (

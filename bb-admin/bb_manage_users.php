@@ -239,17 +239,18 @@ if ($main->button(1)) //postback add new user
     if (empty($arr_error))
         {
         $salt = md5(microtime());
+        $where_not_exists = "SELECT 1 from users_table WHERE username = '" .  pg_escape_string($username_work) . "' OR email = '" .  pg_escape_string($email_work) . "'";
         $query = "INSERT INTO users_table (username, email, hash, salt, userroles, fname, minit, lname, notes, ips) " .
                  "SELECT '" . pg_escape_string($username_work) . "', '" . pg_escape_string($email_work) . "', '" . hash('sha512', pg_escape_string($passwd) . $salt) . "', '" . $salt . "', '{" . implode(",", array_map('pg_escape_string', $userroles_work)) . "}', " .
                  "'" . pg_escape_string($fname) . "', '" . pg_escape_string($minit) . "', '" . pg_escape_string($lname) . "', '" . pg_escape_string($notes) . "', '" . $ips_esc . "' " .
-                 "WHERE NOT EXISTS (SELECT 1 FROM users_table WHERE username = '" . pg_escape_string($username_work) . "')";
+                 "WHERE NOT EXISTS (" . $where_not_exists . ");";
         $result = $main->query($con,$query);
         $cnt = pg_affected_rows($result);
         
         if (pg_affected_rows($result) == 0)
             {
             //only get here with good email
-            $arr_error['email_work'] = "Username \"" . $username_work . "\" already exists for another user.";      
+            array_push($arr_message, "Error: Username \"" . $username_work . "\" or email \"" . $email_work . "\" already exists for another user.");      
             }
         else
             {
@@ -306,7 +307,7 @@ if ($main->button(2)) //postback update
     //do the update   
     if (empty($arr_error))
         {
-        $where_not_exists = "SELECT 1 from users_table WHERE id <> " .  pg_escape_string($id) . " AND username = '" .  pg_escape_string($username_work) . "'";
+        $where_not_exists = "SELECT 1 from users_table WHERE id <> " .  pg_escape_string($id) . " AND (username = '" .  pg_escape_string($username_work) . "' OR email = '" .  pg_escape_string($email_work) . "')";
         $query = "UPDATE users_table " .
                  "SET username = '" .  pg_escape_string($username_work) . "', email = '" .  pg_escape_string($email_work) . "', fname = '" . pg_escape_string($fname) . "', minit = '" . pg_escape_string($minit) . "', lname = '" . pg_escape_string($lname) . "', " .
                  "userroles = '{" . implode(",", array_map('pg_escape_string', $userroles_work)) . "}', attempts = 0, notes = '" . pg_escape_string($notes) . "', ips = '" .  $ips_esc . "' " . $query_add_clause . " " .
@@ -317,7 +318,7 @@ if ($main->button(2)) //postback update
         if (pg_affected_rows($result) == 0)
             {
             //only get here with good email
-            array_push($arr_message, "Error: Cannot update, username duplicated or underlying data change possible.");     
+            array_push($arr_message, "Error: Cannot update, username or email duplicated or underlying data change possible.");     
             }
         else
             {
