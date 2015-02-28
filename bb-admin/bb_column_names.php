@@ -267,15 +267,8 @@ for ($m = 1; $m <= 50; $m++)
     {
     //defaults
     $column = $m;
-    $name = "";
-    $row = 0;
-    $length = "";
-    $order = 0;
-    $type = "";
-    $required = 0;
-    $secure = 0;
-    $search = 0;
-    $relate = 0;
+    $name = $length = $type = "";
+    $row = $order = $required = $secure = $search = $relate = 0;
     
     if (isset($arr_column[$m])) //empty condition
         {
