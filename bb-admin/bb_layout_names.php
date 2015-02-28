@@ -31,7 +31,7 @@ $arr_layout_security = $arr_header['layout_security']['value'];
 
 $arr_message = array();
 //check for constant
-$number_layouts = $main->set_constant('NUMBER_LAYOUTS', 12 ,26);
+$number_layouts = $main->set_constant('NUMBER_LAYOUTS', 12, 26);
 
 function cmp( $a, $b )
     { 
@@ -126,9 +126,12 @@ if ($main->button(1)) //layout_submit
                 $parent = $main->post('parent_' . (string)$i, $module, 0); //not set = 0
                 $order = $main->post('order_' . (string)$i, $module); //always set
                 $secure = $main->post('secure_' . (string)$i, $module, 0); //not set = 0
-                $autoload = 0;
-                $arr_order[$i] = array('singular'=>$singular,'plural'=>$plural,'parent'=>$parent,'order'=>$order,'secure'=>$secure,'autoload'=>$autoload);
+                $autoload = $main->post('autoload_' . (string)$i, $module, 0); //not set = 0
+                $related = $main->post('related_' . (string)$i, $module, 0); //not set = 0
+                $arr_order[$i] = array('singular'=>$singular,'plural'=>$plural,'parent'=>$parent,'order'=>$order,'secure'=>$secure,'autoload'=>$autoload,'related'=>$related);
                 //initialize empty array for columns
+                //this is important to avoid unset notices
+                //can test whether column are empty
                 if (!isset($arr_columns[$i]))
                     {
                     $arr_columns[$i] = array();    
@@ -185,10 +188,12 @@ echo "<div class=\"row\">";
     echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Parent</label></div>";
     echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Order</label></div>";
     echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Secure</label></div>";
+    echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Autoload</label></div>";
+    echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Related</label></div>";
 echo "</div>";
 for ($i=1; $i<=$number_layouts; $i++)
     {
-    echo "<div class=\"row\">";
+    echo "<div class=\"row\">"; //begin row
 	echo "<div class=\"cell middle\"><label class=\"spaced\">Layout " . chr($i + 64) . $i . "</label></div>";
 	echo "<div class=\"cell middle\">";
     $value = isset($arr_layouts[$i]) ? htmlentities($arr_layouts[$i]['singular']) : "";
@@ -253,7 +258,25 @@ for ($i=1; $i<=$number_layouts; $i++)
             echo "<option value = \"" . $key . "\" " . $selected . ">" . htmlentities($value) . "&nbsp;</option>";
 			}
 		echo "</select></div>";
-		}		
+		}
+    //autoload    
+    $checked = false;
+    if (isset($arr_layouts[$i]['autoload']))
+        {
+        $checked = ($arr_layouts[$i]['autoload'] == 1) ? true : false;
+        }
+    echo "<div class=\"cell padded middle center\">";
+    $main->echo_input("autoload_" . $i, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
+    echo "</div>";
+    //related checkbox
+    $checked = false;
+    if (isset($arr_layouts[$i]['related']))
+        {
+        $checked = ($arr_layouts[$i]['related'] == 1) ? true : false;
+        }
+    echo "<div class=\"cell padded middle center\">";
+    $main->echo_input("related_" . $i, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
+    echo "</div>";    
 	echo "</div>"; //end row
     }
 echo "</div>"; //end table

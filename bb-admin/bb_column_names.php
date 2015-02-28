@@ -33,9 +33,13 @@ set_time_limit(0);
 
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+//for forward compatibility, currently does nothing
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_file = array(47);
+$arr_reserved = array(48);
+$arr_relate = array(41,42,43,44,45,46);
 $arr_notes = array(49,50);
-$arr_reserved = array(47,48);
 
 //get validation and security info 
 $arr_header = $main->get_json($con, "bb_interface_enable");
@@ -63,7 +67,7 @@ $row_type = $main->post('row_type', $module, $default_row_type);
 
 //get xml, after row type
 $arr_columns = $main->get_json($con, "bb_column_names");
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 //columns can be undefined, one layout is always set
 $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $layout_name = $arr_layout['plural'];
@@ -190,7 +194,8 @@ if ($main->button(2))
                 $required = (int)$main->post("required_" . $i, $module, 0);
                 $secure = (int)$main->post("secure_" . $i, $module, 0);
                 $search = (int)$main->post("search_" . $i, $module, 0);
-                $arr_order[$i] = array('name'=>$name,'row'=>$row,'length'=>$length,'order'=>$order,'type'=>$type,'required'=>$required,'secure'=>$secure,'search'=>$search);
+                $relate = (int)$main->post("relate_" . $i, $module, 0);
+                $arr_order[$i] = array('name'=>$name,'row'=>$row,'length'=>$length,'order'=>$order,'type'=>$type,'required'=>$required,'secure'=>$secure,'search'=>$search,'relate'=>$relate);
                 $count++;
                 }
             }
@@ -243,10 +248,10 @@ echo "</div>";
 
 //row_type select tag
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 
 //populate row_type select combo box from xml columns
-$arr_head = array("Column","Name","Row","Length","Order","Type","Required","Secure","Search");
+$arr_head = array("Column","Name","Row","Length","Order","Type","Required","Secure","Search","Relate");
 
 //table header
 echo "<div class=\"table spaced border\">";
@@ -270,6 +275,7 @@ for ($m = 1; $m <= 50; $m++)
     $required = 0;
     $secure = 0;
     $search = 0;
+    $relate = 0;
     
     if (isset($arr_column[$m])) //empty condition
         {
@@ -282,6 +288,7 @@ for ($m = 1; $m <= 50; $m++)
         $required = $arr_column[$m]['required'];
         $secure = $arr_column[$m]['secure'];
         $search = $arr_column[$m]['search'];
+        $relate = $arr_column[$m]['relate'];
         }
 	
 	//this is for reserved columns
@@ -313,6 +320,7 @@ for ($m = 1; $m <= 50; $m++)
                 echo "<option value=\"" . $i . "\" " . ($i == $order ? "selected" : "") . ">" . $i . "&nbsp;</option>";
                 }
 	echo "</select></div>";
+    //validatation
 	if (in_array($column, $arr_notes))
 		{
 		echo "<div class = \"padded cell middle center colored\">Note</div>";
@@ -320,6 +328,10 @@ for ($m = 1; $m <= 50; $m++)
 	elseif (in_array($column, $arr_reserved))
 		{
 		echo "<div class = \"padded cell middle center colored\">Reserved</div>";
+		}
+    elseif (in_array($column, $arr_file))
+		{
+		echo "<div class = \"padded cell middle center colored\">File</div>";
 		}
 	else
 		{
@@ -358,7 +370,25 @@ for ($m = 1; $m <= 50; $m++)
     $checked = ($search == 1) ? true : false;
     $main->echo_input("search_" . $m, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
     echo "</div>";
-    echo "</div>";
+    
+    if (in_array($column, $arr_relate))
+        {
+        echo "<div class = \"cell middle\"><select name=\"relate_" . $m . "\"class = \"spaced\">";
+        echo "<option value = \"0\"></option>";
+        foreach ($arr_layouts_reduced as $key => $value)
+            {
+            if ($value['related'])
+                {
+                echo "<option value = \"" . $key . "\" " . ($relate == $key ? "selected" : "") . ">" . htmlentities(chr($key + 64) . $key) . "&nbsp;</option>";
+                }
+            }
+        echo "</select></div>";    
+            }
+    else
+        {
+        echo "<div class = \"cell middle\"></div>";   
+        }
+    echo "</div>"; //row
     }
 echo "</div>";
 
