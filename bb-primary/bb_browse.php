@@ -63,8 +63,9 @@ function reload_on_column()
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $arr_columns = $main->get_json($con, "bb_column_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /* BROWSE AND STATE POSTBACK */
 //do browse postback, get variables from state
@@ -150,7 +151,7 @@ echo "<span class=\"padded larger\">"; //font size
 //get column names based on row_type/record types (repeated after state load but why not for clarity)
 $column = $main->pad("c", $col_type);
 $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
@@ -160,7 +161,7 @@ $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $
 echo "&nbsp;&nbsp;";
 //layout types, this produces $row_type
 $params = array("onchange"=>"reload_on_layout()");
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "&nbsp;&nbsp;";
 //column names, $column is currently selected column
 $params = array("onchange"=>"reload_on_column()");
@@ -223,7 +224,7 @@ while($row = pg_fetch_array($result))
 	$count_rows = $main->return_rows($row, $arr_column); 
 	echo "<div class=\"clear\"></div>";
 	//return the links along the bottom of a record
-	$main->output_links($row, $arr_layouts, $userrole);
+	$main->output_links($row, $arr_layouts_reduced, $userrole);
     echo "</div>";
 	echo "<div class=\"clear\"></div>";	
 	}  

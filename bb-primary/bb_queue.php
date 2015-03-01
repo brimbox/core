@@ -316,9 +316,9 @@ $main->echo_module_vars();
 		//get glean row_type -- standard email headers for guest pack and viewer pack
 		$row_type = 0;
 		$post_record = false;
-		$arr_columns = $main->get_json($con, "bb_column_names");
 		$arr_layouts = $main->get_json($con, "bb_layout_names");
-		
+		$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+		$arr_columns = $main->get_json($con, "bb_column_names");		
 		
 		if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
 			{
@@ -332,7 +332,7 @@ $main->echo_module_vars();
 				if ($cnt_rows)
 					{
 					$row_type = ord(substr($var_subject,12,1)) - 64;
-					$arr_layout = $arr_layouts[$row_type];
+					$arr_layout = $arr_layouts_reduced[$row_type];
 					if ($arr_layout['parent'] == 0)
 						{
 						$row_type = 0;	
@@ -356,7 +356,7 @@ $main->echo_module_vars();
 			{
 			$post_record = true;			
 			$row_type = ord(substr($var_subject,12,1)) - 64;
-			$arr_layout = $arr_layouts[$row_type];
+			$arr_layout = $arr_layouts_reduced[$row_type];
 			if ($arr_layout['parent'] > 0)
 				{
 				$row_type = 0;	

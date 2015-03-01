@@ -50,7 +50,8 @@ $message = "";
 
 //columns
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 //necessary for load
 $list_output =$main->post('list_output', $module, "");
@@ -253,7 +254,7 @@ echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\">List Type: </div>";
 echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced");
-$main->layout_dropdown($arr_layouts, "row_type_1", $row_type_1, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type_1", $row_type_1, $params);
 echo "</div>";
 echo "</div>";
 echo "<div class=\"row padded\">";
@@ -281,7 +282,7 @@ echo "<div class=\"table spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_row_type_2()");
-$main->layout_dropdown($arr_layouts, "row_type_2", $row_type_2, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type_2", $row_type_2, $params);
 $params = array("class"=>"spaced","empty"=>true,"check"=>1,"onchange"=>"bb_reload_list_number_2()");
 $arr_pass = isset($arr_lists[$row_type_2]) ? $arr_lists[$row_type_2] : array();
 $main->list_dropdown($arr_pass, "list_number_2", $list_number_2, $params);
@@ -321,7 +322,7 @@ echo "<div class=\"table border spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_row_type_3()");
-$main->layout_dropdown($arr_layouts, "row_type_3", $row_type_3, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type_3", $row_type_3, $params);
 $params = array("class"=>"spaced","empty"=>true,"check"=>0);
 $arr_pass = isset($arr_lists[$row_type_3]) ? $arr_lists[$row_type_3] : array();
 $main->list_dropdown($arr_pass, "list_number_3", $list_number_3, $params);

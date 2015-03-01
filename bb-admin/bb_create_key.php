@@ -36,13 +36,14 @@ $arr_message = array();
 
 //row_type
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 $row_type = $main->post('row_type', $module, $default_row_type);
 	
 //layout
 $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_column = $arr_columns[$row_type];
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 
 $col_type =  (isset($arr_column['layout']['unique'])) ? $arr_column['layout']['unique'] : $main->get_default_column($arr_column);
 
@@ -138,7 +139,7 @@ $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>tru
 $main->echo_button("check_column", $params);
 echo "<br>";
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 $params = array("class"=>"spaced");
 $main->column_dropdown($arr_column, "col_type", $col_type, $params);
 echo "<br>";

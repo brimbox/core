@@ -176,12 +176,11 @@ class bb_main {
 		return $row['cnt'];
 		}
 		      
-    function get_default_layout($arr_layouts, $check = 0)
+    function get_default_layout($arr_layouts_reduced, $check = 0)
 		{
         //layouts are in order, will return first array if $check is false
         //if check is true, $available array of layout secure values will be considered
         //$available is an array of available securities to allow
-        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
         //loop through $arr_layouts
         foreach ($arr_layouts_reduced as $key => $value)
             {
@@ -259,7 +258,7 @@ class bb_main {
 	//this returns a standard header combo for selecting record type
 	//for this function the javascript function reload_on_layout() is uniquely tailored to the calling module    
         
-    function layout_dropdown($arr_layouts, $name, $row_type, $params = array())
+    function layout_dropdown($arr_layouts_reduced, $name, $row_type, $params = array())
 		{
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
@@ -283,7 +282,7 @@ class bb_main {
 			{
 			echo "<option value=\"0\" " . (0 == $row_type ? "selected" : "") . ">All&nbsp;</option>";
 			}
-		 foreach ($arr_layouts as $key => $value)
+		 foreach ($arr_layouts_reduced as $key => $value)
 				{
                 //not secure is $value['secure'] < $check OR $check = 0 (default no check)
 				$secure = ($check && ($value['secure'] >= $check)) ? true : false;
@@ -676,12 +675,13 @@ class bb_main {
 		
 		$arr_union_query = array();
 		$arr_layouts = $this->get_json($con, "bb_layout_names");
+        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
 		$arr_columns = $this->get_json($con, "bb_column_names");
 		
 		$arr_row_type = array();    
 		if ($row_type == 0) //all
 			{
-			foreach ($arr_layouts  as $key => $value) 
+			foreach ($arr_layouts_reduced  as $key => $value) 
 				{
 				array_push($arr_row_type, $key);
 				}
@@ -763,11 +763,12 @@ class bb_main {
 	function cleanup_database_layouts($con)
 		{
 		$arr_layouts = $this->get_json($con,"bb_layout_names");
+        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
 		$arr_columns = $this->get_json($con,"bb_column_names");
 		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
 		for ($i=1; $i<=26; $i++)
 			{
-			if (!isset($arr_layouts[$i])) //clean up rows
+			if (!isset($arr_layouts_reduced[$i])) //clean up rows
 				{
 				unset($arr_columns[$i]);
 				unset($arr_dropdowns[$i]);
@@ -827,7 +828,7 @@ class bb_main {
 		}
 
 		
-	function output_links($row, $arr_layouts, $userrole)
+	function output_links($row, $arr_layouts_reduced, $userrole)
 		{
         //for standard interface
 		global $array_links;
@@ -870,16 +871,16 @@ class bb_main {
 		
 		foreach ($arr_work as $arr)
 			{
-			array_unshift($arr[1], $arr_layouts);	
+			array_unshift($arr[1], $arr_layouts_reduced);	
 			array_unshift($arr[1], $row);
 			call_user_func_array($arr[0], $arr[1]);
 			}
 		}
 		
-	function check_child($row_type, $arr_layouts)
+	function check_child($row_type, $arr_layouts_reduced)
 		{
 		//checks for child records or record
-		foreach($arr_layouts as $key => $value)
+		foreach($arr_layouts_reduced as $key => $value)
 			{
 			if ($row_type == $value['parent'])
 				{
@@ -890,10 +891,10 @@ class bb_main {
 		return false;
 		}
 		
-	function drill_links($post_key, $row_type, $arr_layouts, $module, $text)
+	function drill_links($post_key, $row_type, $arr_layouts_reduced, $module, $text)
 		{
 		//call function add drill links in class bb_link
-		call_user_func_array(array($this, "drill") , array($post_key, $row_type, $arr_layouts, $module, $text));
+		call_user_func_array(array($this, "drill") , array($post_key, $row_type, $arr_layouts_reduced, $module, $text));
 		}
 		
 	function page_selector($element, $offset, $count_rows, $return_rows, $pagination)

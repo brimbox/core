@@ -45,7 +45,8 @@ $input_archive_post = $main->on_constant('INPUT_ARCHIVE_POST');
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 //get columns
 $arr_columns = $main->get_json($con, "bb_column_names");
 //get dropdown values while were at it
@@ -71,7 +72,7 @@ $main->hook("postback_area", true);
 $main->update($array_state, $module, $arr_state);
 
 //reduce columns and layouts
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 //consider empty columns
 $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $arr_column_reduced = $main->filter_keys($arr_column);

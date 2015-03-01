@@ -48,7 +48,8 @@ function bb_reload_on_asc_desc()
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /***START STATE AND VIEW POSTBACK***/
 $main->retrieve($con, $array_state);
@@ -89,7 +90,7 @@ $main->update($array_state, $module, $arr_state);
 //get xml_column and sort column type
 $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 
 //for the header left join
 //get column name from "primary" attribute in column array
@@ -167,7 +168,7 @@ if ($post_key > 0) //viewing children of record
 		echo "<div class=\"clear\"></div>";	
   		$count_rows = $main->return_rows($row, $arr_column);
 		echo "<div class=\"clear\"></div>";		 
-		$main->output_links($row, $arr_layouts, $userrole);
+		$main->output_links($row, $arr_layouts_reduced, $userrole);
 		echo "<div class=\"clear\"></div>";
         echo "</div>";	 
   		}

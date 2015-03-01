@@ -61,6 +61,7 @@ function submit_listdata()
 $arr_message = array();
 set_time_limit(0);
 $arr_layouts = $main->get_json($con,"bb_layout_names");
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
 //set default row_type and process later
 $row_type = 0;
 
@@ -447,7 +448,7 @@ echo "<p class=\"spaced bold larger\">Database Dump</p>";
 echo "<div class=\"spaced border floatleft padded\">";
 $params = array("class"=>"spaced","label"=>"Download Layout","onclick"=>"submit_dump()");
 $main->echo_script_button("dump_database", $params);
-$main->layout_dropdown($arr_layouts, "row_type", $row_type);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type);
 echo "<select class=\"spaced\" name=\"column_names\"><option value=\"0\">Use Friendly Names&nbsp;</option><option value=\"1\">Use Generic Names&nbsp;</option></select>";
 echo "<select class=\"spaced\" name=\"new_lines\"><option value=\"0\">Escape New Lines&nbsp;</option><option value=\"1\">Purge New Lines&nbsp;</option></select>";
 echo "<br>";

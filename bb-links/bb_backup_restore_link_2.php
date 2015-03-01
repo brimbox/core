@@ -61,13 +61,14 @@ if (!$valid_password)
 /* THIS IS A TEXT FILE HEADER OUTPUT */
 /* NO HTML OR BLANK LINE OUTPUT ALLOWED */
 $arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $arr_columns = $main->get_json($con, "bb_column_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 $row_type = (empty($_POST['row_type'])) ? $default_row_type :  $_POST['row_type'];
 
 $arr_column = $arr_columns[$row_type];
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 $arr_column_reduced = $main->filter_keys($arr_column); 
 
 $filename = $arr_layout['singular'] . "_Dump.txt";

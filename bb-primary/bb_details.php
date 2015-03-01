@@ -33,7 +33,8 @@ function clear_textarea()
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 $arr_notes = array("49","50");
 
 //message pile
@@ -94,7 +95,7 @@ if ($post_key > 0) // a detail of a record
         //get columns for details row_type
         $arr_columns = $main->get_json($con, "bb_column_names");
         $arr_column = $arr_columns[$row_type];
-        $arr_layout =  $arr_layouts[$row_type];
+        $arr_layout =  $arr_layouts_reduced[$row_type];
     
          //call to function that outputs details
         echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities((string)$arr_layout['singular']) . "</p>";
@@ -146,7 +147,7 @@ if ($post_key > 0) // a detail of a record
 			}
 		else //check to see if record is linkable
 			{
-			foreach($arr_layouts as $key => $value)
+			foreach($arr_layouts_reduced as $key => $value)
 				{
 				if ($row_type == $value['parent'])
 					{

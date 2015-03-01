@@ -21,11 +21,11 @@ If not, see http://www.gnu.org/licenses/
 $array_global['bb_brimbox']['hooks']['bb_guest_infolinks'][] = array(array($main,"infolinks"), array());
 $array_global['bb_brimbox']['hooks']['bb_viewer_infolinks'][] = array(array($main,"infolinks"), array());
 $array_global['bb_brimbox']['hooks']['bb_home_infolinks'][] = array(array($main,"infolinks"), array());
-$array_global['bb_brimbox']['hooks']['bb_input_postback_area'][] = array(array($main,"postback_area"), array("main", "con", "module", "arr_layouts", "arr_columns", "default_row_type", "&arr_state", "&row_type", "&row_join", "&post_key"));
+$array_global['bb_brimbox']['hooks']['bb_input_postback_area'][] = array(array($main,"postback_area"), array("main", "con", "module", "arr_layouts_reduced", "arr_columns", "default_row_type", "&arr_state", "&row_type", "&row_join", "&post_key"));
 $array_global['bb_brimbox']['hooks']['bb_input_autofill'][] = array(array($main,"autofill"), array("arr_column_reduced", "row", "&arr_state", "arr_columns", "row_type", "parent_row_type"));
-$array_global['bb_brimbox']['hooks']['bb_input_top_level_records'][] = array(array($main,"top_level_records"), array("module", "arr_layouts", "&arr_column_reduced", "row_type", "row_join", "parent_row_type"));
+$array_global['bb_brimbox']['hooks']['bb_input_top_level_records'][] = array(array($main,"top_level_records"), array("module", "arr_layouts_reduced", "&arr_column_reduced", "row_type", "row_join", "parent_row_type"));
 $array_global['bb_brimbox']['hooks']['bb_input_parent_record'][] = array(array($main,"parent_record"), array("arr_column_reduced", "row_type", "row_join", "parent_id", "parent_row_type", "parent_primary"));
-$array_global['bb_brimbox']['hooks']['bb_input_quick_links'][] = array(array($main,"quick_links"), array("arr_column_reduced", "arr_layouts", "inserted_id", "inserted_row_type", "inserted_primary", "parent_id", "parent_row_type", "parent_primary"));
+$array_global['bb_brimbox']['hooks']['bb_input_quick_links'][] = array(array($main,"quick_links"), array("arr_column_reduced", "arr_layouts_reduced", "inserted_id", "inserted_row_type", "inserted_primary", "parent_id", "parent_row_type", "parent_primary"));
 $array_global['bb_brimbox']['hooks']['bb_input_submit_buttons'][] = array(array($main,"submit_buttons"), array("arr_column_reduced", "module", "row_type", "row_join"));
 $array_global['bb_brimbox']['hooks']['bb_input_textarea_load'][] = array(array($main,"textarea_load"), array("arr_column_reduced", "arr_column", "module"));
 

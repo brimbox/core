@@ -46,9 +46,10 @@ function reload_on_layout()
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_lists = $main->get_json($con, "bb_create_lists");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 //State vars
 //do list view postback, get variables from browse_state
@@ -111,7 +112,7 @@ $main->echo_module_vars();
 echo "<div class=\"cell padded middle\">";
 echo "Choose List: ";
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","onchange"=>"reload_on_list()");
 $main->list_dropdown($arr_list, "list_number", $list_number, $params);
 
@@ -141,7 +142,7 @@ $lower_limit = ($offset - 1) * $return_rows;
 if ($list_number > 0)
 	{
 	//if a list has been selected
-    $arr_layout = $arr_layouts[$row_type];
+    $arr_layout = $arr_layouts_reduced[$row_type];
     $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
     $arr_column_reduced = $main->filter_keys($arr_column);
 	$col1 = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
@@ -170,7 +171,7 @@ if ($list_number > 0)
 		echo "<div class=\"clear\"></div>";
   		$count_rows = $main->return_rows($row, $arr_column_reduced);
 		echo "<div class=\"clear\"></div>";			 
-		$main->output_links($row, $arr_layouts, $userrole);
+		$main->output_links($row, $arr_layouts_reduced, $userrole);
           echo "</div>";		 
 		echo "<div class=\"clear\"></div>"; 
 		}

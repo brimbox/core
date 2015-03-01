@@ -133,9 +133,10 @@ else //default behavior
         }
     
     $arr_layouts = $main->get_json($con, "bb_layout_names");
+    $arr_layouts_reduced = $main->filter_keys($arr_layouts);
     $arr_columns = $main->get_json($con, "bb_column_names");
     $arr_column = $arr_columns[$row_type];
-    $arr_layout = $arr_layouts[$row_type];
+    $arr_layout = $arr_layouts_reduced[$row_type];
 
     //get column name from "primary" attribute in column array
     //this is used to populate the record header link to parent record

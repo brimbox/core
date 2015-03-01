@@ -49,8 +49,9 @@ function submit_lookup()
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $arr_columns = $main->get_json($con, "bb_column_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 $arr_messages = array();
 
 /* LOOKUP AND STATE POSTBACK */
@@ -110,7 +111,7 @@ $main->update($array_state, $module, $arr_state);
 //get column names based on row_type/record types
 $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $arr_column_reduced = $main->filter_keys($arr_column);
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 $column_1 = $main->pad("c", $col_type_1);
 $column_2 = $main->pad("c", $col_type_2);
 /* END COLUMN AND LAYOUT VALUES */	
@@ -185,7 +186,7 @@ echo "<input type =\"text\" class=\"spaced short\" name = \"record_id\" value = 
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
 $params = array("onchange"=>"reload_on_layout()");
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
 //column 1 values
@@ -255,7 +256,7 @@ if ($valid_id) //record_id
 	$row_type =  ord(strtolower(substr($record_id, 0, 1))) - 96;
 	$layout = $main->pad("l", $row_type);
 	//reset column for output, and layout for parent row type, state will remain
-	$arr_layout = $arr_layouts[$row_type];
+	$arr_layout = $arr_layouts_reduced[$row_type];
 	$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 	$and_clause_3 = " 1 = 1 ";
 	$and_clause_4 = " id = " . $id . " ";
@@ -346,7 +347,7 @@ while($row = pg_fetch_array($result))
 	$count_rows = $main->return_rows($row, $arr_column_reduced); 
 	echo "<div class=\"clear\"></div>";
 	//return the links along the bottom of a record
-	$main->output_links($row, $arr_layouts, $userrole);
+	$main->output_links($row, $arr_layouts_reduced, $userrole);
     echo "</div>";
 	echo "<div class=\"clear\"></div>";	
 	}

@@ -155,13 +155,13 @@ $cnt = pg_num_rows($result);
 $query = "COMMIT;";
 $main->query($con,$query);
 
-//xml table stats in xml form, count is important
+//json table stats in xml form, count is important
 $json_json = array();
 $json_json['count'] = $cnt;
 $str = json_encode($json_json);
 echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 
-//echo xml rows
+//echo json rows
 while ($row = pg_fetch_row($result))
 	{
 	//implode into string
@@ -170,9 +170,6 @@ while ($row = pg_fetch_row($result))
 	$str = encrypt_line($str, $passwd, $iv, $type) . $eol;
 	echo $str;
 	}
-
-/* USERS, MODULES, LOG, AND DATA TABLES */
-/* ALL FOLLOW COMMENTS OF JSON TABLE */
 
 /* USERS TABLE */
 $query = "BEGIN; LOCK TABLE users_table;";
@@ -253,7 +250,6 @@ $result = $main->query($con,$query);
 $cnt = pg_num_rows($result);
 $query = "COMMIT;";
 $main->query($con,$query);
-
 
 $json_data = array();
 $json_data['count'] = $cnt;

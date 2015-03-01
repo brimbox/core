@@ -25,7 +25,7 @@ If not, see http://www.gnu.org/licenses/
 //log_table
 //modules_table
 //users_table
-//xml_table
+//json_table
 
 $data_before_eot = <<<EOT
 CREATE TABLE data_table

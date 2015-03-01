@@ -41,6 +41,7 @@ function reset_return()
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
 //default row_type is 0, for all layouts
 
 //message pile
@@ -92,7 +93,7 @@ echo "<div class=\"center\">";
 //search vars
 echo "<input type=\"text\" name=\"search\" class = \"spaced\" size=\"35\" value = \"" . htmlentities($search) . "\"/>";
 $params = array("all"=>true);
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
 //echo state variables into form
@@ -144,7 +145,7 @@ if ($main->blank($message))
     //parent columns could come from a variety of rows
 	//left join cols, get all possible columns, and then make them distict with _left
     $arr_parent_columns = array(0=>"c01"); //default value, if not set
-    foreach ($arr_layouts as $value)  //loop through arr_layout
+    foreach ($arr_layouts_reduced as $value)  //loop through arr_layout
         {
         if ($value['parent'] > 0) //indicator set to zero when xml made into array
             {
@@ -196,7 +197,7 @@ if ($main->blank($message))
         $arr_column = $arr_columns[$row['row_type']];
         
         //get the primary column and set $row['hdr'] based on primary header      
-        $parent_row_type = $arr_layouts[$row['row_type']]['parent'];
+        $parent_row_type = $arr_layouts_reduced[$row['row_type']]['parent'];
         $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
      
         $row['hdr'] = $row[$leftjoin . "_left"];
@@ -207,7 +208,7 @@ if ($main->blank($message))
         echo "<div class=\"clear\"></div>";
         $count_rows = $main->return_rows($row, $arr_column);
         echo "<div class=\"clear\"></div>";				
-        $main->output_links($row, $arr_layouts, $userrole);
+        $main->output_links($row, $arr_layouts_reduced, $userrole);
         echo "<div class=\"clear\"></div>";
         echo "</div>";	 
         }

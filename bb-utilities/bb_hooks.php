@@ -127,7 +127,7 @@ class bb_hooks extends bb_work {
 		}
 	
 	//this posts from the queue, input, and state	
-	function postback_area($main, $con, $module, $arr_layouts, $arr_columns, $default_row_type, &$arr_state, &$row_type, &$row_join, &$post_key)
+	function postback_area($main, $con, $module, $arr_layouts_reduced, $arr_columns, $default_row_type, &$arr_state, &$row_type, &$row_join, &$post_key)
 		{	
 		if (file_exists("bb-primary/bb_input_extra.php"))
 			{
@@ -137,14 +137,14 @@ class bb_hooks extends bb_work {
 			if ($main->button(2,'bb_queue'))
 				{
 				//constuct with row type from state
-				$queue = new bb_input_queue($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key);
+				$queue = new bb_input_queue($arr_layouts_reduced, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key);
 				list($row_type, $row_join, $post_key, $arr_state) = $queue->queuepost();
 				}
 			}
 		}		
 	
 	//top level record selector	
-	function top_level_records($module, $arr_layouts, &$arr_column_reduced, $row_type, $row_join, $parent_row_type)
+	function top_level_records($module, $arr_layouts_reduced, &$arr_column_reduced, $row_type, $row_join, $parent_row_type)
 		{
 		//buttons an record selector
 		$update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
@@ -155,14 +155,14 @@ class bb_hooks extends bb_work {
 		if (!empty($parent_row_type))
 			{
 			echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-			echo "<option value=\"" . $row_type . "\" selected>" . $arr_layouts[$row_type]['plural'] . "&nbsp;</option>";
+			echo "<option value=\"" . $row_type . "\" selected>" . $arr_layouts_reduced[$row_type]['plural'] . "&nbsp;</option>";
 			echo "</select>";
 			}
 		//no parent, all possible top level records
 		else
 			{
 			//get top level records
-			foreach($arr_layouts as $key => $value)
+			foreach($arr_layouts_reduced as $key => $value)
 				{
 				if ($value['parent'] == 0)
 					{
@@ -204,7 +204,7 @@ class bb_hooks extends bb_work {
 		}
 	
 	//quick child and sibling links
-	function quick_links($arr_column_reduced, $arr_layouts, $inserted_id, $inserted_row_type, $inserted_primary, $parent_id, $parent_row_type,  $parent_primary)
+	function quick_links($arr_column_reduced, $arr_layouts_reduced, $inserted_id, $inserted_row_type, $inserted_primary, $parent_id, $parent_row_type,  $parent_primary)
 		{
 		//$arr_column_reduced = check for some type of record
 		if (!empty($arr_column_reduced))
@@ -212,20 +212,20 @@ class bb_hooks extends bb_work {
 			//add children links, empty works no zeros
 			if (!empty($inserted_id) && !empty($inserted_row_type))
 				{
-				if ($this->check_child($inserted_row_type, $arr_layouts))
+				if ($this->check_child($inserted_row_type, $arr_layouts_reduced))
 					{
 					echo "<p class=\"spaced bold\">Add Child Record - Parent: <span class=\"colored\">" . $inserted_primary . "</span> - ";
-					$this->drill_links($inserted_id, $inserted_row_type, $arr_layouts, "bb_input", "Add");
+					$this->drill_links($inserted_id, $inserted_row_type, $arr_layouts_reduced, "bb_input", "Add");
 					echo "</p>";
 					}
 				}	
 			//add sibling links, empty works no zeros
 			if (!empty($inserted_id) && !empty($parent_id) && !empty($parent_row_type))
 				{
-				if ($this->check_child($parent_row_type, $arr_layouts))
+				if ($this->check_child($parent_row_type, $arr_layouts_reduced))
 					{
 					echo "<p class=\"spaced bold\">Add Sibling Record - Parent: <span class=\"colored\">" . $parent_primary . "</span> - ";
-					$this->drill_links($parent_id, $parent_row_type, $arr_layouts, "bb_input", "Add");
+					$this->drill_links($parent_id, $parent_row_type, $arr_layouts_reduced, "bb_input", "Add");
 					echo "</p>";
 					}
 				}

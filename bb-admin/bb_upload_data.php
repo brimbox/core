@@ -70,7 +70,8 @@ function check_header($arr_column_reduced, $str, $parent)
 		
 //get layouts
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 //get guest index
 $arr_header = $main->get_json($con, "bb_interface_enabler");
 $arr_guest_index = $arr_header['guest_index']['value'];
@@ -82,7 +83,7 @@ $data_file = $main->post('bb_data_file_name', $module, "default");
 
 //get column names based on row_type/record types
 $arr_columns = $main->get_json($con, "bb_column_names");
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 $parent = $arr_layout['parent']; 
 $arr_column = $arr_columns[$row_type];
 $arr_column_reduced = $main->filter_keys($arr_column);
@@ -373,7 +374,7 @@ $main->echo_module_vars();;
 //upload row_type calls dummy function
 echo "<div class=\"spaced border floatleft padded\">";
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Get Upload Header");
 $main->echo_button("get_header", $params);
 echo "</div>";

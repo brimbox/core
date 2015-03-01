@@ -24,7 +24,8 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /***START STATE AND VIEW POSTBACK***/
 $main->retrieve($con, $array_state);
@@ -57,7 +58,7 @@ $main->update($array_state, $module, $arr_state);
 //get xml_column and sort column type
 $arr_columns = $main->get_json($con, "bb_column_names");
 
-$arr_layout = $arr_layouts[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
 $arr_column = $arr_columns[$row_type];
 
 //for the header left join
@@ -111,7 +112,7 @@ if ($post_key > 0) //cascade children of record
         $union_cascade = "SELECT " . implode(" as id UNION SELECT ", $arr_ids) . " as id";
             
         $arr_union = array();
-        foreach ($arr_layouts as $key => $value)
+        foreach ($arr_layouts_reduced as $key => $value)
             {
             $str_union = "SELECT " . $key . " as row_type_union, " . $value['order'] . " as sort";
             array_push($arr_union, $str_union);
@@ -156,7 +157,7 @@ if ($post_key > 0) //cascade children of record
             echo "<div class=\"clear\"></div>";
             $count_rows = $main->return_rows($row, $arr_column);
             echo "<div class=\"clear\"></div>";				
-            $main->output_links($row, $arr_layouts, $userrole);
+            $main->output_links($row, $arr_layouts_reduced, $userrole);
             echo "<div class=\"clear\"></div>";
             echo "</div>";
             $row_type_catch = $row_type;

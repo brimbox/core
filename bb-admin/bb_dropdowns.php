@@ -41,7 +41,8 @@ $main->retrieve($con, $array_state);
 
 //This area creates the form for choosing the lists
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 $row_type = $main->post('row_type', $module, $default_row_type);
 
 $arr_columns = $main->get_json($con, "bb_column_names");
@@ -153,7 +154,7 @@ $main->echo_module_vars();;
 
 //row_type select tag
 $params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "<br>"; //why not
 $params = array("class"=>"spaced");
 $main->column_dropdown($arr_column, "col_type", $col_type, $params);

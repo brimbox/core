@@ -23,8 +23,8 @@ $main->check_permission("bb_brimbox", 5);
 $main->retrieve($con, $array_state);
 
 //start of code
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_columns = $main->get_json($con, "bb_column_names");
+$arr_layouts = $main->get_json($con, "bb_layout_names"); //do not reduce
+$arr_columns = $main->get_json($con, "bb_column_names"); //to set emmty vale
 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_layout_security = $arr_header['layout_security']['value'];

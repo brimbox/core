@@ -26,7 +26,8 @@ class bb_input_extra {
 //Load row_type from state if coming from another tab
 
     /* BRING IN VARIABLES */
-    function __construct($arr_columns, $arr_state, $main, $con, $module, $default_row_type)
+    //main passed as a reference
+    function __construct($arr_columns, $arr_state, &$main, $con, $module, $default_row_type)
         {
         $this->main = $main;
         $this->con = $con;
@@ -248,12 +249,12 @@ class bb_input_queue {
 //will get row_type etc from general else above
 
     /* BRING IN VARIABLES */
-    function __construct($arr_layouts, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key)
+    function __construct($arr_layouts_reduced, $arr_columns, $arr_state, $main, $con, $module, $row_type, $row_join, $post_key)
         {
         $this->main = $main;
         $this->con = $con;
         $this->module = $module;
-        $this->arr_layouts = $arr_layouts;
+        $this->arr_layouts = $arr_layouts_reduced;
         $this->arr_columns = $arr_columns;
         $this->arr_state = $arr_state;
         $this->arr_notes = array(49,50);
