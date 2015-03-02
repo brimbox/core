@@ -21,7 +21,7 @@ If not, see http://www.gnu.org/licenses/
 $array_global['bb_brimbox']['hooks']['bb_guest_infolinks'][] = array(array($main,"infolinks"), array());
 $array_global['bb_brimbox']['hooks']['bb_viewer_infolinks'][] = array(array($main,"infolinks"), array());
 $array_global['bb_brimbox']['hooks']['bb_home_infolinks'][] = array(array($main,"infolinks"), array());
-$array_global['bb_brimbox']['hooks']['bb_input_postback_area'][] = array(array($main,"postback_area"), array("main", "con", "module", "arr_layouts_reduced", "arr_columns", "default_row_type", "&arr_state", "&row_type", "&row_join", "&post_key"));
+$array_global['bb_brimbox']['hooks']['bb_input_postback_area'][] = array(array($main,"postback_area"), array("main", "con", "module", "arr_layouts", "arr_columns", "&arr_state", "&row_type", "&row_join", "&post_key"));
 $array_global['bb_brimbox']['hooks']['bb_input_autofill'][] = array(array($main,"autofill"), array("arr_column_reduced", "row", "&arr_state", "arr_columns", "row_type", "parent_row_type"));
 $array_global['bb_brimbox']['hooks']['bb_input_top_level_records'][] = array(array($main,"top_level_records"), array("module", "arr_layouts_reduced", "&arr_column_reduced", "row_type", "row_join", "parent_row_type"));
 $array_global['bb_brimbox']['hooks']['bb_input_parent_record'][] = array(array($main,"parent_record"), array("arr_column_reduced", "row_type", "row_join", "parent_id", "parent_row_type", "parent_primary"));
@@ -112,7 +112,6 @@ if ($main->check("row_type", "bb_input"))
     array_push($arr, "post_key");
     if ($main->check("security", "bb_input")) array_push($arr, "security");
     if ($main->check("archive", "bb_input")) array_push($arr, "archive");
-    if ($main->check("lo", "bb_input")) array_push($arr, "lo");
 	$row_type = $main->post("row_type", "bb_input");
 	$arr_columns = $main->get_json($con, "bb_column_names");
 	//removes a warning we there are no columns in a layout

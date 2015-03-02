@@ -121,9 +121,12 @@ class bb_input_extra {
     function input_postback()
         {
         $row_type = $this->main->process('row_type', $this->module, $arr_state, $this->default_row_type);
-        $row_join = $this->main->process('row_join', $this->module, $arr_state, -1);
-        $post_key = $this->main->process('post_key', $this->module, $arr_state, -1);
-        
+        $row_join = $this->main->process('row_join', $this->module, $arr_state, 0);
+        $post_key = $this->main->process('post_key', $this->module, $arr_state, 0);
+        //on postback remove files
+        $remove = $this->main->post('remove', $this->module, 0);
+        $this->main->set("remove", $arr_state, $remove);
+ 
         $arr_state = $this->arr_state; //returned
         
         $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
@@ -138,7 +141,7 @@ class bb_input_extra {
                 }
             elseif (in_array($key, $this->arr_file))
                 {
-                $str = $this->main->custom_trim_string($_FILES[$this->main->name($col, $this->module)]["name"], 255);
+                $str = $remove ? "" : $this->main->custom_trim_string($_FILES[$this->main->name($col, $this->module)]["name"], 255);
                 $this->main->set("lo", $arr_state, $str);
                 }
             else
@@ -168,8 +171,8 @@ class bb_input_extra {
         //reset state
         $arr_state = array();
         $row_type = $this->main->set("row_type", $arr_state, $this->default_row_type);
-        $row_join = $this->main->set("row_join", $arr_state, -1);
-        $post_key = $this->main->set("post_key", $arr_state, -1);
+        $row_join = $this->main->set("row_join", $arr_state, 0);
+        $post_key = $this->main->set("post_key", $arr_state, 0);
         
         return array($row_type, $row_join, $post_key, $arr_state);
         }
@@ -223,8 +226,8 @@ class bb_input_extra {
         //get row_type from combo box
         $arr_state = array();
         $row_type = $this->main->process('row_type', $this->module, $arr_state, $this->default_row_type);
-        $row_join = $this->main->set('row_join', $arr_state, -1);
-        $post_key = $this->main->set('post_key', $arr_state, -1);
+        $row_join = $this->main->set('row_join', $arr_state, 0);
+        $post_key = $this->main->set('post_key', $arr_state, 0);
         
         if ($row_type > 0)
             {

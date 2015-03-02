@@ -127,10 +127,12 @@ class bb_hooks extends bb_work {
 		}
 	
 	//this posts from the queue, input, and state	
-	function postback_area($main, $con, $module, $arr_layouts_reduced, $arr_columns, $default_row_type, &$arr_state, &$row_type, &$row_join, &$post_key)
+	function postback_area($main, $con, $module, $arr_layouts, $arr_columns, &$arr_state, &$row_type, &$row_join, &$post_key)
 		{	
 		if (file_exists("bb-primary/bb_input_extra.php"))
 			{
+			$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+			$default_row_type = $main->get_default_layout($arr_layouts_reduced);	
 			include("bb-primary/bb_input_extra.php");
 			$input = new bb_input_extra($arr_columns, $arr_state, $main, $con, $module, $default_row_type);
 			list($row_type, $row_join, $post_key, $arr_state) = $input->linkspost();
@@ -173,7 +175,7 @@ class bb_hooks extends bb_work {
 			if (count($arr_select) > 0)
 				{
 				//on reset, $arr_column already set if changing top level from select
-				echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
+				echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload()\">";
 				foreach ($arr_select as $key => $value)
 					{
 					echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";

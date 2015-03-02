@@ -81,6 +81,10 @@ class bb_work extends bb_forms {
 			{
 			return true;	
 			}
+		elseif (isset($_FILES[$temp]))
+			{
+			return true;	
+			}
 		else
 			{
 			return false;	
@@ -96,6 +100,10 @@ class bb_work extends bb_forms {
 		    {
 		    return true;
 			}
+		elseif (!$this->blank(trim($_FILES[$temp]["name"])))
+			{
+			return true;	
+			}
 		else
 			{
 			return false;
@@ -110,6 +118,10 @@ class bb_work extends bb_forms {
 		    {
 		    return $_POST[$temp];
 		    }
+		elseif (isset($_FILES[$temp]))
+			{
+			$var = $_FILES[$temp]["name"];	
+			}
 		else
 			{
 			return $default;	
@@ -138,6 +150,10 @@ class bb_work extends bb_forms {
 		if (isset($_POST[$temp]))
 			{
 			$var = $_POST[$temp];
+			}
+		elseif (isset($_FILES[$temp]))
+			{
+			$var = $_FILES[$temp]["name"];	
 			}
 	    $arr_state[$name] = $var;
 	    return $var;	

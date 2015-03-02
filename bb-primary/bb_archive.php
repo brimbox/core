@@ -23,7 +23,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 /* INITIALIZE */
 $arr_message = array();
 
-$archive_log = $main->on_constant('ARCHIVE_LOG');
+$archive_log = $main->on_constant('BB_ARCHIVE_LOG');
  
 //State vars --- there is no delete state
 $main->retrieve($con, $array_state);

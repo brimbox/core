@@ -106,7 +106,7 @@ class bb_reports extends bb_hooks {
             //populate sort
             $sort = $sort_post;
 			}
-		/* PAGINATION */	
+		/* BB_PAGINATION */	
         //only if page is set   
         if ($this->check('page', $module_display) && !empty($module_display))
 			{

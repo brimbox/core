@@ -29,7 +29,7 @@ $main->retrieve($con, $array_state);
 $post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;
 $row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;
 
-$delete_log = $main->on_constant('DELETE_LOG');
+$delete_log = $main->on_constant('BB_BB_DELETE_LOG');
 
 /* BEGIN DELETE CASCADE */
 if ($main->button(1))

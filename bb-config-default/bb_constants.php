@@ -18,28 +18,28 @@ If not, see http://www.gnu.org/licenses/
 /* NO HTML OUTPUT */
 
 /* STANDARD LAYOUT OPTIONS */
-define('RETURN_ROWS', 4);
+define('BB_RETURN_ROWS', 4);
 // Standard number pages in the page selector
-define('PAGINATION', 15);
+define('BB_PAGINATION', 15);
 //number of layouts possible, must be less than 26
-define('NUMBER_LAYOUTS', 12);
+define('BB_NUMBER_LAYOUTS', 12);
 //Archive interworking (ON/OFF), allows for quick archive access on lookup and search tabs
-define('ARCHIVE_INTERWORKING', 'OFF');
+define('BB_ARCHIVE_INTERWORKING', 'OFF');
 // Default userrole on the manage users page
-define('DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox');
+define('BB_BB_DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox');
 // Use processing image in standard modules
-define('PROCESSING_IMAGE', 'OFF');
+define('BB_PROCESSING_IMAGE', 'OFF');
 //turn on log for insert
-define('INPUT_INSERT_LOG', 'OFF');
+define('BB_INPUT_INSERT_LOG', 'OFF');
 //turn on log for update
-define('INPUT_UPDATE_LOG', 'OFF');
+define('BB_INPUT_UPDATE_LOG', 'OFF');
 //turn on log for insert
-define('DELETE_LOG', 'OFF');
+define('BB_DELETE_LOG', 'OFF');
 //turn on log for update
-define('ARCHIVE_LOG', 'OFF');
+define('BB_ARCHIVE_LOG', 'OFF');
 //turn on post override for archive
-define('INPUT_ARCHIVE_POST', 'OFF');
+define('BB_INPUT_ARCHIVE_POST', 'OFF');
 //turn on post override for secure
-define('INPUT_SECURE_POST', 'OFF');
+define('BB_INPUT_SECURE_POST', 'OFF');
 
 ?>

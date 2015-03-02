@@ -26,7 +26,8 @@ function bb_remove_message()
     document.getElementById('input_message').innerHTML = "";
 	return false;
     }
-function bb_reload_on_layout()
+//used in hook top_level_records
+function bb_reload()
     {
     var frmobj = document.forms["bb_form"];
     //set a button of 4 for postback
@@ -36,10 +37,10 @@ function bb_reload_on_layout()
 </script>
 <?php
 /* DEAL WITH CONSTANTS */
-$input_insert_log = $main->on_constant('INPUT_INSERT_LOG');
-$input_update_log = $main->on_constant('INPUT_UPDATE_LOG');
-$input_secure_post = $main->on_constant('INPUT_SECURE_POST');
-$input_archive_post = $main->on_constant('INPUT_ARCHIVE_POST'); 
+$input_insert_log = $main->on_constant('BB_INPUT_INSERT_LOG');
+$input_update_log = $main->on_constant('BB_INPUT_UPDATE_LOG');
+$input_secure_post = $main->on_constant('BB_INPUT_SECURE_POST');
+$input_archive_post = $main->on_constant('BB_INPUT_ARCHIVE_POST'); 
 /* END DEAL WITH CONSTANTS */
 
 /* INITIALIZE */
@@ -190,15 +191,23 @@ if ($main->button(1))
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
-                if (isset($_FILES[$main->name('c47', $module)]))
+                //Handle large objects
+                $remove = isset($arr_state['remove']) ? $arr_state['remove'] : 0; 
+                if ($remove)
                     {
                     pg_query($con, "BEGIN");
                     pg_lo_unlink($con, $row['id']);
                     pg_query($con, "END");
+                    }
+                if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]))
+                    {
+                    pg_query($con, "BEGIN");
+                    @pg_lo_unlink($con, $row['id']);
+                    pg_query($con, "END");
                     pg_query($con, "BEGIN");
                     pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
                     pg_query($con, "END");
-                    }      
+                    }                
                 array_push($arr_message, "Record Succesfully Updated.");
                 if ($input_update_log)
                     {
@@ -446,6 +455,7 @@ if ($row_type > 0):
     //must have row_type\
     $arr_column = $arr_columns[$row_type];
     $arr_column_reduced = $main->filter_keys($arr_column);
+    $arr_layouts_reduced = $main->filter_keys($arr_layouts);
           
     // HOOKS */
     $main->hook("top_level_records", true);    
@@ -506,9 +516,12 @@ if ($row_type > 0):
                 echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
                 echo "<input class = \"spaced padded textbox noborder\" maxlength=\"255\" name=\"lo\" type=\"text\" value = \""  . htmlentities($lo) .  "\" readonly/>";
                 echo "</div>";
-                echo "<div class=\"clear\"></div>";
-                echo "<input class=\"spaced textbox\" maxlength=\"255\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";        
-                echo "<div class=\"clear\"></div>";
+                echo "<div class = \"clear " . $hidden . "\">";
+                echo "<input class=\"spaced textbox\" maxlength=\"255\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";                
+                echo "<span class = \"spaced border rounded padded shaded\">";
+                echo "<label class=\"padded\">Remove: </label>";
+                $main->echo_input("remove", 1, array('type'=>'checkbox','input_class'=>'middle holderup'));
+                echo "</div>";                
                 }
             elseif (in_array($key, $arr_notes))
                 {
