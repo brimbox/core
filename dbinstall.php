@@ -28,7 +28,7 @@ If not, see http://www.gnu.org/licenses/
    2012.1.13 utf-8 check implemented
    2012.1.14 updates add for fts and ftg
    2012.1.15 added cycles
-   2012.1.16 change made in is_number function, added is_integer
+   2012.1.16 change made in bb_is_number function, added is_integer
    2012.1.17 sequence cache set to 1 from 3 on data_table and log_table
    2012.1.18 added attempts field to users table
    2012.1.19 added index on row_type
@@ -134,7 +134,7 @@ if (DB_OWNER <> "")
 $body = "\$BODY\$";
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION list_reset(bit, integer)
+CREATE OR REPLACE FUNCTION bb_list_unset(bit, integer)
   RETURNS bit AS
 $body
   DECLARE
@@ -152,7 +152,7 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION list_retrieve(bit, integer)
+CREATE OR REPLACE FUNCTION bb_list_test(bit, integer)
   RETURNS integer AS
 $body
   BEGIN
@@ -165,7 +165,7 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION list_update(bit, integer)
+CREATE OR REPLACE FUNCTION bb_list_set(bit, integer)
   RETURNS bit AS
 $body
   DECLARE
@@ -183,7 +183,7 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION is_integer(txt_input text)
+CREATE OR REPLACE FUNCTION bb_is_integer(txt_input text)
 RETURNS INTEGER AS
 $body
 DECLARE nbr_value INTEGER DEFAULT NULL;
@@ -202,7 +202,7 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION is_number(txt_input text)
+CREATE OR REPLACE FUNCTION bb_is_number(txt_input text)
 RETURNS INTEGER AS
 $body
 DECLARE nbr_value FLOAT DEFAULT NULL;
@@ -221,7 +221,7 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION is_date(txt_input text)
+CREATE OR REPLACE FUNCTION bb_is_date(txt_input text)
 RETURNS INTEGER AS
 $body
 DECLARE dt_value TIMESTAMP DEFAULT NULL;
@@ -239,10 +239,8 @@ COST 100;
 EOT;
 pg_query($con, $query);
 
-
-
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION change_date()
+CREATE OR REPLACE FUNCTION bb_change_date()
   RETURNS trigger AS
 $body
 DECLARE
@@ -257,13 +255,13 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION create_date()
+CREATE OR REPLACE FUNCTION bb_create_date()
   RETURNS trigger AS
 $body
 DECLARE
 BEGIN
 NEW.create_date  = now();
-NEW.modify_date  = now();
+NEW.bb_modify_date  = now();
 RETURN NEW;
 END;
 $body
@@ -273,7 +271,7 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION modify_date()
+CREATE OR REPLACE FUNCTION bb_modify_date()
   RETURNS trigger AS
 $body
 DECLARE
@@ -360,8 +358,8 @@ CREATE TABLE data_table
   c50 character varying(65536) NOT NULL DEFAULT ''::character varying,
   archive smallint NOT NULL DEFAULT 0,
   secure smallint NOT NULL DEFAULT 0,
-  create_date timestamp with time zone,
-  modify_date timestamp with time zone,
+  bb_create_date timestamp with time zone,
+  bb_modify_date timestamp with time zone,
   owner_name character varying(255) NOT NULL DEFAULT ''::character varying,
   updater_name character varying(255) NOT NULL DEFAULT ''::character varying,
   list_string bit(2000) NOT NULL DEFAULT B'$list_zeros'::"bit",
@@ -393,18 +391,18 @@ CREATE INDEX data_table_idx_key2
   ON data_table
   USING btree
   (key2);
--- Trigger: ts1_modify_date on data_table
-CREATE TRIGGER ts1_modify_date
+-- Trigger: ts1_bb_modify_date on data_table
+CREATE TRIGGER ts1_bb_modify_date
   BEFORE UPDATE
   ON data_table
   FOR EACH ROW
-  EXECUTE PROCEDURE modify_date();
--- Trigger: ts2_create_date on data_table
-CREATE TRIGGER ts2_create_date
+  EXECUTE PROCEDURE bb_modify_date();
+-- Trigger: ts2_bb_create_date on data_table
+CREATE TRIGGER ts2_bb_create_date
   BEFORE INSERT
   ON data_table
   FOR EACH ROW
-  EXECUTE PROCEDURE create_date();
+  EXECUTE PROCEDURE bb_create_date();
 EOT;
 if ($do_data_table)
     {
@@ -490,19 +488,19 @@ CREATE TABLE log_table
   email character varying(255) NOT NULL DEFAULT ''::character varying,
   ip_address cidr,
   action character varying(255) NOT NULL DEFAULT ''::character varying,
-  change_date timestamp with time zone,  
+  bb_change_date timestamp with time zone,  
   CONSTRAINT log_table_pkey PRIMARY KEY (id)
 )
 WITH (
   OIDS=FALSE
 );
 ALTER SEQUENCE log_table_id_seq CYCLE;
--- Trigger: ts1_update_change_date on log_table
-CREATE TRIGGER ts1_update_change_date
+-- Trigger: ts1_update_bb_change_date on log_table
+CREATE TRIGGER ts1_update_bb_change_date
   BEFORE INSERT OR UPDATE
   ON log_table
   FOR EACH ROW
-  EXECUTE PROCEDURE change_date();
+  EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_log_table)
     {
@@ -535,7 +533,7 @@ CREATE TABLE modules_table
   maintain_state smallint,
   module_files text,
   module_details text,
-  change_date timestamp with time zone,
+  bb_change_date timestamp with time zone,
   CONSTRAINT modules_table_pkey PRIMARY KEY (id),
   CONSTRAINT modules_table_unique_module_name UNIQUE (module_name)
 )
@@ -543,11 +541,11 @@ WITH (
   OIDS=FALSE
 );
 ALTER SEQUENCE modules_table_id_seq RESTART CYCLE;
-CREATE TRIGGER ts1_update_change_date
+CREATE TRIGGER ts1_update_bb_change_date
   BEFORE INSERT OR UPDATE
   ON modules_table
   FOR EACH ROW
-  EXECUTE PROCEDURE change_date();
+  EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_modules_table)
     {
@@ -641,7 +639,7 @@ CREATE TABLE users_table
   lname character varying(255),
   notes character varying(65536),
   ips cidr[] NOT NULL DEFAULT '{0.0.0.0/0,0:0:0:0:0:0:0:0/0}',
-  change_date timestamp with time zone,
+  bb_change_date timestamp with time zone,
   CONSTRAINT users_table_pkey PRIMARY KEY (id),
   CONSTRAINT users_table_unique_username UNIQUE (username),
   CONSTRAINT users_table_unique_email UNIQUE (email)
@@ -650,12 +648,12 @@ WITH (
   OIDS=FALSE
 );
 ALTER SEQUENCE users_table_id_seq RESTART CYCLE;
--- Trigger: ts1_update_change_date on users_table
-CREATE TRIGGER ts1_update_change_date
+-- Trigger: ts1_update_bb_change_date on users_table
+CREATE TRIGGER ts1_update_bb_change_date
   BEFORE INSERT OR UPDATE
   ON users_table
   FOR EACH ROW
-  EXECUTE PROCEDURE change_date();
+  EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_users_table)
     {
@@ -688,7 +686,7 @@ CREATE TABLE json_table
   id serial NOT NULL,
   lookup character varying(255) NOT NULL DEFAULT ''::character varying,
   jsondata text,
-  change_date timestamp with time zone,
+  bb_change_date timestamp with time zone,
   CONSTRAINT json_table_pkey PRIMARY KEY (id),
   CONSTRAINT json_table_unique_lookup UNIQUE (lookup)
 )
@@ -696,12 +694,12 @@ WITH (
   OIDS=FALSE
 );
 ALTER SEQUENCE json_table_id_seq RESTART CYCLE;
--- Trigger: ts1_update_change_date on xml_table
-CREATE TRIGGER ts1_update_change_date
+-- Trigger: ts1_update_bb_change_date on xml_table
+CREATE TRIGGER ts1_update_bb_change_date
   BEFORE INSERT OR UPDATE
   ON json_table
   FOR EACH ROW
-  EXECUTE PROCEDURE change_date();
+  EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_json_table)
     {
