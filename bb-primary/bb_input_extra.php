@@ -122,11 +122,7 @@ class bb_input_extra {
         {
         $row_type = $this->main->process('row_type', $this->module, $arr_state, $this->default_row_type);
         $row_join = $this->main->process('row_join', $this->module, $arr_state, 0);
-        $post_key = $this->main->process('post_key', $this->module, $arr_state, 0);
-        //on postback remove files
-        $remove = $this->main->post('remove', $this->module, 0);
-        $this->main->set("remove", $arr_state, $remove);
- 
+        $post_key = $this->main->process('post_key', $this->module, $arr_state, 0); 
         $arr_state = $this->arr_state; //returned
         
         $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
@@ -141,6 +137,9 @@ class bb_input_extra {
                 }
             elseif (in_array($key, $this->arr_file))
                 {
+                //deal with remove and lo, present when doing files
+                $remove = $this->main->post('remove', $this->module, 0);
+                $this->main->set("remove", $arr_state, $remove);
                 $str = $remove ? "" : $this->main->custom_trim_string($_FILES[$this->main->name($col, $this->module)]["name"], 255);
                 $this->main->set("lo", $arr_state, $str);
                 }

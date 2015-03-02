@@ -285,7 +285,23 @@ $body
 EOT;
 pg_query($con, $query);
 
+$query = <<<EOT
+CREATE OR REPLACE function bb_key(c text)
+ RETURNS bigint LANGUAGE sql IMMUTABLE AS
+$body
+SELECT substr($1, 2, strpos($1,':') - 2)::bigint;
+$body
+EOT;
+pg_query($con, $query);
 
+$query = <<<EOT
+CREATE OR REPLACE function bb_value(c text)
+ RETURNS text LANGUAGE sql IMMUTABLE AS
+$body
+SELECT substr($1, strpos($1,':') + 1, length($1))::text;
+$body
+EOT;
+pg_query($con, $query);
 
     
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'data_table'";

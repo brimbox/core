@@ -191,23 +191,26 @@ if ($main->button(1))
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
-                //Handle large objects
-                $remove = isset($arr_state['remove']) ? $arr_state['remove'] : 0; 
-                if ($remove)
-                    {
-                    pg_query($con, "BEGIN");
-                    pg_lo_unlink($con, $row['id']);
-                    pg_query($con, "END");
-                    }
+                //Delete and import large object
                 if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]))
                     {
                     pg_query($con, "BEGIN");
+                    //if there's a better way I'd do it
                     @pg_lo_unlink($con, $row['id']);
                     pg_query($con, "END");
                     pg_query($con, "BEGIN");
                     pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
                     pg_query($con, "END");
-                    }                
+                    }
+                //Remove existing large object
+                $remove = isset($arr_state['remove']) ? $arr_state['remove'] : 0; 
+                if ($remove)
+                    {
+                    pg_query($con, "BEGIN");
+                    @pg_lo_unlink($con, $row['id']);
+                    pg_query($con, "END");
+                    }
+                //Return message and log
                 array_push($arr_message, "Record Succesfully Updated.");
                 if ($input_update_log)
                     {
@@ -223,7 +226,7 @@ if ($main->button(1))
 				$result = $main->query($con, $select_where_not);
 				if (pg_num_rows($result) == 1)
 					{
-					//retain state values
+					//retain state values, usually a key error
 					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\".");
                     if ($input_update_log)
                         {
@@ -238,7 +241,7 @@ if ($main->button(1))
 					//dispose of $arr_state and update state
 					$arr_state = array();            
 					$main->update($array_state, $module, $arr_state);
-	
+                    //wierd error
 					array_push($arr_message, "Error: Record not updated. Record archived or underlying data change possible.");
                     if ($input_update_log)
                         {
