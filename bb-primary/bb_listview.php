@@ -146,7 +146,7 @@ if ($list_number > 0)
 	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
 			 "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table WHERE row_type = " . $parent_row_type . ") T2 " .
 		 	 "ON T1.key1 = T2.id " .
-			 "WHERE list_retrieve(list_string, " . $list_number . ") = 1 AND row_type = " . $row_type . " AND " . $mode . " ORDER BY " . $col1 . ", id LIMIT " . $return_rows . " OFFSET ". $lower_limit .";";
+			 "WHERE bb_list_test(list_string, " . $list_number . ") = 1 AND row_type = " . $row_type . " AND " . $mode . " ORDER BY " . $col1 . ", id LIMIT " . $return_rows . " OFFSET ". $lower_limit .";";
     
     //echo "<p>" . $query . "</p>";
 	$result = $main->query($con, $query);		

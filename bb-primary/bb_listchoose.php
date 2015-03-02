@@ -53,7 +53,7 @@ if ($main->check('add_names',$module))
 	foreach($add_names as $value)
 		{
 		//row_type unnecessary
-		$query = "UPDATE data_table SET list_string = list_update(list_string," . $value . ") WHERE id = " . $post_key . ";";
+		$query = "UPDATE data_table SET list_string = bb_list_set(list_string," . $value . ") WHERE id = " . $post_key . ";";
 		$main->query($con, $query);
 		}
 	}
@@ -65,7 +65,7 @@ if ($main->check('remove_names',$module))
 	foreach($remove_names as $value)
 		{
 		//row_type unnecessary
-		$query = "UPDATE data_table SET list_string = list_reset(list_string," . $value . ") WHERE id = " . $post_key . ";";
+		$query = "UPDATE data_table SET list_string = bb_list_unset(list_string," . $value . ") WHERE id = " . $post_key . ";";
 		$main->query($con, $query);
 		}
 	}
