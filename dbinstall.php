@@ -28,7 +28,7 @@ If not, see http://www.gnu.org/licenses/
    2012.1.13 utf-8 check implemented
    2012.1.14 updates add for fts and ftg
    2012.1.15 added cycles
-   2012.1.16 change made in bb_is_number function, added is_integer
+   2012.1.16 change made in is_number function, added is_integer
    2012.1.17 sequence cache set to 1 from 3 on data_table and log_table
    2012.1.18 added attempts field to users table
    2012.1.19 added index on row_type
@@ -358,8 +358,8 @@ CREATE TABLE data_table
   c50 character varying(65536) NOT NULL DEFAULT ''::character varying,
   archive smallint NOT NULL DEFAULT 0,
   secure smallint NOT NULL DEFAULT 0,
-  bb_create_date timestamp with time zone,
-  bb_modify_date timestamp with time zone,
+  create_date timestamp with time zone,
+  modify_date timestamp with time zone,
   owner_name character varying(255) NOT NULL DEFAULT ''::character varying,
   updater_name character varying(255) NOT NULL DEFAULT ''::character varying,
   list_string bit(2000) NOT NULL DEFAULT B'$list_zeros'::"bit",
@@ -391,14 +391,14 @@ CREATE INDEX data_table_idx_key2
   ON data_table
   USING btree
   (key2);
--- Trigger: ts1_bb_modify_date on data_table
-CREATE TRIGGER ts1_bb_modify_date
+-- Trigger: ts1_modify_date on data_table
+CREATE TRIGGER ts1_modify_date
   BEFORE UPDATE
   ON data_table
   FOR EACH ROW
   EXECUTE PROCEDURE bb_modify_date();
--- Trigger: ts2_bb_create_date on data_table
-CREATE TRIGGER ts2_bb_create_date
+-- Trigger: ts2_create_date on data_table
+CREATE TRIGGER ts2_create_date
   BEFORE INSERT
   ON data_table
   FOR EACH ROW
@@ -488,15 +488,15 @@ CREATE TABLE log_table
   email character varying(255) NOT NULL DEFAULT ''::character varying,
   ip_address cidr,
   action character varying(255) NOT NULL DEFAULT ''::character varying,
-  bb_change_date timestamp with time zone,  
+  change_date timestamp with time zone,  
   CONSTRAINT log_table_pkey PRIMARY KEY (id)
 )
 WITH (
   OIDS=FALSE
 );
 ALTER SEQUENCE log_table_id_seq CYCLE;
--- Trigger: ts1_update_bb_change_date on log_table
-CREATE TRIGGER ts1_update_bb_change_date
+-- Trigger: ts1_update_change_date on log_table
+CREATE TRIGGER ts1_update_change_date
   BEFORE INSERT OR UPDATE
   ON log_table
   FOR EACH ROW
@@ -533,7 +533,7 @@ CREATE TABLE modules_table
   maintain_state smallint,
   module_files text,
   module_details text,
-  bb_change_date timestamp with time zone,
+  change_date timestamp with time zone,
   CONSTRAINT modules_table_pkey PRIMARY KEY (id),
   CONSTRAINT modules_table_unique_module_name UNIQUE (module_name)
 )
@@ -541,7 +541,7 @@ WITH (
   OIDS=FALSE
 );
 ALTER SEQUENCE modules_table_id_seq RESTART CYCLE;
-CREATE TRIGGER ts1_update_bb_change_date
+CREATE TRIGGER ts1_update_change_date
   BEFORE INSERT OR UPDATE
   ON modules_table
   FOR EACH ROW
@@ -639,7 +639,7 @@ CREATE TABLE users_table
   lname character varying(255),
   notes character varying(65536),
   ips cidr[] NOT NULL DEFAULT '{0.0.0.0/0,0:0:0:0:0:0:0:0/0}',
-  bb_change_date timestamp with time zone,
+  change_date timestamp with time zone,
   CONSTRAINT users_table_pkey PRIMARY KEY (id),
   CONSTRAINT users_table_unique_username UNIQUE (username),
   CONSTRAINT users_table_unique_email UNIQUE (email)
@@ -648,8 +648,8 @@ WITH (
   OIDS=FALSE
 );
 ALTER SEQUENCE users_table_id_seq RESTART CYCLE;
--- Trigger: ts1_update_bb_change_date on users_table
-CREATE TRIGGER ts1_update_bb_change_date
+-- Trigger: ts1_update_change_date on users_table
+CREATE TRIGGER ts1_update_change_date
   BEFORE INSERT OR UPDATE
   ON users_table
   FOR EACH ROW
@@ -686,7 +686,7 @@ CREATE TABLE json_table
   id serial NOT NULL,
   lookup character varying(255) NOT NULL DEFAULT ''::character varying,
   jsondata text,
-  bb_change_date timestamp with time zone,
+  change_date timestamp with time zone,
   CONSTRAINT json_table_pkey PRIMARY KEY (id),
   CONSTRAINT json_table_unique_lookup UNIQUE (lookup)
 )
@@ -694,8 +694,8 @@ WITH (
   OIDS=FALSE
 );
 ALTER SEQUENCE json_table_id_seq RESTART CYCLE;
--- Trigger: ts1_update_bb_change_date on xml_table
-CREATE TRIGGER ts1_update_bb_change_date
+-- Trigger: ts1_update_change_date on xml_table
+CREATE TRIGGER ts1_update_change_date
   BEFORE INSERT OR UPDATE
   ON json_table
   FOR EACH ROW
