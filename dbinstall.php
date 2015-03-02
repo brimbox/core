@@ -261,7 +261,7 @@ $body
 DECLARE
 BEGIN
 NEW.create_date  = now();
-NEW.bb_modify_date  = now();
+NEW.modify_date  = now();
 RETURN NEW;
 END;
 $body
