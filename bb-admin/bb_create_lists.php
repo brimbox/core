@@ -17,21 +17,20 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <script>
-function bb_reload_row_type_2()
-	{
-	var frmobj = document.forms["bb_form"];  
-    frmobj.list_number_2.value = -1;
-    bb_submit_form(0); //call javascript submit_form function	
-	}
-function bb_reload_list_number_2()
+function bb_reload_1()
 	{
     bb_submit_form(0); //call javascript submit_form function	
 	}
-    
-function bb_reload_row_type_3()
+function bb_reload_2()
 	{
 	var frmobj = document.forms["bb_form"];  
-    frmobj.list_number_3.value = -1;
+    frmobj.list_number_2.value = 0;
+    bb_submit_form(0); //call javascript submit_form function	
+	}    
+function bb_reload_3()
+	{
+	var frmobj = document.forms["bb_form"];  
+    frmobj.list_number_3.value = 0;
     bb_submit_form(0); //call javascript submit_form function	
 	}
 </script>
@@ -57,9 +56,9 @@ $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 $list_output =$main->post('list_output', $module, "");
 $row_type_1 = $main->post('row_type_1', $module, $default_row_type);
 $row_type_2 = $main->post('row_type_2', $module, $default_row_type);
-$list_number_2 = $main->post('list_number_2', $module, -1);
+$list_number_2 = $main->post('list_number_2', $module, 0);
 $row_type_3 = $main->post('row_type_3', $module, $default_row_type);
-$list_number_3 = $main->post('list_number_3', $module, -1);
+$list_number_3 = $main->post('list_number_3', $module, 0);
 
 $update_list = $main->post('update_list', $module, "");
 $update_description = $main->post('update_description', $module, "");
@@ -144,7 +143,7 @@ if ($main->button(2))
                 $arr_lists[$row_type_2] = $arr_list;
                 $main->update_json($con, $arr_lists, "bb_create_lists");                
                 $update_list = $update_description = $list_output = "";
-                $list_number_2 = -1;
+                $list_number_2 = 0;
                 array_push($arr_message, "List definition successfully updated/renamed.");
                 }
             else
@@ -169,7 +168,7 @@ else
         $update_description = $arr_list[$list_number_2]['description'];
         }
     //clear list for update
-    elseif ($list_number_2 < 0)
+    elseif ($list_number_2 <= 0)
         {
         $update_list = $update_description = $list_output = "";
         }    
@@ -192,7 +191,7 @@ if ($main->button(3) && ($confirm_remove == 1))
             if ($list_number_2 == $list_number_3)
                 {
                 $update_list = $update_description = $list_output = "";
-                $list_number_2 = -1;
+                $list_number_2 = 0;
                 }
 			array_push($arr_message, "List successfully removed.");
 			}
@@ -281,9 +280,9 @@ echo "<div class=\"border table\">"; //border
 echo "<div class=\"table spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded\">";
-$params = array("class"=>"spaced","onchange"=>"bb_reload_row_type_2()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload_2()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type_2", $row_type_2, $params);
-$params = array("class"=>"spaced","empty"=>true,"check"=>1,"onchange"=>"bb_reload_list_number_2()");
+$params = array("class"=>"spaced","empty"=>true,"check"=>1,"onchange"=>"bb_reload_1()");
 $arr_pass = isset($arr_lists[$row_type_2]) ? $arr_lists[$row_type_2] : array();
 $main->list_dropdown($arr_pass, "list_number_2", $list_number_2, $params);
 echo "</div>";
@@ -321,7 +320,7 @@ echo "<span class=\"spaced colored\">Remove or Archive List</span>";
 echo "<div class=\"table border spaced\">";
 echo "<div class=\"row padded\">";
 echo "<div class=\"cell padded nowrap\">";
-$params = array("class"=>"spaced","onchange"=>"bb_reload_row_type_3()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload_3()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type_3", $row_type_3, $params);
 $params = array("class"=>"spaced","empty"=>true,"check"=>0);
 $arr_pass = isset($arr_lists[$row_type_3]) ? $arr_lists[$row_type_3] : array();

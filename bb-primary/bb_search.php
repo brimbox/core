@@ -27,7 +27,7 @@ include("bb_search_extra.php");
 <script type="text/javascript">
 //reset hidden offset to 1 when search button is submitted
 //standard search submit
-function reset_return()
+function bb_reload()
     {
     //form names in javascript are hard coded
     var frmobj = document.forms["bb_form"];
@@ -101,7 +101,7 @@ echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 $main->echo_common_vars();
 
 //button and end form
-$params = array("class"=>"spaced","onclick"=>"reset_return()", "label"=>"Search Database");
+$params = array("class"=>"spaced","onclick"=>"bb_reload()", "label"=>"Search Database");
 $main->echo_script_button("post_search", $params);
 
 //archive interworking allows quick access to archived records

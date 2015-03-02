@@ -34,6 +34,7 @@ class bb_input_extra {
         $this->module = $module;
         $this->arr_columns = $arr_columns;
         $this->arr_state = $arr_state;
+        $this->arr_file = array(47);
         $this->arr_notes = array(49,50);
         $this->default_row_type = $default_row_type;
         }
@@ -96,12 +97,18 @@ class bb_input_extra {
                 if (in_array($key, $this->arr_notes))
                     {
                     $str = $this->main->custom_trim_string($row[$col], 65536, false);
+                    $this->main->set($col, $arr_state, $str);
+                    }
+                if (in_array($key,$this->arr_file))
+                    {
+                    $str = $this->main->custom_trim_string($row[$col], 255,false);
+                    $this->main->set("lo", $arr_state, $str);
                     }
                 else
                     {
                     $str = $this->main->custom_trim_string($row[$col],255);
-                    }
-                $this->main->set($col, $arr_state, $str);
+                    $this->main->set($col, $arr_state, $str);
+                    }                
                 }
             $this->main->set('secure', $arr_state, $row['secure']);
             $this->main->set('archive', $arr_state, $row['archive']);
@@ -127,7 +134,12 @@ class bb_input_extra {
             $col = $this->main->pad("c", $key);
             if (in_array($key,$this->arr_notes))
                 {
-                $str = $this->main->custom_trim_string($this->main->post($col,$this->module),65536,false);
+                $str = $this->main->custom_trim_string($this->main->post($col, $this->module),65536,false);
+                }
+            elseif (in_array($key, $this->arr_file))
+                {
+                $str = $this->main->custom_trim_string($_FILES[$this->main->name($col, $this->module)]["name"], 255);
+                $this->main->set("lo", $arr_state, $str);
                 }
             else
                 {
@@ -135,6 +147,7 @@ class bb_input_extra {
                 }
             $this->main->set($col, $arr_state, $str);
             }
+            
         $archive = $this->main->process('archive', $this->module, $arr_state, 0); 
         $secure = $this->main->process('secure', $this->module, $arr_state, 0); 
             
@@ -149,7 +162,7 @@ class bb_input_extra {
         $arr_column = array();
         if ($this->default_row_type > 0)
             {
-            $arr_column = isset($this->arr_columns[$this->default_row_type]) ? $this->arr_columns[$this->default_row_type] : array();
+            $arr_column = $this->arr_columns[$this->default_row_type];
             }
         $arr_column_reduced = $this->main->filter_keys($arr_column);
         //reset state
@@ -192,6 +205,7 @@ class bb_input_extra {
                     }
                 else
                     {
+                    //normal, file, or related
                     $str = $this->main->custom_trim_string($textarea, 255);
                     }
                 $this->main->set($col, $arr_state, $str);
@@ -228,14 +242,9 @@ class bb_input_extra {
         $arr_state = $this->arr_state;
         
         $row_type = $this->main->state('row_type', $arr_state, $this->default_row_type);
-        $row_join = $this->main->state('row_join', $arr_state, -1);
-        $post_key = $this->main->state('post_key', $arr_state, -1);
-        
-        if ($row_type > 0)
-            {
-            $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-            }
-        $arr_column_reduced = $this->main->filter_keys($arr_column);   
+        $row_join = $this->main->state('row_join', $arr_state, 0);
+        $post_key = $this->main->state('post_key', $arr_state, 0);
+          
         return array($row_type, $row_join, $post_key, $arr_state);
         }
 } //end class bb_input extra

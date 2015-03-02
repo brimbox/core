@@ -65,7 +65,7 @@ include("bb_queue_extra.php");
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
 //put selected text into clipboard
-function getselectedtext () 
+function bb_get_selected_text () 
 	{
 	var selText = "";
 	if (window.getSelection)  
@@ -73,7 +73,6 @@ function getselectedtext ()
 		var selRange = window.getSelection ();
 		selText = selRange.toString ();
 		}
-
 	else 
 		{
 		if (document.selection.createRange) 
@@ -81,31 +80,15 @@ function getselectedtext ()
              var range = document.selection.createRange ();
              selText = range.text;			 
              }
-         }
-            
+         }            
 	if (selText !== "") 
 		{
-		document.getElementById('clipboard').innerHTML = htmlchars(selText);
+		document.getElementById('clipboard').innerHTML = selText;
 		}
 	return false;
 	}
-
-//htmlspecial chars javascript function, used by getselectedtext	
-function htmlchars(str) {
- if (typeof(str) == "string") 
- 	{
-	str = str.replace(/&/g, "&amp;"); /* must do &amp; first */
-	str = str.replace(/"/g, "&quot;");
-	str = str.replace(/'/g, "&#039;");
-	str = str.replace(/</g, "&lt;");
-	str = str.replace(/>/g, "&gt;");
-  	}
- return str;
- }
-
 //link on email list function
-//standard form submit
-function sethidden(em)
+function bb_set_hidden(em)
 	{
 	//set vars and submit form
     var frmobj = document.forms["bb_form"];
@@ -113,10 +96,9 @@ function sethidden(em)
 	frmobj.email_number.value = em;
 	bb_submit_form(0);
 	return false;
-	}
-        
-//clea clipboard	
-function clearmodule()
+	}        
+//clear clipboard	
+function bb_clear_module()
 	{
 	var frmobj = document.forms["bb_form"];
 	
@@ -125,19 +107,18 @@ function clearmodule()
 	bb_submit_form(0);
 	return false;
 	}
-
 //set the fields on the left
-function set_field(col)
+function bb_set_field(col)
 	{
 	var str = document.getElementById("clipboard").innerHTML;
 	var fld = col;
-	
-	document.forms["bb_form"][fld].value=str;
-	
+	//full value
+	document.forms["bb_form"][fld].value = str;	
 	if (str.length > 40)
 		{
 		str = str.substr(0,40) + "...";
 		}
+	//display value
 	document.getElementById(col).innerHTML = str;
 	return false;
 	}        
@@ -266,10 +247,10 @@ $main->echo_module_vars();
 				$var_subject = $arr_subject[0]->text;
 				}							    
 			//output loop, hidden uid, javascript link, and checkbox
-			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"sethidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_subject . "</button></div>";
-			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"sethidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_personal . "</button></div>";
-			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"sethidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_email . "</button></div>";
-			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"sethidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_date . "</button></div>";
+			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_subject . "</button></div>";
+			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_personal . "</button></div>";
+			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_email . "</button></div>";
+			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_date . "</button></div>";
 			echo "<input name=\"f" . (string)$i . "\" type=\"checkbox\" class=\"queue_super_short spaced \" value=\"Y\" />";
 			echo "<input name=\"u" . (string)$i . "\" type=\"hidden\" value=\"" . imap_uid($mbox, $header->Msgno) . "\" />";
 			echo "<div class = \"clear\"></div>";
@@ -277,7 +258,7 @@ $main->echo_module_vars();
 		echo "</div>"; //end container
 		echo "<div class=\"queue_div_width\">"; //buttons
 		echo "<div class=\"floatleft\">"; //buttons
-		$params = array("class"=>"spaced","onclick"=>"clearmodule()", "label"=>"Clear Module");
+		$params = array("class"=>"spaced","onclick"=>"bb_clear_module()", "label"=>"Clear Module");
 		$main->echo_script_button("clear_module", $params);
 		$params = array("class"=>"spaced","number"=>2,"target"=>"bb_input", "passthis"=>true, "label"=>"Add To Input");
 		$main->echo_button("add_to_input", $params);
@@ -385,11 +366,11 @@ $main->echo_module_vars();
         
 		echo "<div id=\"clipboard\" class=\"spaced padded floatleft border overflow queue_clipboard\"></div>";
 		echo "<div class=\"clear\"></div>";
-		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"getselectedtext(); return false;\">" . $var_personal . " &lt;" . $var_email . "&gt;</div>";	
-		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"getselectedtext(); return false;\">" . $var_subject . "</div>";
-		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"getselectedtext(); return false;\">" . $var_date . "</div>";
+		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_personal . " &lt;" . $var_email . "&gt;</div>";	
+		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_subject . "</div>";
+		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_date . "</div>";
 		
-		echo "<div class=\"border padded floatleft queue_email_body\" onMouseUp=\"getselectedtext()\">" . $trans_htmlmsg . "</div>";
+		echo "<div class=\"border padded floatleft queue_email_body\" onMouseUp=\"bb_get_selected_text()\">" . $trans_htmlmsg . "</div>";
 		$i = 1;
 	    //visable queue fields
 		echo "<div class=\"floatleft\"><ul class=\"nobullets noindent\">";
@@ -400,7 +381,7 @@ $main->echo_module_vars();
 				{
 				$col = $main->pad("c", $key);
 				echo "<input name=\"" . $col . "\" type=\"hidden\" value=\"\" />";
-				echo "<li class=\"noindent\"><button type=\"button\" class=\"link spaced padded\" onclick=\"set_field('" . $col . "'); return false;\">" . $value['name'] . "</button></li>";
+				echo "<li class=\"noindent\"><button type=\"button\" class=\"link spaced padded\" onclick=\"bb_set_field('" . $col . "'); return false;\">" . $value['name'] . "</button></li>";
 				echo "<li class=\"noindent\"><span id=\"" . $col . "\" class=\"spaced\"></span></li>";
 				$i++;
 				}

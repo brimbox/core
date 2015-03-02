@@ -21,18 +21,9 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
-function bb_reload_on_column()
+function bb_reload()
     {
     //this goes off when column is changed    
-    var frmobj = document.forms["bb_form"];
-
-    frmobj.offset.value = 1;
-    bb_submit_form(); //call javascript submit_form function
-	return false;
-    }
-function bb_reload_on_asc_desc()
-    {
-    //this goes off when asc_desc is changed    
     var frmobj = document.forms["bb_form"];
 
     frmobj.offset.value = 1;
@@ -104,7 +95,7 @@ $main->echo_form_begin();
 $main->echo_module_vars();
 
 echo "<span class=\"spaced\">Order By:</span>";
-echo "<select name=\"col1\" class=\"spaced\" onchange=\"bb_reload_on_column()\">";
+echo "<select name=\"col1\" class=\"spaced\" onchange=\"bb_reload()\">";
 //can't use automatic column function because of create and modify date
 //order on create or modify date, use actual column names in this output
 echo "<option value=\"create_date\" " . ($col1 == "create_date" ? "selected" : "") . ">Created&nbsp;</option>";
@@ -119,7 +110,7 @@ foreach($arr_column as $key => $value)
     }
 echo "</select>";
 //dropdown for ascending or descending
-echo "<select name=\"asc_desc\" class=\"spaced\" onchange=\"bb_reload_on_asc_desc()\">";
+echo "<select name=\"asc_desc\" class=\"spaced\" onchange=\"bb_reload()\">";
 //build field options for column names
 echo "<option value=\"ASC\" " . ($asc_desc == "ASC" ? "selected" : "") . ">Ascending&nbsp;</option>";
 echo "<option value=\"DESC\" " . ($asc_desc == "DESC" ? "selected" : "") . ">Descending&nbsp;</option>";

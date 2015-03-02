@@ -112,6 +112,7 @@ if ($main->check("row_type", "bb_input"))
     array_push($arr, "post_key");
     if ($main->check("security", "bb_input")) array_push($arr, "security");
     if ($main->check("archive", "bb_input")) array_push($arr, "archive");
+    if ($main->check("lo", "bb_input")) array_push($arr, "lo");
 	$row_type = $main->post("row_type", "bb_input");
 	$arr_columns = $main->get_json($con, "bb_column_names");
 	//removes a warning we there are no columns in a layout

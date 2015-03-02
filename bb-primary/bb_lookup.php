@@ -21,7 +21,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
-function reload_on_layout()
+function bb_reload()
     {
     //change row_type, reload appropriate columns
     //this goes off when row_type is changed
@@ -29,20 +29,9 @@ function reload_on_layout()
     var frmobj = document.forms["bb_form"];
     
     frmobj.offset.value = 1;
-    bb_submit_form(); //call javascript submit_form function
+    bb_submit_form(0); //call javascript submit_form function
 	return false;
     }
-    
-function submit_lookup()
-    {
-    //set vars and submit form, return value is reset to 1
-    //this goes off when letter is clicked
-    var frmobj = document.forms["bb_form"];  
-    frmobj.offset.value = 1;   
-    bb_submit_form(); //call javascript submit_form function
-	return false;
-    }
-
 /* END MODULE JAVASCRIPT */
 </script>
 <?php
@@ -154,7 +143,7 @@ echo "</div>";
 echo "<table class=\"border\" cellpadding=\"0\" cellspacing=\"0\">";
 //use a table to organized form, headers follow
 echo "<tr><td class=\"middle nowrap padded\" rowspan=\"2\">";
-$params = array("class"=>"spaced middle","onclick"=>"submit_lookup()", "label"=>"Submit Lookup");
+$params = array("class"=>"spaced middle","onclick"=>"bb_reload()", "label"=>"Submit Lookup");
 $main->echo_script_button("lookup_button", $params);
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">Record ID</span></td>";
@@ -185,7 +174,7 @@ echo "<td class=\"borderleft nowrap padded\">";
 echo "<input type =\"text\" class=\"spaced short\" name = \"record_id\" value = \"" . $record_id . "\">";
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
-$params = array("onchange"=>"reload_on_layout()");
+$params = array("onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";

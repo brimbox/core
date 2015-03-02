@@ -47,13 +47,13 @@ $con = $main->connect();
     
 //Here go the headers
 header ("Content-Type: application/octet-stream");
-header ("Content-disposition: attachment; filename=\"test.jpg\"");
+header ("Content-disposition: attachment; filename=\"test.txt\"");
 header ("Content-Transfer-Encoding: binary");
 ob_clean();
 flush();
 
 pg_query ($con, "BEGIN");
-$handle = pg_lo_open($con, 4 ,"r") or die("File Error 1");
+$handle = pg_lo_open($con, 1 ,"r") or die("File Error 1");
 pg_lo_read_all($handle) or die("File Error 2");
 pg_query($con, "COMMIT");
  

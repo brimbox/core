@@ -21,7 +21,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
-function remove_message()
+function bb_remove_message()
     {
     document.getElementById('input_message').innerHTML = "";
 	return false;
@@ -40,42 +40,35 @@ $input_insert_log = $main->on_constant('INPUT_INSERT_LOG');
 $input_update_log = $main->on_constant('INPUT_UPDATE_LOG');
 $input_secure_post = $main->on_constant('INPUT_SECURE_POST');
 $input_archive_post = $main->on_constant('INPUT_ARCHIVE_POST'); 
-
 /* END DEAL WITH CONSTANTS */
+
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
 //get columns
 $arr_columns = $main->get_json($con, "bb_column_names");
 //get dropdown values while were at it
 $arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 //get header for guest index
 $arr_header = $main->get_json($con, "bb_interface_enable");
-//populate guest index array
-$arr_guest_index = $arr_header['guest_index']['value'];
 
-$arr_notes = array("49","50"); //notes column
+$arr_relate = array(41,42,43,44,45,46);
+$arr_file = array(47);
+$arr_reserved = array(48);
+$arr_notes = array(49,50);
+
 $textarea_rows = 4; //minimum
 $arr_message = array(); //message pile
 $message = ""; //blank return message
+/* END INITIALIZE*/
 
 /* INPUT STATE AND POSTBACK */  
 $main->retrieve($con, $array_state);
 $arr_state = $main->load($module, $array_state);
-
 //hook for postback routines, will include bb_input_extra
 $main->hook("postback_area", true);
-
 //update state
 $main->update($array_state, $module, $arr_state);
-
-//reduce columns and layouts
-$arr_layout = $arr_layouts_reduced[$row_type];
-//consider empty columns
-$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
-$arr_column_reduced = $main->filter_keys($arr_column);
 /*END INPUT STATE AND POSTBACK */
 	
 /* SUBMIT TO DATABASE */
@@ -83,6 +76,7 @@ $arr_column_reduced = $main->filter_keys($arr_column);
 if ($main->button(1))
 	{
     $arr_errors = array(); //empty array
+    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 	foreach($arr_column_reduced as $key => $value)
         {
         /* START VALIDATION */
@@ -91,15 +85,10 @@ if ($main->button(1))
         $col = $main->pad("c", $key);
             
         //textarea no validation
-		if (in_array($key,$arr_notes))
-			{
-            //long column
-			$main->set($col, $arr_state, $main->custom_trim_string($main->post($col,$module),65536, false));
-			}                
-		else
+		if (!in_array($key, array(47,48,49,50)))
 			{
             //regular column
-            $field = $main->custom_trim_string($main->post($col,$module),255);
+            $field = $arr_state[$col];
             $return_required = false;
 			$return_validate = false;
             //required field  
@@ -143,8 +132,10 @@ if ($main->button(1))
 				$str = pg_escape_string((string)$arr_state[$col]);
 				$update_clause .= "," . $col . " =  '" . $str . "'";;
 				//prepare fts and ftg
-				$search_flag = ($value['search'] == 1) ? true : false;
-				//guest flag
+				$search_flag = ($value['search'] == 1) ? true : false;				
+                //populate guest index array, can be reassigned in module Interface Enable
+                $arr_guest_index = $arr_header['guest_index']['value'];
+                //guest flag
 				if (empty($arr_guest_index))
 					{
 					$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
@@ -199,6 +190,15 @@ if ($main->button(1))
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
+                if (isset($_FILES[$main->name('c47', $module)]))
+                    {
+                    pg_query($con, "BEGIN");
+                    pg_lo_unlink($con, $row['id']);
+                    pg_query($con, "END");
+                    pg_query($con, "BEGIN");
+                    pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
+                    pg_query($con, "END");
+                    }      
                 array_push($arr_message, "Record Succesfully Updated.");
                 if ($input_update_log)
                     {
@@ -225,9 +225,7 @@ if ($main->button(1))
 				else
 					{
 					//dispose of post vars
-					$row_join = -1;
-					$post_key = -1;
-					$row_type = 0;
+					$row_type = $row_join = $post_key = 0;
 					//dispose of $arr_state and update state
 					$arr_state = array();            
 					$main->update($array_state, $module, $arr_state);
@@ -315,15 +313,21 @@ if ($main->button(1))
                 {
                 $select_where_exists = "SELECT 1 FROM data_table WHERE archive = 0 AND id IN (" . $post_key . ")";
                 }
-				
+			        
+            /* EXECUTE QUERY */
 			$return_primary = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
             $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") RETURNING id, " . $return_primary . " as primary;";
             //echo "<p>" . $query . "</p>";
-            $result = $main->query($con, $query);
-			
+            $result = $main->query($con, $query);			
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
+                if (isset($_FILES[$main->name('c47', $module)]))
+                    {
+                    pg_query($con, "BEGIN");
+                    pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
+                    pg_query($con, "END");
+                    }      
                 array_push($arr_message, "Record Succesfully Inserted.");
                 if ($input_insert_log)
                     {
@@ -357,9 +361,7 @@ if ($main->button(1))
 				else
 					{
 					//dispose of post vars				
-					$row_join = -1;
-					$post_key = -1;
-					$row_type = 0;
+					$row_type = $row_join = $post_key = 0;
 					//dispose of $arr_state and update state
 					$arr_state = array();            
 					$main->update($array_state, $module, $arr_state);	
@@ -376,10 +378,13 @@ if ($main->button(1))
     }// end if submit/enter data
     
 /* PARENT ROW */
-// $post_key > 0 only on edit or insert with parent
+//$post_key > 0 only on edit or insert with parent
+//this gets parent information before insert or update
 if ($post_key > 0)
     {
-    $parent_row_type = $arr_layout['parent'];
+    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+    $arr_layouts_reduced = $main->filter_keys($arr_layouts);
+    $parent_row_type = $arr_layouts_reduced[$row_type]['parent'];
     $parent = isset($arr_columns[$parent_row_type]['layout']['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['layout']['primary']) : "c01";
 	 
 	 //edit, must join to parent
@@ -416,20 +421,33 @@ if ($post_key > 0)
 			$parent_id = $post_key;
                 
             /* AUTOFILL HOOK */
+            //loads on basis of parent record
             $main->hook("autofill", true);
 			}			
         }
     }
-/* END PARENT ROW */     
+/* END PARENT ROW */
+
+/* AUTOLOAD HOOK */
+if ($main->button(3))
+    {
+    //loads on basis of button
+    $main->hook("autofill", true);    
+    }
+/* END AUTOLOAD HOOK */
+    
 
 /* BEGIN REQUIRED FORM */
-$main->echo_form_begin();
+$main->echo_form_begin(array('type'=>"enctype=\"multipart/form-data\""));
 $main->echo_module_vars();
 
 //echos input select object if row_type exists
 if ($row_type > 0):
+    //must have row_type\
+    $arr_column = $arr_columns[$row_type];
+    $arr_column_reduced = $main->filter_keys($arr_column);
           
-    //outputs top level records
+    // HOOKS */
     $main->hook("top_level_records", true);    
     //this when inserting child record
     $main->hook("parent_record", true);
@@ -439,7 +457,6 @@ if ($row_type > 0):
     $main->hook("begin_archive_secure", true);
     //for setting readonly and hidden values
     $main->hook("before_render", true);
-
 
     echo "<div class=\"spaced\" id=\"input_message\">";
     $main->echo_messages($arr_message);
@@ -464,12 +481,34 @@ if ($row_type > 0):
                 $arr_dropdown = $readonly ? array($input) : $arr_dropdowns[$row_type][$key]; //single item select for readonly
                 echo "<div class=\"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"remove_message(); return false;\">";
+                echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
                 foreach ($arr_dropdown as $dropdown)
                     {                            
                     echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
                     }
                 echo "</select><label class=\"error\">" . $error . "</label></div>";
+                }
+            elseif (in_array($key, $arr_relate))
+                {
+                //textarea
+                $attribute = ($readonly || $arr_column_reduced[$key]['relate']) ? "readonly" : ""; //readonly attribute    
+                echo "<div class = \"clear " . $hidden . "\">";
+                echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
+                echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
+                echo "<label class=\"error\">" . $error . "</label></div>";
+                }
+            elseif (in_array($key, $arr_file))
+                {
+                //textarea
+                $attribute = $readonly ? "readonly" : "";
+                $lo = isset($arr_state['lo']) ? $arr_state['lo'] : "";
+                echo "<div class = \"clear " . $hidden . "\">";
+                echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
+                echo "<input class = \"spaced padded textbox noborder\" maxlength=\"255\" name=\"lo\" type=\"text\" value = \""  . htmlentities($lo) .  "\" readonly/>";
+                echo "</div>";
+                echo "<div class=\"clear\"></div>";
+                echo "<input class=\"spaced textbox\" maxlength=\"255\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";        
+                echo "<div class=\"clear\"></div>";
                 }
             elseif (in_array($key, $arr_notes))
                 {
@@ -478,7 +517,7 @@ if ($row_type > 0):
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
                 echo "<div class=\"clear " . $hidden . "\"></div>";
-                echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" " . $attribute . " onFocus=\"remove_message(); return false;\">" . $input . "</textarea></div>";				
+                echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";				
                 }				
             else
                 {
@@ -486,7 +525,7 @@ if ($row_type > 0):
                 $attribute = $readonly ? "readonly" : "";  //readonly attribute
                 echo "<div class=\"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"remove_message(); return false;\" />";
+                echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
                 echo "<label class=\"error\">" . $error . "</label></div>";
                 }
             }

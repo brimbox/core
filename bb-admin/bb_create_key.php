@@ -20,9 +20,9 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", 5);
 ?>
 <script type="text/javascript">
-function reload_on_layout()
+function bb_reload()
     {
-    bb_submit_form();    
+    bb_submit_form(0);    
     }
 </script>
 <?php
@@ -138,7 +138,7 @@ echo "<div class=\"spaced borderleft bordertop floatleft\">";
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Check Layout");
 $main->echo_button("check_column", $params);
 echo "<br>";
-$params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 $params = array("class"=>"spaced");
 $main->column_dropdown($arr_column, "col_type", $col_type, $params);

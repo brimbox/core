@@ -20,19 +20,9 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
-function reload_on_list()
+function bb_reload()
     {
     //this goes off when list is changed    
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.offset.value = 1;
-	bb_submit_form(0); //call javascript submit_form function
-	return false;
-    }
-function reload_on_layout()
-    {
-    //change row_type, reload appropriate columns
-    //this goes off when row_type is changed    
     var frmobj = document.forms["bb_form"];
     
     frmobj.offset.value = 1;
@@ -111,9 +101,9 @@ $main->echo_module_vars();
 
 echo "<div class=\"cell padded middle\">";
 echo "Choose List: ";
-$params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
-$params = array("class"=>"spaced","onchange"=>"reload_on_list()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload()");
 $main->list_dropdown($arr_list, "list_number", $list_number, $params);
 
 //list return

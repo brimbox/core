@@ -21,7 +21,7 @@ $main->check_permission("bb_brimbox", 5);
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
-function set_hidden(id,ac)
+function bb_set_hidden(id,ac)
     {
     //set var form links and the add_new_user button on initial page
     var frmobj = document.forms["bb_form"];
@@ -32,7 +32,7 @@ function set_hidden(id,ac)
     return false;
     }
     
-function checkPasswd(pwd,nm)
+function bb_check_passwd(pwd,nm)
     {
     var frmobj = document.forms['bb_form'];
     var has_letter = new RegExp("[a-z]");
@@ -55,7 +55,7 @@ function checkPasswd(pwd,nm)
 	return false;
     }
         
-function populateDefault(passthis,k,v)
+function bb_populate_default(passthis,k,v)
     {
     var select = document.getElementById("select_default");
     if (passthis.checked == true)
@@ -74,7 +74,7 @@ function populateDefault(passthis,k,v)
         }
     }
     
-function reload_on_select()
+function bb_reload()
     {
     //change filter or sort
     bb_submit_form(0); 
@@ -439,10 +439,10 @@ if ($action == 0)
 
     echo "<table class=\"spaced\" cellpadding=\"0\" cellspacing=\"0\">";
     echo "<thead><tr colspan=\"6\"><td>";
-    echo "<button class=\"floatleft spaced\" name=\"add_new_user\" onclick=\"set_hidden(0,1)\">Add New User</button>";
+    echo "<button class=\"floatleft spaced\" name=\"add_new_user\" onclick=\"bb_set_hidden(0,1)\">Add New User</button>";
     echo "<table class=\"floatright\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"padded middle\">";
     echo "<span>Filter By: </span>";
-    echo "<select class=\"middle\" name=\"filterrole\" onChange=\"reload_on_select()\">";
+    echo "<select class=\"middle\" name=\"filterrole\" onChange=\"bb_reload()\">";
     echo "<option value=\"all\">All</option>";
     foreach ($arr_userroles_loop as $arr_userrole_loop)
         {
@@ -455,7 +455,7 @@ if ($action == 0)
     echo "</td><td class=\"padded middle\">";
     echo "<span class=\"middle spaced padded\">&nbsp;&nbsp;&nbsp;</span>";
     echo "<span class=\"middle spaced padded\">Sort By: </span>";
-    echo "<select class=\"middle\" name=\"usersort\" onChange=\"reload_on_select()\">";
+    echo "<select class=\"middle\" name=\"usersort\" onChange=\"bb_reload()\">";
     $arr_usersort = array('lname'=>"Last Name", 'fname'=>"First Name", 'username'=>"username", 'email'=>"Email");
     foreach ($arr_usersort as $key => $value)
         {
@@ -503,9 +503,9 @@ if ($action == 0)
             }
         echo implode(", ", $arr_display);
         echo "</td>";
-        echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"set_hidden(" . $id . ",2); return false;\">Edit</button></td>";
-        echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"set_hidden(" . $id . ",3); return false;\">Lock</button></td>";        
-        echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"set_hidden(" . $id . ",4); return false;\">Delete</button></td>";
+        echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",2); return false;\">Edit</button></td>";
+        echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",3); return false;\">Lock</button></td>";        
+        echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",4); return false;\">Delete</button></td>";
         echo "</tr>";
         $i++;
         }
@@ -574,7 +574,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"row\">"; 
     echo "<div class=\"cell middle\">Password:</div>";
     echo "<div class=\"cell middle\">";
-    $handler = "onKeyUp=\"checkPasswd(this.value,'passwd')\"";
+    $handler = "onKeyUp=\"bb_check_passwd(this.value,'passwd')\"";
     $main->echo_input("passwd", "", array('type'=>'password','input_class'=>'spaced long','handler'=>$handler,'maxlength'=>255));
     echo "</div>";
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['passwd'] )? $arr_error['passwd'] : "") . "</div>"; 
@@ -583,7 +583,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"row spaced\">"; 
     echo "<div class=\"cell middle\">Re-Enter Password:</div>";
     echo "<div class=\"cell middle\">";
-    $handler = "onKeyUp=\"checkPasswd(this.value,'repasswd')\"";
+    $handler = "onKeyUp=\"bb_check_passwd(this.value,'repasswd')\"";
     $main->echo_input("repasswd", "", array('type'=>'password','input_class'=>'spaced long','handler'=>$handler,'maxlength'=>255));
     echo "</div>";
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['repasswd'] )? $arr_error['repasswd'] : "") . "</div>";    
@@ -690,7 +690,7 @@ if (in_array($action, array(1,2,3,4))):
             $userrole_value = $value['userrole_value'] . "_" . $value['interface_value'];
             $userrole_name = $value['interface_name'] . ":" . $value['userrole_name'];
             $checked = in_array($userrole_value, $userroles_work) ? "checked" : "";
-            $handler = "onClick=\"populateDefault(this, '" . $userrole_value . "', '" . $userrole_name . " ')\"";
+            $handler = "onClick=\"bb_populate_default(this, '" . $userrole_value . "', '" . $userrole_name . " ')\"";
             echo "<div class=\"padded\">";
             //custom checkbox because of array
             echo "<input type=\"checkbox\" value=\"" . $userrole_value . "\" name=\"userroles_work[]\" class=\"middle holderup\" " . $checked . " " . $handler . "/>";

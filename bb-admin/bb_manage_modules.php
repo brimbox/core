@@ -22,7 +22,7 @@ $main->check_permission("bb_brimbox", 5);
 <script type="text/javascript">
 //this is the submit javascript for standard modules
 //sets hidden vars
-function module_links(i,a)
+function bb_module_links(i,a)
     {
     //form names in javascript are hard coded
     var frmobj = document.forms["bb_form"];
@@ -645,26 +645,26 @@ echo "<div class=\"table spaced border\">";
             case 3:
             case 5:
                 //optional modules are always 0
-                $str_standard = "<button class=\"link\" onclick=\"module_links(" . $row['id'] . "," . (int)$row['standard_module'] . ")\">Activate</button>";
+                $str_standard = "<button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . "," . (int)$row['standard_module'] . ")\">Activate</button>";
                 break;
             case 4:
             case 6:
                 //standard modules uninstalled
-                $str_standard = "<button class=\"link\" onclick=\"module_links(" . $row['id'] . "," . (int)$row['standard_module'] . ")\">Deactivate</button>";
+                $str_standard = "<button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . "," . (int)$row['standard_module'] . ")\">Deactivate</button>";
                 break;
             }       
         echo "<div class=\"padded cell short middle\">" . $str_standard . "</div>";
         
         if ((int)$row['standard_module'] == 3 || (int)$row['standard_module'] == 1)
             {
-            echo "<div class=\"padded cell short middle\"><button class=\"link\" onclick=\"module_links(" . $row['id'] . ", -2)\">Delete</button></div>";
+            echo "<div class=\"padded cell short middle\"><button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . ", -2)\">Delete</button></div>";
             }
         else
             {
             echo "<div class=\"padded cell short\"></div>";   
             }
        
-        echo "<div class=\"padded cell short middle\"><button class=\"link\" onclick=\"module_links(" . $row['id'] . ", -1)\">Details</button></div>";    
+        echo "<div class=\"padded cell short middle\"><button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . ", -1)\">Details</button></div>";    
         echo "</div>"; //end row
         $i++;
         }

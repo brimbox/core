@@ -186,6 +186,12 @@ class bb_hooks extends bb_work {
 				}
 			//no top level records, not common
 			}
+			//autoload button
+			if ($arr_layouts_reduced[$row_type]['autoload'])
+				{
+				$params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Autoload");
+				$this->echo_button("top_reset", $params);				
+				}
 			echo "<div class=\"clear\"></div>";
 		}
 	
@@ -253,7 +259,7 @@ class bb_hooks extends bb_work {
             echo "<br>";
             //load textarea
             echo "<div align=\"left\">";
-            echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . ($textarea_rows) ."\"></textarea>";
+            echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . $textarea_rows ."\"></textarea>";
             echo "<div class=\"clear\"></div>";
             $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
             $this->echo_button("load_textarea", $params);

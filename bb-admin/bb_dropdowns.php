@@ -21,7 +21,7 @@ $main->check_permission("bb_brimbox", array(4,5));
 ?>
 <script type="text/javascript">
 //reload on layout change
-function reload_on_layout()
+function bb_reload()
     {
     //standard submit
 	var frmobj = document.forms['bb_form'];
@@ -153,7 +153,7 @@ $main->echo_form_begin();
 $main->echo_module_vars();;
 
 //row_type select tag
-$params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "<br>"; //why not
 $params = array("class"=>"spaced");

@@ -20,40 +20,13 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", 5);
 ?>
 <script type="text/javascript">
-//dump standard brimbox backup
-function submit_backup()
+function bb_submit_link(f)
     {
     var frmobj = document.forms["bb_form"];
     
-    frmobj.action = "bb-links/bb_backup_restore_link_1.php";
+    frmobj.action = f;
     frmobj.submit();
     }
-
-//dump tables one type at a time	
-function submit_dump()
-    {
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.action = "bb-links/bb_backup_restore_link_2.php";
-    frmobj.submit();
-    }
-//dump list definitions
-function submit_listdefs()
-    {
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.action = "bb-links/bb_backup_restore_link_3.php";
-    frmobj.submit();
-    }
-//dump list data with unique row_id
-function submit_listdata()
-    {
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.action = "bb-links/bb_backup_restore_link_4.php";
-    frmobj.submit();
-    }
-
 </script>
 
 <?php
@@ -433,7 +406,7 @@ $main->echo_button("clean_up_columns", $params);
 $params = array("class"=>"spaced","number"=>3,"image"=>$processing_image, "passthis"=>true, "label"=>"Clean Database Layouts");
 $main->echo_button("clean_up_columns", $params);
 echo "<div class=\"cell padded nowrap\">";
-$params = array("class"=>"spaced","label"=>"Backup Database","onclick"=>"submit_backup()");
+$params = array("class"=>"spaced","label"=>"Backup Database","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_1.php')");
 $main->echo_script_button("backup_database", $params);
 echo "<label class=\"spaced\">Password: </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"backup_passwd\"/>";
@@ -446,15 +419,15 @@ echo "<div class=\"clear\"></div>";
 
 echo "<p class=\"spaced bold larger\">Database Dump</p>";
 echo "<div class=\"spaced border floatleft padded\">";
-$params = array("class"=>"spaced","label"=>"Download Layout","onclick"=>"submit_dump()");
+$params = array("class"=>"spaced","label"=>"Download Layout","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_2.php')");
 $main->echo_script_button("dump_database", $params);
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type);
 echo "<select class=\"spaced\" name=\"column_names\"><option value=\"0\">Use Friendly Names&nbsp;</option><option value=\"1\">Use Generic Names&nbsp;</option></select>";
 echo "<select class=\"spaced\" name=\"new_lines\"><option value=\"0\">Escape New Lines&nbsp;</option><option value=\"1\">Purge New Lines&nbsp;</option></select>";
 echo "<br>";
-$params = array("class"=>"spaced","label"=>"Download List Definitions","onclick"=>"submit_listdefs()");
+$params = array("class"=>"spaced","label"=>"Download List Definitions","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_3.php')");
 $main->echo_script_button("dump_listdefs", $params);
-$params = array("class"=>"spaced","label"=>"Download List Data","onclick"=>"submit_listdata()");
+$params = array("class"=>"spaced","label"=>"Download List Data","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_4.php')");
 $main->echo_script_button("dump_listdata", $params);
 echo "<br><label class=\"spaced\">Password: </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"dump_passwd\"/>";

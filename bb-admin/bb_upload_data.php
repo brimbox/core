@@ -18,15 +18,15 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", array(4,5));
 ?>
 <script type="text/javascript">     
-function dump_data()
+function bb_submit_link(f)
     {
     var frmobj = document.forms["bb_form"];
     
-    frmobj.action = "bb-links/bb_upload_data_link.php";
+    frmobj.action = f;
     frmobj.submit();
 	return false;
     }
-function reload_on_layout()
+function bb_reload()
     {
     //change row_type, reload appropriate columns
     //this goes off when row_type is changed    
@@ -373,7 +373,7 @@ $main->echo_module_vars();;
 
 //upload row_type calls dummy function
 echo "<div class=\"spaced border floatleft padded\">";
-$params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Get Upload Header");
 $main->echo_button("get_header", $params);
@@ -383,7 +383,7 @@ echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input type=\"text\" name=\"bb_data_file_name\" value=\"" . $data_file . "\" class=\"spaced\">";
 echo "<input type=\"hidden\" name=\"bb_data_file_extension\" value=\"txt\" class=\"spaced\">";
-$params = array("class"=>"spaced","onclick"=>"dump_data()", "label"=>"Download Data Area");
+$params = array("class"=>"spaced","onclick"=>"bb_submit_link('bb-links/bb_upload_data_link.php')", "label"=>"Download Data Area");
 $main->echo_script_button("dump_button", $params);
 echo "</div>";
 echo "<div class=\"clear\"></div>";

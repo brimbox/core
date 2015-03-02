@@ -210,6 +210,11 @@ input[type="radio"], input[type="checkbox"], input[type="image"]
     {
 	border: none;	 
     }
+    
+/* immediately change radio, checkbox and image to no border */
+input[type="file"]::-ms-browse,  input[type="file"]::-ms-value {
+    background: white;
+}
 	
 /* rounded objects */	
 button, input, select
@@ -268,17 +273,25 @@ div.clear
 	border-left-style: solid;
     border-left-width: 1px;
 	}
+.borderleft
+	{
+	border-left-style: solid;
+    border-left-width: 1px;
+	}   
 .divider
 	{
 	border-top: 1px solid;
 	padding:3px 0px 3px 0;
-	}
-    
+	}    
 .darkline
 	{
 	border-top: 1px solid;
 	padding:3px 0px 3px 0;
-	}    
+	}
+.noborder
+     {
+     border: 0;
+     } 
 .center
 	{
 	text-align:center;

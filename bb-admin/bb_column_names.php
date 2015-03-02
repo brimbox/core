@@ -21,10 +21,10 @@ $main->check_permission("bb_brimbox", 5);
 ?>
 <script type="text/javascript">
 //reload for change of row_type
-function reload_on_layout()
+function bb_reload()
 	{
 	//standard submit
-    bb_submit_form();
+    bb_submit_form(0);
 	}
 </script>
 <?php
@@ -36,9 +36,9 @@ $arr_layouts = $main->get_json($con, "bb_layout_names");
 //for forward compatibility, currently does nothing
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_relate = array(41,42,43,44,45,46);
 $arr_file = array(47);
 $arr_reserved = array(48);
-$arr_relate = array(41,42,43,44,45,46);
 $arr_notes = array(49,50);
 
 //get validation and security info 
@@ -218,7 +218,7 @@ if ($main->button(2))
 
 			//commit if no error
             if (!$error)
-                {//commit XML to database
+                {//commit JSON to database
                 $main->update_json($con, $arr_columns, "bb_column_names"); //submit xml
                 //update full text indexes for that column $row_type > 0;
                 $main->build_indexes($con, $row_type);
@@ -247,7 +247,7 @@ $main->echo_messages($arr_message);
 echo "</div>";
 
 //row_type select tag
-$params = array("class"=>"spaced","onchange"=>"reload_on_layout()");
+$params = array("class"=>"spaced","onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 
 //populate row_type select combo box from xml columns
@@ -281,7 +281,7 @@ for ($m = 1; $m <= 50; $m++)
         $required = $arr_column[$m]['required'];
         $secure = $arr_column[$m]['secure'];
         $search = $arr_column[$m]['search'];
-        $relate = $arr_column[$m]['relate'];
+        if (isset($arr_column[$m]['relate'])) $relate = $arr_column[$m]['relate'];
         }
 	
 	//this is for reserved columns

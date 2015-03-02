@@ -21,7 +21,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
-function set_hidden(lt)
+function bb_set_hidden(lt)
     {
     //set vars and submit form, return value is reset to 1
     //this goes off when letter is clicked
@@ -33,7 +33,7 @@ function set_hidden(lt)
     }
 
 //standard reload layout
-function reload_on_layout()
+function bb_reload()
     {
     //change row_type, reload appropriate columns
     //this goes off when row_type is changed
@@ -45,18 +45,6 @@ function reload_on_layout()
 	return false;
     }
 //standard reload column
-function reload_on_column()
-    {
-    //change row_type, reload appropriate columns
-    //this goes off when row_type is changed
-    
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.offset.value = 1;
-    bb_submit_form(); //call javascript submit_form function
-	return false;
-    }
-
 /* END MODULE JAVASCRIPT */
 </script>
 <?php
@@ -124,7 +112,7 @@ echo "<span class=\"padded larger\">"; //font size
 	
 	//underline and bold chosen letter
 	$class = ($alpha_number == $letter) ? "link bold underline" : "link";
-	echo "<button class=\"" . $class . "\"  onclick=\"set_hidden('" . $alpha_number . "'); return false;\">";
+	echo "<button class=\"" . $class . "\"  onclick=\"bb_set_hidden('" . $alpha_number . "'); return false;\">";
 	echo $alpha_number;
 	echo "</button>&nbsp;";
 	}
@@ -138,7 +126,7 @@ echo "<span class=\"padded larger\">"; //font size
 	
 	//underline and bold chosen number
 	$class = ($alpha_number == $letter) ? "link bold underline" : "link"; 
-	echo "<button class=\"" . $class . "\"  onclick=\"set_hidden('" . $alpha_number . "'); return false;\">";
+	echo "<button class=\"" . $class . "\"  onclick=\"bb_set_hidden('" . $alpha_number . "'); return false;\">";
 	echo $alpha_number;
 	echo "</button>&nbsp;";
 	} 
@@ -160,11 +148,11 @@ $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $
 
 echo "&nbsp;&nbsp;";
 //layout types, this produces $row_type
-$params = array("onchange"=>"reload_on_layout()");
+$params = array("onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "&nbsp;&nbsp;";
 //column names, $column is currently selected column
-$params = array("onchange"=>"reload_on_column()");
+$params = array("onchange"=>"bb_reload()");
 $main->column_dropdown($arr_column, "col_type", $col_type, $params);
 
 //hidden element containing the current chosen letter

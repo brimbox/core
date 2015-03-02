@@ -21,7 +21,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 ?>
 <script  type="text/javascript">
 //clear the textarea dump	
-function clear_textarea()
+function bb_clear_textarea()
 	{
     document.forms["bb_form"].dump_area.value = "";
 	return false;
@@ -292,7 +292,7 @@ if (($post_key > 0) && ($cnt_rows == 1))
     echo "<div class = \"clear\"></div>";
 	$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Dump Data");
 	$main->echo_button("dump_button", $params);
-	$params = array("class"=>"spaced","onclick"=>"clear_textarea();", "label"=>"Clear");
+	$params = array("class"=>"spaced","onclick"=>"bb_clear_textarea();", "label"=>"Clear");
 	$main->echo_script_button("dump_clear", $params);
     }
 
