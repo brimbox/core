@@ -18,7 +18,11 @@ If not, see http://www.gnu.org/licenses/
 
 define('BASE_CHECK', true);
 include("../bb-config/bb_config.php"); // need DB_NAME
-include("../bb-config/bb_constants.php"); // need DB_NAME
+include("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
+
+//userrole not passed in from controller
+session_name(DB_NAME);
+session_start();
 
 //contains bb_main class
 include("../bb-utilities/bb_main.php");
@@ -33,15 +37,8 @@ include("../bb-utilities/bb_reports.php");
 /* SET UP MAIN OBJECT */
 $main = new bb_reports();
 
-$arr = explode(",",BB_FILE_DOWNLOAD_PERMISSIONS);
-
-print_r($arr);
-
-//userrole not passed in from controller
-session_name(DB_NAME);
-session_start();
-
-$main->check_permission("bb_brimbox", array(1,2,3,4,5));
+$arr_permissions = explode(",",BB_FILE_DOWNLOAD_PERMISSIONS);
+$main->check_permission("bb_brimbox", $arr_permissions);
 
 set_time_limit(0);
 $con = $main->connect();
