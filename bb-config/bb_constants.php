@@ -41,5 +41,6 @@ define('BB_ARCHIVE_LOG', 'OFF');
 define('BB_INPUT_ARCHIVE_POST', 'OFF');
 //turn on post override for secure
 define('BB_INPUT_SECURE_POST', 'OFF');
-
+//comma separated dtring of integers, usually between 1 and 5
+define('BB_FILE_DOWNLOAD_PERMISSIONS', '3,4,5');
 ?>

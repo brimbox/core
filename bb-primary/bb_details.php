@@ -26,7 +26,13 @@ function bb_clear_textarea()
     document.forms["bb_form"].dump_area.value = "";
 	return false;
 	}
-	
+function bb_submit_link(f)
+    {
+    var frmobj = document.forms["bb_form"];
+    
+    frmobj.action = f;
+    frmobj.submit();
+    }
 </script>
 
 <?php
@@ -35,7 +41,11 @@ function bb_clear_textarea()
 $arr_layouts = $main->get_json($con, "bb_layout_names");
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
-$arr_notes = array("49","50");
+
+$arr_relate = array(41,42,43,44,45,46);
+$arr_file = array(47);
+$arr_reserved = array(48);
+$arr_notes = array(49,50);
 
 //message pile
 $arr_message = array();
@@ -85,7 +95,7 @@ if ($post_key > 0) // a detail of a record
 
 	//this outputs the return stats
 	$main->return_stats($result);
-	//get row, set xml on row_type, echo out details
+	//get row, check cnt for existance, echo out details
     $cnt_rows = pg_num_rows($result);
     
     if ($cnt_rows == 1)
@@ -105,18 +115,24 @@ if ($post_key > 0) // a detail of a record
         foreach($arr_column as $key => $value)
             {
             $col2 = $main->pad("c", $key);  
-            if (in_array($key, $arr_notes))
+            if (in_array($key, $arr_notes)) //notes
                 {
                 $str_details = str_replace("\n", "<br>",  htmlentities($row[$col2]));
-                echo "<div class = \"clear\"><label class = \"margin padded left floatleft overflow medium shaded\">" . htmlentities($value['name']) . ":</label>";
+                echo "<div class = \"clear\"><label class = \"spaced left floatleft overflow medium shaded\">" . htmlentities($value['name']) . ":</label>";
                 echo "<div class = \"clear\"></div>";
-                echo "<div class=\"border padded margin half emheight\">" . $str_details . "</div>";				
+                echo "<div class=\"border spaced half emheight\">" . $str_details . "</div>";				
                 echo "</div>";
-                }		
-            else
+                }
+            elseif (in_array($key, $arr_file)) //files
                 {
-                echo "<div class=\"clear\"><label class=\"margin padded right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
-                echo "<div class=\"margin padded left floatleft\">" . htmlentities($row[$col2]) . "</div>";
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
+                echo "<button class=\"link spaced left floatleft\" onclick=\"bb_submit_link('bb-links/bb_details_object_link.php')\">" . htmlentities($row[$col2]) . "</button>";
+                echo "</div>";
+                }
+            else //regular
+                {
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
+                echo "<div class=\"spaced left floatleft\">" . htmlentities($row[$col2]) . "</div>";
                 echo "</div>";
                 }
             }
@@ -299,6 +315,7 @@ if (($post_key > 0) && ($cnt_rows == 1))
 //row_type and post key
 echo "<input type=\"hidden\" name=\"row_type\" value=\"" . $row_type . "\" />";
 echo "<input type=\"hidden\" name=\"post_key\" value=\"" . $post_key . "\" />";
+
 echo "</div>";    
 $main->echo_state($array_state);
 $main->echo_form_end();
