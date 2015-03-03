@@ -188,6 +188,7 @@ if ($main->button(1))
             $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " .
 				     "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") RETURNING id, " . $return_primary . " as primary;";                 
             $result = $main->query($con, $query);
+            
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
@@ -196,12 +197,12 @@ if ($main->button(1))
                     {
                     pg_query($con, "BEGIN");
                     /* IMPORTANT */
-                    //if there's a better way I'd do it, count on populated column c47 
+                    //if there's a better way I'd do it, superusers control large objects since 9.0
+                    //on standard hosting ignoring a delete warning on object not found is the best way   
                     //web users don't have access to pg_largeobjects only superusers do
                     //large objects are owned by their creator, in this case the web user
-                    //only superusers can use GRANT on large object since Postgres 9.0
-                    $query = "SELECT CASE WHEN (SELECT 1 FROM data_table WHERE c47 <> '' AND id = " . $row['id'] . ") = 1 THEN lo_unlink(" . $row['id'] . ") END;";
-                    pg_query($con, $query);
+                    //only superusers can use GRANT on large object since Postgres 9.
+                    @pg_lo_unlink($con, $row['id']);
                     pg_query($con, "END");
                     pg_query($con, "BEGIN");
                     pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
