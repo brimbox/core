@@ -192,7 +192,7 @@ class bb_hooks extends bb_work {
 			//autoload button
 			if ($arr_layouts_reduced[$row_type]['autoload'])
 				{
-				$params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Autoload");
+				$params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Autoload");
 				$this->echo_button("top_reset", $params);				
 				}
 			echo "<div class=\"clear\"></div>";

@@ -54,7 +54,7 @@ class bb_input_extra {
             {
             return $this->clear_form();
             }
-        elseif ($this->main->button(4))
+        elseif ($this->main->button(3))
             {
             return $this->combo_change();    
             }

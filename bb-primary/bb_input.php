@@ -31,7 +31,7 @@ function bb_reload()
     {
     var frmobj = document.forms["bb_form"];
     //set a button of 4 for postback
-    bb_submit_form(4);
+    bb_submit_form(3);
 	return false;
     }
 </script>
@@ -71,9 +71,17 @@ $main->hook("postback_area", true);
 //update state
 $main->update($array_state, $module, $arr_state);
 /*END INPUT STATE AND POSTBACK */
-	
+
+/* Standard Buttons */
+//Button 1 - update or insert (see below)
+//Button 2 - reset form (in postback hook)
+//Button 3 - combo change (in javascript, see above)
+//Button 4 - autoload form (see below)
+//Button 5 - textarea load (in postback hook)
+
 /* SUBMIT TO DATABASE */
 //validation error arr_error_msg
+
 if ($main->button(1))
 	{
     $arr_errors = array(); //empty array
@@ -399,7 +407,7 @@ if ($main->button(1))
     }// end if submit/enter data
     
 /* PARENT ROW */
-//$post_key > 0 only on edit or insert with parent
+//$post_key > 0 only on edit or add with parent
 //this gets parent information before insert or update
 if ($post_key > 0)
     {
@@ -450,7 +458,7 @@ if ($post_key > 0)
 /* END PARENT ROW */
 
 /* AUTOLOAD HOOK */
-if ($main->button(3))
+if ($main->button(4))
     {
     //loads on basis of button
     $main->hook("autoload", true);    
@@ -463,6 +471,7 @@ $main->echo_form_begin(array('type'=>"enctype=\"multipart/form-data\""));
 $main->echo_module_vars();
 
 //echos input select object if row_type exists
+//this means there is a layout
 if ($row_type > 0):
     //must have row_type\
     $arr_column = $arr_columns[$row_type];
