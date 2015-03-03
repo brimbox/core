@@ -54,13 +54,13 @@ class bb_input_extra {
             {
             return $this->clear_form();
             }
-        elseif ($this->main->button(3))
-            {
-            return $this->load_textarea();
-            }
         elseif ($this->main->button(4))
             {
             return $this->combo_change();    
+            }
+        elseif ($this->main->button(5))
+            {
+            return $this->load_textarea();
             }
         else
             {

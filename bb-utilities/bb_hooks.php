@@ -84,8 +84,9 @@ class bb_hooks extends bb_work {
 			}    
 		}
 		
-	function autofill($arr_column_reduced, $row, &$arr_state, $arr_columns, $row_type, $parent_row_type)
+	function autofill($row, &$arr_state, $arr_columns, $row_type, $parent_row_type)
 		{
+		$arr_column_reduced = $this->filter_keys($arr_columns[$row_type]);
 		$arr_column_parent = $this->filter_keys($arr_columns[$parent_row_type]);
 		$arr_search = array();
         //build array for search
@@ -263,7 +264,7 @@ class bb_hooks extends bb_work {
             echo "<div align=\"left\">";
             echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . $textarea_rows ."\"></textarea>";
             echo "<div class=\"clear\"></div>";
-            $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
+            $params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
             $this->echo_button("load_textarea", $params);
             echo "</div>";
             }  	

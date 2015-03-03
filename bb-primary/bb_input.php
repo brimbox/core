@@ -192,11 +192,16 @@ if ($main->button(1))
                 {
 				$row = pg_fetch_array($result);
                 //Delete and import large object
-                if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]))
+                if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
                     {
                     pg_query($con, "BEGIN");
-                    //if there's a better way I'd do it
-                    @pg_lo_unlink($con, $row['id']);
+                    /* IMPORTANT */
+                    //if there's a better way I'd do it, count on populated column c47 
+                    //web users don't have access to pg_largeobjects only superusers do
+                    //large objects are owned by their creator, in this case the web user
+                    //only superusers can use GRANT on large object since Postgres 9.0
+                    $query = "SELECT CASE WHEN (SELECT 1 FROM data_table WHERE c47 <> '' AND id = " . $row['id'] . ") = 1 THEN lo_unlink(" . $row['id'] . ") END;";
+                    pg_query($con, $query);
                     pg_query($con, "END");
                     pg_query($con, "BEGIN");
                     pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
@@ -207,6 +212,8 @@ if ($main->button(1))
                 if ($remove)
                     {
                     pg_query($con, "BEGIN");
+                    //delete with prejudice will ignore a not exists warning
+                    //again, web users don't have access to pg_largeobjects only superusers do
                     @pg_lo_unlink($con, $row['id']);
                     pg_query($con, "END");
                     }
@@ -284,7 +291,7 @@ if ($main->button(1))
 					{
 					array_push($arr_ts_vector_ftg, "'" . $str . "' || ' ' || regexp_replace('" . $str . "', E'(\\\\W)+', ' ', 'g')");
 					}
-                }		
+                }	
 			
 			$str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
 			$str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
@@ -334,8 +341,9 @@ if ($main->button(1))
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
-                if (isset($_FILES[$main->name('c47', $module)]))
+                if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
                     {
+                    //see important notes on large objects in update area
                     pg_query($con, "BEGIN");
                     pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
                     pg_query($con, "END");
@@ -444,7 +452,7 @@ if ($post_key > 0)
 if ($main->button(3))
     {
     //loads on basis of button
-    $main->hook("autofill", true);    
+    $main->hook("autoload", true);    
     }
 /* END AUTOLOAD HOOK */
     
