@@ -44,6 +44,9 @@ $backup = BRIMBOX_BACKUP; //probably change with database design, backup type
 $program = BRIMBOX_PROGRAM; //probably change with database design, backup type
 $database = BRIMBOX_DATABASE;
 
+$db_user = DB_USER;
+$db_name = DB_NAME;
+
 $str_encrypt = "";
 set_time_limit(0);
 $con = $main->connect();
@@ -132,6 +135,9 @@ $json_header = array();
 $json_header['backup'] = $backup;
 $json_header['program'] = $program;
 $json_header['database'] = $database;
+$json_header['db_user'] = $db_user;
+$json_header['db_name'] = $db_name;
+
 
 date_default_timezone_set(USER_TIMEZONE);
 $datetime = date('m/d/Y h:i:s a', time());

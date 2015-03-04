@@ -14,8 +14,6 @@ See the GNU GPL v3 for more details.
 You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
-/* NO HTML OR BLANK LINE OUTPUT ALLOWED */
-
 define('BASE_CHECK', true);
 include("../bb-config/bb_config.php");
 
@@ -32,102 +30,137 @@ include("../bb-utilities/bb_reports.php");
 /* SET UP MAIN OBJECT */
 $main = new bb_reports();
 
+//NEED VERSION INFORMATION
+include("../bb-utilities/bb_headers.php");
+
 session_name(DB_NAME);
 session_start();
 
 $main->check_permission("bb_brimbox", 5);
 
 /* INITIALIZE */
-$con = $main->connect();
+//version 2014.1.4 added ips
+$backup = BRIMBOX_BACKUP; //probably change with database design, backup type
+$program = BRIMBOX_PROGRAM; //probably change with database design, backup type
+$database = BRIMBOX_DATABASE;
+
+$db_user = DB_USER;
+$db_name = DB_NAME;
+
+$str_encrypt = "";
 set_time_limit(0);
+$con = $main->connect();
 
-//standard eol
-$eol = "\r\n";
-//this will replace control chars which should not exist
-$pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
+$passwd = $_POST['backup_passwd'];
+$type = $_POST['encrypt_method'];
 
-$passwd = $_POST['dump_passwd'];
-$column_names = $_POST['column_names'];
-$new_lines = $_POST['new_lines'];
-
+//validate password
 $valid_password = $main->validate_password($con, $passwd, "5_bb_brimbox");
-
 if (!$valid_password)
 	{
-	die("Invalid Password");
+	die("Invalid Password");	
 	}
-?>
-<?php
-/* THIS IS A TEXT FILE HEADER OUTPUT */
-/* NO HTML OR BLANK LINE OUTPUT ALLOWED */
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$arr_columns = $main->get_json($con, "bb_column_names");
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+//encrypt	
+function encrypt_line($str, $passwd, $iv, $type)
+	{
+	switch ($type)
+		{
+		case 0: //basically unencoded
+		$str =  base64_encode(gzdeflate($str));
+		break;
+		case 1: //MCRYPT_3DES + compresssion
+		$str = base64_encode(mcrypt_encrypt(MCRYPT_3DES, $passwd, gzdeflate($str), MCRYPT_MODE_CBC, $iv));
+		break;
+		}
+	return $str;
+	}
 
-$row_type = (empty($_POST['row_type'])) ? $default_row_type :  $_POST['row_type'];
-
-$arr_column = $arr_columns[$row_type];
-$arr_layout = $arr_layouts_reduced[$row_type];
-$arr_column_reduced = $main->filter_keys($arr_column); 
-
-$filename = $arr_layout['singular'] . "_Dump.txt";
-    
-//Here go the headers
+//output headers	
 header ("Content-Type: application/octet-stream");
-header ("Content-disposition: attachment; filename=" . $filename . "");
+header ("Content-disposition: attachment; filename=backup.bblo");
 header ("Content-Transfer-Encoding: binary");
 ob_clean();
 flush();
 
-$query = "SELECT * FROM data_table WHERE row_type IN (" . $row_type . ");";
-$result = $main->query($con, $query);
+//get hash, salt, and iv
+$iv_size = mcrypt_get_iv_size(MCRYPT_3DES, MCRYPT_MODE_CBC);
+$salt = md5(microtime());
+$hash = hash('sha512', $passwd . $salt);
+$iv = substr($salt,0,8);
 
-//header row
-$arr_row = array();
-array_push($arr_row, "id");
-array_push($arr_row,"row_type");
-array_push($arr_row, "key1");
-array_push($arr_row, "key2");
-foreach ($arr_column_reduced as $key => $value)
-    {
-	$column = $column_names ? $main->pad("c", $key) : $value['name'];
-    array_push($arr_row, trim(preg_replace($pattern, " ", $column)));
-    }
-array_push($arr_row,"owner_name");
-array_push($arr_row,"updater_name");
-array_push($arr_row,"create_date");
-array_push($arr_row,"modify_date");
-array_push($arr_row,"archive");
-array_push($arr_row,"secure");
-$str = implode("\t", $arr_row) . $eol;
-echo $str;
-        
-while ($row = pg_fetch_array($result))
+//encryption type
+//00000006 -- no encrypt before userrole => userroles
+//00000007 -- encrypt before userrole => userroles
+if ($type == 0) //no encrypt 
 	{
-	$arr_row = array();
-	array_push($arr_row, $row['id']);
-	array_push($arr_row,$row['row_type']);
-	array_push($arr_row, $row['key1']);
-	array_push($arr_row, $row['key2']);
-	foreach ($arr_column_reduced as $key => $value)
-		{
-		$col = $main->pad("c", $key);
-		//push onto stack purging characters which will be problems
-		if (in_array($col, array("c49","c50")))
-			{
-			$row[$col] = (int)$new_lines ?  $row[$col] : str_replace("\n", "\\n", $row[$col]); 	
-			}
-		array_push($arr_row, trim(preg_replace($pattern, " ", $row[$col])));
-		}
-	array_push($arr_row,$row['owner_name']);
-	array_push($arr_row,$row['updater_name']);
-	array_push($arr_row,$row['create_date']);
-	array_push($arr_row,$row['modify_date']);
-	array_push($arr_row,$row['archive']);
-	array_push($arr_row,$row['secure']);
-	$str = implode("\t", $arr_row) . $eol;
-	echo $str;
+	//left 2 digits should be encrypt method
+	$hex = "00000006";
+	$eol = "\r\n";
 	}
+elseif ($type == 1) //MCRYPT_3DES + Compression
+	{
+	$hex = "00000007";
+	$eol = "\r\n";
+	}
+	
+//echo first line, not encypted
+echo $hex . $salt . $hash . $eol;
+
+//back up stats
+$json_header = array();
+$json_header['backup'] = $backup;
+$json_header['program'] = $program;
+$json_header['database'] = $database;
+$json_header['db_user'] = $db_user;
+$json_header['db_name'] = $db_name;
+date_default_timezone_set(USER_TIMEZONE);
+$datetime = date('m/d/Y h:i:s a', time());
+$json_header['datetime'] = $datetime;
+//query c47
+$query = "SELECT id, c47 FROM data_table WHERE c47 <> ''";
+$result = $main->query($con, $query);
+//continue header after query
+$json_header['total'] = pg_num_rows($result);
+$str = json_encode($json_header);
+echo encrypt_line($str, $passwd, $iv, $type) . $eol;
+
+while($row = pg_fetch_array($result))
+	{
+    $id = $row['id'];
+    $filename = $row['c47'];
+    pg_query($con, "BEGIN");
+    $lo = pg_lo_open($con, $row['id'], "r");
+    if ($lo)
+        {
+        //opened and in transaction
+        pg_lo_seek($lo, 0, PGSQL_SEEK_END);
+        $page = 8092;
+        $length = pg_lo_tell($lo);
+        $cnt = floor($length / $page);
+        $remainder = $length - ($cnt * $page);
+        pg_lo_seek($lo, 0, PGSQL_SEEK_SET);
+        
+        $json_info = array('id'=>$id,'filename'=>$filename,'length'=>$length,'count'=>$cnt,'remainder'=>$remainder,'page'=>$page);
+        $str = json_encode($json_info);
+        echo encrypt_line($str, $passwd, $iv, $type) . $eol;
+        
+        for ($i=1; $i<=$cnt; $i++)
+            {
+            $str = encrypt_line(pg_lo_read($lo, $page), $passwd, $iv, $type) . $eol;
+            echo $str;
+            }
+        $str = encrypt_line(pg_lo_read($lo, $remainder), $passwd, $iv, $type) . $eol;
+        echo $str;
+        pg_lo_close($lo);
+        }
+    else
+        {
+        //unable to open
+        $json_info = array('id'=>$id,'filename'=>$filename,'length'=>$length,'count'=>0,'remainder'=>0,'page'=>$page);
+        $str = json_encode($json_info);
+        echo encrypt_line($str, $passwd, $iv, $type) . $eol;
+        }
+    pg_query($con, "COMMIT");
+    }
 
 ?>

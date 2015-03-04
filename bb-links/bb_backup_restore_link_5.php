@@ -44,8 +44,6 @@ set_time_limit(0);
 
 //standard eol
 $eol = "\r\n";
-//this will remove control chars which should not exist
-$pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
 
 $passwd = $_POST['dump_passwd'];
 
@@ -59,8 +57,8 @@ if (!$valid_password)
 <?php
 /* THIS IS A TEXT FILE HEADER OUTPUT */
 /* NO HTML OR BLANK LINE OUTPUT ALLOWED */
-$filename = "List_Definitions_Dump.txt";
-     
+$filename = "List_Data_Dump.txt";
+    
 //Here go the headers
 header ("Content-Type: application/octet-stream");
 header ("Content-disposition: attachment; filename=" . $filename . "");
@@ -71,27 +69,30 @@ flush();
 $arr_lists = $main->get_json($con, "bb_create_lists");
 
 $arr_row = array();
+array_push($arr_row, "row_id");
 array_push($arr_row, "list_number");
-array_push($arr_row, "list_name");
-array_push($arr_row,"row_type");
-array_push($arr_row, "description");
-array_push($arr_row, "archive");
+array_push($arr_row, "row_type");
 
 $str = implode("\t", $arr_row) . $eol;
 echo $str;
+
 foreach ($arr_lists as $row_type => $arr_list)
     {
     foreach ($arr_list as $key2 => $value)
-        {
-        $arr_row = array();
-        array_push($arr_row, $key2);
-        array_push($arr_row, trim(preg_replace($pattern, " ", $value['name'])));
-        array_push($arr_row, $row_type);
-        array_push($arr_row, trim(preg_replace($pattern, " ", $value['description'])));
-        array_push($arr_row, $value['archive']);
+        {        
+        $query = "SELECT id FROM data_table WHERE list_retrieve(list_string, " . $key2 . ") = 1 AND row_type = " . $row_type . ";";
+        $result = $main->query($con, $query);
         
-        $str = implode("\t", $arr_row) . $eol;
-        echo $str;	
+        while ($row = pg_fetch_array($result))
+            {
+            $arr_row = array();
+            array_push($arr_row, $row['id']);
+            array_push($arr_row, $key2);
+            array_push($arr_row, $row_type);
+            
+            $str = implode("\t", $arr_row) . $eol;
+            echo $str;
+            }
         }
-    }
+	}
 ?>

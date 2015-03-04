@@ -32,7 +32,6 @@ include("../bb-utilities/bb_reports.php");
 /* SET UP MAIN OBJECT */
 $main = new bb_reports();
 
-//userrole not passed in from controller
 session_name(DB_NAME);
 session_start();
 
@@ -44,10 +43,12 @@ set_time_limit(0);
 
 //standard eol
 $eol = "\r\n";
-//this will remove control chars which should not exist
+//this will replace control chars which should not exist
 $pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
 
 $passwd = $_POST['dump_passwd'];
+$column_names = $_POST['column_names'];
+$new_lines = $_POST['new_lines'];
 
 $valid_password = $main->validate_password($con, $passwd, "5_bb_brimbox");
 
@@ -59,8 +60,19 @@ if (!$valid_password)
 <?php
 /* THIS IS A TEXT FILE HEADER OUTPUT */
 /* NO HTML OR BLANK LINE OUTPUT ALLOWED */
-$filename = "List_Definitions_Dump.txt";
-     
+$arr_layouts = $main->get_json($con, "bb_layout_names");
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$arr_columns = $main->get_json($con, "bb_column_names");
+$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+
+$row_type = (empty($_POST['row_type'])) ? $default_row_type :  $_POST['row_type'];
+
+$arr_column = $arr_columns[$row_type];
+$arr_layout = $arr_layouts_reduced[$row_type];
+$arr_column_reduced = $main->filter_keys($arr_column); 
+
+$filename = $arr_layout['singular'] . "_Dump.txt";
+    
 //Here go the headers
 header ("Content-Type: application/octet-stream");
 header ("Content-disposition: attachment; filename=" . $filename . "");
@@ -68,30 +80,54 @@ header ("Content-Transfer-Encoding: binary");
 ob_clean();
 flush();
 
-$arr_lists = $main->get_json($con, "bb_create_lists");
+$query = "SELECT * FROM data_table WHERE row_type IN (" . $row_type . ");";
+$result = $main->query($con, $query);
 
+//header row
 $arr_row = array();
-array_push($arr_row, "list_number");
-array_push($arr_row, "list_name");
+array_push($arr_row, "id");
 array_push($arr_row,"row_type");
-array_push($arr_row, "description");
-array_push($arr_row, "archive");
-
+array_push($arr_row, "key1");
+array_push($arr_row, "key2");
+foreach ($arr_column_reduced as $key => $value)
+    {
+	$column = $column_names ? $main->pad("c", $key) : $value['name'];
+    array_push($arr_row, trim(preg_replace($pattern, " ", $column)));
+    }
+array_push($arr_row,"owner_name");
+array_push($arr_row,"updater_name");
+array_push($arr_row,"create_date");
+array_push($arr_row,"modify_date");
+array_push($arr_row,"archive");
+array_push($arr_row,"secure");
 $str = implode("\t", $arr_row) . $eol;
 echo $str;
-foreach ($arr_lists as $row_type => $arr_list)
-    {
-    foreach ($arr_list as $key2 => $value)
-        {
-        $arr_row = array();
-        array_push($arr_row, $key2);
-        array_push($arr_row, trim(preg_replace($pattern, " ", $value['name'])));
-        array_push($arr_row, $row_type);
-        array_push($arr_row, trim(preg_replace($pattern, " ", $value['description'])));
-        array_push($arr_row, $value['archive']);
         
-        $str = implode("\t", $arr_row) . $eol;
-        echo $str;	
-        }
-    }
+while ($row = pg_fetch_array($result))
+	{
+	$arr_row = array();
+	array_push($arr_row, $row['id']);
+	array_push($arr_row,$row['row_type']);
+	array_push($arr_row, $row['key1']);
+	array_push($arr_row, $row['key2']);
+	foreach ($arr_column_reduced as $key => $value)
+		{
+		$col = $main->pad("c", $key);
+		//push onto stack purging characters which will be problems
+		if (in_array($col, array("c49","c50")))
+			{
+			$row[$col] = (int)$new_lines ?  $row[$col] : str_replace("\n", "\\n", $row[$col]); 	
+			}
+		array_push($arr_row, trim(preg_replace($pattern, " ", $row[$col])));
+		}
+	array_push($arr_row,$row['owner_name']);
+	array_push($arr_row,$row['updater_name']);
+	array_push($arr_row,$row['create_date']);
+	array_push($arr_row,$row['modify_date']);
+	array_push($arr_row,$row['archive']);
+	array_push($arr_row,$row['secure']);
+	$str = implode("\t", $arr_row) . $eol;
+	echo $str;
+	}
+
 ?>

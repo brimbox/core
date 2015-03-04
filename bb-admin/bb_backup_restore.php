@@ -111,7 +111,7 @@ if ($main->button(3)) //clean_up_columns
 if ($main->button(4)) //submit_file
 	{
     //admin password
-    $valid_password = $main->validate_password($con, $main->post("restore_passwd", $module), "5_bb_brimbox");
+    $valid_password = $main->validate_password($con, $main->post("admin_passwd_1", $module), "5_bb_brimbox");
     if (!$valid_password)
         {
         $arr_message[] = "Error: Admin password not verified.";
@@ -119,7 +119,7 @@ if ($main->button(4)) //submit_file
     else
         {
         //file must be populated
-        if (!empty($_FILES[$main->name('backup_file', $module)]["tmp_name"]))
+        if (is_uploaded_file($_FILES[$main->name('backup_file', $module)]["tmp_name"]))
             {
             /* VERY LONG IFS FOR RESTORING DATABASE */
             $handle = fopen($_FILES[$main->name('backup_file', $module)]["tmp_name"], "r");		
@@ -127,7 +127,7 @@ if ($main->button(4)) //submit_file
             if (strlen($str) == 168) // correct header length
                 {
                 //get backup file password
-                $passwd = $main->post('file_passwd', $module);
+                $passwd = $main->post('file_passwd_1', $module);
                 //split up hash, salt and iv
                 $iv_size = mcrypt_get_iv_size(MCRYPT_3DES, MCRYPT_MODE_CBC);
                 $iv = substr($str, 8 , $iv_size); //from the salt
@@ -386,6 +386,106 @@ if ($main->button(5)) //submit_file
 	$main->build_indexes($con, 0);
 	array_push($arr_message, "Indexes have been rebuilt.");
 	}
+    
+if ($main->button(6)) //submit_file
+	{
+    //admin password
+    $valid_password = $main->validate_password($con, $main->post("admin_passwd_2", $module), "5_bb_brimbox");
+    if (!$valid_password)
+        {
+        $arr_message[] = "Error: Admin password not verified.";
+        }
+    else
+        {
+        //file must be populated
+        if (is_uploaded_file($_FILES[$main->name('lo_file', $module)]["tmp_name"]))
+            {
+            /* VERY LONG IFS FOR RESTORING DATABASE */
+            $handle = fopen($_FILES[$main->name('lo_file', $module)]["tmp_name"], "r");		
+            $str = rtrim(fgets($handle)); //get first line without encryption, has salt and hash
+            if (strlen($str) == 168) // correct header length
+                {
+                //get backup file password
+                $passwd = $main->post('file_passwd_2', $module);
+                //split up hash, salt and iv
+                $iv_size = mcrypt_get_iv_size(MCRYPT_3DES, MCRYPT_MODE_CBC);
+                $iv = substr($str, 8 , $iv_size); //from the salt
+                $hex = substr($str, 0, 8);
+                $salt = substr($str, 8, 32);
+                $hash = substr($str, 32 + 8, 128);
+                //check password
+                //00000000 -- no encrypt before userrole => userroles
+                //00000001 -- encrypt before userrole => userroles
+                if (hash('sha512', $passwd . $salt) == $hash)
+                    {
+                    if (in_array($hex, array("00000000","00000002","00000004","00000006")))
+                        {
+                        $type = 0;
+                        }
+                    elseif (in_array($hex, array("00000001","00000003","00000005","00000007")))
+                        {
+                        $type = 1;
+                        }
+                    //get next line, xml_backup has version and time stats	
+                    $str = rtrim(fgets($handle));
+                    $json_header = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+ 
+                    
+                    $total = $json_header['total'];
+                    for ($i=1; $i<=$total; $i++)
+                        {       
+                        $str = rtrim(fgets($handle));
+                        $json_info = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                        
+                        $id = $json_info['id'];
+                        $cnt = $json_info['count'];
+                        $page = $json_info['page'];
+                        $remainder = $json_info['remainder'];
+                        $filename = $json_info['filename'];
+                        
+                        if (($cnt > 0) || ($remainder > 0))
+                            {                        
+                            pg_query($con, "BEGIN");
+                            @pg_lo_unlink($con, $id);
+                            pg_query($con, "COMMIT");
+                            pg_query($con, "BEGIN");
+                            $query = "UPDATE data_table SET c47 = '" . pg_escape_string($filename) . "' WHERE id = " . pg_escape_string($id) . ";";
+                            $result = $main->query($con,$query);
+                            if (pg_affected_rows($result) == 1)
+                                {               
+                                pg_lo_create($con, $id);
+                                $lo = pg_lo_open($con, $id, "w");
+                                pg_lo_seek($lo, 0, PGSQL_SEEK_SET);
+                                for ($j=1;$j<=$cnt;$j++)
+                                    {
+                                    $str = decrypt_line(rtrim(fgets($handle)), $passwd, $iv, $type);
+                                    pg_lo_write ($lo, $str, $page);
+                                    }
+                                $str = decrypt_line(rtrim(fgets($handle)), $passwd, $iv, $type); 
+                                pg_lo_write ($lo, $str, $remainder);
+                                pg_lo_close($lo);
+                                }
+                            pg_query($con, "COMMIT");
+                            array_push($arr_message, "Files have been restored from backup.");
+                            } //count or lo_open
+                        } //total
+                    }
+                else //bad password
+                    {
+                    array_push($arr_message, "Error: Password for backup file not verified.");	
+                    }
+                } //first line check
+            else //bad first line
+                {
+                array_push($arr_message, "Error: File is not a valid backup file.");	
+                }
+            } //file exists
+        else //no file at all
+            {
+            array_push($arr_message, "Error: Must choose backup file.");
+            }
+        }
+    }
 
 $arr_message = array_unique($arr_message);
 echo "<div class=\"spaced\">";
@@ -405,14 +505,15 @@ $params = array("class"=>"spaced","number"=>2,"image"=>$processing_image, "passt
 $main->echo_button("clean_up_columns", $params);
 $params = array("class"=>"spaced","number"=>3,"image"=>$processing_image, "passthis"=>true, "label"=>"Clean Database Layouts");
 $main->echo_button("clean_up_columns", $params);
-echo "<div class=\"cell padded nowrap\">";
+echo "<br>";
 $params = array("class"=>"spaced","label"=>"Backup Database","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_1.php')");
 $main->echo_script_button("backup_database", $params);
+$params = array("class"=>"spaced","label"=>"Backup Files","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_2.php')");
+$main->echo_script_button("backup_files", $params);
 echo "<label class=\"spaced\">Password: </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"backup_passwd\"/>";
 echo "<label class=\"spaced middle\"> Encrypt: </label>";
-$main->echo_input("encrypt_method", 1, array('type'=>"checkbox",'input_class'=>"middle holderup",'checked'=>true));
-echo "</div>";
+$main->echo_input("encrypt_method", 1, array('type'=>"checkbox",'input_class'=>"middle spaced",'checked'=>true));
 
 echo "</div>";
 echo "<div class=\"clear\"></div>";
@@ -425,9 +526,9 @@ $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type);
 echo "<select class=\"spaced\" name=\"column_names\"><option value=\"0\">Use Friendly Names&nbsp;</option><option value=\"1\">Use Generic Names&nbsp;</option></select>";
 echo "<select class=\"spaced\" name=\"new_lines\"><option value=\"0\">Escape New Lines&nbsp;</option><option value=\"1\">Purge New Lines&nbsp;</option></select>";
 echo "<br>";
-$params = array("class"=>"spaced","label"=>"Download List Definitions","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_3.php')");
+$params = array("class"=>"spaced","label"=>"Download List Definitions","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_4.php')");
 $main->echo_script_button("dump_listdefs", $params);
-$params = array("class"=>"spaced","label"=>"Download List Data","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_4.php')");
+$params = array("class"=>"spaced","label"=>"Download List Data","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_5.php')");
 $main->echo_script_button("dump_listdata", $params);
 echo "<br><label class=\"spaced\">Password: </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"dump_passwd\"/>";
@@ -437,9 +538,15 @@ echo "<div class=\"clear\"></div>";
 /* RESTORE AREA */
 echo "<p class=\"spaced bold larger\">Restore Database</p>";
 echo "<div class=\"spaced border floatleft padded\">";
-echo "<label class=\"spaced\">Filename: </label>";
-echo "<input class=\"spaced\" type=\"file\" name=\"backup_file\" id=\"file\" /><br>";
+echo "<p class=\"spaced\">Note: When restoring post_max_size and 
+upload_max_filesize<br>must be bigger than your backup files.</p>";
+echo "</div>";
+echo "<br>";
 echo "<div class=\"spaced border floatleft padded\">";
+echo "<p class=\"spaced bold\">Restore Tables</p>";
+echo "<div class=\"spaced border floatleft padded\">";
+echo "<label class=\"spaced\">Filename (bbdb): </label>";
+echo "<input class=\"spaced\" type=\"file\" name=\"backup_file\" id=\"file\" /><br>";
 echo "<div class=\"table\">";
 echo "<div class=\"row\">";
 echo "<div class=\"cell middle padded\">";
@@ -468,15 +575,26 @@ echo " Restore Data Table</div>";
 echo "</div>";
 echo "</div>";
 echo "<div class=\"spaced\">Admin Password: ";
-echo "<input class=\"spaced\" type=\"password\" name=\"restore_passwd\"/></div>";
+echo "<input class=\"spaced\" type=\"password\" name=\"admin_passwd_1\"/></div>";
 echo "<div class=\"spaced\">File Password: ";
-echo "<input class=\"spaced\" type=\"password\" name=\"file_passwd\"/></div>";
+echo "<input class=\"spaced\" type=\"password\" name=\"file_passwd_1\"/></div>";
 $params = array("class"=>"spaced","number"=>4,"image"=>$processing_image, "passthis"=>true, "label"=>"Restore Database");
 $main->echo_button("restore_database", $params);
 $params = array("class"=>"spaced","number"=>5,"image"=>$processing_image, "passthis"=>true, "label"=>"Build Indexes");
 $main->echo_button("build_indexes", $params);
+echo "<br>";
 echo "</div><br>";
-
+echo "<div class=\"spaced border floatleft padded\">";
+echo "<p class=\"spaced bold\">Restore Files</p>";
+echo "<label class=\"spaced\">Filename (bblo): </label>";
+echo "<input class=\"spaced\" type=\"file\" name=\"lo_file\" id=\"file\" /><br>";
+echo "<div class=\"spaced\">Admin Password: ";
+echo "<input class=\"spaced\" type=\"password\" name=\"admin_passwd_2\"/></div>";
+echo "<div class=\"spaced\">File Password: ";
+echo "<input class=\"spaced\" type=\"password\" name=\"file_passwd_2\"/></div>";
+$params = array("class"=>"spaced","number"=>6,"image"=>$processing_image, "passthis"=>true, "label"=>"Restore Files");
+$main->echo_button("restore_lo", $params);
+echo "</div><br>";
 $main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */
