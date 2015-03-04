@@ -150,7 +150,7 @@ class bb_hooks extends bb_work {
 	function top_level_records($module, $arr_layouts_reduced, &$arr_column_reduced, $row_type, $row_join, $parent_row_type)
 		{
 		//buttons an record selector
-		$update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
+		$update_or_insert = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
 		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
 		$this->echo_button("top_submit", $params);
 		$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
@@ -206,7 +206,7 @@ class bb_hooks extends bb_work {
 			{
 			$edit_or_insert = ($row_type == $row_join) ? "Edit Mode" : "Insert Mode";
 	
-			//edit or insert mode and primary parent column		
+			//edit or Insert Record and primary parent column		
 			$parent_string = $this->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $parent_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
 			echo "<p class=\"bold spaced\">" . $edit_or_insert . $parent_string . "</p>";
 			}
@@ -245,7 +245,7 @@ class bb_hooks extends bb_work {
 		{
 		if (!empty($arr_column_reduced))
             {                
-            $update_or_insert = ($row_type == $row_join) ? "Update Record" : "Insert Mode";
+            $update_or_insert = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
             $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
             $this->echo_button("bottom_submit", $params);
             $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
