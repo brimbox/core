@@ -52,9 +52,6 @@ $arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_column = $arr_columns[$row_type];
 
-$arr_columns = $main->get_json($con, "bb_column_names");
-$arr_column = $arr_columns[$row_type];
-
 //this is catch variable from the javascript to initialize
 $default_col_type = $main->get_default_column($arr_column);
 $col_type = $main->post('col_type', $module, $default_col_type);
