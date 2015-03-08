@@ -65,6 +65,7 @@ $array[2][] = array(array($main,'children'), array("bb_viewer_post","Add","bb_vi
 $array[3][] = array(array($main,'standard'), array("bb_details","Details"));
 $array[3][] = array(array($main,'standard'), array("bb_cascade","Cascade"));
 $array[3][] = array(array($main,'edit'), array("bb_input","Edit"));
+$array[3][] = array(array($main,'relate'), array("bb_input","Relate"));
 $array[3][] = array(array($main,'standard'), array("bb_listchoose","List"));
 $array[3][] = array(array($main,'standard'), array("bb_archive","Archive"));
 $array[3][] = array(array($main,'standard'), array("bb_delete","Delete"));

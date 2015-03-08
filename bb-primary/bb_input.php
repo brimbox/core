@@ -201,30 +201,33 @@ if ($main->button(1))
                 {
 				$row = pg_fetch_array($result);
                 //Delete and import large object
-                if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
+                if (isset($arr_column_reduced['c47']))
                     {
-                    pg_query($con, "BEGIN");
-                    /* IMPORTANT */
-                    //if there's a better way I'd do it, superusers control large objects since 9.0
-                    //on standard hosting ignoring a delete warning on object not found is the best way   
-                    //web users don't have access to pg_largeobjects only superusers do
-                    //large objects are owned by their creator, in this case the web user
-                    //only superusers can use GRANT on large object since Postgres 9.
-                    @pg_lo_unlink($con, $row['id']);
-                    pg_query($con, "END");
-                    pg_query($con, "BEGIN");
-                    pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
-                    pg_query($con, "END");
-                    }
-                //Remove existing large object
-                $remove = isset($arr_state['remove']) ? $arr_state['remove'] : 0; 
-                if ($remove)
-                    {
-                    pg_query($con, "BEGIN");
-                    //delete with prejudice will ignore a not exists warning
-                    //again, web users don't have access to pg_largeobjects only superusers do
-                    @pg_lo_unlink($con, $row['id']);
-                    pg_query($con, "END");
+                    if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
+                        {
+                        pg_query($con, "BEGIN");
+                        /* IMPORTANT */
+                        //if there's a better way I'd do it, superusers control large objects since 9.0
+                        //on standard hosting ignoring a delete warning on object not found is the best way   
+                        //web users don't have access to pg_largeobjects only superusers do
+                        //large objects are owned by their creator, in this case the web user
+                        //only superusers can use GRANT on large object since Postgres 9.
+                        @pg_lo_unlink($con, $row['id']);
+                        pg_query($con, "END");
+                        pg_query($con, "BEGIN");
+                        pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
+                        pg_query($con, "END");
+                        }
+                    //Remove existing large object
+                    $remove = isset($arr_state['remove']) ? $arr_state['remove'] : 0; 
+                    if ($remove)
+                        {
+                        pg_query($con, "BEGIN");
+                        //delete with prejudice will ignore a not exists warning
+                        //again, web users don't have access to pg_largeobjects only superusers do
+                        @pg_lo_unlink($con, $row['id']);
+                        pg_query($con, "END");
+                        }
                     }
                 //Return message and log
                 array_push($arr_message, "Record Succesfully Updated.");
@@ -350,13 +353,17 @@ if ($main->button(1))
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
-                if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
+                //file type
+                if (isset($arr_column_reduced['c47']))
                     {
-                    //see important notes on large objects in update area
-                    pg_query($con, "BEGIN");
-                    pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
-                    pg_query($con, "END");
-                    }      
+                    if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
+                        {
+                        //see important notes on large objects in update area
+                        pg_query($con, "BEGIN");
+                        pg_lo_import($con, $_FILES[$main->name('c47', $module)]["tmp_name"], $row['id']);
+                        pg_query($con, "END");
+                        }
+                    }
                 array_push($arr_message, "Record Succesfully Inserted.");
                 if ($input_insert_log)
                     {

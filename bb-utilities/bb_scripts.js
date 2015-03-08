@@ -125,6 +125,14 @@ var bb_links = new Object();
 		bb_submit_form(0,tg);
 		return false;
 	}
+	
+	bb_links.relate = function(rl,tg) {
+		var frmobj=document.forms['bb_form'];
+		
+		frmobj.bb_relate.value = rl;
+		bb_submit_form(0,tg);
+		return false;
+	}
 
 //reports javascript
 var bb_reports = new Object();

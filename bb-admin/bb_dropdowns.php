@@ -41,9 +41,16 @@ $main->retrieve($con, $array_state);
 
 //This area creates the form for choosing the lists
 $arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);  
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 $row_type = $main->post('row_type', $module, $default_row_type);
+
+//get dropdowns
+$arr_dropdowns = $main->get_json($con, "bb_dropdowns");
+
+//deal with columns
+$arr_columns = $main->get_json($con, "bb_column_names");
+$arr_column = $arr_columns[$row_type];
 
 $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_column = $arr_columns[$row_type];
@@ -65,7 +72,6 @@ $col_text = isset($arr_column[$col_type]['name']) ? $arr_column[$col_type]['name
 if ($main->button(1)) //populate_dropdown
 	{
     //preexisting dropdown xml
-    $arr_dropdowns = $main->get_json($con, "bb_dropdowns");   
     $arr_dropdown = isset($arr_dropdowns[$row_type]) ? $arr_dropdowns[$row_type] : array();
     $arr_droplist = isset($arr_dropdown[$col_type]) ? $arr_dropdown[$col_type] : array();
 
@@ -134,7 +140,6 @@ if ($main->button(2)) //submit dropdown
 //this area removes the dropdown
 if ($main->button(3)) //remove_dropdown
 	{ 
-	$arr_dropdowns = $main->get_json($con, "bb_dropdowns");
     unset($arr_dropdowns[$row_type][$col_type]);
     $main->update_json($con, $arr_dropdowns,"bb_dropdowns");
 	
