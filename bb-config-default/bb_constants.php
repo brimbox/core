@@ -18,29 +18,33 @@ If not, see http://www.gnu.org/licenses/
 /* NO HTML OUTPUT */
 
 /* STANDARD LAYOUT OPTIONS */
+//Standard number of rows to return
 define('BB_RETURN_ROWS', 4);
-// Standard number pages in the page selector
+//Standard number pages in the page selector
 define('BB_PAGINATION', 15);
-//number of layouts possible, must be less than 26
+//number of layouts possible, maximum is 26
 define('BB_NUMBER_LAYOUTS', 12);
 //Archive interworking (ON/OFF), allows for quick archive access on lookup and search tabs
 define('BB_ARCHIVE_INTERWORKING', 'OFF');
-// Default userrole on the manage users page
+//Default userrole on the manage users page
 define('BB_DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox');
-// Use processing image in standard modules
+//Use processing image in standard modules (ON/OFF)
 define('BB_PROCESSING_IMAGE', 'OFF');
-//turn on log for insert
+//Turn on log for insert (ON/OFF)
 define('BB_INPUT_INSERT_LOG', 'OFF');
-//turn on log for update
+//Turn on log for update (ON/OFF)
 define('BB_INPUT_UPDATE_LOG', 'OFF');
-//turn on log for insert
+//turn on log for delete (ON/OFF)
 define('BB_DELETE_LOG', 'OFF');
-//turn on log for update
+//turn on log for update (ON/OFF)
 define('BB_ARCHIVE_LOG', 'OFF');
-//turn on post override for archive
+//turn on post override for archive when inputting (ON/OFF)
 define('BB_INPUT_ARCHIVE_POST', 'OFF');
-//turn on post override for secure
-define('BB_INPUT_SECURE_POST', 'OFF');
-//comma separated dtring of integers, usually between 1 and 5
+//turn on post override for secure when inputting (ON/OFF)
+define('BB_INPUT_SECURE_POST', 'OFF'); 
+//comma separated string of integers, usually between 1 and 5
 define('BB_FILE_DOWNLOAD_PERMISSIONS', '3,4,5');
+//Browser notice, either blank to ignore or string message, standard navigation warning below
+//Database users should use tabs, buttons, and links to navigate. Browser back and forward buttons are not recommended.
+define('BB_CONTROLLER_MESSAGE', '');
 ?>

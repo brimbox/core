@@ -45,6 +45,7 @@ If not, see http://www.gnu.org/licenses/
 /* Controller and Index Color */
 @bb_controller_image_width : 728px;
 @bb_controller_image_height : 54px;
+@bb_controller_message_color : #56006F;
 
 
 /* Import Will Overwrite Colors if Defined in bb_admin_less.php */
@@ -72,7 +73,11 @@ body
 	 width: @bb_controller_image_width;
 	 height: @bb_controller_image_height;
 	 }
-
+	 
+#bb_header #controller_message
+	 {
+	 color: @bb_controller_message_color;
+	 }
 
 /* see bb-styles.css for comments */
 #bb_admin_content

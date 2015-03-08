@@ -332,8 +332,13 @@ if (empty($controller_path))
 echo "<div id=\"bb_header\">";
 //header image
 echo "<div id=\"controller_image\"></div>";
-echo "<nav>"; //html5 nav tag
+$controller_message = $main->set_constant('BB_CONTROLLER_MESSAGE', '');
+if (!$main->blank($controller_message))
+    {
+    echo "<div id=\"controller_message\">" .  $controller_message . "</div>";    
+    }
 
+echo "<nav>"; //html5 nav tag
 foreach ($arr_reduce as $value)
 	{
 	$arr_work['selected'] = ""; //reset selected

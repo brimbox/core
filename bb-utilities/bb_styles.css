@@ -86,6 +86,14 @@ If not, see http://www.gnu.org/licenses/
 	 background-repeat:no-repeat;
 	 background-position:left; 
 	 }
+     
+#bb_header #controller_message
+	 {
+	 /* image path related to css file */
+     font-weight: bold;
+     padding: 4px;
+	 }
+
 
 #bb_header div.line
 	 {
