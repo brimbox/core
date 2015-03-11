@@ -111,7 +111,7 @@ $list_string = $row['list_string'];
 
 //get list arr
 $arr_lists = $main->get_json($con, "bb_create_lists");
-$arr_list = $arr_lists[$row_type];
+$arr_list_reduced = $main->filter_keys($arr_lists[$row_type]);
 
 //start form containing select add and remove boxes
 echo "<div class=\"clear\"></div>";
@@ -132,7 +132,7 @@ echo "<div class=\"cell padded box\">";
 
 echo "<select class=\"box\" name = \"add_names[]\" multiple>";
 //echo the xml lists not set
-foreach($arr_list as $key => $value)
+foreach($arr_list_reduced as $key => $value)
     {
 	$i = $key - 1; //start string at 0
     if ((int)substr($list_string, $i, 1) == 0)  
@@ -153,7 +153,7 @@ echo "<div class=\"cell padded\">";
 echo"<select class=\"box\" name=\"remove_names[]\" multiple>";
 //echo the xml lists already set
 //no need to get $arr_list again
-foreach($arr_list as $key => $value)
+foreach($arr_list_reduced as $key => $value)
     {
     $i = $key - 1; //start string at 0
     if ((int)substr($list_string, $i, 1) == 1)  

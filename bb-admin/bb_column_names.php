@@ -90,11 +90,13 @@ if ($main->button(2))
     $arr_names = array(); //check for unique names
     $arr_rows = array(); //check for ascending rows
     $arr_order = array(); //check for strict ascending order
+    $arr_related = array(); //check related layouts for integrity
     $arr_errors = array(0 => "Error: Row settings contain a blank value when column name is set.",
                     1 => "Error: Column order contains a blank value when column name is set.",
                     2 => "Error: Row values must start at 1 and be strictly ascending when column name is set, records can have multiple columns per row.",
                     3 => "Error: Column order must start at 1, be unique, and be strictly ascending when column name is set.",
-                    4 => "Error: Column names must be unique."); 
+                    4 => "Error: Column names must be unique.",
+                    5 => "Error: Can only relate a table to a table once."); 
     for ($i = 1; $i <= 50; $i++)
         {
         //check rows and order for integrity
@@ -115,39 +117,51 @@ if ($main->button(2))
             $order_input =  "order_" . $i;
             if ($main->post($order_input, $module) == 0) 
                 { 
-                array_push($arr_message,$arr_errors[1]);
+                array_push($arr_message, $arr_errors[1]);
                 $error = true;
                 }
             else
                 {
                 array_push($arr_order,(int)$main->post($order_input, $module));
                 }
+            if (in_array($i, $arr_relate))
+                {
+                $relate_input = "relate_" . $i;
+                if ($main->post($relate_input, $module) > 0)
+                    {
+                    array_push($arr_related, (int)$main->post($relate_input, $module));    
+                    }
+                }
             } //end col_value if
-        }//end for loop
-		
-        //process arrays
-        //columns must be unique
-        $cnt = count($arr_names);
+        }//end for loop		
+        
+        //column names must be unique
+        $cnt_names = count($arr_names);
         //case insensitive for column names
         $arr_names = $main->array_iunique($arr_names);
-        $cnt_unique = count($arr_names);        
+        $cnt_unique_names = count($arr_names);
+        if ($cnt_names <> $cnt_unique_names)
+            {
+            array_push($arr_message, $arr_errors[4]);
+            $error = true;
+            }
+        
+        //can only relate a layout once
+        $cnt_related = count($arr_related);
+        //case insensitive for column names
+        $arr_related = $main->array_iunique($arr_related);
+        $cnt_unique_related = count($arr_related);
+        if ($cnt_related <> $cnt_unique_related)
+            {
+            array_push($arr_message, $arr_errors[5]);
+            $error = true;
+            }
         
         //strictly ascending starting at 1
         $arr_rows = array_unique($arr_rows);
         asort($arr_rows);
         $arr_rows = array_merge($arr_rows);
-        
-        //strictly ascending and unique starting at 1
-        $arr_temp = array_unique($arr_order);
-        $cnt_order = count($arr_temp); //holds count of unique
-        asort($arr_order);
-        $arr_order = array_merge($arr_order);
-        
-        //cleanup $arr_error
-        $arr_message = array_unique($arr_message);
-        asort($arr_message);
-		
-        if (count($arr_rows) > 0) //must have at least one value
+                if (count($arr_rows) > 0) //must have at least one value
             {
             if (($arr_rows[0] <> 1) || ($arr_rows[count($arr_rows) - 1] <> count($arr_rows)))	
                 {
@@ -155,6 +169,12 @@ if ($main->button(2))
                 $error = true;
                 }
             }
+        
+        //strictly ascending and unique starting at 1
+        $arr_temp = array_unique($arr_order);
+        $cnt_order = count($arr_temp); //holds count of unique
+        asort($arr_order);
+        $arr_order = array_merge($arr_order);
         if (count($arr_order) > 0) //must have at least one value
             {
             if (($arr_order[0] <> 1) || ($arr_order[count($arr_order) - 1] <> count($arr_order)) || (count($arr_order) <> $cnt_order))	
@@ -163,11 +183,10 @@ if ($main->button(2))
                 $error = true;
                 }
             }
-        if ($cnt <> $cnt_unique)
-            {
-            array_push($arr_message, $arr_errors[4]);
-            $error = true;
-            }
+        
+        //cleanup $arr_error
+        $arr_message = array_unique($arr_message);
+        asort($arr_message);
         /* END CHECK FOR ERRORS */
 	
             
@@ -370,7 +389,7 @@ for ($m = 1; $m <= 50; $m++)
         echo "<option value = \"0\"></option>";
         foreach ($arr_layouts_reduced as $key => $value)
             {
-            if ($value['related'])
+            if ($value['relate'])
                 {
                 echo "<option value = \"" . $key . "\" " . ($relate == $key ? "selected" : "") . ">" . htmlentities(chr($key + 64) . $key) . "&nbsp;</option>";
                 }

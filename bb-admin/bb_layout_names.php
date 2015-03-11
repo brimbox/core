@@ -127,8 +127,8 @@ if ($main->button(1)) //layout_submit
                 $order = $main->post('order_' . (string)$i, $module); //always set
                 $secure = $main->post('secure_' . (string)$i, $module, 0); //not set = 0
                 $autoload = $main->post('autoload_' . (string)$i, $module, 0); //not set = 0
-                $related = $main->post('related_' . (string)$i, $module, 0); //not set = 0
-                $arr_order[$i] = array('singular'=>$singular,'plural'=>$plural,'parent'=>$parent,'order'=>$order,'secure'=>$secure,'autoload'=>$autoload,'related'=>$related);
+                $relate = $main->post('relate_' . (string)$i, $module, 0); //not set = 0
+                $arr_order[$i] = array('singular'=>$singular,'plural'=>$plural,'parent'=>$parent,'order'=>$order,'secure'=>$secure,'autoload'=>$autoload,'relate'=>$relate);
                 //initialize empty array for columns
                 //this is important to avoid unset notices
                 //can test whether column are empty
@@ -189,7 +189,7 @@ echo "<div class=\"row\">";
     echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Order</label></div>";
     echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Secure</label></div>";
     echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Autoload</label></div>";
-    echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Related</label></div>";
+    echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Relate</label></div>";
 echo "</div>";
 for ($i=1; $i<=$number_layouts; $i++)
     {
@@ -268,14 +268,14 @@ for ($i=1; $i<=$number_layouts; $i++)
     echo "<div class=\"cell padded middle center\">";
     $main->echo_input("autoload_" . $i, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
     echo "</div>";
-    //related checkbox
+    //relate checkbox
     $checked = false;
-    if (isset($arr_layouts[$i]['related']))
+    if (isset($arr_layouts[$i]['relate']))
         {
-        $checked = ($arr_layouts[$i]['related'] == 1) ? true : false;
+        $checked = ($arr_layouts[$i]['relate'] == 1) ? true : false;
         }
     echo "<div class=\"cell padded middle center\">";
-    $main->echo_input("related_" . $i, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
+    $main->echo_input("relate_" . $i, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
     echo "</div>";    
 	echo "</div>"; //end row
     }

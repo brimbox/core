@@ -70,7 +70,8 @@ if ($main->button(1)) //populate_dropdown
 	{
     //preexisting dropdown xml
     $arr_dropdown = isset($arr_dropdowns[$row_type]) ? $arr_dropdowns[$row_type] : array();
-    $arr_droplist = isset($arr_dropdown[$col_type]) ? $arr_dropdown[$col_type] : array();
+    $arr_dropdown_reduced = $main->filter_keys($arr_dropdown);
+    $arr_droplist = isset($arr_dropdown_reduced[$col_type]) ? $arr_dropdown_reduced[$col_type] : array();
 
     //get all values in database for the selected column (and row type)
     $column = $main->pad("c",$col_type);

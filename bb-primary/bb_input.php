@@ -86,6 +86,7 @@ if ($main->button(1))
 	{
     $arr_errors = array(); //empty array
     $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+    $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 	foreach($arr_column_reduced as $key => $value)
         {
         /* START VALIDATION */
@@ -135,6 +136,7 @@ if ($main->button(1))
             $update_clause = "updater_name = '" . pg_escape_string($owner) . "'";
 			$arr_ts_vector_fts = array();
 			$arr_ts_vector_ftg = array();
+            $arr_select_where = array();
             foreach($arr_column_reduced as $key => $value)
 				{
 				$col = $main->pad("c", $key);
@@ -162,9 +164,53 @@ if ($main->button(1))
 					{
 					array_push($arr_ts_vector_ftg, "'" . $str . "' || ' ' || regexp_replace('" . $str . "', E'(\\\\W)+', ' ', 'g')");
 					}
-				}
+                
+                //process related records/table
+                if (in_array($key, array(41,42,43,44,45,46)))
+                    {
+                    if (isset($arr_column_reduced[$key])) //set column
+                        {
+                        //proceed if not blank and relate is set
+                        if (!$main->blank($arr_state[$col]) && ($arr_column_reduced[$key]['relate'] > 0))
+                            {
+                            //proper string, else bad
+                            if (preg_match("/^[A-Z]\d+:.+/", $arr_state[$col]))
+                                {
+                                $row_type_relate = $main->relate_row_type($arr_state[$col]);
+                                $post_key_relate = $main->relate_post_key($arr_state[$col]);
+                                //proper row_type, else bad
+                                if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
+                                    {
+                                    //layout defined, else bad
+                                    if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) //good value
+                                        {
+                                        $arr_select_where[] = "(id = " . (int)$post_key_relate . " AND row_type = " . (int)$row_type_relate . ")";     
+                                        }
+                                    else //not properly defined
+                                        {
+                                        $arr_select_where[] = "(1 = 0)";    
+                                        }
+                                    }
+                                else
+                                    {
+                                    $arr_select_where[] = "(1 = 0)";    
+                                    }
+                                }
+                            else
+                                {
+                                $arr_select_where[] = "(1 = 0)";   
+                                }
+                            }
+                        }
+                    }                    
+				} //end column loop
+                
+            //explode full text update
 			$str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
 			$str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
+            
+            //explode relate check array
+            $select_where = empty($arr_select_where) ? "SELECT 1" : "SELECT 1 FROM data_table WHERE (" . implode(" OR ", $arr_select_where) . ") HAVING count(*) = " . (int)count($arr_select_where);
             
             //will detect secure and archive form values
             //secure can be unpdated if there is a form value being posted
@@ -191,12 +237,13 @@ if ($main->button(1))
 					$select_where_not = "SELECT 1";	
 					}
 				}
-                
+            
 			$return_primary = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
             $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " .
-				     "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") RETURNING id, " . $return_primary . " as primary;";                 
+				     "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as primary;";                 
             $result = $main->query($con, $query);
             
+            //echo "<p>" . $query . "</p>";            
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
@@ -242,17 +289,27 @@ if ($main->button(1))
                 }
             else //bad edit
                 {
-				$result = $main->query($con, $select_where_not);
-				if (pg_num_rows($result) == 1)
+				$result_where_not = $main->query($con, $select_where_not);
+                $result_where = $main->query($con, $select_where);
+				if (pg_num_rows($result_where_not) == 1)
 					{
 					//retain state values, usually a key error
 					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\".");
                     if ($input_update_log)
                         {
-                        $message = "WHERE NOT error updating record " . chr($row_type + 64) . $post_key . "." ;
+                        $message = "WHERE NOT EXISTS error updating record " . chr($row_type + 64) . $post_key . "." ;
                         $main->log($con, $message);
                         }
 					}
+                elseif (pg_num_rows($result_where) == 0)
+                    {
+					array_push($arr_message, "Error: Record not updated. Missing related record or records.");
+                    if ($input_update_log)
+                        {
+                        $message = "WHERE EXISTS error updating record " . chr($row_type + 64) . $post_key . "." ;
+                        $main->log($con, $message);
+                        }                        
+                    }
 				else
 					{
 					//dispose of post vars
@@ -276,7 +333,8 @@ if ($main->button(1))
             $select_clause = $row_type . " as row_type, " . $post_key . " as key1, '" . $owner . "' as owner_name, '" . $owner . "' as updater_name";
 
 			$arr_ts_vector_fts = array();
-			$arr_ts_vector_ftg = array(); 
+			$arr_ts_vector_ftg = array();
+            $arr_select_where = array();
             foreach($arr_column_reduced as $key => $value)
                 {
                 $col = $main->pad("c", $key);
@@ -303,11 +361,54 @@ if ($main->button(1))
 					{
 					array_push($arr_ts_vector_ftg, "'" . $str . "' || ' ' || regexp_replace('" . $str . "', E'(\\\\W)+', ' ', 'g')");
 					}
-                }	
+                    
+                //process related records/table
+                if (in_array($key, array(41,42,43,44,45,46)))
+                    {
+                    if (isset($arr_column_reduced[$key])) //set column
+                        {
+                        //proceed if not blank and relate is set
+                        if (!$main->blank($arr_state[$col]) && ($arr_column_reduced[$key]['relate'] > 0))
+                            {
+                            //proper string, else bad
+                            if (preg_match("/^[A-Z]\d+:.+/", $arr_state[$col]))
+                                {
+                                $row_type_relate = $main->relate_row_type($arr_state[$col]);
+                                $post_key_relate = $main->relate_post_key($arr_state[$col]);
+                                //proper row_type, else bad
+                                if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
+                                    {
+                                    //layout defined, else bad
+                                    if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) //good value
+                                        {
+                                        $arr_select_where[] = "(id = " . (int)$post_key_relate . " AND row_type = " . (int)$row_type_relate . ")";     
+                                        }
+                                    else //not properly defined
+                                        {
+                                        $arr_select_where[] = "(1 = 0)";    
+                                        }
+                                    }
+                                else
+                                    {
+                                    $arr_select_where[] = "(1 = 0)";    
+                                    }
+                                }
+                            else
+                                {
+                                $arr_select_where[] = "(1 = 0)";   
+                                }
+                            }
+                        }
+                    }                    
+                } //end column loop	
 			
+            //explode full text search stuff
 			$str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
 			$str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
-			
+            
+            //explode relate check array
+            $select_where = empty($arr_select_where) ? "SELECT 1" : "SELECT 1 FROM data_table WHERE (" . implode(" OR ", $arr_select_where) . ") HAVING count(*) = " . (int)count($arr_select_where);
+            
 			$insert_clause .= ", fts, ftg, secure, archive ";
 			$select_clause .= ", to_tsvector(" . $str_ts_vector_fts . ") as fts, to_tsvector(" . $str_ts_vector_ftg . ") as ftg, ";
             
@@ -320,9 +421,8 @@ if ($main->button(1))
             if ($input_archive_post) $archive_clause = $main->check('archive', $module) ? " " . $archive . " as archive "  : "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
             else $archive_clause = "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
             
-            $select_where_exists = "SELECT 1";
-            $select_where_not = "SELECT 1 WHERE 1 = 0";
             //key exists must check for duplicate value
+            $select_where_not = "SELECT 1 WHERE 1 = 0";
             if (isset($arr_column['layout']['unique'])) //no key = unset
                 {
                 //get the vlaue to be checked
@@ -339,7 +439,9 @@ if ($main->button(1))
 					$select_where_not = "SELECT 1";	
 					}
                 }
-             //if parent row has been deleted, multiuser situation, check on insert
+                
+           //if parent row has been deleted, multiuser situation, check on insert
+            $select_where_exists = "SELECT 1";
             if ($post_key > 0)
                 {
                 $select_where_exists = "SELECT 1 FROM data_table WHERE archive = 0 AND id IN (" . $post_key . ")";
@@ -347,7 +449,7 @@ if ($main->button(1))
 			        
             /* EXECUTE QUERY */
 			$return_primary = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
-            $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") RETURNING id, " . $return_primary . " as primary;";
+            $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as primary;";
             //echo "<p>" . $query . "</p>";
             $result = $main->query($con, $query);			
             if (pg_affected_rows($result) == 1)
@@ -383,8 +485,9 @@ if ($main->button(1))
             else //bad insert
                 {
 				//check for key problem
-				$result = $main->query($con, $select_where_not);
-				if (pg_num_rows($result) == 1)
+				$result_where_not = $main->query($con, $select_where_not);
+                $result_where = $main->query($con, $select_where);
+				if (pg_num_rows($result_where_not) == 1)
 					{
 					//retain state values
 					array_push($arr_message, "Error: Record not updated. Duplicate or empty key value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\".");
@@ -394,6 +497,15 @@ if ($main->button(1))
                         $main->log($con, $messagee);
                         }
 					}
+                elseif (pg_num_rows($result_where) == 0)
+                    {
+					array_push($arr_message, "Error: Record not updated. Missing related record or records.");
+                    if ($input_update_log)
+                        {
+                        $message = "WHERE EXISTS error updating record " . chr($row_type + 64) . $post_key . "." ;
+                        $main->log($con, $message);
+                        }                        
+                    }
 				else
 					{
 					//dispose of post vars				
@@ -516,11 +628,12 @@ if ($row_type > 0):
             if (isset($arr_dropdowns[$row_type][$key]))
                 {
                 //dropdown
-                $arr_dropdown = $readonly ? array($input) : $arr_dropdowns[$row_type][$key]; //single item select for readonly
+                $arr_dropdown_reduced = $main->filter_keys($arr_dropdowns[$row_type]);
+                $arr_droplist = $readonly ? array($input) : $arr_dropdown_reduced[$key]; //single item select for readonly
                 echo "<div class=\"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
                 echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
-                foreach ($arr_dropdown as $dropdown)
+                foreach ($arr_droplist as $dropdown)
                     {                            
                     echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
                     }
@@ -529,7 +642,7 @@ if ($row_type > 0):
             elseif (in_array($key, $arr_relate))
                 {
                 //textarea
-                $attribute = ($readonly || $arr_column_reduced[$key]['relate']) ? "readonly" : ""; //readonly attribute    
+                $attribute = $readonly ? "readonly" : ""; //readonly attribute    
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
                 echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";

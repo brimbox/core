@@ -80,13 +80,13 @@ $main->update($array_state, $module, $arr_state);
 //get description
 if (isset($arr_lists[$row_type][$list_number]))
     {
-    $arr_list = $arr_lists[$row_type];
+    $arr_list_reduced = $main->filter_keys($arr_lists[$row_type]);
     $list = $arr_list[$list_number];
     $description = $list['description'];
     }
 else
     {
-    $arr_list = array();
+    $arr_list_reduced = array();
     $list = array();
     $description = "";       
     }
@@ -104,7 +104,7 @@ echo "Choose List: ";
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->list_dropdown($arr_list, "list_number", $list_number, $params);
+$main->list_dropdown($arr_list_reduced, "list_number", $list_number, $params);
 
 //list return
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";

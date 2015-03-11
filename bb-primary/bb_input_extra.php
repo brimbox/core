@@ -41,10 +41,16 @@ class bb_input_extra {
     
     /* MAIN FUNCTION FOR RECORD LINKS */    
     function linkspost()
-        {        
-        if (!empty($_POST['bb_row_type'])) //row_type set in global link, should be positive
+        {
+        //row_type set in global link, should be positive
+        //empty works because 0 row-type is invalid
+        if (!empty($_POST['bb_row_type'])) 
             {
             return $this->global_row_type();   
+            }
+        elseif (!empty($_POST['bb_relate'])) 
+            {
+            return $this->global_relate();  
             }
         elseif ($this->main->button(1)) //postback
             {
@@ -116,6 +122,42 @@ class bb_input_extra {
 
         return array($row_type, $row_join, $post_key, $arr_state);
         }
+        
+    function global_relate()
+        {
+        $arr_state = $this->arr_state; //returned
+        $row_type = $this->main->state('row_type', $arr_state, $this->default_row_type);
+        $row_join = $this->main->state('row_join', $arr_state, 0);
+        $post_key = $this->main->state('post_key', $arr_state, 0);
+        $relate = $_POST['bb_relate'];
+        
+        //consider empty possibility
+        //check proper layouts on input
+        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
+        $arr_column_reduced = $this->main->filter_keys($arr_column);
+        $primary_column = $this->main->pad("c", key($arr_column_reduced));
+        
+        $query = "SELECT * FROM data_table WHERE id = " . (int)$relate .";";
+        $result = $this->main->query($this->con, $query);
+        if (pg_num_rows($result) == 1)
+            {
+            $row = pg_fetch_array($result);
+            for ($i=41;$i<=46;$i++)
+                {
+                if (isset($arr_column_reduced[$i]))
+                    {                    
+                    if ($arr_column_reduced[$i]['relate'] == $row['row_type'])
+                        {
+                        $str = $this->main->custom_trim_string(chr($row['row_type'] + 64) . $relate . ":" . $row[$primary_column], 255,false);
+                        $state_column = $this->main->pad("c", $i);
+                        $arr_state[$state_column] = $str;  
+                        }
+                    }
+                }
+            }
+        return array($row_type, $row_join, $post_key, $arr_state);
+        }
+
 
     /* STANDARD POSTBACK FROM SUBMIT BUTTON */
     function input_postback()

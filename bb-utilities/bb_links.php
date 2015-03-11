@@ -63,7 +63,7 @@ class bb_links extends bb_database {
 		//edit row, row_type and row_join are the same and from row
 		//target is input and text is editable, uses js input function
 		$filter = isset($params['layouts']) ? $params['layouts'] : array();
-		if (!$row['archive'] && $arr_layouts_reduced[$row['row_type']]['related'] && (in_array($row['row_type'], $filter) || empty($filter)))
+		if (!$row['archive'] && $arr_layouts_reduced[$row['row_type']]['relate'] && (in_array($row['row_type'], $filter) || empty($filter)))
 			{
 			echo "<button class = \"link rightmargin\" onclick=\"bb_links.relate(" . $row['id'] . ",'" . $target . "'); return false;\">";
 			echo $text . "</button>";

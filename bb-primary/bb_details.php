@@ -120,13 +120,15 @@ if ($post_key > 0) // a detail of a record
                 $str_details = str_replace("\n", "<br>",  htmlentities($row[$col2]));
                 echo "<div class = \"clear\"><label class = \"spaced left floatleft overflow medium shaded\">" . htmlentities($value['name']) . ":</label>";
                 echo "<div class = \"clear\"></div>";
-                echo "<div class=\"border spaced half emheight\">" . $str_details . "</div>";				
+                //double it up for emheight
+                echo "<div class=\"spaced border half\">";
+                echo "<div class=\"spaced emheight\">" . $str_details . "</div></div>";				
                 echo "</div>";
                 }
             elseif (in_array($key, $arr_file)) //files
                 {
                 echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
-                echo "<button class=\"link spaced left floatleft\" onclick=\"bb_submit_link('bb-links/bb_details_object_link.php')\">" . htmlentities($row[$col2]) . "</button>";
+                echo "<button class=\"link spaced left floatleft\" onclick=\"bb_submit_link('bb-links/bb_object_lo_link.php')\">" . htmlentities($row[$col2]) . "</button>";
                 echo "</div>";
                 }
             else //regular

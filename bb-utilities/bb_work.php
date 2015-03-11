@@ -36,6 +36,9 @@ If not, see http://www.gnu.org/licenses/
 //update
 //hot_state (private)
 //report
+//get_relate
+//get_key
+//get_value
 
 
 /* POSTBACK ANBD STATE FUNCTIONS */	
@@ -176,7 +179,7 @@ class bb_work extends bb_forms {
 	    $arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
 	    return $arr_state;	
 	    }
-			
+		
 	function retrieve($con, &$array_state)
 	    //retrieves state from $_POST based on known tabs with state from tab table in database
 	    {
@@ -273,6 +276,24 @@ class bb_work extends bb_forms {
 	    return $current;
 	    }
 		
-    } //end class
+	//get the row_type from a related field	
+	function relate_row_type($related)
+		{
+		return ord(substr($related,0,1)) - 64;	
+		}
+		
+	//get post_key or id from related field
+	function relate_post_key($related)
+		{
+		return substr($related,1, strpos($related,":") - 1);	
+		}
+			
+	//gets primary string from related field
+	function relate_value($related)
+		{
+		return substr($related, strpos($related,":") + 1);	
+		}
+		
+} //end class
 
 ?>
