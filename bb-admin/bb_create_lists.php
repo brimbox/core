@@ -81,11 +81,14 @@ if ($main->button(1))
         $new_value = $main->custom_trim_string($main->post('new_value', $module),50, true, true);
         $new_description = $main->custom_trim_string($main->post('new_description', $module), 255);
         $row_type = $main->post('row_type_1', $module);
-        $arr_list = isset($arr_lists[$row_type_1]) ? $arr_lists[$row_type_1] : array();
+        $arr_list_1 = isset($arr_lists[$row_type_1]) ? $arr_lists[$row_type_1] : array();
+        //reduced for the search
+        $arr_list_1_reduced = $main->filter_keys($arr_list_1);
+
         
         //multidimensional too painful to search
         $found = false;
-        foreach($arr_list as $value)
+        foreach($arr_list_1_reduced as $value)
             {
             if (!strcasecmp($value['name'], $new_value))
                 {
@@ -96,16 +99,16 @@ if ($main->button(1))
         
         if (!$found)  
             {
-            $k = $main->get_next_node($arr_list, 2000); //gets next lists number, 1 to limit
+            $k = $main->get_next_node($arr_list_1_reduced, 2000); //gets next lists number, 1 to limit
             if ($k < 0) //over maximum number of lists
                 {
                 array_push($arr_message, "Error: Maximum number of lists exceeded."); 
                 }
             else//add list
                 {
-                $arr_list[$k] = array('name'=>$new_value, 'description'=>$new_description, 'archive'=>0);
-                uasort($arr_list,'cmp');
-                $arr_lists[$row_type_1] = $arr_list;
+                $arr_list_1[$k] = array('name'=>$new_value, 'description'=>$new_description, 'archive'=>0);
+                uasort($arr_list_1,'cmp');
+                $arr_lists[$row_type_1] = $arr_list_1;
                 $main->update_json($con, $arr_lists,"bb_create_lists");
                 //empty list just in case
                 $query = "UPDATE data_table SET list_string = bb_list_unset(list_string, " . $k . ") WHERE bb_list_test(list_string, " . $k . ") = 1 AND row_type IN (" . (int)$row_type_1 . ");";
@@ -124,7 +127,6 @@ if ($main->button(1))
         array_push($arr_message, "Error: New list name not supplied.");   
         }
     }
-
     
 //rename or update list    
 if ($main->button(2))
@@ -133,14 +135,14 @@ if ($main->button(2))
         {    
         if ($main->full('update_list', $module))
             {
-            $arr_list = $arr_lists[$row_type_2];
-			if (isset($arr_list))
+            $arr_list_2 = $arr_lists[$row_type_2];
+			if (isset($arr_list_2))
 				{
-				$arr_list[$list_number_2]['name'] = $main->custom_trim_string($update_list, 50, true, true);
-                $arr_list[$list_number_2]['description'] =  $main->custom_trim_string($update_description ,255);
-                $arr_list[$list_number_2]['archive'] = 0;
-                uasort($arr_list,'cmp');
-                $arr_lists[$row_type_2] = $arr_list;
+				$arr_list_2[$list_number_2]['name'] = $main->custom_trim_string($update_list, 50, true, true);
+                $arr_list_2[$list_number_2]['description'] =  $main->custom_trim_string($update_description ,255);
+                $arr_list_2[$list_number_2]['archive'] = 0;
+                uasort($arr_list_2,'cmp');
+                $arr_lists[$row_type_2] = $arr_list_2;
                 $main->update_json($con, $arr_lists, "bb_create_lists");                
                 $update_list = $update_description = $list_output = "";
                 $list_number_2 = 0;
@@ -162,10 +164,10 @@ else
     //populate list for update
     if ($list_number_2 > 0) 
         {
-        $arr_list = $arr_lists[$row_type_2];
+        $arr_list_2 = $arr_lists[$row_type_2];
         $list_output = ($list_number_2 > 0) ? chr($row_type_2 + 64) . $list_number_2 : "";
-        $update_list = $arr_list[$list_number_2]['name'];
-        $update_description = $arr_list[$list_number_2]['description'];
+        $update_list = $arr_list_2[$list_number_2]['name'];
+        $update_description = $arr_list_2[$list_number_2]['description'];
         }
     //clear list for update
     elseif ($list_number_2 <= 0)
@@ -283,7 +285,7 @@ echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_2()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type_2", $row_type_2, $params);
 $params = array("class"=>"spaced","empty"=>true,"check"=>1,"onchange"=>"bb_reload_1()");
-$arr_pass = isset($arr_lists[$row_type_2]) ? $arr_lists[$row_type_2] : array();
+$arr_pass = isset($arr_lists[$row_type_2]) ? $main->filter_keys($arr_lists[$row_type_2]) : array();
 $main->list_dropdown($arr_pass, "list_number_2", $list_number_2, $params);
 echo "</div>";
 echo "</div>";
@@ -323,7 +325,7 @@ echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_3()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type_3", $row_type_3, $params);
 $params = array("class"=>"spaced","empty"=>true,"check"=>0);
-$arr_pass = isset($arr_lists[$row_type_3]) ? $arr_lists[$row_type_3] : array();
+$arr_pass = isset($arr_lists[$row_type_3]) ? $main->filter_keys($arr_lists[$row_type_3]) : array();
 $main->list_dropdown($arr_pass, "list_number_3", $list_number_3, $params);
 echo " | ";
 echo "</div>";

@@ -712,7 +712,7 @@ if (in_array($action, array(1,2,3,4))):
         echo "</div>";
         
         echo "<div class=\"row\">";
-        echo "<div class=\"cell middle\">Notes (cidr):</div>";
+        echo "<div class=\"cell middle\">Notes:</div>";
         echo "<div class=\"cell\">";
         $main->echo_textarea("notes", $notes, array('class'=>"spaced",'rows'=>8,'cols'=>35));
         echo "</div>";

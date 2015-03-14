@@ -248,7 +248,7 @@ if ($main->button(1))
                 {
 				$row = pg_fetch_array($result);
                 //Delete and import large object
-                if (isset($arr_column_reduced['c47']))
+                if (isset($arr_column_reduced[47]))
                     {
                     if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
                         {
@@ -456,7 +456,7 @@ if ($main->button(1))
                 {
 				$row = pg_fetch_array($result);
                 //file type
-                if (isset($arr_column_reduced['c47']))
+                if (isset($arr_column_reduced[47]))
                     {
                     if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
                         {

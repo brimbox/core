@@ -609,6 +609,8 @@ VALUES (2, 'bb-admin/bb_dropdowns.php', 'bb_dropdowns', 'Manage Dropdowns', 'bb_
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
 VALUES (3, 'bb-admin/bb_upload_data.php', 'bb_upload_data', 'Upload Data', 'bb_brimbox', 4, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module used for bulk loads of data to the database."}');
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
+VALUES (4, 'bb-admin/bb_upload_docs.php', 'bb_upload_docs', 'Upload Documents', 'bb_brimbox', 4, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module used for uploading documents, usually support documents, to the database."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
 VALUES (1, 'bb-admin/bb_manage_users.php', 'bb_manage_users', 'Manage Users', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module used for managing users and their permissions."}');
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details)
 VALUES (2, 'bb-admin/bb_manage_log.php', 'bb_manage_log', 'Manage Log', 'bb_brimbox', 5, 'Core', 6, 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module used to log certain actions in the database."}');
@@ -725,9 +727,9 @@ if ($do_json_table)
      
 $query = <<<EOT
 INSERT INTO json_table (lookup, jsondata)
-VALUES('bb_layout_names','{"1":{"singular":"Animal","plural":"Animals","parent":0,"order":1,"secure":0,"autoload":""},"2":{"singular":"Expense","plural":"Expenses","parent":1,"order":2,"secure":0,"autoload":""}}');
+VALUES('bb_layout_names','{"1":{"singular":"Animal","plural":"Animals","parent":"0","order":"1","secure":"0","autoload":"0","relate":"0"},"2":{"singular":"Expense","plural":"Expenses","parent":"1","order":"2","secure":"0","autoload":"0","relate":"0"}}');
 INSERT INTO json_table (lookup, jsondata)
-VALUES('bb_column_names','{"2":{"1":{"name":"Topic","row":1,"length":"short","order":1,"type":"bb_brimbox_text","required":1,"secure":0,"search":1},"2":{"name":"Cost","row":1,"length":"short","order":2,"type":"bb_brimbox_money","required":0,"secure":0,"search":0},"3":{"name":"Type","row":1,"length":"short","order":3,"type":"bb_brimbox_text","required":0,"secure":0,"search":1},"49":{"name":"Note","row":2,"length":"note","order":4,"type":"","required":0,"secure":0,"search":1},"layout":{"primary":1,"count":4}},"1":{"1":{"name":"Name","row":1,"length":"medium","order":1,"type":"bb_brimbox_text","required":1,"secure":0,"search":1},"2":{"name":"Breed","row":1,"length":"medium","order":2,"type":"bb_brimbox_text","required":0,"secure":0,"search":1},"6":{"name":"Type","row":2,"length":"medium","order":3,"type":"bb_brimbox_text","required":0,"secure":0,"search":1},"4":{"name":"Birthday","row":2,"length":"medium","order":4,"type":"bb_brimbox_date","required":0,"secure":0,"search":0},"3":{"name":"Owner","row":3,"length":"medium","order":5,"type":"bb_brimbox_text","required":0,"secure":0,"search":1},"5":{"name":"Location","row":3,"length":"medium","order":6,"type":"bb_brimbox_text","required":0,"secure":0,"search":1},"layout":{"primary":1,"count":6,"unique":"1"}}}');
+VALUES('bb_column_names','{"2":{"1":{"name":"Topic","row":1,"length":"short","order":1,"type":"bb_brimbox_text","required":1,"secure":0,"search":1,"relate":0},"2":{"name":"Cost","row":1,"length":"short","order":2,"type":"bb_brimbox_money","required":0,"secure":0,"search":0,"relate":0},"3":{"name":"Type","row":1,"length":"short","order":3,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"49":{"name":"Note","row":2,"length":"note","order":4,"type":"","required":0,"secure":0,"search":1,"relate":0},"layout":{"primary":1,"count":4}},"1":{"1":{"name":"Name","row":1,"length":"medium","order":1,"type":"bb_brimbox_text","required":1,"secure":0,"search":1,"relate":0},"2":{"name":"Breed","row":1,"length":"medium","order":2,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"6":{"name":"Type","row":2,"length":"medium","order":3,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"4":{"name":"Birthday","row":2,"length":"medium","order":4,"type":"bb_brimbox_date","required":0,"secure":0,"search":0,"relate":0},"3":{"name":"Owner","row":3,"length":"medium","order":5,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"5":{"name":"Location","row":3,"length":"medium","order":6,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"layout":{"primary":1,"count":6,"unique":"1"}}}');
 INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_dropdowns','{"1":{"6":["Cat","Dog","Horse"]},"2":{"3":["Credit","Debit","No Charge"]}}');
 INSERT INTO json_table (lookup, jsondata)
@@ -739,6 +741,46 @@ if ($do_json_table)
     {
     $result = pg_query($con, $query);
     echo "JSON Table Populated<br>";
-    }    
+    }
+    
+$query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'docs_table'";
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
+$do_docs_table = false;
+if ($num_rows == 0)
+    {
+    $do_docs_table = true;
+    }
+ 
+    
+$query = <<<EOT
+CREATE TABLE docs_table
+(
+  id bigserial NOT NULL,
+  document bytea,
+  filename character varying(255) NOT NULL DEFAULT ''::character varying,
+  username character varying(255) NOT NULL DEFAULT ''::character varying,
+  level smallint NOT NULL DEFAULT 0,
+  change_date timestamp with time zone,  
+  CONSTRAINT docs_table_pkey PRIMARY KEY (id),
+  CONSTRAINT docs_table_unique_filename UNIQUE (filename)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER SEQUENCE docs_table_id_seq CYCLE;
+-- Trigger: ts1_update_change_date on docs_table
+CREATE TRIGGER ts1_update_change_date
+  BEFORE INSERT OR UPDATE
+  ON docs_table
+  FOR EACH ROW
+  EXECUTE PROCEDURE bb_change_date();
+EOT;
+if ($do_docs_table)
+    {
+    $result = pg_query($con, $query);
+    echo "Docs Table Created (No Population)<br>";
+    }
+
 
 echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";

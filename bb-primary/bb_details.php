@@ -26,13 +26,6 @@ function bb_clear_textarea()
     document.forms["bb_form"].dump_area.value = "";
 	return false;
 	}
-function bb_submit_link(f)
-    {
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.action = f;
-    frmobj.submit();
-    }
 </script>
 
 <?php
@@ -128,7 +121,7 @@ if ($post_key > 0) // a detail of a record
             elseif (in_array($key, $arr_file)) //files
                 {
                 echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
-                echo "<button class=\"link spaced left floatleft\" onclick=\"bb_submit_link('bb-links/bb_object_lo_link.php')\">" . htmlentities($row[$col2]) . "</button>";
+                echo "<button class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . htmlentities($row[$col2]) . "</button>";
                 echo "</div>";
                 }
             else //regular
@@ -318,7 +311,8 @@ if (($post_key > 0) && ($cnt_rows == 1))
 echo "<input type=\"hidden\" name=\"row_type\" value=\"" . $row_type . "\" />";
 echo "<input type=\"hidden\" name=\"post_key\" value=\"" . $post_key . "\" />";
 
-echo "</div>";    
+echo "</div>";
+$main->echo_object_vars();
 $main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */

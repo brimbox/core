@@ -79,6 +79,12 @@ class bb_forms extends bb_validate {
 			}
 		}
 		
+	function echo_object_vars()
+		{
+		//the object var is put in the required form when using file or document downloads
+		echo "<input rel=\"ignore\" type=\"hidden\"  name=\"bb_object\" value = \"\">";	
+		}
+		
 	function echo_state($array_state)
         {
 		//this echos the state into the form for posting

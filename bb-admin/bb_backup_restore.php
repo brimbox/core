@@ -19,16 +19,6 @@ If not, see http://www.gnu.org/licenses/
 <?php
 $main->check_permission("bb_brimbox", 5);
 ?>
-<script type="text/javascript">
-function bb_submit_link(f)
-    {
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.action = f;
-    frmobj.submit();
-    }
-</script>
-
 <?php
 /* INTITALIZE */
 $arr_message = array();

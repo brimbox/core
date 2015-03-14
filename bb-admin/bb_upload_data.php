@@ -18,14 +18,6 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", array(4,5));
 ?>
 <script type="text/javascript">     
-function bb_submit_link(f)
-    {
-    var frmobj = document.forms["bb_form"];
-    
-    frmobj.action = f;
-    frmobj.submit();
-	return false;
-    }
 function bb_reload()
     {
     //change row_type, reload appropriate columns
@@ -111,7 +103,7 @@ if ($main->button(1)) //get column names for layout
 //submit file to textarea	
 if ($main->button(2)) //submit_file
 	{
-	if (!empty($_FILES[$main->name('upload_file', $module)]["tmp_name"]))
+	if (is_uploaded_file($_FILES[$main->name('upload_file', $module)]["tmp_name"]))
 		{
 		$data = file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"]);
 		}
