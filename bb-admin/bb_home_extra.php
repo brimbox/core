@@ -18,18 +18,13 @@ If not, see http://www.gnu.org/licenses/
 ?>
 <?php
 /* BEGIN REQUIRED FORM */
-$main->retrieve($con, $array_state);
-
-$main->document("Attend6304.xlsx");
-echo "<br><br>";
-$main->document(3,"Test Link");
+$main->retrieve($con, $array_state, $userrole);
 		
 $main->echo_form_begin();
 $main->echo_module_vars($module);
 
 /* In case you need to put a quick link on the home page */
 $main->echo_common_vars();
-$main->echo_object_vars();
 
 $main->echo_state($array_state);
 $main->echo_form_end();

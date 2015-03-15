@@ -36,24 +36,30 @@ include("../bb-utilities/bb_reports.php");
 
 /* SET UP MAIN OBJECT */
 $main = new bb_reports();
-
-$arr_permissions = explode(",",BB_FILE_DOWNLOAD_PERMISSIONS);
-$main->check_permission("bb_brimbox", $arr_permissions);
+$main->check_permission("bb_brimbox", array(1,2,3,4,5));
 
 set_time_limit(0);
 $con = $main->connect();
 
 //convert to integer for security
-$post_key = (int)$_POST['post_key'];
-$row_type = (int)$_POST['row_type'];
+if (filter_var($_POST['bb_object'], FILTER_VALIDATE_INT))
+    {
+    $where_clause =  " id = " . $_POST['bb_object'];
+    }
+else
+    {
+    $where_clause =  " filename = '" . $_POST['bb_object'] . "'";
+    }
 
-$query = "SELECT c47 FROM data_table WHERE row_type = " . $row_type . " AND id = " . $post_key . ";";
+
+$query = "SELECT * FROM docs_table WHERE " . $where_clause . ";";
 $result = $main->query($con, $query);
 
 if (pg_num_rows($result) <> 1) die("Unable to find file.");
 
 $row = pg_fetch_array($result);
-$filename = $row['c47'];
+$filename = $row['filename'];
+$document = pg_unescape_bytea($row['document']);
     
 //Here go the headers
 header ("Content-Type: application/octet-stream");
@@ -62,10 +68,6 @@ header ("Content-Transfer-Encoding: binary");
 ob_clean();
 flush();
 
-pg_query ($con, "BEGIN");
-$handle = pg_lo_open($con, $post_key ,"r") or die("File Error");
-pg_lo_read_all($handle) or die("File Error");
-pg_query($con, "COMMIT");
- 
+echo $document;
 
 ?>

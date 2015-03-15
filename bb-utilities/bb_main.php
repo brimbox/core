@@ -1135,6 +1135,16 @@ class bb_main {
             //return default if not set
             return $default;    
             }
-        }      
+        }
+        
+    function document($object, $text = "", $class = "link spaced")
+        {
+        if ($text == "")
+            {
+            $text = $object;
+            }
+        echo "<button class=\"" . $class . "\" onclick=\"bb_submit_object('bb-links/bb_object_document_link.php', '" . $object . "'); return false;\">" . $text . "</button>"; 
+   
+        }
 } //end class
 ?>

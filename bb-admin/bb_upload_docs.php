@@ -18,23 +18,16 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", array(4,5));
 ?>
 <script type="text/javascript">     
-function bb_submit_link(f)
+function bb_set_hidden(id)
     {
+    //set var form links and the add_new_user button on initial page
     var frmobj = document.forms["bb_form"];
     
-    frmobj.action = f;
-    frmobj.submit();
-	return false;
+    frmobj.id.value = id;
+    bb_submit_form(2);
+    return false;
     }
-function bb_reload()
-    {
-    //change row_type, reload appropriate columns
-    //this goes off when row_type is changed    
-    var frmobj = document.forms["bb_form"];
-    
-    bb_submit_form(); //call javascript submit_form function
-	return false;
-    }
+
 </script>
 
 <?php
@@ -42,53 +35,6 @@ function bb_reload()
 $main->retrieve($con, $array_state);
 
 $arr_message = array();	
-$arr_notes = array("49","50");
-
-//start of code
-function check_header($arr_column_reduced, $str, $parent)
-	{
-    $arr_row = explode("\t", $str);
-    $i = 0;	
-    if ($parent <> 0)
-        {
-        if (strtolower($arr_row[0]) <> "link")
-            {
-            return false;
-            }
-        $i = 1;
-        }   
-	foreach($arr_column_reduced as $value)
-		{
-		if (strtolower($value['name']) <> strtolower($arr_row[$i]))
-			{
-			return false;
-			}
-		$i++;
-		}
-	return true;
-	}
-		
-//get layouts
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
-//get guest index
-$arr_header = $main->get_json($con, "bb_interface_enabler");
-$arr_guest_index = $arr_header['guest_index']['value'];
-
-//will handle postback
-$row_type = $main->post('row_type', $module, $default_row_type); 
-$data = $main->post('bb_data_area', $module);
-$data_file = $main->post('bb_data_file_name', $module, "default");
-
-//get column names based on row_type/record types
-$arr_columns = $main->get_json($con, "bb_column_names");
-$arr_layout = $arr_layouts_reduced[$row_type];
-$parent = $arr_layout['parent']; 
-$arr_column = $arr_columns[$row_type];
-$arr_column_reduced = $main->filter_keys($arr_column);
-//get dropdowns for validation
-$arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 
 //submit file to textarea	
 if ($main->button(1)) //submit_file
@@ -99,13 +45,27 @@ if ($main->button(1)) //submit_file
                  "VALUES ($1, $2, $3, $4)";
         $arr_params = array(pg_escape_bytea(file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"])), $_FILES[$main->name('upload_file', $module)]["name"], $username, 0);
         $main->query_params($con, $query, $arr_params);
+        array_push($arr_message, "Document has been stored.");
 		}
 	else
 		{
-		$message = "Must specify file name.";
+		array_push($arr_message, "Must specify file name.");
 		}
 	}
-
+if ($main->button(2)) //submit_file
+	{
+    $id = $main->post("id",$module,0);
+	if ($id > 0)
+		{        
+        $query = "DELETE FROM docs_table WHERE id = " . $id . ";";
+        $main->query($con, $query);
+        array_push($arr_message, "Document has been deleted.");
+		}
+	else
+		{
+		array_push($arr_message, "Unable to delete.");
+		}
+	}
 
 //title
 echo "<p class=\"spaced bold larger\">Upload Data</p>";
@@ -118,8 +78,8 @@ echo "</div>";
 
 /* START REQUIRED FORM */
 $main->echo_form_begin(array("type"=>"enctype=\"multipart/form-data\""));
-$main->echo_module_vars();;
-
+$main->echo_module_vars();
+$main->echo_object_vars();
 //upload row_type calls dummy function
 
 echo "<div class=\"spaced border floatleft padded\">";
@@ -127,6 +87,8 @@ echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_file\" id=\"file\" />";
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Upload File");
 $main->echo_button("submit_file", $params);
+
+echo "<input name=\"id\" type=\"hidden\" value=\"\" />";
 
 $main->echo_state($array_state);
 $main->echo_form_end();
@@ -167,7 +129,11 @@ echo "<div class=\"table padded\">";
         echo "<div class=\"padded cell long middle\">" . $row['level'] . "</div>";
         $date = $main->convert_date($row['change_date'],"Y-m-d h:i:s.u"); 
         echo "<div class=\"padded cell long middle\">" . $date . "</div>";
-        echo "<div class=\"padded cell long middle\">Delete</div>";
+        $onclick = "bb_set_hidden(" . $row['id'] . ")";
+        $main->echo_script_button("delete_" . $row['id'], array('class'=>"link spaced", "onclick"=>$onclick, 'label'=>"Delete"));
+        echo " - ";
+        $onclick = "bb_submit_object('bb-links/bb_object_document_link.php', " . $row['id'] . ")";
+        $main->echo_script_button("download_" . $row['id'], array('class'=>"link spaced", "onclick"=>$onclick, 'label'=>"Download"));
         echo "</div>";
         $i++;
         }
