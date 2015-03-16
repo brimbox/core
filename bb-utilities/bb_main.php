@@ -588,26 +588,40 @@ class bb_main {
 			}  
 		}	
 	
-	function check_permission($interface, $usertypes)
+	function check_permission($optional, $usertypes = NULL)
 		{
         /* IMPORTANT FUNCTION SHOULD BE CALLED AT TOP OF EVERY MODULE */
         //dies on everything except good permission
         //should be invoked at the top of every module
 		//waterfall function for single user and admin mode
 		//this check that session is set
-        //$usertypes can be int or array of int
+        //$usertypes can be int, array of int, or null if optional is string of userroles
+        //$optional can be interface or string of userroles
         if (isset($_SESSION['username'])) 
             {
-            list($userwork, $interwork) = explode("_", $_SESSION['userrole'], 2);
-            if (is_int($usertypes)) //either int or string input
+            if (is_null($usertypes))
                 {
-                $usertypes = array($usertypes);    
-                }            
-            if (!in_array($userwork, $usertypes) || (strcasecmp($interwork, $interface) <> 0))
+                $arr_userroles = explode(",", $optional);
+                if (!in_array($_SESSION['username'], $arr_userroles))
+                    {
+                    echo "Insufficient Permission.";
+                    session_destroy();
+                    die();
+                    }
+                }
+            else
                 {
-                echo "Insufficient Permission.";
-                session_destroy();
-                die();
+                list($userwork, $interwork) = explode("_", $_SESSION['userrole'], 2);
+                if (is_int($usertypes)) //either int or string input
+                    {
+                    $usertypes = array($usertypes);    
+                    }            
+                if (!in_array($userwork, $usertypes) || (strcasecmp($interwork, $optional) <> 0))
+                    {
+                    echo "Insufficient Permission.";
+                    session_destroy();
+                    die();
+                    }
                 }
             
             //single user takes precedence over admin only
@@ -1137,14 +1151,13 @@ class bb_main {
             }
         }
         
-    function document($object, $text = "", $class = "link spaced")
+    function document($con, $text = "", $class = "link spaced")
         {
         if ($text == "")
             {
             $text = $object;
             }
-        echo "<button class=\"" . $class . "\" onclick=\"bb_submit_object('bb-links/bb_object_document_link.php', '" . $object . "'); return false;\">" . $text . "</button>"; 
-   
+        echo "<button class=\"" . $class . "\" onclick=\"bb_submit_object('bb-links/bb_object_document_link.php', '" . $object . "'); return false;\">" . $text . "</button>";  
         }
 } //end class
 ?>

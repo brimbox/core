@@ -41,11 +41,19 @@ if ($main->button(1)) //submit_file
 	{
 	if (is_uploaded_file($_FILES[$main->name('upload_file', $module)]["tmp_name"]))
 		{
+        $filename = $main->custom_trim_string($_FILES[$main->name('upload_file', $module)]["name"], 255);
         $query = "INSERT INTO docs_table (document, filename, username, level) " .
-                 "VALUES ($1, $2, $3, $4)";
-        $arr_params = array(pg_escape_bytea(file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"])), $_FILES[$main->name('upload_file', $module)]["name"], $username, 0);
-        $main->query_params($con, $query, $arr_params);
-        array_push($arr_message, "Document has been stored.");
+                 "SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT 1 FROM docs_table WHERE filename = '" . pg_escape_string($filename) . "')";
+        $arr_params = array(pg_escape_bytea(file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"])), $filename, $username, 0);
+        $result = $main->query_params($con, $query, $arr_params);
+        if (pg_affected_rows($result) == 1)
+            {
+            array_push($arr_message, "Document has been stored.");
+            }
+        else
+            {
+            array_push($arr_message, "Document not stored. Possible duplicate file name.");   
+            }
 		}
 	else
 		{
@@ -108,11 +116,11 @@ echo "<div class=\"table padded\">";
 
     //table header
     echo "<div class=\"row shaded\">";
-    echo "<div class=\"padded bold cell medium middle\">Id</div>";
-    echo "<div class=\"padded bold cell medium middle\">Filename</div>";
+    echo "<div class=\"padded bold cell short middle\">Id</div>";
+    echo "<div class=\"padded bold cell long middle\">Filename</div>";
     echo "<div class=\"padded bold cell long middle\">Username</div>";
-    echo "<div class=\"padded bold cell long middle\">Level</div>";
-    echo "<div class=\"padded bold cell long middle\">Timestamp</div>";
+    echo "<div class=\"padded bold cell short middle\">Level</div>";
+    echo "<div class=\"padded bold cell medium middle\">Timestamp</div>";
     echo "<div class=\"padded bold cell long middle\">Action</div>";
     echo "</div>";
 
@@ -123,17 +131,19 @@ echo "<div class=\"table padded\">";
         //row shading
         $shade_class = ($i % 2) == 0 ? "even" : "odd";
         echo "<div class=\"row " . $shade_class . "\">";
-        echo "<div class=\"padded cell medium middle\">" . $row['id'] . "</div>";
+        echo "<div class=\"padded cell short middle\">" . $row['id'] . "</div>";
         echo "<div class=\"padded cell medium middle\">" . $row['filename'] . "</div>";
         echo "<div class=\"padded cell long middle\">" . $row['username'] . "</div>";
-        echo "<div class=\"padded cell long middle\">" . $row['level'] . "</div>";
-        $date = $main->convert_date($row['change_date'],"Y-m-d h:i:s.u"); 
-        echo "<div class=\"padded cell long middle\">" . $date . "</div>";
+        echo "<div class=\"padded cell short middle\">" . $row['level'] . "</div>";
+        $date = $main->convert_date($row['change_date'],"Y-m-d h:i:s");
+        echo "<div class=\"padded cell medium middle\">" . $date . "</div>";
+        echo "<div class=\"padded cell long middle\">";
         $onclick = "bb_set_hidden(" . $row['id'] . ")";
         $main->echo_script_button("delete_" . $row['id'], array('class'=>"link spaced", "onclick"=>$onclick, 'label'=>"Delete"));
         echo " - ";
         $onclick = "bb_submit_object('bb-links/bb_object_document_link.php', " . $row['id'] . ")";
         $main->echo_script_button("download_" . $row['id'], array('class'=>"link spaced", "onclick"=>$onclick, 'label'=>"Download"));
+        echo "</div>";
         echo "</div>";
         $i++;
         }

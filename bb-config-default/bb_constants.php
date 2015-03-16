@@ -21,13 +21,14 @@ If not, see http://www.gnu.org/licenses/
 //Standard number of rows to return
 define('BB_RETURN_ROWS', 4);
 //Standard number pages in the page selector
-define('BB_PAGINATION', 15);
+define('BB_PAGINATION', 5);
 //number of layouts possible, maximum is 26
 define('BB_NUMBER_LAYOUTS', 12);
 //Archive interworking (ON/OFF), allows for quick archive access on lookup and search tabs
 define('BB_ARCHIVE_INTERWORKING', 'OFF');
 //Default userrole on the manage users page
-define('BB_DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox');
+//example and default '1_bb_brimbox'
+define('BB_DEFAULT_USERROLE_ASSIGN', '');
 //Use processing image in standard modules (ON/OFF)
 define('BB_PROCESSING_IMAGE', 'OFF');
 //Turn on log for insert (ON/OFF)
@@ -42,8 +43,12 @@ define('BB_ARCHIVE_LOG', 'OFF');
 define('BB_INPUT_ARCHIVE_POST', 'OFF');
 //turn on post override for secure when inputting (ON/OFF)
 define('BB_INPUT_SECURE_POST', 'OFF'); 
-//comma separated string of integers, usually between 1 and 5
-define('BB_FILE_DOWNLOAD_PERMISSIONS', '3,4,5');
+//comma separated string of userroles
+//example and default '3_bb_brimbox,4_bb_brimbox,5_bb_brimbox'
+define('BB_FILE_DOWNLOAD_PERMISSIONS', '');
+//comma separated string of of userroles
+//example and default '3_bb_brimbox,4_bb_brimbox,5_bb_brimbox'
+define('BB_DOCUMENT_DOWNLOAD_PERMISSIONS', '');
 //Browser notice, either blank to ignore or string message, standard navigation warning below
 //Database users should use tabs, buttons, and links to navigate. Browser back and forward buttons are not recommended.
 define('BB_CONTROLLER_MESSAGE', '');
