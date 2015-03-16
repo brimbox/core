@@ -25,4 +25,8 @@ $main->check_permission("bb_brimbox", 5);
 
 $query = "ALTER TABLE users_table ADD CONSTRAINT users_table_unique_username UNIQUE (username);";
 @pg_query($con, $query);
+
+$query = "INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, maintain_state, module_files, module_details) " .
+         "SELECT (SELECT max(module_order) + 1), 'bb-admin/bb_upload_docs.php', 'bb_upload_docs', 'Upload Documents', 'bb_brimbox', 4, 'Core', 6, 0, '', '{\"company\":\"Brimbox\",\"author\":\"Brimbox Staff\",\"license\":\"GNU GPL v3\",\"description\":\"This is the admin module used for uploading documents, usually support documents, to the database.\"}' WHERE NOT EXISTS (SELECT 1 FROM modules_table WHERE module_name = 'bb_upload_docs')";
+@pg_query($con, $query);
 ?>
