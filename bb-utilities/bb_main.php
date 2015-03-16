@@ -602,7 +602,7 @@ class bb_main {
             if (is_null($usertypes))
                 {
                 $arr_userroles = explode(",", $optional);
-                if (!in_array($_SESSION['username'], $arr_userroles))
+                if (!in_array($_SESSION['userrole'], $arr_userroles))
                     {
                     echo "Insufficient Permission.";
                     session_destroy();

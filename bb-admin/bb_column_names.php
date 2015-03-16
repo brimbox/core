@@ -209,7 +209,7 @@ if ($main->button(2))
                 $row = (int)$main->post("row_" . $i, $module);
                 $length = (string)$main->post("length_" . $i, $module);
                 $order = (int)$main->post("order_" . $i, $module);
-                $type = (string)$main->post("type_" . $i, $module, "");
+                $type = (string)$main->post("type_" . $i, $module, "bb_brimbox_text");
                 $required = (int)$main->post("required_" . $i, $module, 0);
                 $secure = (int)$main->post("secure_" . $i, $module, 0);
                 $search = (int)$main->post("search_" . $i, $module, 0);

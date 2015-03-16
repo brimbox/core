@@ -95,7 +95,7 @@ if ($main->button(1))
         $col = $main->pad("c", $key);
             
         //textarea no validation
-		if (!in_array($key, array(47,48,49,50)))
+		if (!in_array($key, array(48)))
 			{
             //regular column
             $field = $arr_state[$col];
@@ -655,13 +655,17 @@ if ($row_type > 0):
                 $lo = isset($arr_state['lo']) ? $arr_state['lo'] : "";
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<input class = \"spaced padded textbox noborder\" maxlength=\"255\" name=\"lo\" type=\"text\" value = \""  . htmlentities($lo) .  "\" readonly/>";
+                echo "<input class = \"spaced padded textbox noborder\" maxlength=\"255\" name=\"lo\" type=\"text\" value = \""  . htmlentities($lo) .  "\" readonly/><label class=\"error\">" . $error . "</label>";
                 echo "</div>";
                 echo "<div class = \"clear " . $hidden . "\">";
-                echo "<input class=\"spaced textbox\" maxlength=\"255\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";                
-                echo "<span class = \"spaced border rounded padded shaded\">";
-                echo "<label class=\"padded\">Remove: </label>";
-                $main->echo_input("remove", 1, array('type'=>'checkbox','input_class'=>'middle holderup'));
+                echo "<input class=\"spaced textbox\" maxlength=\"255\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";
+                if (!$value['required'])
+                    {
+                    echo "<span class = \"spaced border rounded padded shaded\">";                
+                    echo "<label class=\"padded\">Remove: </label>";
+                    $main->echo_input("remove", 1, array('type'=>'checkbox','input_class'=>'middle holderup'));
+                    echo "</span>";
+                    }
                 echo "</div>";                
                 }
             elseif (in_array($key, $arr_notes))
@@ -669,7 +673,7 @@ if ($row_type > 0):
                 //textarea
                 $attribute = $readonly ? "readonly" : ""; //readonly attribute    
                 echo "<div class = \"clear " . $hidden . "\">";
-                echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
+                echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                 echo "<div class=\"clear " . $hidden . "\"></div>";
                 echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";				
                 }				

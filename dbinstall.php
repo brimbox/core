@@ -39,6 +39,8 @@ If not, see http://www.gnu.org/licenses/
    2015.1.24 ips column added to users_table
    2015.1.25 added username and note column to users_table, username to log table
    2015.1.26 added unique constraint to username column
+   //nomenclature change
+   1.27 added docs table and renamed functions to start with bb
 */
 
 /* Backup Change Log
@@ -48,8 +50,6 @@ If not, see http://www.gnu.org/licenses/
    2014.1.5 added username to log and users tables and text field to users table
 */
 
-/* Program Version 1.7
-*/
 
 ?>
 <html>
@@ -729,7 +729,7 @@ $query = <<<EOT
 INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_layout_names','{"1":{"singular":"Animal","plural":"Animals","parent":"0","order":"1","secure":"0","autoload":"0","relate":"0"},"2":{"singular":"Expense","plural":"Expenses","parent":"1","order":"2","secure":"0","autoload":"0","relate":"0"}}');
 INSERT INTO json_table (lookup, jsondata)
-VALUES('bb_column_names','{"2":{"1":{"name":"Topic","row":1,"length":"short","order":1,"type":"bb_brimbox_text","required":1,"secure":0,"search":1,"relate":0},"2":{"name":"Cost","row":1,"length":"short","order":2,"type":"bb_brimbox_money","required":0,"secure":0,"search":0,"relate":0},"3":{"name":"Type","row":1,"length":"short","order":3,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"49":{"name":"Note","row":2,"length":"note","order":4,"type":"","required":0,"secure":0,"search":1,"relate":0},"layout":{"primary":1,"count":4}},"1":{"1":{"name":"Name","row":1,"length":"medium","order":1,"type":"bb_brimbox_text","required":1,"secure":0,"search":1,"relate":0},"2":{"name":"Breed","row":1,"length":"medium","order":2,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"6":{"name":"Type","row":2,"length":"medium","order":3,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"4":{"name":"Birthday","row":2,"length":"medium","order":4,"type":"bb_brimbox_date","required":0,"secure":0,"search":0,"relate":0},"3":{"name":"Owner","row":3,"length":"medium","order":5,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"5":{"name":"Location","row":3,"length":"medium","order":6,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"layout":{"primary":1,"count":6,"unique":"1"}}}');
+VALUES('bb_column_names','{"2":{"1":{"name":"Topic","row":1,"length":"short","order":1,"type":"bb_brimbox_text","required":1,"secure":0,"search":1,"relate":0},"2":{"name":"Cost","row":1,"length":"short","order":2,"type":"bb_brimbox_money","required":0,"secure":0,"search":0,"relate":0},"3":{"name":"Type","row":1,"length":"short","order":3,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"49":{"name":"Note","row":2,"length":"note","order":4,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"layout":{"primary":1,"count":4}},"1":{"1":{"name":"Name","row":1,"length":"medium","order":1,"type":"bb_brimbox_text","required":1,"secure":0,"search":1,"relate":0},"2":{"name":"Breed","row":1,"length":"medium","order":2,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"6":{"name":"Type","row":2,"length":"medium","order":3,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"4":{"name":"Birthday","row":2,"length":"medium","order":4,"type":"bb_brimbox_date","required":0,"secure":0,"search":0,"relate":0},"3":{"name":"Owner","row":3,"length":"medium","order":5,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"5":{"name":"Location","row":3,"length":"medium","order":6,"type":"bb_brimbox_text","required":0,"secure":0,"search":1,"relate":0},"layout":{"primary":1,"count":6,"unique":"1"}}}');
 INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_dropdowns','{"1":{"6":["Cat","Dog","Horse"]},"2":{"3":["Credit","Debit","No Charge"]}}');
 INSERT INTO json_table (lookup, jsondata)
