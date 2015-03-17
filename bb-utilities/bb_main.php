@@ -601,6 +601,7 @@ class bb_main {
             {
             if (is_null($usertypes))
                 {
+                echo "test" . $optional;
                 $arr_userroles = explode(",", $optional);
                 if (!in_array($_SESSION['userrole'], $arr_userroles))
                     {

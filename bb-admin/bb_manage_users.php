@@ -168,7 +168,7 @@ $filterrole = $main->post('filterrole', $module, "all");
 //$email_work called $email_work because of global $email
 $username_work = $email_work = $passwd = $repasswd = $fname = $minit = $lname = $ips = $notes = "";
 //hack for original constants file
-$userrole_constant = $main->set_constant('BB_DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox');    
+$userrole_constant = $main->get_constant(BB_DEFAULT_USERROLE_ASSIGN, '1_bb_brimbox');    
 /* END INITIAL VALUES */
 
 /* POSTBACK FOR NEW USER AND UPDATE USER */

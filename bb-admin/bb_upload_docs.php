@@ -42,9 +42,10 @@ if ($main->button(1)) //submit_file
 	if (is_uploaded_file($_FILES[$main->name('upload_file', $module)]["tmp_name"]))
 		{
         $filename = $main->custom_trim_string($_FILES[$main->name('upload_file', $module)]["name"], 255);
+        $filedata = str_replace(array("\\\\", "''"), array("\\", "'"), pg_escape_bytea(file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"]))); 
         $query = "INSERT INTO docs_table (document, filename, username, level) " .
                  "SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT 1 FROM docs_table WHERE filename = '" . pg_escape_string($filename) . "')";
-        $arr_params = array(pg_escape_bytea(file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"])), $filename, $username, 0);
+        $arr_params = array($filedata, $filename, $username, 0);
         $result = $main->query_params($con, $query, $arr_params);
         if (pg_affected_rows($result) == 1)
             {

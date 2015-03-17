@@ -105,7 +105,7 @@ $params = array("class"=>"spaced","onclick"=>"bb_reload()", "label"=>"Search Dat
 $main->echo_script_button("post_search", $params);
 
 //archive interworking allows quick access to archived records
-if ($main->on_constant('BB_ARCHIVE_INTERWORKING'))
+if ($main->on_constant(BB_ARCHIVE_INTERWORKING))
 	{
 	$checked = "";
 	if ($archive_flag == 1)
@@ -130,8 +130,8 @@ $main->echo_form_end();
 /* BEGIN RETURN ROWS */
 //this function returns the repetitive rows from the search query
 
-$return_rows = $main->set_constant('BB_RETURN_ROWS',4);
-$pagination = $main->set_constant('BB_PAGINATION',5);
+$return_rows = $main->get_constant(BB_RETURN_ROWS,4);
+$pagination = $main->get_constant(BB_PAGINATION,5);
 $count_rows = 0;
 
 //search array successfully parsed			

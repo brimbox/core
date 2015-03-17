@@ -181,8 +181,8 @@ echo "</div>"; //end align center
 
 //calculate lower limit of ordered query, return rows will be dealt with later
 //initialize $count_rows in case no rows are returned
-$return_rows = $main->set_constant('BB_RETURN_ROWS',4);
-$pagination = $main->set_constant('BB_PAGINATION',5);
+$return_rows = $main->get_constant(BB_RETURN_ROWS,4);
+$pagination = $main->get_constant(BB_PAGINATION,5);
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
 $esc_lt = pg_escape_string($letter);
