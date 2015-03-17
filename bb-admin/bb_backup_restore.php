@@ -29,7 +29,7 @@ $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $row_type = 0;
 
 //deal with constants
-$processing_image = $main->on_constant(BB_PROCESSING_IMAGE);
+$processing_image = $main->on_constant('BB_PROCESSING_IMAGE');
 
 /* RETRIEVE STATE */
 $main->retrieve($con, $array_state);

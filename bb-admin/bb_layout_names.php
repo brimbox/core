@@ -31,7 +31,7 @@ $arr_layout_security = $arr_header['layout_security']['value'];
 
 $arr_message = array();
 //check for constant
-$number_layouts = $main->get_constant(BB_NUMBER_LAYOUTS, 12, 26);
+$number_layouts = $main->get_constant('BB_NUMBER_LAYOUTS', 12, 26);
 
 function cmp( $a, $b )
     { 

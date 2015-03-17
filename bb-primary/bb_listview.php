@@ -123,8 +123,8 @@ echo "</div></div></div>"; //end align center, table, row
 //calculate lower limit of ordered query, return rows will be dealt with later
 //initialize $count_rows in case no rows are returned
 //initialze query variables to return list in segments	
-$return_rows = $main->get_constant(BB_RETURN_ROWS,4);
-$pagination = $main->get_constant(BB_PAGINATION,5);
+$return_rows = $main->get_constant('BB_RETURN_ROWS',4);
+$pagination = $main->get_constant('BB_PAGINATION',5);
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
 

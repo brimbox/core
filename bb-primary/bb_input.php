@@ -38,7 +38,7 @@ function bb_reload()
 <?php
 /* DEAL WITH CONSTANTS */
 $input_insert_log = $main->on_constant(BB_INPUT_INSERT_LOG);
-$input_update_log = $main->on_constant(BB_INPUT_UPDATE_LO');
+$input_update_log = $main->on_constant(BB_INPUT_UPDATE_LOG);
 $input_secure_post = $main->on_constant(BB_INPUT_SECURE_POST);
 $input_archive_post = $main->on_constant(BB_INPUT_ARCHIVE_POST); 
 /* END DEAL WITH CONSTANTS */

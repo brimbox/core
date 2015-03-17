@@ -62,7 +62,7 @@ If not, see http://www.gnu.org/licenses/
 //replicate_link
 //userrole_switch
 //on_constant
-//get_constant
+//set_constant
 
 class bb_main {
 	
@@ -601,7 +601,6 @@ class bb_main {
             {
             if (is_null($usertypes))
                 {
-                echo "test" . $optional;
                 $arr_userroles = explode(",", $optional);
                 if (!in_array($_SESSION['userrole'], $arr_userroles))
                     {

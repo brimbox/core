@@ -47,7 +47,7 @@ $arr_validation = $arr_header['validation'];
 $arr_column_security = $arr_header['column_security']['value'];
 
 //deal with constants
-$processing_image = $main->on_constant(BB_PROCESSING_IMAGE);
+$processing_image = $main->on_constant('BB_PROCESSING_IMAGE');
 
 /* RETRIEVE STATE */
 $main->retrieve($con, $array_state);
