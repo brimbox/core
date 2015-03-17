@@ -62,7 +62,7 @@ If not, see http://www.gnu.org/licenses/
 //replicate_link
 //userrole_switch
 //on_constant
-//set_constant
+//get_constant
 
 class bb_main {
 	
@@ -1120,7 +1120,7 @@ class bb_main {
         }
     
     //for numeric and string constants    
-    function set_constant($constant, $default, $limit = NULL)
+    function get_constant($constant, $default, $limit = NULL)
         {
         //if type doesn't match return default
         if (defined($constant))
