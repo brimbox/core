@@ -37,7 +37,7 @@ include("../bb-utilities/bb_reports.php");
 /* SET UP MAIN OBJECT */
 $main = new bb_reports();
 
-$userroles = $main->set_constant(BB_DOCUMENT_DOWNLOAD_PERMISSIONS, "3_bb_brimbox,4_bb_brimbox,5_bb_brimbox");
+$userroles = $main->get_constant(BB_DOCUMENT_DOWNLOAD_PERMISSIONS, "3_bb_brimbox,4_bb_brimbox,5_bb_brimbox");
 $main->check_permission($userroles);
 
 set_time_limit(0);
