@@ -332,7 +332,7 @@ if (empty($controller_path))
 echo "<div id=\"bb_header\">";
 //header image
 echo "<div id=\"controller_image\"></div>";
-$controller_message = $main->set_constant('BB_CONTROLLER_MESSAGE', '');
+$controller_message = $main->get_constant('BB_CONTROLLER_MESSAGE', '');
 if (!$main->blank($controller_message))
     {
     echo "<div id=\"controller_message\">" .  $controller_message . "</div>";    
