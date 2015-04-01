@@ -130,8 +130,8 @@ if ($main->button(1))
         {
         //produce empty form since we are going to load the data
         $owner = $main->custom_trim_string($_SESSION['username'],255); //used in both if and else
-        // update preexisting row
-        if ($row_type == $row_join) 
+       
+        if ($row_type == $row_join)  // update preexisting row
             {
             $update_clause = "updater_name = '" . pg_escape_string($owner) . "'";
 			$arr_ts_vector_fts = array();
@@ -327,6 +327,7 @@ if ($main->button(1))
 					}
                 }
             }
+            
         else //insert new row
             {
             $insert_clause = "row_type, key1, owner_name, updater_name";

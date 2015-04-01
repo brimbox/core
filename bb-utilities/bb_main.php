@@ -1119,29 +1119,18 @@ class bb_main {
         }
     
     //for numeric and string constants    
-    function get_constant($constant, $default, $limit = NULL)
+    function get_constant($constant, $default = "")
         {
         //if type doesn't match return default
         if (defined($constant))
             {
-            if (is_null($limit))
+            if ($this->blank(constant($constant)))
                 {
-                //no limit, use for string
-                return constant($constant);
+                return $default;
                 }
             else
                 {
-                //$limit use for integers
-                if (constant($constant) < $limit)
-                    {
-                    //proper constant
-                    return constant($constant);   
-                    }
-                else
-                    {
-                    //return limit
-                    return $limit;    
-                    }
+                return constant($constant);
                 }
             }
         else

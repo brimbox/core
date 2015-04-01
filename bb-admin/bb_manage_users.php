@@ -57,21 +57,29 @@ function bb_check_passwd(pwd,nm)
         
 function bb_populate_default(passthis,k,v)
     {
-    var select = document.getElementById("select_default");
-    if (passthis.checked == true)
+    var opts = document.getElementById("select_default").options;
+    for(var i=0; i<opts.length; i++)
         {
-        select.options[select.options.length] = new Option(v,k);
+        if (opts[i].value == "0_bb_brimbox")
+            {
+            opts[i] = null;    
+            }
+        }
+    if (passthis.checked == true)
+        {       
+        opts[opts.length] = new Option(v.concat("\u00A0"),k);
         }
     if (passthis.checked == false)
         {
-        for(var i=0; i<select.options.length; i++)
+        for(var i=0; i<opts.length; i++)
             {        
-            if(select.options[i].value == k)
+            if(opts[i].value == k)
                 {
-                select.options[i] = null;
+                opts[i] = null;
                 }
             }
         }
+    return false;
     }
     
 function bb_reload()
@@ -168,7 +176,7 @@ $filterrole = $main->post('filterrole', $module, "all");
 //$email_work called $email_work because of global $email
 $username_work = $email_work = $passwd = $repasswd = $fname = $minit = $lname = $ips = $notes = "";
 //hack for original constants file
-$userrole_constant = $main->get_constant('BB_DEFAULT_USERROLE_ASSIGN', '1_bb_brimbox');    
+$userrole_constant = $main->get_constant('BB_DEFAULT_USERROLE_ASSIGN', '0_bb_brimbox');
 /* END INITIAL VALUES */
 
 /* POSTBACK FOR NEW USER AND UPDATE USER */
@@ -183,20 +191,26 @@ if ($main->button(1) || $main->button(2))
     $email_work = $main->custom_trim_string($main->post('email_work', $module),255);
     $passwd = $main->custom_trim_string($main->post('passwd', $module), 255);
     $repasswd = $main->custom_trim_string($main->post('repasswd', $module), 255);
-    $userroles_work = $main->post('userroles_work', $module, array($userrole_constant));
-    $notes = $main->custom_trim_string($main->post('notes', $module), 65536, false);
+    $userroles_work = $main->post('userroles_work', $module, array());
     sort($userroles_work);
     $userrole_default = $main->post('userrole_default', $module, $userrole_constant);
-    $arr_userrole_default = array($userrole_default);
-    if ($userrole_default <> "0_bb_brimbox")
+    if (!empty($userroles_work))
         {
-        $userroles_work = array_diff($userroles_work, $arr_userrole_default);
-        array_unshift($userroles_work , $userrole_default);
+        if ($userrole_default <> "0_bb_brimbox")
+            {
+            $userroles_work = array_diff($userroles_work, array($userrole_default));
+            array_unshift($userroles_work, $userrole_default);
+            }        
+        }
+    else
+        {
+        $userroles_work = array($userrole_default);   
         }
     $fname = $main->custom_trim_string($main->post('fname', $module),255);
     $minit = $main->custom_trim_string($main->post('minit', $module),255);
     $lname = $main->custom_trim_string($main->post('lname', $module),255);
     $ips = $main->post('ips', $module);
+    $notes = $main->custom_trim_string($main->post('notes', $module), 65536, false);
     //split, trim and remove empty values
     $arr_ips = array_filter(array_map('trim',preg_split("/\n|\r\n?/", $ips)));
     }

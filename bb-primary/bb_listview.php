@@ -81,7 +81,7 @@ $main->update($array_state, $module, $arr_state);
 if (isset($arr_lists[$row_type][$list_number]))
     {
     $arr_list_reduced = $main->filter_keys($arr_lists[$row_type]);
-    $list = $arr_list[$list_number];
+    $list = $arr_list_reduced[$list_number];
     $description = $list['description'];
     }
 else
