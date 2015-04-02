@@ -102,17 +102,16 @@ class bb_input_extra {
                 $col = $this->main->pad("c", $key);
                 if (in_array($key, $this->arr_notes))
                     {
-                    $str = $this->main->custom_trim_string($row[$col], 65536, false);
+                    $str = $this->main->purge_chars($row[$col], false);
                     $this->main->set($col, $arr_state, $str);
                     }
                 if (in_array($key,$this->arr_file))
                     {
-                    $str = $this->main->custom_trim_string($row[$col], 255,false);
                     $this->main->set("lo", $arr_state, $str);
                     }
                 else
                     {
-                    $str = $this->main->custom_trim_string($row[$col],255);
+                    $str = $this->main->purge_chars($row[$col]);
                     $this->main->set($col, $arr_state, $str);
                     }                
                 }
@@ -148,7 +147,7 @@ class bb_input_extra {
                     {                    
                     if ($arr_column_reduced[$i]['relate'] == $row['row_type'])
                         {
-                        $str = $this->main->custom_trim_string(chr($row['row_type'] + 64) . $relate . ":" . $row[$primary_column], 255,false);
+                        $str = $this->main->purge_chars(chr($row['row_type'] + 64) . $relate . ":" . $row[$primary_column], false);
                         $state_column = $this->main->pad("c", $i);
                         $arr_state[$state_column] = $str;  
                         }
@@ -175,7 +174,7 @@ class bb_input_extra {
             $col = $this->main->pad("c", $key);
             if (in_array($key,$this->arr_notes))
                 {
-                $str = $this->main->custom_trim_string($this->main->post($col, $this->module),65536,false);
+                $str = $this->main->purge_chars($this->main->post($col, $this->module),false);
                 }
             elseif (in_array($key, $this->arr_file))
                 {
@@ -184,9 +183,9 @@ class bb_input_extra {
                 $this->main->set("remove", $arr_state, $remove);
                 if (is_uploaded_file($_FILES[$this->main->name('c47', $this->module)]["tmp_name"]))
                     {
-                    $str1 = $this->main->custom_trim_string($_FILES[$this->main->name($col, $this->module)]["name"], 255);
+                    $str1 = $_FILES[$this->main->name($col, $this->module)]["name"];
                     }
-                $str2 = $this->main->custom_trim_string($this->main->post("lo", $this->module),255,false);
+                $str2 = $this->main->post("lo", $this->module);
                 $str = $this->main->blank($str1) ? $str2 : $str1;
                 $str = $remove ? "" : $str;
                 $this->main->set("lo", $arr_state, $str);
@@ -194,7 +193,7 @@ class bb_input_extra {
                 }
             else
                 {
-                $str = $this->main->custom_trim_string($this->main->post($col,$this->module),255);
+                $str = $this->main->purge_chars($this->main->post($col,$this->module));
                 }
             $this->main->set($col, $arr_state, $str);
             }
@@ -252,12 +251,12 @@ class bb_input_extra {
                 {
                 if (in_array($key,$this->arr_notes))
                     {
-                    $str = $this->main->custom_trim_string($textarea, 65536,false);
+                    $str = $this->main->purge_chars($textarea, false);
                     }
                 else
                     {
                     //normal, file, or related
-                    $str = $this->main->custom_trim_string($textarea, 255);
+                    $str = $this->main->purge_chars($textarea);
                     }
                 $this->main->set($col, $arr_state, $str);
                 $str = "";
@@ -374,11 +373,11 @@ class bb_input_queue {
 						//html specials chars added in javascript
 						if (in_array($col,$this->arr_notes))
 							{
-							$this->main->set($col, $arr_state, $this->main->custom_trim_string($this->main->post($col,'bb_queue'),65536, false));
+							$this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue'), false));
 							}
 						else
 							{
-							$this->main->set($col, $arr_state, $this->main->custom_trim_string($this->main->post($col,'bb_queue'),255));
+							$this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue')));
 							}
 						}			
 					}
@@ -448,14 +447,13 @@ class bb_input_queue {
 							}
 						}
 					}
-				//update xml
 				if (in_array($col,$this->arr_notes))
 					{
-					$this->main->set($col, $arr_state, $this->main->custom_trim_string($row[$col], 65536, false));
+					$this->main->set($col, $arr_state, $this->main->purge_chars($row[$col], false));
 				    }
 				else
 					{
-					$this->main->set($col, $arr_state, $this->main->custom_trim_string($row[$col], 255));	
+					$this->main->set($col, $arr_state, $this->main->purge_chars($row[$col]));	
 					}
 				}
 			}
@@ -506,11 +504,11 @@ class bb_input_queue {
 				//get data from bb_queue
 				if (in_array($key,$this->arr_notes))
 					{
-					$this->main->set($col, $arr_state, $this->main->custom_trim_string($this->main->post($col,'bb_queue'),65536, false));
+					$this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue'), false));
 				    }
 				else
 					{
-					$this->main->set($col, $arr_state, $this->main->custom_trim_string($this->main->post($col,'bb_queue'),255));
+					$this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue')));
 					}
 				}
 			}
@@ -558,12 +556,12 @@ class bb_input_queue {
                     //html specials chars added in javascript
                     if (in_array($key,$this->arr_notes))
                         {
-                        $temp_note = $this->main->custom_trim_string($arr_state[$col] . " " . $this->main->post($col,'bb_queue'),65536, false);
+                        $temp_note = $this->main->purge_chars($arr_state[$col] . " " . $this->main->post($col,'bb_queue'), false);
                         $this->main->set($col, $arr_state, $temp_note);
                         }
                     else
                         {
-                        $this->main->set($col, $arr_state, $this->main->custom_trim_string($this->main->post($col,'bb_queue'),255));
+                        $this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue')));
                         }
                     }			
                 }

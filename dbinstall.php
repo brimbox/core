@@ -41,6 +41,7 @@ If not, see http://www.gnu.org/licenses/
    2015.1.26 added unique constraint to username column
    //nomenclature change
    1.27 added docs table and renamed functions to start with bb
+   1.28 text fields instead of varchar
 */
 
 /* Backup Change Log

@@ -290,7 +290,7 @@ if (($post_key > 0) && ($cnt_rows == 1))
     echo "<br>";    
     echo "<div class = \"clear\"></div>";   
     echo "<p class =\"spaced\">Link these records to this record</p>";
-    echo "<input type=\"text\" name=\"link_values\" class =\"spaced\" size=\"35\" value=\"" . htmlentities($link_values) . "\" />";
+    echo "<input type=\"text\" name=\"link_values\" class =\"spaced\" size=\"50\" value=\"" . htmlentities($link_values) . "\" />";
     echo "<div class = \"clear\"></div>";
 	echo "<div class = \"spaced\">";
     $main->echo_messages($arr_message);

@@ -17,6 +17,8 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
+$maxinput = $main->set_constant('BB_STANDARD_LENGTH', 255);
+
 $main->check_permission("bb_brimbox", 5);
 
 /* PRESERVE STATE */
@@ -59,8 +61,8 @@ if ($main->button(1)) //layout_submit
         $attrib2 = "plural_" . $i;
         $order1 = "order_" . $i;
 		$parent1 =  "parent_" . $i;
-        $singular = $main->custom_trim_string($main->post($attrib1, $module), 50, true, true);
-        $plural = $main->custom_trim_string($main->post($attrib2, $module), 50, true, true);
+        $singular = $main->purge_chars($main->post($attrib1, $module), true, true);
+        $plural = $main->purge_chars($main->post($attrib2, $module), true, true);
         $order = $main->post($order1, $module);
 		$parent= $main->post($parent1, $module);
 		$parent_forward = (string)$i . (string)$parent;
@@ -197,11 +199,11 @@ for ($i=1; $i<=$number_layouts; $i++)
 	echo "<div class=\"cell middle\"><label class=\"spaced\">Layout " . chr($i + 64) . $i . "</label></div>";
 	echo "<div class=\"cell middle\">";
     $value = isset($arr_layouts[$i]) ? htmlentities($arr_layouts[$i]['singular']) : "";
-    $main->echo_input("singular_" . $i, $value, array('input_class'=>'spaced'));
+    $main->echo_input("singular_" . $i, $value, array('input_class'=>'spaced','maxlength'=>$maxinput));
     echo "</div>";
 	echo "<div class=\"cell middle\">";
     $value = isset($arr_layouts[$i]) ? htmlentities($arr_layouts[$i]['plural']) : "";
-    $main->echo_input("plural_" . $i, $value, array('input_class'=>'spaced'));
+    $main->echo_input("plural_" . $i, $value, array('input_class'=>'spaced','maxlength'=>$maxinput));
     echo "</div>";
 	echo "<div class=\"cell middle\">";
 	echo "<select class=\"spaced\" name=\"parent_" . $i . "\">";

@@ -24,10 +24,14 @@ define('BB_RETURN_ROWS', 4);
 define('BB_PAGINATION', 5);
 //number of layouts possible, maximum is 26
 define('BB_NUMBER_LAYOUTS', 12);
+//number of layouts possible, maximum is 26
+define('BB_STANDARD_LENGTH', 255);
+//number of layouts possible, maximum is 26
+define('BB_NOTE_LENGTH', 65536);
 //Archive interworking (ON/OFF), allows for quick archive access on lookup and search tabs
 define('BB_ARCHIVE_INTERWORKING', 'OFF');
 //Default userrole on the manage users page
-//example and default '1_bb_brimbox'
+//example and default '0_bb_brimbox'
 define('BB_DEFAULT_USERROLE_ASSIGN', '');
 //Use processing image in standard modules (ON/OFF)
 define('BB_PROCESSING_IMAGE', 'OFF');

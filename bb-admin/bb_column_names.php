@@ -100,7 +100,7 @@ if ($main->button(2))
     for ($i = 1; $i <= 50; $i++)
         {
         //check rows and order for integrity
-        $col_name = $main->custom_trim_string($main->post("name_" . $i, $module), 50, true, true);
+        $col_name = $main->purge_chars($main->post("name_" . $i, $module), true, true);
         if (!$main->blank($col_name))
             {
             array_push($arr_names, $col_name);
@@ -200,7 +200,7 @@ if ($main->button(2))
         for ($i = 1; $i <= 50; $i++)
             {
             //The name of the column
-            $col_name = $main->custom_trim_string($main->post("name_" . $i, $module),50, true, true);
+            $col_name = $main->purge_chars($main->post("name_" . $i, $module), true, true);
             
             //makes life easier, an xpath sort is going to return an array anyway
             if (!$main->blank($col_name))
@@ -308,7 +308,7 @@ for ($m = 1; $m <= 50; $m++)
  
 	echo "<div class=\"row\">";        
 	echo "<div class = \"padded cell middle\">" . htmlentities($layout_name) . " " . str_pad((string)$m, 2, "0", STR_PAD_LEFT) . "</div>";
-	echo "<div class = \"cell middle\"><input name=\"name_" . $m . "\" class = \"spaced\" type=\"text\" value=\"" . htmlentities($name) . "\" size=\"25\" maxlength=\"50\" " . $readonly . "/></div>"; 	    
+	echo "<div class = \"cell middle\"><input name=\"name_" . $m . "\" class = \"spaced\" type=\"text\" value=\"" . htmlentities($name) . "\" size=\"25\" maxlength=\"" . $maxinput . "\" " . $readonly . "/></div>"; 	    
 
 	echo "<div class = \"cell middle\"><select name=\"row_" . $m . "\" class = \"spaced\"/>";
 	echo "<option value = \"0\"></option>";

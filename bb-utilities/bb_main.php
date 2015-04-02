@@ -41,6 +41,7 @@ If not, see http://www.gnu.org/licenses/
 //replace_root
 //array_iunique
 //custom_trim_string
+//purge_chars
 //echo_messages
 //check_permission
 //validate_password
@@ -565,6 +566,34 @@ class bb_main {
 		$str = utf8_encode(trim($str));
 		return $str;
 		}
+        
+    function purge_chars($str, $eol = true, $quotes = false)
+		{
+		if ($eol)
+			{
+			//changes a bunch of control chars to single spaces
+			$pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
+			$str = preg_replace($pattern, " ", $str);
+			//purge new line with nothing, default purge
+			}
+		else
+			{
+			//changes a bunch of control chars to single spaces except for new lines
+			$pattern = "/[\\t\\0\\x0B\\x0C\\r]+/";
+			$str = trim(preg_replace($pattern, " ", $str)); //trim this one three times
+			$pattern = "/ {0,}(\\n{1}) {0,}/";
+			$str = preg_replace($pattern, "\n", $str);
+			}
+		if ($quotes)
+			{
+			//purge double quotes
+			$str = str_replace('"', "", $str);	
+			}
+		//trim again because truncate could leave ending space, then try to encode
+		$str = utf8_encode(trim($str));
+		return $str;
+		}
+
 			
 	//$input can be either array or string   
 	function echo_messages($input)
@@ -1140,7 +1169,7 @@ class bb_main {
             }
         }
         
-    function document($con, $text = "", $class = "link spaced")
+    function document($con, $object, $class = "link spaced", $text = "")
         {
         if ($text == "")
             {

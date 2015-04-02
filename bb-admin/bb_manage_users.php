@@ -149,6 +149,11 @@ function check_ips($con, $ips_esc, &$ips, &$arr_error)
 /* END LOCAL FUNCTIONS */
 ?>
 <?php
+/* CONSTANTS */
+$maxinput = $main->set_constant('BB_STANDARD_LENGTH', 255);
+$userrole_constant = $main->get_constant('BB_DEFAULT_USERROLE_ASSIGN', '0_bb_brimbox');
+/* END CONSTANTS */
+
 /* INITIAL VALUES */
 $arr_error = array(); //if set there is an error in the form data, will display inline
 $arr_message = array(); //friendly action and error message
@@ -187,10 +192,10 @@ if ($main->button(1) || $main->button(2))
     //if add new user on initial page is set, all of these are empty
     //if add new or update info pages are set these will be set, validate populatred values
     //input form only allows 255 chars
-	$username_work = $main->custom_trim_string($main->post('username_work', $module),255);
-    $email_work = $main->custom_trim_string($main->post('email_work', $module),255);
-    $passwd = $main->custom_trim_string($main->post('passwd', $module), 255);
-    $repasswd = $main->custom_trim_string($main->post('repasswd', $module), 255);
+	$username_work = $main->purge_chars($main->post('username_work', $module));
+    $email_work = $main->purge_chars($main->post('email_work', $module));
+    $passwd = $main->purge_chars($main->post('passwd', $module));
+    $repasswd = $main->purge_chars($main->post('repasswd', $module));
     $userroles_work = $main->post('userroles_work', $module, array());
     sort($userroles_work);
     $userrole_default = $main->post('userrole_default', $module, $userrole_constant);
@@ -206,11 +211,11 @@ if ($main->button(1) || $main->button(2))
         {
         $userroles_work = array($userrole_default);   
         }
-    $fname = $main->custom_trim_string($main->post('fname', $module),255);
-    $minit = $main->custom_trim_string($main->post('minit', $module),255);
-    $lname = $main->custom_trim_string($main->post('lname', $module),255);
+    $fname = $main->purge_chars($main->post('fname', $module));
+    $minit = $main->purge_chars($main->post('minit', $module));
+    $lname = $main->purge_chars($main->post('lname', $module));
     $ips = $main->post('ips', $module);
-    $notes = $main->custom_trim_string($main->post('notes', $module), 65536, false);
+    $notes = $main->purge_chars($main->post('notes', $module), false);
     //split, trim and remove empty values
     $arr_ips = array_filter(array_map('trim',preg_split("/\n|\r\n?/", $ips)));
     }
@@ -571,7 +576,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"row\">";    
     echo "<div class=\"cell middle\">Username:</div>";    
     echo "<div class=\"cell middle\">";
-    $main->echo_input("username_work", htmlentities($username_work), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>255));
+    $main->echo_input("username_work", htmlentities($username_work), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>$maxinput));
     echo "</div>";
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['username_work'] )? $arr_error['username_work'] : "") . "</div>";    
     echo "</div>";
@@ -579,7 +584,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"row\">";    
     echo "<div class=\"cell middle\">Email:</div>";    
     echo "<div class=\"cell middle\">";
-    $main->echo_input("email_work", htmlentities($email_work), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>255));
+    $main->echo_input("email_work", htmlentities($email_work), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>$maxinput));
     echo "</div>";
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['email_work'] )? $arr_error['email_work'] : "") . "</div>";    
     echo "</div>";
@@ -589,7 +594,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"cell middle\">Password:</div>";
     echo "<div class=\"cell middle\">";
     $handler = "onKeyUp=\"bb_check_passwd(this.value,'passwd')\"";
-    $main->echo_input("passwd", "", array('type'=>'password','input_class'=>'spaced long','handler'=>$handler,'maxlength'=>255));
+    $main->echo_input("passwd", "", array('type'=>'password','input_class'=>'spaced long','handler'=>$handler,'maxlength'=>$maxinput));
     echo "</div>";
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['passwd'] )? $arr_error['passwd'] : "") . "</div>"; 
     echo "</div>";
@@ -598,7 +603,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"cell middle\">Re-Enter Password:</div>";
     echo "<div class=\"cell middle\">";
     $handler = "onKeyUp=\"bb_check_passwd(this.value,'repasswd')\"";
-    $main->echo_input("repasswd", "", array('type'=>'password','input_class'=>'spaced long','handler'=>$handler,'maxlength'=>255));
+    $main->echo_input("repasswd", "", array('type'=>'password','input_class'=>'spaced long','handler'=>$handler,'maxlength'=>$maxinput));
     echo "</div>";
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['repasswd'] )? $arr_error['repasswd'] : "") . "</div>";    
     echo "</div>";
@@ -608,7 +613,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"row\">"; 
     echo "<div class=\"cell middle\">First Name:</div>";
     echo "<div class=\"cell middle\">";
-    $main->echo_input("fname", htmlentities($fname), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>255));
+    $main->echo_input("fname", htmlentities($fname), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>$maxinput));
     echo "</div>";
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['fname'] )? $arr_error['fname'] : "") . "</div>";    
     echo "</div>";
@@ -616,7 +621,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"row\">"; 
     echo "<div class=\"cell middle\">Middle Initial:</div>";
     echo "<div class=\"cell middle\">";
-    $main->echo_input("minit", htmlentities($minit), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>255));
+    $main->echo_input("minit", htmlentities($minit), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>$maxinput));
     echo "</div>";
     echo "<div class=\"cell middle\"></div>";
     echo "</div>";
@@ -624,7 +629,7 @@ if (in_array($action, array(1,2,3,4))):
     echo "<div class=\"row\">"; 
     echo "<div class=\"cell middle\"\">Last Name:</div>";
     echo "<div class=\"cell middle\">";
-    $main->echo_input("lname", htmlentities($lname), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>255));
+    $main->echo_input("lname", htmlentities($lname), array('input_class'=>'spaced long','readonly'=>$readonly,'maxlength'=>$maxinput));
     echo "</div>";
     echo "<div class=\"cell error middle\"> " . (isset($arr_error['lname'] )? $arr_error['lname'] : "") . "</div>";    
     echo "</div>";

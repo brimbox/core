@@ -37,10 +37,13 @@ function bb_reload()
 </script>
 <?php
 /* DEAL WITH CONSTANTS */
-$input_insert_log = $main->on_constant(BB_INPUT_INSERT_LOG);
-$input_update_log = $main->on_constant(BB_INPUT_UPDATE_LOG);
-$input_secure_post = $main->on_constant(BB_INPUT_SECURE_POST);
-$input_archive_post = $main->on_constant(BB_INPUT_ARCHIVE_POST); 
+$input_insert_log = $main->on_constant('BB_INPUT_INSERT_LOG');
+$input_update_log = $main->on_constant('BB_INPUT_UPDATE_LOG');
+$input_secure_post = $main->on_constant('BB_INPUT_SECURE_POST');
+$input_archive_post = $main->on_constant('BB_INPUT_ARCHIVE_POST');
+
+$maxinput = $main->set_constant('BB_STANDARD_LENGTH', 255);
+$maxnote = $main->set_constant('BB_NOTE_LENGTH', 65536);
 /* END DEAL WITH CONSTANTS */
 ?>
 <?php
@@ -196,7 +199,7 @@ if ($main->button(1))
     if (empty($arr_errors)) //no errors
         {
         //produce empty form since we are going to load the data
-        $owner = $main->custom_trim_string($username,255); //used in both if and else
+        $owner = $main->purge_chars($username); //used in both if and else
        
         if ($row_type == $row_join)  // update preexisting row
             {
@@ -621,7 +624,7 @@ if ($row_type > 0):
                 $attribute = $readonly ? "readonly" : ""; //readonly attribute    
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
+                echo "<input class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
                 echo "<label class=\"error\">" . $error . "</label></div>";
                 }
             elseif (in_array($key, $arr_file))
@@ -631,10 +634,10 @@ if ($row_type > 0):
                 $lo = isset($arr_state['lo']) ? $arr_state['lo'] : "";
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<input class = \"spaced padded textbox noborder\" maxlength=\"255\" name=\"lo\" type=\"text\" value = \""  . htmlentities($lo) .  "\" readonly/><label class=\"error\">" . $error . "</label>";
+                echo "<input class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \""  . htmlentities($lo) .  "\" readonly/><label class=\"error\">" . $error . "</label>";
                 echo "</div>";
                 echo "<div class = \"clear " . $hidden . "\">";
-                echo "<input class=\"spaced textbox\" maxlength=\"255\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";
+                echo "<input class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";
                 if (!$value['required'])
                     {
                     echo "<span class = \"spaced border rounded padded shaded\">";                
@@ -651,7 +654,7 @@ if ($row_type > 0):
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                 echo "<div class=\"clear " . $hidden . "\"></div>";
-                echo "<textarea class=\"spaced notearea\" maxlength=\"65536\" name=\"" . $col . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";				
+                echo "<textarea class=\"spaced notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";				
                 }				
             else
                 {
@@ -659,7 +662,7 @@ if ($row_type > 0):
                 $attribute = $readonly ? "readonly" : "";  //readonly attribute
                 echo "<div class=\"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<input class = \"spaced textbox\" maxlength=\"255\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
+                echo "<input class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
                 echo "<label class=\"error\">" . $error . "</label></div>";
                 }
             }
