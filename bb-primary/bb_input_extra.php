@@ -182,7 +182,10 @@ class bb_input_extra {
                 //deal with remove and lo, present when doing files
                 $remove = $this->main->post('remove', $this->module, 0);
                 $this->main->set("remove", $arr_state, $remove);
-                $str1 = $this->main->custom_trim_string($_FILES[$this->main->name($col, $this->module)]["name"], 255);
+                if (is_uploaded_file($_FILES[$this->main->name('c47', $this->module)]["tmp_name"]))
+                    {
+                    $str1 = $this->main->custom_trim_string($_FILES[$this->main->name($col, $this->module)]["name"], 255);
+                    }
                 $str2 = $this->main->custom_trim_string($this->main->post("lo", $this->module),255,false);
                 $str = $this->main->blank($str1) ? $str2 : $str1;
                 $str = $remove ? "" : $str;

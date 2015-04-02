@@ -42,6 +42,73 @@ $input_update_log = $main->on_constant(BB_INPUT_UPDATE_LOG);
 $input_secure_post = $main->on_constant(BB_INPUT_SECURE_POST);
 $input_archive_post = $main->on_constant(BB_INPUT_ARCHIVE_POST); 
 /* END DEAL WITH CONSTANTS */
+?>
+<?php
+/* LOCAL FUNCTIONS */
+function bb_full_text(&$arr_ts_vector_fts, &$arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index)
+    {
+    $str_esc = pg_escape_string((string)$str);
+    if (empty($arr_guest_index))
+        {
+        $guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
+		}
+	else
+        {
+        $guest_flag = (($value['search'] == 1) && in_array($value['secure'], $arr_guest_index)) ? true : false;						
+        }
+    //build fts SQL code
+    if ($search_flag)
+        {
+        array_push($arr_ts_vector_fts, "'" . $str_esc . "' || ' ' || regexp_replace('" . $str_esc . "', E'(\\\\W)+', ' ', 'g')");
+        }
+    if ($guest_flag)
+        {
+        array_push($arr_ts_vector_ftg, "'" . $str_esc . "' || ' ' || regexp_replace('" . $str_esc . "', E'(\\\\W)+', ' ', 'g')");
+        }
+    }    
+function bb_process_related(&$arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key)
+    {    
+    //global object needed
+    global $main;
+    //process related records/table
+    if (isset($arr_column_reduced[$key])) //set column
+        {
+        //proceed if not blank and relate is set
+        if (!$main->blank($str) && ($arr_column_reduced[$key]['relate'] > 0))
+            {
+            //proper string, else bad
+            if (preg_match("/^[A-Z]\d+:.+/", $str))
+                {
+                $row_type_relate = $main->relate_row_type($str);
+                $post_key_relate = $main->relate_post_key($str);
+                //proper row_type, else bad
+                if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
+                    {
+                    //layout defined, else bad
+                    if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) //good value
+                        {
+                        $arr_select_where[] = "(id = " . (int)$post_key_relate . " AND row_type = " . (int)$row_type_relate . ")";     
+                        }
+                    else //not properly defined
+                        {
+                        $arr_select_where[] = "(1 = 0)";    
+                        }
+                    }
+                else
+                    {
+                    $arr_select_where[] = "(1 = 0)";    
+                    }
+                }
+            else
+                {
+                $arr_select_where[] = "(1 = 0)";   
+                }
+            }
+        }
+    }
+/* END LOCAL FUNCTIONS */
+?>
+<?php
 
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
@@ -94,7 +161,7 @@ if ($main->button(1))
         $required_flag = $value['required'] == 1 ? true : false; //required boolean       
         $col = $main->pad("c", $key);
             
-        //textarea no validation
+        //reserved no validation
 		if (!in_array($key, array(48)))
 			{
             //regular column
@@ -129,7 +196,7 @@ if ($main->button(1))
     if (empty($arr_errors)) //no errors
         {
         //produce empty form since we are going to load the data
-        $owner = $main->custom_trim_string($_SESSION['username'],255); //used in both if and else
+        $owner = $main->custom_trim_string($username,255); //used in both if and else
        
         if ($row_type == $row_join)  // update preexisting row
             {
@@ -140,70 +207,22 @@ if ($main->button(1))
             foreach($arr_column_reduced as $key => $value)
 				{
 				$col = $main->pad("c", $key);
-				$str = pg_escape_string((string)$arr_state[$col]);
-				$update_clause .= "," . $col . " =  '" . $str . "'";;
+				$str = $arr_state[$col];
+				$update_clause .= "," . $col . " =  '" . pg_escape_string((string)$str) . "'";
 				//prepare fts and ftg
 				$search_flag = ($value['search'] == 1) ? true : false;				
                 //populate guest index array, can be reassigned in module Interface Enable
                 $arr_guest_index = $arr_header['guest_index']['value'];
-                //guest flag
-				if (empty($arr_guest_index))
-					{
-					$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
-					}
-				else
-					{
-					$guest_flag = (($value['search'] == 1) && in_array($value['secure'], $arr_guest_index)) ? true : false;						
-					}
-				//build fts SQL code
-				if ($search_flag)
-					{
-					array_push($arr_ts_vector_fts, "'" . $str . "' || ' ' || regexp_replace('" . $str . "', E'(\\\\W)+', ' ', 'g')");
-					}
-				if ($guest_flag)
-					{
-					array_push($arr_ts_vector_ftg, "'" . $str . "' || ' ' || regexp_replace('" . $str . "', E'(\\\\W)+', ' ', 'g')");
-					}
                 
-                //process related records/table
+                //local function call, see top of module
+                bb_full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index);
+                
+                //local function call, see top of module
                 if (in_array($key, array(41,42,43,44,45,46)))
                     {
-                    if (isset($arr_column_reduced[$key])) //set column
-                        {
-                        //proceed if not blank and relate is set
-                        if (!$main->blank($arr_state[$col]) && ($arr_column_reduced[$key]['relate'] > 0))
-                            {
-                            //proper string, else bad
-                            if (preg_match("/^[A-Z]\d+:.+/", $arr_state[$col]))
-                                {
-                                $row_type_relate = $main->relate_row_type($arr_state[$col]);
-                                $post_key_relate = $main->relate_post_key($arr_state[$col]);
-                                //proper row_type, else bad
-                                if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
-                                    {
-                                    //layout defined, else bad
-                                    if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) //good value
-                                        {
-                                        $arr_select_where[] = "(id = " . (int)$post_key_relate . " AND row_type = " . (int)$row_type_relate . ")";     
-                                        }
-                                    else //not properly defined
-                                        {
-                                        $arr_select_where[] = "(1 = 0)";    
-                                        }
-                                    }
-                                else
-                                    {
-                                    $arr_select_where[] = "(1 = 0)";    
-                                    }
-                                }
-                            else
-                                {
-                                $arr_select_where[] = "(1 = 0)";   
-                                }
-                            }
-                        }
-                    }                    
-				} //end column loop
+                    bb_process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
+                    }
+                } //end column loop
                 
             //explode full text update
 			$str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
@@ -213,7 +232,7 @@ if ($main->button(1))
             $select_where = empty($arr_select_where) ? "SELECT 1" : "SELECT 1 FROM data_table WHERE (" . implode(" OR ", $arr_select_where) . ") HAVING count(*) = " . (int)count($arr_select_where);
             
             //will detect secure and archive form values
-            //secure can be unpdated if there is a form value being posted
+            //secure can be updated if there is a form value being posted and constant is set
             if ($input_secure_post) $secure_clause = $main->check('secure', $module) ? ", secure = " . $secure . " "  : "";
             else $secure_clause = "";
             //archive is wired in for update, not generally used for standard interface
@@ -242,12 +261,13 @@ if ($main->button(1))
             $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " .
 				     "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as primary;";                 
             $result = $main->query($con, $query);
+            //echo "<p>" . $query . "</p>";
             
-            //echo "<p>" . $query . "</p>";            
+            //good edit
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
-                //Delete and import large object
+                //process large object
                 if (isset($arr_column_reduced[47]))
                     {
                     if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
@@ -287,7 +307,8 @@ if ($main->button(1))
                 //can add a recursive query to update child record when secure is altered
                 $main->hook("update_cascade", true);
                 }
-            else //bad edit
+            //bad edit
+            else 
                 {
 				$result_where_not = $main->query($con, $select_where_not);
                 $result_where = $main->query($con, $select_where);
@@ -312,8 +333,6 @@ if ($main->button(1))
                     }
 				else
 					{
-					//dispose of post vars
-					$row_type = $row_join = $post_key = 0;
 					//dispose of $arr_state and update state
 					$arr_state = array();            
 					$main->update($array_state, $module, $arr_state);
@@ -327,8 +346,8 @@ if ($main->button(1))
 					}
                 }
             }
-            
-        else //insert new row
+        //insert new row    
+        else //$row_type <> $row_join
             {
             $insert_clause = "row_type, key1, owner_name, updater_name";
             $select_clause = $row_type . " as row_type, " . $post_key . " as key1, '" . $owner . "' as owner_name, '" . $owner . "' as updater_name";
@@ -339,68 +358,22 @@ if ($main->button(1))
             foreach($arr_column_reduced as $key => $value)
                 {
                 $col = $main->pad("c", $key);
-                $str = pg_escape_string($arr_state[$col]);
+                $str = $arr_state[$col];
                 $insert_clause .= "," . $col;
-                $select_clause .= ", '" . $str . "'";
+                $select_clause .= ", '" . pg_escape_string((string)$str) . "'";
                 //search flag
 				$search_flag = ($value['search'] == 1) ? true : false;
-				//guest flag
-				if (empty($array_guest_index))
-					{
-					$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
-					}
-				else
-					{
-					$guest_flag = (($value['search'] == 1) && in_array($value['secure'], $array_guest_index)) ? true : false;						
-					}
-				//build fts SQL code
-				if ($search_flag)
-					{
-					array_push($arr_ts_vector_fts, "'" . $str . "' || ' ' || regexp_replace('" . $str . "', E'(\\\\W)+', ' ', 'g')");
-					}
-				if ($guest_flag)
-					{
-					array_push($arr_ts_vector_ftg, "'" . $str . "' || ' ' || regexp_replace('" . $str . "', E'(\\\\W)+', ' ', 'g')");
-					}
-                    
-                //process related records/table
+                //populate guest index array, can be reassigned in module Interface Enable
+                $arr_guest_index = $arr_header['guest_index']['value'];
+                
+                //local function call, see top of module
+                bb_full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index);
+                
+                //local function call, see top of module
                 if (in_array($key, array(41,42,43,44,45,46)))
                     {
-                    if (isset($arr_column_reduced[$key])) //set column
-                        {
-                        //proceed if not blank and relate is set
-                        if (!$main->blank($arr_state[$col]) && ($arr_column_reduced[$key]['relate'] > 0))
-                            {
-                            //proper string, else bad
-                            if (preg_match("/^[A-Z]\d+:.+/", $arr_state[$col]))
-                                {
-                                $row_type_relate = $main->relate_row_type($arr_state[$col]);
-                                $post_key_relate = $main->relate_post_key($arr_state[$col]);
-                                //proper row_type, else bad
-                                if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
-                                    {
-                                    //layout defined, else bad
-                                    if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) //good value
-                                        {
-                                        $arr_select_where[] = "(id = " . (int)$post_key_relate . " AND row_type = " . (int)$row_type_relate . ")";     
-                                        }
-                                    else //not properly defined
-                                        {
-                                        $arr_select_where[] = "(1 = 0)";    
-                                        }
-                                    }
-                                else
-                                    {
-                                    $arr_select_where[] = "(1 = 0)";    
-                                    }
-                                }
-                            else
-                                {
-                                $arr_select_where[] = "(1 = 0)";   
-                                }
-                            }
-                        }
-                    }                    
+                    bb_process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
+                    }				                    
                 } //end column loop	
 			
             //explode full text search stuff
@@ -452,11 +425,13 @@ if ($main->button(1))
 			$return_primary = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
             $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as primary;";
             //echo "<p>" . $query . "</p>";
-            $result = $main->query($con, $query);			
+            $result = $main->query($con, $query);
+            
+            //good insert
             if (pg_affected_rows($result) == 1)
                 {
 				$row = pg_fetch_array($result);
-                //file type
+                //process large object
                 if (isset($arr_column_reduced[47]))
                     {
                     if (is_uploaded_file($_FILES[$main->name('c47', $module)]["tmp_name"]) && !$main->blank($_FILES[$main->name('c47', $module)]["name"]))
@@ -473,6 +448,7 @@ if ($main->button(1))
                     $message = "New " . chr($row_type + 64) . $row['id'] . " record entered."; 
                     $main->log($con, $message);
                     }
+                //hook for cascading a change in security
                 $main->hook("insert_cascade", true);
                 //dispose of $arr_state
                 $arr_state = array();         
@@ -483,7 +459,8 @@ if ($main->button(1))
 				$inserted_id = $row['id'];
 				$inserted_primary = $row['primary'];
                 }
-            else //bad insert
+            //bad insert
+            else 
                 {
 				//check for key problem
 				$result_where_not = $main->query($con, $select_where_not);
@@ -509,9 +486,7 @@ if ($main->button(1))
                     }
 				else
 					{
-					//dispose of post vars				
-					$row_type = $row_join = $post_key = 0;
-					//dispose of $arr_state and update state
+                    //dispose of $arr_state and update state
 					$arr_state = array();            
 					$main->update($array_state, $module, $arr_state);	
 					array_push($arr_message, "Error: Record not inserted. Parent record archived or underlying data change possible.");
@@ -593,7 +568,7 @@ $main->echo_module_vars();
 //echos input select object if row_type exists
 //this means there is a layout
 if ($row_type > 0):
-    //must have row_type\
+    //must have row_type
     $arr_column = $arr_columns[$row_type];
     $arr_column_reduced = $main->filter_keys($arr_column);
     $arr_layouts_reduced = $main->filter_keys($arr_layouts);

@@ -510,7 +510,7 @@ echo "<div class=\"clear\"></div>";
 
 echo "<p class=\"spaced bold larger\">Database Dump</p>";
 echo "<div class=\"spaced border floatleft padded\">";
-$params = array("class"=>"spaced","label"=>"Download Layout","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_2.php')");
+$params = array("class"=>"spaced","label"=>"Download Layout","onclick"=>"bb_submit_link('bb-links/bb_backup_restore_link_3.php')");
 $main->echo_script_button("dump_database", $params);
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type);
 echo "<select class=\"spaced\" name=\"column_names\"><option value=\"0\">Use Friendly Names&nbsp;</option><option value=\"1\">Use Generic Names&nbsp;</option></select>";

@@ -150,8 +150,8 @@ class bb_hooks extends bb_work {
 	function top_level_records($module, $arr_layouts_reduced, &$arr_column_reduced, $row_type, $row_join, $parent_row_type)
 		{
 		//buttons an record selector
-		$update_or_insert = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
-		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
+		$insert_or_edit = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
+		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$insert_or_edit);
 		$this->echo_button("top_submit", $params);
 		$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
 		$this->echo_button("top_reset", $params);
@@ -245,8 +245,8 @@ class bb_hooks extends bb_work {
 		{
 		if (!empty($arr_column_reduced))
             {                
-            $update_or_insert = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
-            $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$update_or_insert);
+            $insert_or_edit = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
+            $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$insert_or_edit);
             $this->echo_button("bottom_submit", $params);
             $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
             $this->echo_button("bottom_reset", $params);
