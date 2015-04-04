@@ -42,8 +42,8 @@ $input_update_log = $main->on_constant('BB_INPUT_UPDATE_LOG');
 $input_secure_post = $main->on_constant('BB_INPUT_SECURE_POST');
 $input_archive_post = $main->on_constant('BB_INPUT_ARCHIVE_POST');
 
-$maxinput = $main->set_constant('BB_STANDARD_LENGTH', 255);
-$maxnote = $main->set_constant('BB_NOTE_LENGTH', 65536);
+$maxinput = $main->get_constant('BB_STANDARD_LENGTH', 255);
+$maxnote = $main->get_constant('BB_NOTE_LENGTH', 65536);
 /* END DEAL WITH CONSTANTS */
 ?>
 <?php

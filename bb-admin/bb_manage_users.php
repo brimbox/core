@@ -150,7 +150,7 @@ function check_ips($con, $ips_esc, &$ips, &$arr_error)
 ?>
 <?php
 /* CONSTANTS */
-$maxinput = $main->set_constant('BB_STANDARD_LENGTH', 255);
+$maxinput = $main->get_constant('BB_STANDARD_LENGTH', 255);
 $userrole_constant = $main->get_constant('BB_DEFAULT_USERROLE_ASSIGN', '0_bb_brimbox');
 /* END CONSTANTS */
 

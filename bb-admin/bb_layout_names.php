@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 ?>
 <?php
-$maxinput = $main->set_constant('BB_STANDARD_LENGTH', 255);
+$maxinput = $main->get_constant('BB_STANDARD_LENGTH', 255);
 
 $main->check_permission("bb_brimbox", 5);
 

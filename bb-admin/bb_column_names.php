@@ -47,6 +47,7 @@ $arr_validation = $arr_header['validation'];
 $arr_column_security = $arr_header['column_security']['value'];
 
 //deal with constants
+$maxinput = $main->get_constant('BB_STANDARD_LENGTH', 255);
 $processing_image = $main->on_constant('BB_PROCESSING_IMAGE');
 
 /* RETRIEVE STATE */
