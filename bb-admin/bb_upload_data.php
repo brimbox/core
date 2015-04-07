@@ -536,7 +536,7 @@ $label = "Post " . $arr_layout['plural'];
 $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>$label);
 $main->echo_button("submit_data", $params);
 $arr_select = array("Insert","Edit");
-$main->array_to_select($arr_select, "insert_or_edit", $insert_or_edit, array('userkey'=>true,'select_class'=>"spaced"));
+$main->array_to_select($arr_select, "insert_or_edit", $insert_or_edit, array('usekey'=>true,'select_class'=>"spaced"));
 echo "</div>";
 echo "<div class=\"clear\"></div>";
 echo "<textarea class=\"spaced\" name=\"bb_data_area\" cols=\"160\" rows=\"25\" wrap=\"off\">" . $data . "</textarea>";

@@ -65,7 +65,7 @@ include("bb_queue_extra.php");
 <script type="text/javascript">
 /* MODULE JAVASCRIPT */
 //put selected text into clipboard
-function bb_get_selected_text () 
+function bb_get_selected_text() 
 	{
 	var selText = "";
 	if (window.getSelection)  
@@ -76,10 +76,11 @@ function bb_get_selected_text ()
 	else 
 		{
 		if (document.selection.createRange) 
-			{       // Internet Explorer
-             var range = document.selection.createRange ();
+			{
+			// Internet Explorer
+            var range = document.selection.createRange ();
              selText = range.text;			 
-             }
+            }
          }            
 	if (selText !== "") 
 		{
@@ -97,7 +98,7 @@ function bb_set_hidden(em)
 	bb_submit_form(0);
 	return false;
 	}        
-//clear clipboard	
+//clear clipboard
 function bb_clear_module()
 	{
 	var frmobj = document.forms["bb_form"];
@@ -121,8 +122,8 @@ function bb_set_field(col)
 	//display value
 	document.getElementById(col).innerHTML = str;
 	return false;
-	}        
-//* END MODULE JAVASCRIPT */
+	}
+/* END MODULE JAVASCRIPT */
 </script>
 
 
