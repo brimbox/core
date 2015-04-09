@@ -1169,9 +1169,9 @@ class bb_main {
             }
         }
         
-    function document($con, $object, $class = "link spaced", $text = "")
+    function document($object, $text = "", $class = "link spaced")
         {
-        if ($text == "")
+        if ($this->blank($text))
             {
             $text = $object;
             }

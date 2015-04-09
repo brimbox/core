@@ -104,11 +104,11 @@ function bb_process_related(&$arr_select_where, $arr_layouts_reduced, $arr_colum
         }
     }
     
-function check_header($arr_column_reduced, $str, $parent, $insert_or_edit)
+function bb_check_header($arr_column_reduced, $str, $parent, $insert_or_edit)
 	{
     $arr_row = explode("\t", $str);
     $i = 0;	
-    if (($parent <> 0) || $insert_or_edit)
+    if (($parent) || $insert_or_edit)
         {
         if (strtolower($arr_row[0]) <> "link")
             {
@@ -155,7 +155,7 @@ $arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 
 if ($main->button(1)) //get column names for layout
 	{
-    if ($parent == 0)
+    if (!$parent && !$insert_or_edit)
         {
         $arr_implode = array();    
         }
@@ -194,7 +194,7 @@ if ($main->button(3)) //submit_data
     
     //check header checks that the first line of data matches $xml_column
     //$arr_lines may need trim function
-	if (check_header($arr_column_reduced, trim($arr_lines[0]), $parent, $insert_or_edit))
+	if (bb_check_header($arr_column_reduced, trim($arr_lines[0]), $parent, $insert_or_edit))
 		{
         $data = "";
         //$i counts the current number of columns and is used to set up query params
@@ -223,7 +223,7 @@ if ($main->button(3)) //submit_data
             //bad line boolean
             $line_error = false;
             //trim and add key1 if no link
-            $line = ($parent == 0) ? "-1" . "\t" . trim($arr_lines[$j]) : $line = trim($arr_lines[$j]);
+            $line = (!$parent && !$insert_or_edit) ? "-1" . "\t" . trim($arr_lines[$j]) : $line = trim($arr_lines[$j]);
 			
             //put data row into array            
 			$arr_line = explode("\t", $line);
@@ -262,12 +262,12 @@ if ($main->button(3)) //submit_data
                             if (in_array($key,$arr_notes))
                                 {
                                 //no validation
-                                $arr_line[$l] = $main->custom_trim_string($arr_line[$l], 65536, false);
+                                $arr_line[$l] = $main->purge_chars($arr_line[$l], false);
                                 } 
                             else //validate, another else                       
                                 {
                                 //regular column
-                                $arr_line[$l] = $main->custom_trim_string($arr_line[$l],255);
+                                $arr_line[$l] = $main->purge_chars($arr_line[$l]);
                                 $return_required = false; //boolean false for not required
                                 $return_validate = false; //why not initialize                            
                                 //check required field  
@@ -313,7 +313,7 @@ if ($main->button(3)) //submit_data
                                 } //end validate and required
                             }
                             $l++;
-                        }//loop through columns and line  
+                        }//loop through columns and line
                     } //check that key is integer 
                 } //line too long         
 
@@ -332,9 +332,20 @@ if ($main->button(3)) //submit_data
                         {
                         $col = $main->pad("c",$key);
                         $str = $arr_line[$i];
+                        
+                        //build update clause
                         if (!$main->blank(trim($str)))
                             {
-                            $update_clause .= "," . $col . " =  '" . pg_escape_string((string)$str) . "'";
+                            $update_clause .= "," . $col . " =  '" . pg_escape_string(trim($str)) . "'";
+                            }
+                            
+                        //deal will unique value, empty str goes to boolean to skip
+                        if (isset($arr_column['layout']['unique']))
+                            {
+                            if (($arr_column['layout']['unique']) == $key)
+                                {
+                                $unique_value = (trim($str) == "") ? true : trim($str);
+                                }
                             }
                             
                        	$search_flag = ($value['search'] == 1) ? true : false;				
@@ -362,12 +373,11 @@ if ($main->button(3)) //submit_data
                     //no security, security stays the same
                     //check for unique key
                     $select_where_not = "SELECT 1 WHERE 1 = 0";
-                    if (isset($arr_column['layout']['unique'])) //no key = unset
+                    if (isset($arr_column['layout']['unique']) && !is_bool($unique_value)) //no key = unset
                         {
                         //get the vlaue to be checked
                         $unique_key = $arr_column['layout']['unique'];
                         $unique_column = $main->pad("c", $unique_key);
-                        $unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
                         if (!$main->blank($unique_value))
                             {
                             $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";                        
@@ -381,6 +391,7 @@ if ($main->button(3)) //submit_data
                     $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " .
                              "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ");";                 
                     $result = $main->query($con, $query);
+                    //echo "<p>" . $query . "</p>";
                     
                     if (pg_affected_rows($result) == 1)
                         {
@@ -394,7 +405,6 @@ if ($main->button(3)) //submit_data
                     }
                 else
                     {
-                    
                     $post_key = $arr_line[0];
                     $insert_clause = "row_type, key1, owner_name, updater_name";
                     $select_clause = $row_type . " as row_type, " . $post_key . " as key1, '" . $owner . "' as owner_name, '" . $owner . "' as updater_name";
@@ -406,6 +416,11 @@ if ($main->button(3)) //submit_data
                         {
                         $col = $main->pad("c",$key);
                         $str = pg_escape_string($arr_line[$i]);
+                        //unique value
+                        if (isset($arr_column['layout']['unique']))
+                            {
+                            if (($arr_column['layout']['unique']) == $key) $unique_value = trim($str);
+                            }                        
                         $insert_clause .= "," . $col;
                         $select_clause .= ", '" . $str . "'";
                         $search_flag = ($child['search'] == 1) ? true : false;
@@ -436,7 +451,6 @@ if ($main->button(3)) //submit_data
                         {
                         $unique_key = $arr_column['layout']['unique'];
                         $unique_column = $main->pad("c", $unique_key);
-                        $unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
                         //key, will not insert on empty value, key must be populated
                         if ($unique_value <> "")
                             {
