@@ -153,7 +153,7 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
-CREATE OR REPLACE FUNCTION bb_list_test(bit, integer)
+CREATE OR REPLACE FUNCTION bb_list(bit, integer)
   RETURNS integer AS
 $body
   BEGIN

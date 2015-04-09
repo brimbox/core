@@ -111,7 +111,7 @@ if ($main->button(1))
                 $arr_lists[$row_type_1] = $arr_list_1;
                 $main->update_json($con, $arr_lists,"bb_create_lists");
                 //empty list just in case
-                $query = "UPDATE data_table SET list_string = bb_list_unset(list_string, " . $k . ") WHERE bb_list_test(list_string, " . $k . ") = 1 AND row_type IN (" . (int)$row_type_1 . ");";
+                $query = "UPDATE data_table SET list_string = bb_list_unset(list_string, " . $k . ") WHERE bb_list(list_string, " . $k . ") = 1 AND row_type IN (" . (int)$row_type_1 . ");";
         
                 $main->query($con, $query);	
                 array_push($arr_message, "List succesfully added.");
@@ -186,7 +186,7 @@ if ($main->button(3) && ($confirm_remove == 1))
 			//reference parent, wierd but works
 			unset($arr_lists[$row_type_3][$list_number_3]);            
 			//empty list_bit
-			$query = "UPDATE data_table SET list_string = bb_list_unset(list_string, " . $list_number_3 . ") WHERE bb_list_test(list_string, " . $list_number_3 . ") = 1 AND row_type IN (" . (int)$row_type_3 . ");";			
+			$query = "UPDATE data_table SET list_string = bb_list_unset(list_string, " . $list_number_3 . ") WHERE bb_list(list_string, " . $list_number_3 . ") = 1 AND row_type IN (" . (int)$row_type_3 . ");";			
 			$main->query($con, $query);	
 			$main->update_json($con, $arr_lists, "bb_create_lists");
             //delete list populated for update

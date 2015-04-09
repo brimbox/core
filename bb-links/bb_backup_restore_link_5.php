@@ -80,7 +80,7 @@ foreach ($arr_lists as $row_type => $arr_list)
     {
     foreach ($arr_list as $key2 => $value)
         {        
-        $query = "SELECT id FROM data_table WHERE list_retrieve(list_string, " . $key2 . ") = 1 AND row_type = " . $row_type . ";";
+        $query = "SELECT id FROM data_table WHERE bb_list(list_string, " . $key2 . ") = 1 AND row_type = " . $row_type . ";";
         $result = $main->query($con, $query);
         
         while ($row = pg_fetch_array($result))
