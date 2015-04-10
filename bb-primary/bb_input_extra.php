@@ -134,20 +134,22 @@ class bb_input_extra {
         //check proper layouts on input
         $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
         $arr_column_reduced = $this->main->filter_keys($arr_column);
-        $primary_column = $this->main->pad("c", key($arr_column_reduced));
         
-        $query = "SELECT * FROM data_table WHERE id = " . (int)$relate .";";
+        $query = "SELECT * FROM data_table WHERE id = " . (int)$relate .";";        
         $result = $this->main->query($this->con, $query);
         if (pg_num_rows($result) == 1)
             {
             $row = pg_fetch_array($result);
+            $arr_relate_reduced = $this->main->filter_keys($this->arr_columns[$row['row_type']]); 
+            $relate_col_type = $this->main->get_default_column($arr_relate_reduced);
+            $relate_column = $this->main->pad("c", $relate_col_type);
             for ($i=41;$i<=46;$i++)
                 {
                 if (isset($arr_column_reduced[$i]))
                     {                    
                     if ($arr_column_reduced[$i]['relate'] == $row['row_type'])
                         {
-                        $str = $this->main->purge_chars(chr($row['row_type'] + 64) . $relate . ":" . $row[$primary_column], false);
+                        $str = $this->main->purge_chars(chr($row['row_type'] + 64) . $relate . ":" . $row[$relate_column], false);
                         $state_column = $this->main->pad("c", $i);
                         $arr_state[$state_column] = $str;  
                         }
