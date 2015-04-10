@@ -426,14 +426,15 @@ if ($main->button(6)) //submit_file
                         {       
                         $str = rtrim(fgets($handle));
                         $json_info = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
-                        
+                                                
                         $id = $json_info['id'];
                         $cnt = $json_info['count'];
                         $page = $json_info['page'];
+                        $length = $json_info['length'];
                         $remainder = $json_info['remainder'];
                         $filename = $json_info['filename'];
                         
-                        if (($cnt > 0) || ($remainder > 0))
+                        if ($length > 0)
                             {                        
                             pg_query($con, "BEGIN");
                             @pg_lo_unlink($con, $id);

@@ -156,7 +156,7 @@ while($row = pg_fetch_array($result))
     else
         {
         //unable to open
-        $json_info = array('id'=>$id,'filename'=>$filename,'length'=>$length,'count'=>0,'remainder'=>0,'page'=>$page);
+        $json_info = array('id'=>$id,'filename'=>$filename,'length'=>0,'count'=>0,'remainder'=>0,'page'=>0);
         $str = json_encode($json_info);
         echo encrypt_line($str, $passwd, $iv, $type) . $eol;
         }
