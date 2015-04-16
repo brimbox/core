@@ -51,9 +51,6 @@ $arr_message = array();
 //do search postback
 $main->retrieve($con, $array_state);
 
-//initialize values
-$search_array = array("","No Search Terms Entered");
-
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
     
@@ -77,7 +74,6 @@ $main->update($array_state, $module,  $arr_state);
 //function parse_boolean_string calls four non-object functions, advance, token, open, operator
 $boolean_parse = new php_boolean_validator();
 $boolean_parse->splice_or_tokens = true;
-
 $message = $boolean_parse->parse_boolean_string($search_parsed);
 array_push($arr_message, $message); 
 
