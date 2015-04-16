@@ -107,6 +107,7 @@ class bb_input_extra {
                     }
                 if (in_array($key,$this->arr_file))
                     {
+                    $str = $this->main->purge_chars($row[$col]);
                     $this->main->set("lo", $arr_state, $str);
                     }
                 else
