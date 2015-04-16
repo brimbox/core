@@ -298,7 +298,6 @@ EOT;
 if ($do_docs_table)
     {
     $result = pg_query($con, $query);
-    echo "Docs Table Created (No Population)<br>";
     }
     
 /* ALTER EVERYTHING TO TEXT */
