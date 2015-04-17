@@ -72,10 +72,9 @@ $offset = $main->process('offset', $module, $arr_state, 1);
 //must get post while preserving row_type state to reset col_type when row_type changes
 $row_type = $main->post('row_type', $module, $default_row_type);
 //must get arr_column on current row_type before setting default col_type
-$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
-
+$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 //get default col_type or deal with possibility of no columns, then 1
-$default_col_type = $main->get_default_column($arr_column);
+$default_col_type = $main->get_default_column($arr_column_reduced);
 
 // if row_type changed and postback (post is different than state) use default column type
 if ($main->check('row_type', $module) && ($row_type <> $main->state('row_type', $arr_state)))
@@ -138,7 +137,6 @@ echo "<span class=\"padded larger\">"; //font size
 
 //get column names based on row_type/record types (repeated after state load but why not for clarity)
 $column = $main->pad("c", $col_type);
-$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $arr_layout = $arr_layouts_reduced[$row_type];
 
 //get column name from "primary" attribute in column array
@@ -153,7 +151,7 @@ $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "&nbsp;&nbsp;";
 //column names, $column is currently selected column
 $params = array("onchange"=>"bb_reload()");
-$main->column_dropdown($arr_column, "col_type", $col_type, $params);
+$main->column_dropdown($arr_column_reduced, "col_type", $col_type, $params);
 
 //hidden element containing the current chosen letter
 echo "<input type = \"hidden\"  name = \"letter\" value = \"" . $letter . "\">";
@@ -209,7 +207,7 @@ while($row = pg_fetch_array($result))
 	$main->return_header($row, "bb_cascade");
 	echo "<div class=\"clear\"></div>";
 	//returns the record data in appropriate row
-	$count_rows = $main->return_rows($row, $arr_column); 
+	$count_rows = $main->return_rows($row, $arr_column_reduced); 
 	echo "<div class=\"clear\"></div>";
 	//return the links along the bottom of a record
 	$main->output_links($row, $arr_layouts_reduced, $userrole);

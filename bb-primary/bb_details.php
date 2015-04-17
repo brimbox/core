@@ -97,15 +97,13 @@ if ($post_key > 0) // a detail of a record
                 
         //get columns for details row_type
         $arr_columns = $main->get_json($con, "bb_column_names");
-        $arr_column = $arr_columns[$row_type];
+        $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
         $arr_layout =  $arr_layouts_reduced[$row_type];
     
          //call to function that outputs details
         echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities((string)$arr_layout['singular']) . "</p>";
-        //strip non-integer keys
-        $arr_column = $main->filter_keys($arr_column);
         /* return the details */
-        foreach($arr_column as $key => $value)
+        foreach($arr_column_reduced as $key => $value)
             {
             $col2 = $main->pad("c", $key);  
             if (in_array($key, $arr_notes)) //notes
@@ -138,7 +136,7 @@ if ($post_key > 0) // a detail of a record
 	if ($main->button(2))
 		{
        	$text_str = ""; 	
-        foreach($arr_column as $key => $value)
+        foreach($arr_column_reduced as $key => $value)
             { 	 
             $col2 = $main->pad("c", $key);     	
             $text_str .= $row[$col2] . PHP_EOL;	 	

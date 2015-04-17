@@ -59,7 +59,6 @@ $main->update($array_state, $module, $arr_state);
 $arr_columns = $main->get_json($con, "bb_column_names");
 
 $arr_layout = $arr_layouts_reduced[$row_type];
-$arr_column = $arr_columns[$row_type];
 
 //for the header left join
 //get column name from "primary" attribute in column array
@@ -139,7 +138,7 @@ if ($post_key > 0) //cascade children of record
             //$xml is global so there is only one round trip to the db per page load
             //get row type from returned rows
             $row_type = $row['row_type'];
-            $arr_column = $arr_columns[$row_type];
+            $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
             
             if ($row_type <> $row_type_catch)
                 {
@@ -155,7 +154,7 @@ if ($post_key > 0) //cascade children of record
             $bool_header = ($row['id'] == $post_key) ? true : false;
             $main->return_header($row, "bb_cascade", $bool_header);
             echo "<div class=\"clear\"></div>";
-            $count_rows = $main->return_rows($row, $arr_column);
+            $count_rows = $main->return_rows($row, $arr_column_reduced);
             echo "<div class=\"clear\"></div>";				
             $main->output_links($row, $arr_layouts_reduced, $userrole);
             echo "<div class=\"clear\"></div>";

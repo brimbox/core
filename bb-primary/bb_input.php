@@ -138,6 +138,7 @@ $main->retrieve($con, $array_state);
 $arr_state = $main->load($module, $array_state);
 //hook for postback routines, will include bb_input_extra
 $main->hook("postback_area", true);
+//returns $post_key, $row_type, $row_join, and $arr_state
 //update state
 $main->update($array_state, $module, $arr_state);
 /*END INPUT STATE AND POSTBACK */
@@ -155,7 +156,8 @@ $main->update($array_state, $module, $arr_state);
 if ($main->button(1))
 	{
     $arr_errors = array(); //empty array
-    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+    $arr_column = $arr_columns[$row_type];
+    $arr_column_reduced = $main->filter_keys($arr_column);
     $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 	foreach($arr_column_reduced as $key => $value)
         {

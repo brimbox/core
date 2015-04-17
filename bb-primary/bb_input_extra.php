@@ -85,9 +85,7 @@ class bb_input_extra {
         $post_key = $this->main->set('post_key', $arr_state, $_POST['bb_post_key']);
         
         //consider empty possibility
-
-        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);
         
         //populate from database if edit
         if ($row_type == $row_join)
@@ -133,8 +131,7 @@ class bb_input_extra {
         
         //consider empty possibility
         //check proper layouts on input
-        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);
         
         $query = "SELECT * FROM data_table WHERE id = " . (int)$relate .";";        
         $result = $this->main->query($this->con, $query);
@@ -169,8 +166,7 @@ class bb_input_extra {
         $post_key = $this->main->process('post_key', $this->module, $arr_state, 0); 
         $arr_state = $this->arr_state; //returned
         
-        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-        $arr_column_reduced = $this->main->filter_keys($arr_column);        
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);
         
         foreach($arr_column_reduced as $key => $value)
             {				
@@ -211,15 +207,11 @@ class bb_input_extra {
     /* CLEAR FORM BUTTON  */
     function clear_form()
         {
-        //reset to default row_type
-        $arr_column = array();
-        if ($this->default_row_type > 0)
-            {
-            $arr_column = $this->arr_columns[$this->default_row_type];
-            }
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
         //reset state
         $arr_state = array();
+        //reset to default row_type
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$this->default_row_type]);
+        //set some state vars
         $row_type = $this->main->set("row_type", $arr_state, $this->default_row_type);
         $row_join = $this->main->set("row_join", $arr_state, 0);
         $post_key = $this->main->set("post_key", $arr_state, 0);
@@ -238,14 +230,13 @@ class bb_input_extra {
         $row_join = $arr_state['row_join'];
         $post_key = $arr_state['post_key'];
         
-        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);
     
         $str_textarea = $this->main->post('input_textarea',$this->module);
         $arr_textarea =  explode(PHP_EOL, $str_textarea);	
         //load textarea into xml, textarea and queue field mutually exclusive
         $i = 0;
         
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
         foreach($arr_column_reduced as $key => $value)
             {				
             $col = $this->main->pad("c", $key);
@@ -279,11 +270,6 @@ class bb_input_extra {
         $row_join = $this->main->set('row_join', $arr_state, 0);
         $post_key = $this->main->set('post_key', $arr_state, 0);
         
-        if ($row_type > 0)
-            {
-            $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-            }
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
         return array($row_type, $row_join, $post_key, $arr_state);
         }
     /* END SELECT COMBO CHANGE CLEAR*/
@@ -320,6 +306,7 @@ class bb_input_queue {
         $this->arr_columns = $arr_columns;
         $this->arr_state = $arr_state;
         $this->arr_notes = array(49,50);
+        $this->arr_file = array(47);
         $this->row_type = $row_type;
         $this->row_join = $row_join;
         $this->post_key = $post_key;
@@ -359,11 +346,9 @@ class bb_input_queue {
         $post_key = (int)substr($this->var_subject,15);
         
 		$arr_layout = $this->arr_layouts[$row_type];
-        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);
         
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
-        
-		if (!empty($arr_column) && ($arr_layout['parent'] == $row_join))
+		if (!empty($arr_column_reduced) && ($arr_layout['parent'] == $row_join))
 			{
 			foreach($arr_column_reduced as $key => $value)
 				{		
@@ -378,6 +363,10 @@ class bb_input_queue {
 							{
 							$this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue'), false));
 							}
+                        elseif (in_array($key,$this->arr_file))
+                            {
+                            //do nothing
+                            }
 						else
 							{
 							$this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue')));
@@ -398,9 +387,6 @@ class bb_input_queue {
 					 }
 				 }
             
-            $arr_column_reduced = $this->main->filter_keys($arr_column);   
-            $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-
 			$post_key = -1;
 			$row_join = -1;
 			}
@@ -421,14 +407,13 @@ class bb_input_queue {
         $post_key = (int)substr($this->var_subject,14);
         $row_join = $row_type;
         
-        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);
         
         $query = "SELECT * FROM data_table " .
              "WHERE row_type = " . $row_type . " AND id = " . $post_key . ";";
         $result = $this->main->query($this->con, $query);
 		$numrows = pg_num_rows($result);
 		
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
 		if (!empty($arr_column_reduced) && ($numrows == 1))
 			{
 			$row = pg_fetch_array($result);
@@ -444,6 +429,10 @@ class bb_input_queue {
 							{    
 							$row[$col] =  $row[$col] . " " . $this->main->post($col,'bb_queue');
 							}
+                        elseif (in_array($key,$this->arr_file))
+                            {
+                            //do nothing
+                            }
 						else
 							{
 							$row[$col] = $this->main->post($col,'bb_queue');    
@@ -471,10 +460,8 @@ class bb_input_queue {
 					 break;
 					 }
 				 }
-			$arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-            $arr_column_reduced = $this->main->filter_keys($arr_column);
-
-			$post_key = -1;
+			$post_key = 0;
+            //$row_join <> $row_join then insert
 			$row_join = -1;
 			}
 		$this->main->set("row_type", $arr_state, $row_type);
@@ -491,13 +478,12 @@ class bb_input_queue {
 		$arr_state = array();
 		
         $row_type = ord(substr($this->var_subject,12,1)) - 64;
-        $post_key = -1;
+        $post_key = 0;
+        //$row_join <> $row_join then insert
         $row_join = -1;
     
         $arr_layout = $this->arr_layouts[$row_type];
-        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
-		
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);		
         
 		if (!empty($arr_column_reduced) && empty($arr_layout['parent']))
 			{        
@@ -509,6 +495,10 @@ class bb_input_queue {
 					{
 					$this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue'), false));
 				    }
+                elseif (in_array($key, $this->arr_file))
+                    {
+                    //do nothing
+                    }
 				else
 					{
 					$this->main->set($col, $arr_state, $this->main->purge_chars($this->main->post($col,'bb_queue')));
@@ -526,9 +516,8 @@ class bb_input_queue {
 					 break;
 					 }
 				 }
-			$arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-
-			$post_key = -1;
+			$post_key = 0;
+            //$row_join <> $row_join then insert
 			$row_join = -1;
 			}
 		$this->main->set("row_type", $arr_state, $row_type);
@@ -546,9 +535,7 @@ class bb_input_queue {
         $post_key = $this->post_key;
         $arr_state = $this->arr_state;
  
-        $arr_column = isset($this->arr_columns[$row_type]) ? $this->arr_columns[$row_type] : array();
-        $arr_column_reduced = $this->main->filter_keys($arr_column);
-       
+        $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);       
         foreach($arr_column_reduced as $key => $value)
             {		
             $col = $this->main->pad("c", $key);			
@@ -561,6 +548,10 @@ class bb_input_queue {
                         {
                         $temp_note = $this->main->purge_chars($arr_state[$col] . " " . $this->main->post($col,'bb_queue'), false);
                         $this->main->set($col, $arr_state, $temp_note);
+                        }
+                    elseif (in_array($key, $this->arr_file))
+                        {
+                        //do nothing
                         }
                     else
                         {

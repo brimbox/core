@@ -190,7 +190,7 @@ if ($main->blank($message))
         //this sets the correct column xml -- each iteration requires new columns
         //$xml is global so there is only one round trip to the db per page load
         //get row type from returned rows
-        $arr_column = $arr_columns[$row['row_type']];
+        $arr_column_reduced = $main->filter_keys($arr_columns[$row['row_type']]);
         
         //get the primary column and set $row['hdr'] based on primary header      
         $parent_row_type = $arr_layouts_reduced[$row['row_type']]['parent'];
@@ -202,7 +202,7 @@ if ($main->blank($message))
         echo "<div class =\"margin divider\">";
         $main->return_header($row, "bb_cascade");
         echo "<div class=\"clear\"></div>";
-        $count_rows = $main->return_rows($row, $arr_column);
+        $count_rows = $main->return_rows($row, $arr_column_reduced);
         echo "<div class=\"clear\"></div>";				
         $main->output_links($row, $arr_layouts_reduced, $userrole);
         echo "<div class=\"clear\"></div>";

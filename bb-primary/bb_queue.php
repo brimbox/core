@@ -348,7 +348,7 @@ $main->echo_module_vars();
 		//Record Add, New or Edit
 		if ($row_type > 0)
 			{
-			$arr_column = $arr_columns[$row_type]; 
+			$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 			}
 		
 		//Check input state
@@ -358,7 +358,7 @@ $main->echo_module_vars();
 			$row_type = isset($temp_state['row_type']) ? $temp_state['row_type'] : 0;
 			if ($row_type > 0)
 				{
-				$arr_column = $arr_columns[$row_type];
+				$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 				}
 			}
 		
@@ -377,7 +377,6 @@ $main->echo_module_vars();
 		echo "<div class=\"floatleft\"><ul class=\"nobullets noindent\">";
 		if (!empty($arr_column))
 			{
-			$arr_column_reduced = $main->filter_keys($arr_column);
 			foreach($arr_column_reduced as $key => $value)
 				{
 				$col = $main->pad("c", $key);

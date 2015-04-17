@@ -29,7 +29,7 @@ $main->retrieve($con, $array_state);
 $post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;
 $row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;
 
-$delete_log = $main->on_constant(BB_DELETE_LOG);
+$delete_log = $main->on_constant('BB_DELETE_LOG');
 
 /* BEGIN DELETE CASCADE */
 if ($main->button(1))
@@ -101,7 +101,7 @@ else
     $arr_layouts = $main->get_json($con, "bb_layout_names");
     $arr_layouts_reduced = $main->filter_keys($arr_layouts);
     $arr_columns = $main->get_json($con, "bb_column_names");
-    $arr_column = $arr_columns[$row_type];
+    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 	$arr_layout = $arr_layouts_reduced[$row_type];
 
     $parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
@@ -121,7 +121,7 @@ else
     //outputs the row we are working with
     $main->return_header($row, "bb_cascade");
     echo "<div class=\"clear\"></div>";   
-    $main->return_rows($row, $arr_column);
+    $main->return_rows($row, $arr_column_reduced);
     echo "<div class=\"clear\"></div>";
     echo "</div>";
 	echo "<div class =\"margin divider\"></div>";

@@ -23,7 +23,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 /* INITIALIZE */
 $arr_message = array();
 
-$archive_log = $main->on_constant(BB_ARCHIVE_LOG);
+$archive_log = $main->on_constant('BB_ARCHIVE_LOG');
  
 //State vars --- there is no delete state
 $main->retrieve($con, $array_state);
@@ -135,7 +135,7 @@ else //default behavior
     $arr_layouts = $main->get_json($con, "bb_layout_names");
     $arr_layouts_reduced = $main->filter_keys($arr_layouts);
     $arr_columns = $main->get_json($con, "bb_column_names");
-    $arr_column = $arr_columns[$row_type];
+    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
     $arr_layout = $arr_layouts_reduced[$row_type];
 
     //get column name from "primary" attribute in column array
@@ -158,7 +158,7 @@ else //default behavior
     //outputs the row we are working with
     $main->return_header($row, "bb_cascade");
     echo "<div class=\"clear\"></div>";   
-    $main->return_rows($row, $arr_column);
+    $main->return_rows($row, $arr_column_reduced);
     echo "<div class=\"clear\"></div>";
     echo "</div>";
      echo "<div class =\"margin divider\"></div>";

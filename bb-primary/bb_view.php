@@ -80,7 +80,7 @@ $main->update($array_state, $module, $arr_state);
             
 //get xml_column and sort column type
 $arr_columns = $main->get_json($con, "bb_column_names");
-$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
+$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 $arr_layout = $arr_layouts_reduced[$row_type];
 
 //for the header left join
@@ -100,10 +100,8 @@ echo "<select name=\"col1\" class=\"spaced\" onchange=\"bb_reload()\">";
 //order on create or modify date, use actual column names in this output
 echo "<option value=\"create_date\" " . ($col1 == "create_date" ? "selected" : "") . ">Created&nbsp;</option>";
 echo "<option value=\"modify_date\" " . ($col1 == "modify_date" ? "selected" : "") . ">Modified&nbsp;</option>";
-//strip non-integer keys
-$arr_column = $main->filter_keys($arr_column);
 //build field options for column names
-foreach($arr_column as $key => $value)
+foreach($arr_column_reduced as $key => $value)
     {
     $col = $main->pad("c", $key);
     echo "<option value=\"" . $col . "\" " . ($col == $col1 ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
@@ -157,7 +155,7 @@ if ($post_key > 0) //viewing children of record
 		echo "<div class =\"margin divider\">";
 		$main->return_header($row, "bb_cascade");
 		echo "<div class=\"clear\"></div>";	
-  		$count_rows = $main->return_rows($row, $arr_column);
+  		$count_rows = $main->return_rows($row, $arr_column_reduced);
 		echo "<div class=\"clear\"></div>";		 
 		$main->output_links($row, $arr_layouts_reduced, $userrole);
 		echo "<div class=\"clear\"></div>";

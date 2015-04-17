@@ -133,8 +133,7 @@ if ($list_number > 0)
 	{
 	//if a list has been selected
     $arr_layout = $arr_layouts_reduced[$row_type];
-    $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
-    $arr_column_reduced = $main->filter_keys($arr_column);
+    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 	$col1 = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
     
     //get column name from "primary" attribute in column array

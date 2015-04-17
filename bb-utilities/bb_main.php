@@ -129,14 +129,18 @@ class bb_main {
 	//$col2 is the actual name of the columns from the xml, $row[$col2] is  $row['c03']
 	//$child is the visable name of the column the user name of the column
 	
-	function return_rows($row, $arr_column, $check = 0)
+	function return_rows($row, $arr_column_reduced, $check = 0)
 		{
 		//you could always feed this function only non-secured columns
 		$row2 = 1;  //to catch row number change
 		$row3 = ""; //string with row data in it
 		$secure = false; //must be check = true and secure = 1 to secure column
 		$pop = false; //to catch empty rows, pop = true for non-empty rows
-        $arr_column_reduced = $this->filter_keys($arr_column);
+        
+        ##DEPRACATED##
+        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
+        ##DEPRACATED##
+
 		foreach($arr_column_reduced as $key => $value)
 			{
             if (is_integer($key)) //integer keys reserved for columns
@@ -183,6 +187,7 @@ class bb_main {
         //if check is true, $available array of layout secure values will be considered
         //$available is an array of available securities to allow
         //loop through $arr_layouts
+        
         foreach ($arr_layouts_reduced as $key => $value)
             {
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
@@ -195,13 +200,17 @@ class bb_main {
         return 1;
 	    }
         
-    function get_default_column($arr_column, $check = 0)
+    function get_default_column($arr_column_reduced, $check = 0)
 		{
         //columns are in order, will return first array if $check is false
         //if check is true, $available array of layout secure values will be considered
         //$available is an array of available securities to allow
-        //loop through $arr_layouts
-        $arr_column_reduced = $this->filter_keys($arr_column);
+        //loop through $arr_layouts\
+        
+        ##DEPRACATED##
+        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
+        ##DEPRACATED##
+
         foreach ($arr_column_reduced as $key => $value)
             {
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
@@ -214,19 +223,18 @@ class bb_main {
         return 1;
 	    }
         
-    function get_default_list($arr_list, $archive = 1)
+    function get_default_list($arr_list_reduced, $archive = 1)
 		{
         //default only ones that are not archived
         //columns are in order, will return first array if $check is false
         //if check is true, $available array of layout secure values will be considered
         //$available is an array of available securities to allow
         //loop through $arr_layouts
-        $arr_list_reduced = $this->filter_keys($arr_list);
         foreach ($arr_list_reduced as $key => $value)
             {
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
-			$secure = ($archive && ($value['archive'] >= $archive)) ? true : false;
-            if (!$secure) //check is true
+			$default = ($archive && ($value['archive'] >= $archive)) ? true : false;
+            if (!$default) //check is true
                 {
                 return $key;
                 }
@@ -234,25 +242,26 @@ class bb_main {
         return 1;
 	    }
     
-    function filter_keys ($arr, $filter = array(), $mode = true)
+    function filter_keys ($arr = array(), $filter = array(), $mode = true)
         //function to return array with only integer keys
+        //will return empty array if $arr is no set
         {
         if (!empty($arr))
             {
             $keys = array_filter(array_keys($arr), 'is_integer');
             $arr = array_intersect_key($arr, array_flip($keys));
+            if (!empty($filter))
+                {
+                if ($mode) //keep the keys in filter
+                    {
+                    $arr = array_intersect_key($arr, array_flip($filter));   
+                    }
+                else //discard the keys in filter
+                    {
+                    $arr = array_diff_key($arr, array_flip($filter)); 
+                    }
+                }
             }        
-        if (!empty($filter))
-            {
-            if ($mode) //keep the keys in filter
-                {
-                $arr = array_intersect_key($arr, array_flip($filter));   
-                }
-            else //discard the keys in filter
-                {
-                $arr = array_diff_key($arr, array_flip($filter)); 
-                }
-            }
         return $arr;
         }
 			
@@ -268,7 +277,7 @@ class bb_main {
 		$all = isset($params['all']) ? $params['all'] : false;
 		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
 		$label = isset($params['label']) ? $params['label'] : "";
-		
+        		
 		if (!empty($label))
 			{
 			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
@@ -295,7 +304,7 @@ class bb_main {
 		echo "</select>";
 		}
         
-    function column_dropdown($arr_column, $name, $col_type, $params = array())
+    function column_dropdown($arr_column_reduced, $name, $col_type, $params = array())
 		{
 		$class = isset($params['class']) ? $params['class'] : "";
 		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
@@ -304,7 +313,11 @@ class bb_main {
 		$all = isset($params['all']) ? $params['all'] : false;
 		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
 		$label = isset($params['label']) ? $params['label'] : "";
-		
+        
+        ##DEPRACATED##
+        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
+        ##DEPRACATED##
+        
 		if (!empty($label))
 			{
 			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
@@ -321,7 +334,6 @@ class bb_main {
 			{
 			echo "<option value=\"0\" " . (0 == $col_type ? "selected" : "") . ">All&nbsp;</option>";
 			}
-        $arr_column = $this->filter_keys($arr_column);
 		foreach($arr_column as $key => $value)
 			{
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
@@ -334,7 +346,7 @@ class bb_main {
 		echo "</select>";
 		}
         
-    function list_dropdown($arr_list, $name, $list_number, $params = array())
+    function list_dropdown($arr_list_reduced, $name, $list_number, $params = array())
 		{
 		//Security there should be no way to get column with secured row_type
 		$class = isset($params['class']) ? $params['class'] : "";
@@ -354,7 +366,7 @@ class bb_main {
 			{
 			echo "<option value=\"-1\" " . (-1 == $list_number ? "selected" : "") . "></option>";
 			}
-		foreach($arr_list as $key => $value)
+		foreach($arr_list_reduced as $key => $value)
 			{
 			//either 1 or 0 for archive
             $archive = ($check && ($value['archive'] >= $check)) ? true : false;
