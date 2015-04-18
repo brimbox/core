@@ -375,7 +375,7 @@ $main->echo_module_vars();
 		$i = 1;
 	    //visable queue fields
 		echo "<div class=\"floatleft\"><ul class=\"nobullets noindent\">";
-		if (!empty($arr_column))
+		if (!empty($arr_column_reduced))
 			{
 			foreach($arr_column_reduced as $key => $value)
 				{

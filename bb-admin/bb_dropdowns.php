@@ -50,10 +50,10 @@ $arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 
 //deal with columns
 $arr_columns = $main->get_json($con, "bb_column_names");
-$arr_column = $arr_columns[$row_type];
+$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 
 //this is catch variable from the javascript to initialize
-$default_col_type = $main->get_default_column($arr_column);
+$default_col_type = $main->get_default_column($arr_column_reduced);
 $col_type = $main->post('col_type', $module, $default_col_type);
 if ($main->post('col_catch', $module) == 1)
 	{
@@ -160,7 +160,7 @@ $params = array("class"=>"spaced","onchange"=>"bb_reload()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "<br>"; //why not
 $params = array("class"=>"spaced");
-$main->column_dropdown($arr_column, "col_type", $col_type, $params);
+$main->column_dropdown($arr_column_reduced, "col_type", $col_type, $params);
 echo "<br>";
 echo "<input name=\"col_catch\" type=\"hidden\" value\"0\">";
 	

@@ -26,7 +26,6 @@ $main->retrieve($con, $array_state);
 
 //start of code
 $arr_layouts = $main->get_json($con, "bb_layout_names"); //do not reduce
-$arr_columns = $main->get_json($con, "bb_column_names"); //to set emmty vale
 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_layout_security = $arr_header['layout_security']['value'];
@@ -134,10 +133,6 @@ if ($main->button(1)) //layout_submit
                 //initialize empty array for columns
                 //this is important to avoid unset notices
                 //can test whether column are empty
-                if (!isset($arr_columns[$i]))
-                    {
-                    $arr_columns[$i] = array();    
-                    }
                 }
             }
         //sort  
@@ -154,7 +149,6 @@ if ($main->button(1)) //layout_submit
     if ($unique && !$empty && $count && $relationship)
         {
         $main->update_json($con, $arr_layouts, "bb_layout_names");
-        $main->update_json($con, $arr_columns, "bb_column_names");
         array_push($arr_message,"Layouts have been updated.");    
         }
     } //submit

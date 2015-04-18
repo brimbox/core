@@ -70,6 +70,7 @@ $row_type = $main->post('row_type', $module, $default_row_type);
 $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_layout = $arr_layouts_reduced[$row_type];
 //columns can be undefined, one layout is always set
+//need full column, not reduced
 $arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
 $layout_name = $arr_layout['plural'];
 
@@ -301,7 +302,7 @@ for ($m = 1; $m <= 50; $m++)
         $required = $arr_column[$m]['required'];
         $secure = $arr_column[$m]['secure'];
         $search = $arr_column[$m]['search'];
-        if (isset($arr_column[$m]['relate'])) $relate = $arr_column[$m]['relate'];
+        $relate = $arr_column[$m]['relate'];
         }
 	
 	//this is for reserved columns

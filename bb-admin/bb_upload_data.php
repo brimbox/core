@@ -134,6 +134,7 @@ function bb_check_header($arr_column_reduced, $str, $parent, $insert_or_edit)
 $arr_layouts = $main->get_json($con, "bb_layout_names");
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_columns = $main->get_json($con, "bb_column_names");
 //get guest index
 $arr_header = $main->get_json($con, "bb_interface_enabler");
 $arr_guest_index = $arr_header['guest_index']['value'];
@@ -145,10 +146,10 @@ $data_file = $main->post('bb_data_file_name', $module, "default");
 $insert_or_edit = $main->post('insert_or_edit', $module, 0);
 
 //get column names based on row_type/record types
-$arr_columns = $main->get_json($con, "bb_column_names");
 $arr_layout = $arr_layouts_reduced[$row_type];
-$parent = $arr_layout['parent']; 
-$arr_column = $arr_columns[$row_type];
+$parent = $arr_layout['parent'];
+//need unreduced column
+$arr_column = $main->filter_init($arr_columns[$row_type]);
 $arr_column_reduced = $main->filter_keys($arr_column);
 //get dropdowns for validation
 $arr_dropdowns = $main->get_json($con, "bb_dropdowns");

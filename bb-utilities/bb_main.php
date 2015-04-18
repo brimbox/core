@@ -26,6 +26,7 @@ If not, see http://www.gnu.org/licenses/
 //get_default_layout
 //get_default_column
 //filter_keys
+//filter_init
 //layout_dropdown
 //column_dropdown
 //list_dropdown
@@ -242,12 +243,14 @@ class bb_main {
         return 1;
 	    }
     
-    function filter_keys ($arr = array(), $filter = array(), $mode = true)
+    function filter_keys (&$arr_column, $filter = array(), $mode = true)
         //function to return array with only integer keys
         //will return empty array if $arr is no set
         {
-        if (!empty($arr))
+        if (!empty($arr_column))
             {
+            //copy so $arr_column is not altered
+            $arr = $arr_column;
             $keys = array_filter(array_keys($arr), 'is_integer');
             $arr = array_intersect_key($arr, array_flip($keys));
             if (!empty($filter))
@@ -261,8 +264,25 @@ class bb_main {
                     $arr = array_diff_key($arr, array_flip($filter)); 
                     }
                 }
-            }        
-        return $arr;
+            return $arr;    
+            }
+        else
+            {
+            return array();    
+            }
+        }
+    
+    function filter_init (&$arr_column)
+        //quickly initializes array
+        {
+        if (empty($arr_column))
+            {
+            return array();    
+            }
+        else
+            {
+            return($arr_column);    
+            }
         }
 			
 	//this returns a standard header combo for selecting record type
@@ -334,7 +354,7 @@ class bb_main {
 			{
 			echo "<option value=\"0\" " . (0 == $col_type ? "selected" : "") . ">All&nbsp;</option>";
 			}
-		foreach($arr_column as $key => $value)
+		foreach($arr_column_reduced as $key => $value)
 			{
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
