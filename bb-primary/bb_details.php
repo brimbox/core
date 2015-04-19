@@ -122,6 +122,16 @@ if ($post_key > 0) // a detail of a record
                 echo "<button class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . htmlentities($row[$col2]) . "</button>";
                 echo "</div>";
                 }
+            elseif (in_array($key, $arr_relate) && $value['relate'])
+                {
+                $relate_row_type = $main->relate_row_type($row[$col2]);
+                $relate_post_key = $main->relate_post_key($row[$col2]);
+                $relate['id'] = $relate_post_key;
+                $relate['row_type'] = $relate_row_type;
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
+                $main->standard($relate, $arr_layouts_reduced, "bb_cascade", $row[$col2], array('class'=>"link spaced left floatleft"));
+                 echo "</div>";
+                }
             else //regular
                 {
                 echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
@@ -279,6 +289,7 @@ if ($post_key > 0) // a detail of a record
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
 $main->echo_module_vars();
+$main->echo_common_vars();
  
 //message and textarea align left
 echo "<div class=\"left\">";

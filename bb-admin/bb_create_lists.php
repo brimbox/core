@@ -82,7 +82,9 @@ if ($main->button(1))
         $new_description = $main->custom_trim_string($main->post('new_description', $module), 255);
         $row_type = $main->post('row_type_1', $module);
         //reduced for the foreach loop
-        $arr_list_1_reduced = $main->filter_keys($arr_lists[$row_type_1]);
+        $arr_list_1 = $arr_lists[$row_type_1];
+        //reduce for foreach loop
+        $arr_list_1_reduced = $main->filter_keys($arr_list_1);
 
         
         //multidimensional too painful to search
