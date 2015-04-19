@@ -185,7 +185,7 @@ class bb_main {
     function get_default_layout($arr_layouts_reduced, $check = 0)
 		{
         //layouts are in order, will return first array if $check is false
-        //if check is true, $available array of layout secure values will be considered
+        //if check is true, $available array of secure values will be considered
         //$available is an array of available securities to allow
         //loop through $arr_layouts
         
@@ -204,9 +204,9 @@ class bb_main {
     function get_default_column($arr_column_reduced, $check = 0)
 		{
         //columns are in order, will return first array if $check is false
-        //if check is true, $available array of layout secure values will be considered
+        //if check is true, $available array of secure values will be considered
         //$available is an array of available securities to allow
-        //loop through $arr_layouts\
+        //loop through $arr_columns
         
         ##DEPRACATED##
         $arr_column_reduced = $this->filter_keys($arr_column_reduced);
@@ -228,9 +228,9 @@ class bb_main {
 		{
         //default only ones that are not archived
         //columns are in order, will return first array if $check is false
-        //if check is true, $available array of layout secure values will be considered
+        //if check is true, $available array of secure values will be considered
         //$available is an array of available securities to allow
-        //loop through $arr_layouts
+        //loop through $arr_list
         foreach ($arr_list_reduced as $key => $value)
             {
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
@@ -243,14 +243,14 @@ class bb_main {
         return 1;
 	    }
     
-    function filter_keys (&$arr_column, $filter = array(), $mode = true)
+    function filter_keys (&$arr_filter, $filter = array(), $mode = true)
         //function to return array with only integer keys
         //will return empty array if $arr is no set
         {
-        if (!empty($arr_column))
+        if (!empty($arr_filter))
             {
             //copy so $arr_column is not altered
-            $arr = $arr_column;
+            $arr = $arr_filter;
             $keys = array_filter(array_keys($arr), 'is_integer');
             $arr = array_intersect_key($arr, array_flip($keys));
             if (!empty($filter))
@@ -272,16 +272,16 @@ class bb_main {
             }
         }
     
-    function filter_init (&$arr_column)
+    function filter_init (&$arr_filter)
         //quickly initializes array
         {
-        if (empty($arr_column))
+        if (empty($arr_filter))
             {
             return array();    
             }
         else
             {
-            return($arr_column);    
+            return($arr_filter);    
             }
         }
 			
@@ -612,7 +612,8 @@ class bb_main {
 			{
 			//changes a bunch of control chars to single spaces except for new lines
 			$pattern = "/[\\t\\0\\x0B\\x0C\\r]+/";
-			$str = trim(preg_replace($pattern, " ", $str)); //trim this one three times
+			$str = trim(preg_replace($pattern, " ", $str));
+            //trim around eols
 			$pattern = "/ {0,}(\\n{1}) {0,}/";
 			$str = preg_replace($pattern, "\n", $str);
 			}
@@ -901,7 +902,6 @@ class bb_main {
 		$query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
 		$this->query_params($con, $query, $arr_log);
 		}
-
 		
 	function output_links($row, $arr_layouts_reduced, $userrole)
 		{
@@ -1059,16 +1059,16 @@ class bb_main {
 		return $return_value;
 		}
 				
-	function validate_dropdown(&$field, $arr_dropdown, $error = false)
+	function validate_dropdown(&$field, $dropdown_reduced, $error = false)
 		{
 		//validates dropdowns, primarily used in bulk loads (Upload Data)
 		//returns false on good, true or error string if bad
-        $key = array_search(strtolower($field), array_map('strtolower', $arr_dropdown));
+        $key = array_search(strtolower($field), array_map('strtolower', $dropdown_reduced));
         //key will be false, otherwise int
 		if ($key !== false)
 			{
 			//update $field, return false for no error
-			$field = $arr_dropdown[$key];
+			$field = $dropdown_reduced[$key];
 			$return_value = false;
 			}
 		else

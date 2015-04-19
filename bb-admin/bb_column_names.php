@@ -71,7 +71,7 @@ $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_layout = $arr_layouts_reduced[$row_type];
 //columns can be undefined, one layout is always set
 //need full column, not reduced
-$arr_column = isset($arr_columns[$row_type]) ? $arr_columns[$row_type] : array();
+$arr_column = $main->filter_init($arr_columns[$row_type]);
 $layout_name = $arr_layout['plural'];
 
 //array of error messages

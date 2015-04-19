@@ -255,7 +255,7 @@ class bb_hooks extends bb_work {
 		
 	function textarea_load($arr_column_reduced, $arr_column, $module)
 		{
-		if (!empty($arr_column))
+		if (!empty($arr_column_reduced))
             {
 			$textarea_rows = $arr_column['layout']['count'] > 4 ? (int)$arr_column['layout']['count'] : 4;
             echo "<div class=\"clear\"></div>";

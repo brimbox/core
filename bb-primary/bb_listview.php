@@ -78,15 +78,14 @@ $main->update($array_state, $module, $arr_state);
 <?php
 //get list fields, xml4 is the list fields
 //get description
-if (isset($arr_lists[$row_type][$list_number]))
-    {
-    $arr_list_reduced = $main->filter_keys($arr_lists[$row_type]);
+$arr_list_reduced = $main->filter_keys($arr_lists[$row_type]);
+if (isset($arr_list_reduced[$list_number]))
+    {    
     $list = $arr_list_reduced[$list_number];
     $description = $list['description'];
     }
 else
     {
-    $arr_list_reduced = array();
     $list = array();
     $description = "";       
     }
@@ -132,12 +131,12 @@ $lower_limit = ($offset - 1) * $return_rows;
 if ($list_number > 0)
 	{
 	//if a list has been selected
-    $arr_layout = $arr_layouts_reduced[$row_type];
     $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 	$col1 = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
     
     //get column name from "primary" attribute in column array
     //this is used to populate the record header link to parent record
+    $arr_layout = $arr_layouts_reduced[$row_type];
     $parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
     $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 

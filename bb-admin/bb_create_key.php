@@ -44,10 +44,9 @@ $row_type = $main->post('row_type', $module, $default_row_type);
 $arr_columns = $main->get_json($con, "bb_column_names");
 $arr_column = $main->filter_init($arr_columns[$row_type]);
 $arr_column_reduced = $main->filter_keys($arr_column);
-
 $arr_layout = $arr_layouts_reduced[$row_type];
-$col_type =  (isset($arr_column['layout']['unique'])) ? $arr_column['layout']['unique'] : 0;
 
+$col_type =  (isset($arr_column['layout']['unique'])) ? $arr_column['layout']['unique'] : 0;
 
 //check_column    
 if ($main->button(1) || $main->button(2)) 

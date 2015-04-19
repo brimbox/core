@@ -302,7 +302,7 @@ class bb_input_queue {
         $this->main = $main;
         $this->con = $con;
         $this->module = $module;
-        $this->arr_layouts = $arr_layouts_reduced;
+        $this->arr_layouts_reduced = $arr_layouts_reduced;
         $this->arr_columns = $arr_columns;
         $this->arr_state = $arr_state;
         $this->arr_notes = array(49,50);
@@ -345,7 +345,7 @@ class bb_input_queue {
         $row_join = ord(substr($this->var_subject,14,1)) - 64;
         $post_key = (int)substr($this->var_subject,15);
         
-		$arr_layout = $this->arr_layouts[$row_type];
+		$arr_layout = $this->arr_layouts_reduced[$row_type];
         $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);
         
 		if (!empty($arr_column_reduced) && ($arr_layout['parent'] == $row_join))
@@ -378,7 +378,7 @@ class bb_input_queue {
 		else
 			{
 			$row_type = 0;
-			foreach ($this->arr_layouts as $key => $value)
+			foreach ($this->arr_layouts_reduced as $key => $value)
 				 {
 				 if ($value['parent'] == 0)
 					 {
@@ -452,7 +452,7 @@ class bb_input_queue {
 		else
 			{
 			$row_type = 0;
-			foreach ($this->arr_layouts as $key => $value)
+			foreach ($this->arr_layouts_reduced as $key => $value)
 				 {
 				 if ($value['parent'] == 0)
 					 {
@@ -482,7 +482,7 @@ class bb_input_queue {
         //$row_join <> $row_join then insert
         $row_join = -1;
     
-        $arr_layout = $this->arr_layouts[$row_type];
+        $arr_layout = $this->arr_layouts_reduced[$row_type];
         $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);		
         
 		if (!empty($arr_column_reduced) && empty($arr_layout['parent']))
@@ -508,7 +508,7 @@ class bb_input_queue {
 		else
 			{
 			$row_type = 0;
-			foreach ($this->arr_layouts as $key => $value)
+			foreach ($this->arr_layouts_reduced as $key => $value)
 				 {
 				 if ($value['parent'] == 0)
 					 {

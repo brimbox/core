@@ -302,8 +302,8 @@ if ($main->button(3)) //submit_data
                                     //not used in input routine, could both validate on dropdown and type
                                     if (isset($arr_dropdowns[$row_type][$key]))
                                         {
-                                        $arr_dropdown = $arr_dropdowns[$row_type][$key];
-                                        $return_validate = $main->validate_dropdown($arr_line[$l], $arr_dropdown, true);
+                                        $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
+                                        $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
                                         if (!is_bool($return_validate))
                                             {
                                             $line_error = true;

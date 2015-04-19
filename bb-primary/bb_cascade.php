@@ -58,11 +58,10 @@ $main->update($array_state, $module, $arr_state);
 //get xml_column and sort column type
 $arr_columns = $main->get_json($con, "bb_column_names");
 
-$arr_layout = $arr_layouts_reduced[$row_type];
-
 //for the header left join
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
+$arr_layout = $arr_layouts_reduced[$row_type];
 $parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 /*** END COLUMN AND LAYOUT INFO ***/

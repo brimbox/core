@@ -98,9 +98,9 @@ if ($post_key > 0) // a detail of a record
         //get columns for details row_type
         $arr_columns = $main->get_json($con, "bb_column_names");
         $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
-        $arr_layout =  $arr_layouts_reduced[$row_type];
     
          //call to function that outputs details
+        $arr_layout =  $arr_layouts_reduced[$row_type];
         echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities((string)$arr_layout['singular']) . "</p>";
         /* return the details */
         foreach($arr_column_reduced as $key => $value)

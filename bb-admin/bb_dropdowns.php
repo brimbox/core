@@ -43,6 +43,7 @@ $main->retrieve($con, $array_state);
 $arr_layouts = $main->get_json($con, "bb_layout_names");
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);  
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
+
 $row_type = $main->post('row_type', $module, $default_row_type);
 
 //get dropdowns
@@ -69,9 +70,7 @@ $col_text = isset($arr_column[$col_type]['name']) ? $arr_column[$col_type]['name
 if ($main->button(1)) //populate_dropdown
 	{
     //preexisting dropdown xml
-    $arr_dropdown = isset($arr_dropdowns[$row_type]) ? $arr_dropdowns[$row_type] : array();
-    $arr_dropdown_reduced = $main->filter_keys($arr_dropdown);
-    $arr_droplist = isset($arr_dropdown_reduced[$col_type]) ? $arr_dropdown_reduced[$col_type] : array();
+    $dropdown_reduced = $main->filter_keys($arr_dropdowns[$row_type][$col_type]);
 
     //get all values in database for the selected column (and row type)
     $column = $main->pad("c",$col_type);
@@ -81,18 +80,18 @@ if ($main->button(1)) //populate_dropdown
 	$arr_query = pg_fetch_all_columns($result, 0);
 
     //values from db and dropdown alphabetized
-	if (!empty($arr_droplist) && ($all_values == 0))
+	if (!empty($dropdown_reduced) && ($all_values == 0))
 		{
-		$arr_populate = array_merge($arr_query, $arr_droplist);
+		$arr_populate = array_merge($arr_query, $dropdown_reduced);
 		$arr_populate = array_unique($arr_populate);
         $arr_populate = array_filter($arr_populate); //remove empty rows
         array_push($arr_message, "Column " . $col_text . " has a dropdown list.");
         array_push($arr_message, "Textarea populated from both preexisting dropdown list and the database.");
 		}
     //values from dropdown not alphabetized
-    elseif (!empty($arr_droplist) && ($all_values == 1))
+    elseif (!empty($dropdown_reduced) && ($all_values == 1))
         {
-        $arr_populate = $arr_droplist;
+        $arr_populate = $dropdown_reduced;
         array_push($arr_message, "Column " . $col_text . " has a dropdown list.");
         array_push($arr_message, "Textarea populated from preexisting dropdown list.");
         }
@@ -107,7 +106,7 @@ if ($main->button(1)) //populate_dropdown
 //this area updates the drop down if set
 if ($main->button(2)) //submit dropdown
 	{
-    $arr_txt = preg_split("/[\r\n]+/",  $main->custom_trim_string($main->post('droplist', $module), 65536, false, true));
+    $arr_txt = preg_split("/[\r\n]+/", $main->purge_chars($main->post('dropdown', $module)));
 	$arr_txt = array_filter($arr_txt); //remove empty rows
     if (in_array($col_type ,$arr_notes))
         {
@@ -165,7 +164,7 @@ echo "<br>";
 echo "<input name=\"col_catch\" type=\"hidden\" value\"0\">";
 	
 //populate text area
-echo "<textarea class=\"spaced\" name=\"droplist\" cols=\"40\" rows=\"10\" wrap=\"off\">";
+echo "<textarea class=\"spaced\" name=\"dropdown\" cols=\"40\" rows=\"10\" wrap=\"off\">";
 if (isset($arr_populate))
 	{
 	foreach($arr_populate as $value)

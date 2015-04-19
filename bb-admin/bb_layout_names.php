@@ -153,7 +153,7 @@ if ($main->button(1)) //layout_submit
         }
     } //submit
 
-if ($main->button(2)) //revert to xml in database
+if ($main->button(2)) //revert to json in database
 	{
     $arr_layouts = $main->get_json($con, "bb_layout_names");
     array_push($arr_message,"Layouts have been refreshed from database.");

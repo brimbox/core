@@ -137,10 +137,10 @@ echo "<span class=\"padded larger\">"; //font size
 
 //get column names based on row_type/record types (repeated after state load but why not for clarity)
 $column = $main->pad("c", $col_type);
-$arr_layout = $arr_layouts_reduced[$row_type];
 
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
+$arr_layout = $arr_layouts_reduced[$row_type];
 $parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
 

@@ -143,6 +143,13 @@ $main->hook("postback_area", true);
 $main->update($array_state, $module, $arr_state);
 /*END INPUT STATE AND POSTBACK */
 
+//hook will initialize $post_key, $row_type, $row_join, and $arr_state
+//so these are basically global
+$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$arr_layout = $arr_layouts_reduced[$row_type];
+$arr_column = $main->filter_init($arr_columns[$row_type]);
+$arr_column_reduced = $main->filter_keys($arr_column);
+
 /* Standard Buttons */
 //Button 1 - update or insert (see below)
 //Button 2 - reset form (in postback hook)
@@ -151,14 +158,10 @@ $main->update($array_state, $module, $arr_state);
 //Button 5 - textarea load (in postback hook)
 
 /* SUBMIT TO DATABASE */
-//validation error arr_error_msg
-
+//validation error arr_errors
 if ($main->button(1))
 	{
     $arr_errors = array(); //empty array
-    $arr_column = $arr_columns[$row_type];
-    $arr_column_reduced = $main->filter_keys($arr_column);
-    $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 	foreach($arr_column_reduced as $key => $value)
         {
         /* START VALIDATION */
@@ -511,9 +514,7 @@ if ($main->button(1))
 //this gets parent information before insert or update
 if ($post_key > 0)
     {
-    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
-    $arr_layouts_reduced = $main->filter_keys($arr_layouts);
-    $parent_row_type = $arr_layouts_reduced[$row_type]['parent'];
+    $parent_row_type = $arr_layout['parent'];
     $parent = isset($arr_columns[$parent_row_type]['layout']['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['layout']['primary']) : "c01";
 	 
 	 //edit, must join to parent
@@ -574,9 +575,6 @@ $main->echo_module_vars();
 //this means there is a layout
 if ($row_type > 0):
     //must have row_type
-    $arr_column = $arr_columns[$row_type];
-    $arr_column_reduced = $main->filter_keys($arr_column);
-    $arr_layouts_reduced = $main->filter_keys($arr_layouts);
           
     // HOOKS */
     $main->hook("top_level_records", true);    
@@ -609,12 +607,11 @@ if ($row_type > 0):
             if (isset($arr_dropdowns[$row_type][$key]))
                 {
                 //dropdown
-                $arr_dropdown_reduced = $main->filter_keys($arr_dropdowns[$row_type]);
-                $arr_droplist = $readonly ? array($input) : $arr_dropdown_reduced[$key]; //single item select for readonly
+                $arr_droplist_reduced = $readonly ? array($input) : $main->filter_keys($arr_dropdowns[$row_type][$key]); //single item select for readonly
                 echo "<div class=\"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
                 echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
-                foreach ($arr_droplist as $dropdown)
+                foreach ($arr_droplist_reduced as $dropdown)
                     {                            
                     echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
                     }

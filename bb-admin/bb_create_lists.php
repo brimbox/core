@@ -81,9 +81,8 @@ if ($main->button(1))
         $new_value = $main->custom_trim_string($main->post('new_value', $module),50, true, true);
         $new_description = $main->custom_trim_string($main->post('new_description', $module), 255);
         $row_type = $main->post('row_type_1', $module);
-        $arr_list_1 = isset($arr_lists[$row_type_1]) ? $arr_lists[$row_type_1] : array();
-        //reduced for the search
-        $arr_list_1_reduced = $main->filter_keys($arr_list_1);
+        //reduced for the foreach loop
+        $arr_list_1_reduced = $main->filter_keys($arr_lists[$row_type_1]);
 
         
         //multidimensional too painful to search
@@ -135,6 +134,7 @@ if ($main->button(2))
         {    
         if ($main->full('update_list', $module))
             {
+            //do not reduce
             $arr_list_2 = $arr_lists[$row_type_2];
 			if (isset($arr_list_2))
 				{
@@ -285,7 +285,7 @@ echo "<div class=\"cell padded\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_2()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type_2", $row_type_2, $params);
 $params = array("class"=>"spaced","empty"=>true,"check"=>1,"onchange"=>"bb_reload_1()");
-$arr_pass = isset($arr_lists[$row_type_2]) ? $main->filter_keys($arr_lists[$row_type_2]) : array();
+$arr_pass = $main->filter_keys($arr_lists[$row_type_2]);
 $main->list_dropdown($arr_pass, "list_number_2", $list_number_2, $params);
 echo "</div>";
 echo "</div>";
@@ -325,7 +325,7 @@ echo "<div class=\"cell padded nowrap\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload_3()");
 $main->layout_dropdown($arr_layouts_reduced, "row_type_3", $row_type_3, $params);
 $params = array("class"=>"spaced","empty"=>true,"check"=>0);
-$arr_pass = isset($arr_lists[$row_type_3]) ? $main->filter_keys($arr_lists[$row_type_3]) : array();
+$arr_pass = $main->filter_keys($arr_lists[$row_type_3]);
 $main->list_dropdown($arr_pass, "list_number_3", $list_number_3, $params);
 echo " | ";
 echo "</div>";
