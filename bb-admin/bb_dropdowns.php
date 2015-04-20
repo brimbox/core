@@ -106,7 +106,7 @@ if ($main->button(1)) //populate_dropdown
 //this area updates the drop down if set
 if ($main->button(2)) //submit dropdown
 	{
-    $arr_txt = preg_split("/[\r\n]+/", $main->purge_chars($main->post('dropdown', $module)));
+    $arr_txt = preg_split("/[\r\n]+/", $main->purge_chars($main->post('dropdown', $module), false));
 	$arr_txt = array_filter($arr_txt); //remove empty rows
     if (in_array($col_type ,$arr_notes))
         {
