@@ -190,7 +190,7 @@ $query = <<<EOT
 CREATE OR REPLACE function bb_key(c text)
  RETURNS bigint LANGUAGE sql IMMUTABLE AS
 $body
-SELECT substr($1,2, strpos($1,':')-2)::bigint;
+SELECT substr($1,2, strpos($1,':')-2)::bigint WHERE $1 ~ E'^[A-Z]\\d+:.*';
 $body
 EOT;
 pg_query($con, $query);
@@ -199,7 +199,7 @@ $query = <<<EOT
 CREATE OR REPLACE function bb_value(c text)
  RETURNS text LANGUAGE sql IMMUTABLE AS
 $body
-SELECT substr($1, strpos($1,':') + 1, length($1))::text;
+SELECT substr($1, strpos($1,':') + 1, length($1))::text WHERE $1 ~ E'^[A-Z]\\d+:.*';
 $body
 EOT;
 pg_query($con, $query);
