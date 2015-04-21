@@ -141,13 +141,14 @@ if ($main->button(1))
         //produce empty form since we are going to load the data
         $owner = $main->purge_chars($username); //used in both if and else
         $unique_key = isset($arr_column['layout']['unique']) ? $arr_column['layout']['unique'] : 0;
+        
+        $arr_ts_vector_fts = array();
+        $arr_ts_vector_ftg = array();
+        $arr_select_where = array();
        
         if ($row_type == $row_join)  // update preexisting row
             {
             $update_clause = "updater_name = '" . pg_escape_string($owner) . "'";
-			$arr_ts_vector_fts = array();
-			$arr_ts_vector_ftg = array();
-            $arr_select_where = array();
             foreach($arr_column_reduced as $key => $value)
 				{
 				$col = $main->pad("c", $key);
@@ -282,10 +283,6 @@ if ($main->button(1))
             {
             $insert_clause = "row_type, key1, owner_name, updater_name";
             $select_clause = $row_type . " as row_type, " . $post_key . " as key1, '" . $owner . "' as owner_name, '" . $owner . "' as updater_name";
-
-			$arr_ts_vector_fts = array();
-			$arr_ts_vector_ftg = array();
-            $arr_select_where = array();
             foreach($arr_column_reduced as $key => $value)
                 {
                 $col = $main->pad("c", $key);

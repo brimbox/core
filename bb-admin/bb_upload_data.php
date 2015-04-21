@@ -260,16 +260,18 @@ if ($main->button(3)) //submit_data
 
              if (!$line_error)
                 {
-                $owner = $main->custom_trim_string($username,255);
+                $owner = $main->purge_chars($username);
+                $post_key = $arr_line[0];
+                
+                $arr_ts_vector_fts = array();
+                $arr_ts_vector_ftg = array();
+                $arr_select_where = array();
+                $i = 1;                    
+
                 if ($edit_or_insert)
                     {
-                    $post_key = $arr_line[0];
                     $update_clause = "updater_name = '" . pg_escape_string($owner) . "'";
-                    $arr_ts_vector_fts = array();
-                    $arr_ts_vector_ftg = array();
-                    $arr_select_where = array();
-                    $i = 1;
-                    
+                                      
                     foreach($arr_column_reduced as $key => $child)
                         {
                         $col = $main->pad("c",$key);
@@ -337,13 +339,9 @@ if ($main->button(3)) //submit_data
                     }
                 else
                     {
-                    $post_key = $arr_line[0];
                     $insert_clause = "row_type, key1, owner_name, updater_name";
                     $select_clause = $row_type . " as row_type, " . $post_key . " as key1, '" . $owner . "' as owner_name, '" . $owner . "' as updater_name";
         
-                    $arr_ts_vector_fts = array();
-                    $arr_ts_vector_ftg = array();
-                    $i = 1;
                     foreach($arr_column_reduced as $key => $child)
                         {
                         $col = $main->pad("c",$key);
