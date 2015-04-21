@@ -38,97 +38,6 @@ $arr_relate = array(41,42,43,44,45,46);
 $arr_file = array(47);
 $arr_reserved = array(48);
 $arr_notes = array(49,50);
-?>
-<?php
-/* LOCAL FUNCTIONS */
-function bb_full_text(&$arr_ts_vector_fts, &$arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index)
-    {
-    $str_esc = pg_escape_string((string)$str);
-    if (empty($arr_guest_index))
-        {
-        $guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
-		}
-	else
-        {
-        $guest_flag = (($value['search'] == 1) && in_array($value['secure'], $arr_guest_index)) ? true : false;						
-        }
-    //build fts SQL code
-    if ($search_flag)
-        {
-        array_push($arr_ts_vector_fts, "'" . $str_esc . "' || ' ' || regexp_replace('" . $str_esc . "', E'(\\\\W)+', ' ', 'g')");
-        }
-    if ($guest_flag)
-        {
-        array_push($arr_ts_vector_ftg, "'" . $str_esc . "' || ' ' || regexp_replace('" . $str_esc . "', E'(\\\\W)+', ' ', 'g')");
-        }
-    }
-    
-function bb_process_related(&$arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key)
-    {    
-    //global object needed
-    global $main;
-    //process related records/table
-    if (isset($arr_column_reduced[$key])) //set column
-        {
-        //proceed if not blank and relate is set
-        if (!$main->blank($str) && ($arr_column_reduced[$key]['relate'] > 0))
-            {
-            //proper string, else bad
-            if (preg_match("/^[A-Z]\d+:.+/", $str))
-                {
-                $row_type_relate = $main->relate_row_type($str);
-                $post_key_relate = $main->relate_post_key($str);
-                //proper row_type, else bad
-                if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
-                    {
-                    //layout defined, else bad
-                    if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) //good value
-                        {
-                        $arr_select_where[] = "(id = " . (int)$post_key_relate . " AND row_type = " . (int)$row_type_relate . ")";     
-                        }
-                    else //not properly defined
-                        {
-                        $arr_select_where[] = "(1 = 0)";    
-                        }
-                    }
-                else
-                    {
-                    $arr_select_where[] = "(1 = 0)";    
-                    }
-                }
-            else
-                {
-                $arr_select_where[] = "(1 = 0)";   
-                }
-            }
-        }
-    }
-    
-function bb_check_header($arr_column_reduced, $str, $parent, $insert_or_edit)
-	{
-    $arr_row = explode("\t", $str);
-    $i = 0;	
-    if (($parent) || $insert_or_edit)
-        {
-        if (strtolower($arr_row[0]) <> "link")
-            {
-            return false;
-            }
-        $i = 1;
-        }   
-	foreach($arr_column_reduced as $value)
-		{
-		if (strtolower($value['name']) <> strtolower($arr_row[$i]))
-			{
-			return false;
-			}
-		$i++;
-		}
-	return true;
-	}
-/* END LOCAL FUNCTIONS */
-?>
-<?php
 		
 //get layouts
 $arr_layouts = $main->get_json($con, "bb_layout_names");
@@ -354,12 +263,12 @@ if ($main->button(3)) //submit_data
                         $arr_guest_index = $arr_header['guest_index']['value'];
                         
                         //local function call, see top of module
-                        bb_full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index);
+                        $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index);
                         
                         //local function call, see top of module
                         if (in_array($key, array(41,42,43,44,45,46)))
                             {
-                            bb_process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
+                            $main->process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
                             }
                         $i++;
                         } //end column loop
@@ -372,22 +281,11 @@ if ($main->button(3)) //submit_data
                     $select_where = empty($arr_select_where) ? "SELECT 1" : "SELECT 1 FROM data_table WHERE (" . implode(" OR ", $arr_select_where) . ") HAVING count(*) = " . (int)count($arr_select_where);
 
                     //no security, security stays the same
+                    
                     //check for unique key
-                    $select_where_not = "SELECT 1 WHERE 1 = 0";
-                    if (isset($arr_column['layout']['unique']) && !is_bool($unique_value)) //no key = unset
-                        {
-                        //get the vlaue to be checked
-                        $unique_key = $arr_column['layout']['unique'];
-                        $unique_column = $main->pad("c", $unique_key);
-                        if (!$main->blank($unique_value))
-                            {
-                            $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";                        
-                            }
-                        else
-                            {
-                            $select_where_not = "SELECT 1";	
-                            }
-                        }
+                    //key exists must check for duplicate value
+                    //$select_where_not & $unique_key passed and created as reference
+                    $main->unique_key(true, $select_where_not, $unique_key, $arr_column, $arr_state, $row_type, $post_key);
                         
                     $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " .
                              "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ");";                 
@@ -427,12 +325,12 @@ if ($main->button(3)) //submit_data
                         $search_flag = ($child['search'] == 1) ? true : false;
                         //guest flag
                         //local function call, see top of module
-                        bb_full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index);
+                        $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index);
                         
                         //local function call, see top of module
                         if (in_array($key, array(41,42,43,44,45,46)))
                             {
-                            bb_process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
+                            $main->process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
                             }
                         $i++;
                         } //end column loop		
@@ -444,25 +342,14 @@ if ($main->button(3)) //submit_data
                     $select_clause .= ", to_tsvector(" . $str_ts_vector_fts . ") as fts, to_tsvector(" . $str_ts_vector_ftg . ") as ftg, ";
                     $select_clause .= "CASE WHEN (SELECT  coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, "; 
                     $select_clause .= "CASE WHEN (SELECT  coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
-                   
-                    $select_where_exists = "SELECT 1";
-                    $select_where_not = "SELECT 1 WHERE 1 = 0";
+                    
+                    //check for unique key
                     //key exists must check for duplicate value
-                    if (isset($arr_column['layout']['unique']))
-                        {
-                        $unique_key = $arr_column['layout']['unique'];
-                        $unique_column = $main->pad("c", $unique_key);
-                        //key, will not insert on empty value, key must be populated
-                        if ($unique_value <> "")
-                            {
-                            $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
-                            }
-                        else
-                            {
-                            $select_where_not = "SELECT 1";	
-                            }
-                        }            
-                     //parent row has been deleted, multiuser situation, check on insert
+                    //$select_where_not & $unique_key passed and created as reference
+                    $main->unique_key(false, $select_where_not, $unique_key, $arr_column, $arr_state, $row_type, $post_key);
+
+                    //parent row has been deleted, multiuser situation, check on insert
+                    $select_where_exists = "SELECT 1";
                     if ($post_key > 0)
                         {
                         $select_where_exists = "SELECT 1 FROM data_table WHERE id IN (" . $post_key . ") AND row_type IN (" . $parent . ")";

@@ -133,6 +133,91 @@ class bb_database extends bb_main {
 			{
 			return $k;//return value
 			}
-		}		
-	} //end class
+		}			
+
+	function full_text(&$arr_ts_vector_fts, &$arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index)
+		{
+		$str_esc = pg_escape_string($str);
+		if (empty($arr_guest_index))
+			{
+			$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
+			}
+		else
+			{
+			$guest_flag = (($value['search'] == 1) && in_array($value['secure'], $arr_guest_index)) ? true : false;						
+			}
+		//build fts SQL code
+		if ($search_flag)
+			{
+			array_push($arr_ts_vector_fts, "'" . $str_esc . "' || ' ' || regexp_replace('" . $str_esc . "', E'(\\\\W)+', ' ', 'g')");
+			}
+		if ($guest_flag)
+			{
+			array_push($arr_ts_vector_ftg, "'" . $str_esc . "' || ' ' || regexp_replace('" . $str_esc . "', E'(\\\\W)+', ' ', 'g')");
+			}
+		}
+		
+	function process_related(&$arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key)
+		{    
+		//process related records/table
+		if (isset($arr_column_reduced[$key])) //set column
+			{
+			//proceed if not blank and relate is set
+			if (!$this->blank($str) && ($arr_column_reduced[$key]['relate'] > 0))
+				{
+				//proper string, else bad
+				if ($this->relate_check($str))
+					{
+					$row_type_relate = $main->relate_row_type($str);
+					$post_key_relate = $main->relate_post_key($str);
+					//proper row_type, else bad
+					if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
+						{
+						//layout defined, else bad
+						if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) //good value
+							{
+							$arr_select_where[] = "(id = " . (int)$post_key_relate . " AND row_type = " . (int)$row_type_relate . ")";     
+							}
+						else //not properly defined
+							{
+							$arr_select_where[] = "(1 = 0)";    
+							}
+						}
+					else
+						{
+						$arr_select_where[] = "(1 = 0)";    
+						}
+					}
+				else
+					{
+					$arr_select_where[] = "(1 = 0)";   
+					}
+				}
+			}
+		}
+    
+	function unique_key($edit_or_insert, &$select_where_not, &$unique_key, $arr_column, $arr_state, $row_type, $post_key)
+		{
+		//Note -- empty string is allowed as single value, use required to eliminate the possibility of an empty string
+		$select_where_not = "SELECT 1 WHERE 1 = 0";
+		if (isset($arr_column['layout']['unique'])) //no key = unset
+			{
+			//get the vlaue to be checked
+			$unique_key = $arr_column['layout']['unique'];
+			$unique_column = $this->pad("c", $unique_key);
+			$unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
+			//edit
+			if ($edit_or_insert)
+				{
+				$select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";                        
+				}
+			//insert
+			else
+				{
+				$select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";				
+				}
+			}    
+		}
+		
+} //end class
 ?>

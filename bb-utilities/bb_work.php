@@ -277,6 +277,16 @@ class bb_work extends bb_forms {
 	    }
 		
 	//get the row_type from a related field	
+	function relate_check($related)
+		{
+		if (preg_match("/^[A-Z]\d+:.*/", $str))
+			{
+			return true;
+			}
+		return false;	
+		}
+		
+	//get the row_type from a related field	
 	function relate_row_type($related)
 		{
 		return ord(substr($related,0,1)) - 64;	
