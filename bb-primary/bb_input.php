@@ -140,6 +140,7 @@ if ($main->button(1))
         {
         //produce empty form since we are going to load the data
         $owner = $main->purge_chars($username); //used in both if and else
+        $unique_key = isset($arr_column['layout']['unique']) ? $arr_column['layout']['unique'] : 0;
        
         if ($row_type == $row_join)  // update preexisting row
             {
@@ -184,7 +185,8 @@ if ($main->button(1))
             
             //key exists must check for duplicate value
             //$select_where_not & $unique_key passed and created as reference
-            $main->unique_key(true, $select_where_not, $unique_key, $arr_column, $arr_state, $row_type, $post_key);
+            $unique_value = isset($arr_state[$main->pad("c", $unique_key)]) ? $arr_state[$main->pad("c", $unique_key)] : "";
+            $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
             
 			$return_primary = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
             $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " .
@@ -253,7 +255,7 @@ if ($main->button(1))
 					}
                 elseif (pg_num_rows($result_where) == 0)
                     {
-					array_push($arr_message, "Error: Record not updated. Missing related record or records.");
+					array_push($arr_message, "Error: Record not updated. Missing or malformed related record or records.");
                     if ($input_update_log)
                         {
                         $message = "WHERE EXISTS error updating record " . chr($row_type + 64) . $post_key . "." ;
@@ -326,7 +328,8 @@ if ($main->button(1))
             
             //key exists must check for duplicate value
             //$select_where_not & $unique_key passed and created as reference
-            $main->unique_key(false, $select_where_not, $unique_key, $arr_column, $arr_state, $row_type, $post_key);
+            $unique_value = isset($arr_state[$main->pad("c", $unique_key)]) ? $arr_state[$main->pad("c", $unique_key)] : "";
+            $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
                 
            //if parent row has been deleted, multiuser situation, check on insert
             $select_where_exists = "SELECT 1";
@@ -391,7 +394,7 @@ if ($main->button(1))
 					}
                 elseif (pg_num_rows($result_where) == 0)
                     {
-					array_push($arr_message, "Error: Record not updated. Missing related record or records.");
+					array_push($arr_message, "Error: Record not updated. Missing or malformed related record or records.");
                     if ($input_update_log)
                         {
                         $message = "WHERE EXISTS error updating record " . chr($row_type + 64) . $post_key . "." ;

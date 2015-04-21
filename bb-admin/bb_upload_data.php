@@ -52,7 +52,7 @@ $arr_guest_index = $arr_header['guest_index']['value'];
 $row_type = $main->post('row_type', $module, $default_row_type); 
 $data = $main->post('bb_data_area', $module);
 $data_file = $main->post('bb_data_file_name', $module, "default");
-$insert_or_edit = $main->post('insert_or_edit', $module, 0);
+$edit_or_insert = $main->post('edit_or_insert', $module, 0);
 
 //get column names based on row_type/record types
 $arr_layout = $arr_layouts_reduced[$row_type];
@@ -63,9 +63,10 @@ $arr_column_reduced = $main->filter_keys($arr_column);
 //get dropdowns for validation
 $arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 
-if ($main->button(1)) //get column names for layout
+//get column names for layout    
+if ($main->button(1)) 
 	{
-    if (!$parent && !$insert_or_edit)
+    if (!$parent && !$edit_or_insert)
         {
         $arr_implode = array();    
         }
@@ -79,7 +80,6 @@ if ($main->button(1)) //get column names for layout
         }
     $data = implode("\t", $arr_implode) . PHP_EOL;
 	}
-
 
 //submit file to textarea	
 if ($main->button(2)) //submit_file
@@ -100,11 +100,41 @@ if ($main->button(3)) //submit_data
     $arr_lines = explode(PHP_EOL, trim($data));
     $cnt = count($arr_lines);
     
-    $unique_key = isset($arr_column['key']) ? $arr_column['key'] : "";
+    /* Check Header */
+    $check_header = true;
+    $arr_row = explode("\t", trim($arr_lines[0]));
+    $i = 0;
+    if (($parent) || $edit_or_insert)
+        {
+        //link corresponds to database id
+        if (strcasecmp($arr_row[0], "Link"))
+            {
+            $check_header = false;
+            }
+        $i = 1;
+        }   
+	foreach($arr_column_reduced as $value)
+		{
+        //there is a value to check
+        if (isset($arr_row[$i]))
+            {
+            if (strcasecmp($value['name'], $arr_row[$i]))
+                {
+                $check_header = false;
+                }
+            }
+        //no value to check
+        else
+            {
+            $check_header = false;    
+            }
+		$i++;
+		}
+    /* End Check Header */
     
     //check header checks that the first line of data matches $xml_column
     //$arr_lines may need trim function
-	if (bb_check_header($arr_column_reduced, trim($arr_lines[0]), $parent, $insert_or_edit))
+	if ($check_header)
 		{
         $data = "";
         //$i counts the current number of columns and is used to set up query params
@@ -113,7 +143,8 @@ if ($main->button(3)) //submit_data
         //$l is the position in line array when validating
         //$k is used when line is short, to add empty array vars
 		
-        $i = 1;		
+        $i = 1;
+        $unique_key = isset($arr_column['layout']['unique']) ? $arr_column['layout']['unique'] : 0;
 		foreach ($arr_column_reduced as $key => $value)
 			{
 			//used later $i is number of columns  
@@ -133,7 +164,7 @@ if ($main->button(3)) //submit_data
             //bad line boolean
             $line_error = false;
             //trim and add key1 if no link
-            $line = (!$parent && !$insert_or_edit) ? "-1" . "\t" . trim($arr_lines[$j]) : $line = trim($arr_lines[$j]);
+            $line = (!$parent && !$edit_or_insert) ? "-1" . "\t" . trim($arr_lines[$j]) : $line = trim($arr_lines[$j]);
 			
             //put data row into array            
 			$arr_line = explode("\t", $line);
@@ -153,7 +184,7 @@ if ($main->button(3)) //submit_data
                     }
                 //continue inside else
                 //validate key1 if link is set                
-                if (!ctype_digit($arr_line[0]) && (($parent <> 0) || $insert_or_edit))
+                if (!ctype_digit($arr_line[0]) && (($parent <> 0) || $edit_or_insert))
                     {
                     //check that link is int
                     $line_error = true;
@@ -164,7 +195,7 @@ if ($main->button(3)) //submit_data
                     foreach($arr_column_reduced as $key => $value)
                         {
                         /* START VALIDATION */
-                        if (!$main->blank(trim($arr_line[$l])) || !$insert_or_edit)
+                        if (!$main->blank(trim($arr_line[$l])) || !$edit_or_insert)
                             {                        
                             $type = $value['type'];
                             $required_flag = $value['required'] == 1 ? true : false;       
@@ -230,12 +261,13 @@ if ($main->button(3)) //submit_data
              if (!$line_error)
                 {
                 $owner = $main->custom_trim_string($username,255);
-                if ($insert_or_edit)
+                if ($edit_or_insert)
                     {
                     $post_key = $arr_line[0];
                     $update_clause = "updater_name = '" . pg_escape_string($owner) . "'";
                     $arr_ts_vector_fts = array();
                     $arr_ts_vector_ftg = array();
+                    $arr_select_where = array();
                     $i = 1;
                     
                     foreach($arr_column_reduced as $key => $child)
@@ -285,7 +317,8 @@ if ($main->button(3)) //submit_data
                     //check for unique key
                     //key exists must check for duplicate value
                     //$select_where_not & $unique_key passed and created as reference
-                    $main->unique_key(true, $select_where_not, $unique_key, $arr_column, $arr_state, $row_type, $post_key);
+                    $unique_value = isset($arr_line[$m]) ? $arr_line[$m] : "";
+                    $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
                         
                     $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " .
                              "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ");";                 
@@ -346,7 +379,8 @@ if ($main->button(3)) //submit_data
                     //check for unique key
                     //key exists must check for duplicate value
                     //$select_where_not & $unique_key passed and created as reference
-                    $main->unique_key(false, $select_where_not, $unique_key, $arr_column, $arr_state, $row_type, $post_key);
+                    $unique_value = isset($arr_line[$m]) ? $arr_line[$m] : "";
+                    $main->unique_key(false, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
 
                     //parent row has been deleted, multiuser situation, check on insert
                     $select_where_exists = "SELECT 1";
@@ -384,7 +418,7 @@ if ($main->button(3)) //submit_data
             }
         if ($a > 0)
             {
-            if ($insert_or_edit)
+            if ($edit_or_insert)
                 {
                 array_push($arr_message, $a ." database row(s) edited.");    
                 }
@@ -438,7 +472,7 @@ $label = "Post " . $arr_layout['plural'];
 $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>$label);
 $main->echo_button("submit_data", $params);
 $arr_select = array("Insert","Edit");
-$main->array_to_select($arr_select, "insert_or_edit", $insert_or_edit, array('usekey'=>true,'select_class'=>"spaced"));
+$main->array_to_select($arr_select, "edit_or_insert", $edit_or_insert, array('usekey'=>true,'select_class'=>"spaced"));
 echo "</div>";
 echo "<div class=\"clear\"></div>";
 echo "<textarea class=\"spaced\" name=\"bb_data_area\" cols=\"160\" rows=\"25\" wrap=\"off\">" . $data . "</textarea>";

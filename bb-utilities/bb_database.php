@@ -168,8 +168,8 @@ class bb_database extends bb_main {
 				//proper string, else bad
 				if ($this->relate_check($str))
 					{
-					$row_type_relate = $main->relate_row_type($str);
-					$post_key_relate = $main->relate_post_key($str);
+					$row_type_relate = $this->relate_row_type($str);
+					$post_key_relate = $this->relate_post_key($str);
 					//proper row_type, else bad
 					if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
 						{
@@ -196,16 +196,13 @@ class bb_database extends bb_main {
 			}
 		}
     
-	function unique_key($edit_or_insert, &$select_where_not, &$unique_key, $arr_column, $arr_state, $row_type, $post_key)
+	function unique_key($edit_or_insert, &$select_where_not, $unique_key, $unique_value, $row_type, $post_key)
 		{
 		//Note -- empty string is allowed as single value, use required to eliminate the possibility of an empty string
 		$select_where_not = "SELECT 1 WHERE 1 = 0";
-		if (isset($arr_column['layout']['unique'])) //no key = unset
+		if ($unique_key) //no key = 0
 			{
-			//get the vlaue to be checked
-			$unique_key = $arr_column['layout']['unique'];
 			$unique_column = $this->pad("c", $unique_key);
-			$unique_value = isset($arr_state[$unique_column]) ? $arr_state[$unique_column] : "";
 			//edit
 			if ($edit_or_insert)
 				{
