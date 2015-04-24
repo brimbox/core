@@ -33,6 +33,7 @@ function bb_clear_textarea()
 //find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->get_json($con, "bb_layout_names");
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$arr_columns = $main->get_json($con, "bb_column_names");
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 $arr_relate = array(41,42,43,44,45,46);
@@ -96,7 +97,6 @@ if ($post_key > 0) // a detail of a record
         $row = pg_fetch_array($result);
                 
         //get columns for details row_type
-        $arr_columns = $main->get_json($con, "bb_column_names");
         $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
     
          //call to function that outputs details
