@@ -201,10 +201,9 @@ if ($main->button(3)) //submit_data
                         //EDIT
                         if ($edit_or_insert && !$main->blank($arr_line[$l]))
                             {    
-                            //actual database column name
-                            if (!in_array($key, array(48)))
-                                //validate, another else                       
+                            if (!in_array($key, array(48)))                  
                                 {
+                                //Note field or regular
                                 $quotes = in_array($key, $arr_notes) ? false : true;
                                 $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
                                 $return_validate = false; //why not initialize                            
@@ -214,7 +213,6 @@ if ($main->button(3)) //submit_data
                                 if (!$main->blank($arr_line[$l]))
                                     {
                                     $return_validate = $main->validate_logic($con, $type, $arr_line[$l], true);
-                                    //string is error
                                     //$arr_line[$l] passed as a reference and may change
                                     if (!is_bool($return_validate))
                                         {
@@ -234,7 +232,7 @@ if ($main->button(3)) //submit_data
                                         break;   
                                         }
                                     }
-                            } //end validate and required                               
+                                } //end validate and required                               
                             }                        
                         //INSERT
                         elseif (!$edit_or_insert) 
@@ -290,7 +288,12 @@ if ($main->button(3)) //submit_data
                                     }//if required
                                 }//end validate and required
                             }//edit or insert
-                            $l++;
+                        else
+                            {
+                            $line_error = true;
+                            break;   
+                            }
+                        $l++;
                         }//end validation loop
                     } //check that key is integer 
                 } //line too long         
