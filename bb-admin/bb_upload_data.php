@@ -168,6 +168,8 @@ if ($main->button(3)) //submit_data
 			
             //put data row into array            
 			$arr_line = explode("\t", $line);
+            //trim to remove all spaces
+            $arr_line = array_map('trim',$arr_line);
             
             if (count($arr_line) > $i)
                 {
@@ -194,21 +196,56 @@ if ($main->button(3)) //submit_data
                     $l = 1;
                     foreach($arr_column_reduced as $key => $value)
                         {
-                        /* START VALIDATION */
-                        if (!$main->blank(trim($arr_line[$l])) || !$edit_or_insert)
+                        /* START VALIDATION LOOP*/                       
+                        $type = $value['type'];
+                        //EDIT
+                        if ($edit_or_insert && !$main->blank($arr_line[$l]))
+                            {    
+                            //actual database column name
+                            if (!in_array($key, array(48)))
+                                //validate, another else                       
+                                {
+                                $quotes = in_array($key, $arr_notes) ? false : true;
+                                $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
+                                $return_validate = false; //why not initialize                            
+                                //populated string = error
+                                //boolean true is populated
+                                //standard validatation on non empty rows
+                                if (!$main->blank($arr_line[$l]))
+                                    {
+                                    $return_validate = $main->validate_logic($con, $type, $arr_line[$l], true);
+                                    //string is error
+                                    //$arr_line[$l] passed as a reference and may change
+                                    if (!is_bool($return_validate))
+                                        {
+                                        $line_error = true;
+                                        break;
+                                        }
+                                    }
+                                //dropdown validation could could check for empty value
+                                //not used in input routine, could both validate on dropdown and type
+                                if (isset($arr_dropdowns[$row_type][$key]))
+                                    {
+                                    $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
+                                    $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
+                                    if (!is_bool($return_validate))
+                                        {
+                                        $line_error = true;
+                                        break;   
+                                        }
+                                    }
+                            } //end validate and required                               
+                            }                        
+                        //INSERT
+                        elseif (!$edit_or_insert) 
                             {                        
-                            $type = $value['type'];
                             $required_flag = $value['required'] == 1 ? true : false;       
                             //actual database column name
-                            if (in_array($key,$arr_notes))
+                            if (!in_array($key, array(48)))
+                                //validate, another else                       
                                 {
-                                //no validation
-                                $arr_line[$l] = $main->purge_chars($arr_line[$l], false);
-                                } 
-                            else //validate, another else                       
-                                {
-                                //regular column
-                                $arr_line[$l] = $main->purge_chars($arr_line[$l]);
+                                $quotes = in_array($key, $arr_notes) ? false : true;
+                                $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
                                 $return_required = false; //boolean false for not required
                                 $return_validate = false; //why not initialize                            
                                 //check required field  
@@ -250,11 +287,11 @@ if ($main->button(3)) //submit_data
                                             break;   
                                             }
                                         }
-                                    } //if required
-                                } //end validate and required
-                            }
+                                    }//if required
+                                }//end validate and required
+                            }//edit or insert
                             $l++;
-                        }//loop through columns and line
+                        }//end validation loop
                     } //check that key is integer 
                 } //line too long         
 
@@ -278,20 +315,11 @@ if ($main->button(3)) //submit_data
                         $str = $arr_line[$i];
                         
                         //build update clause
-                        if (!$main->blank(trim($str)))
+                        if (!$main->blank($str))
                             {
-                            $update_clause .= "," . $col . " =  '" . pg_escape_string(trim($str)) . "'";
+                            $update_clause .= "," . $col . " =  '" . pg_escape_string($str) . "'";
                             }
-                            
-                        //deal will unique value, empty str goes to boolean to skip
-                        if (isset($arr_column['layout']['unique']))
-                            {
-                            if (($arr_column['layout']['unique']) == $key)
-                                {
-                                $unique_value = (trim($str) == "") ? true : trim($str);
-                                }
-                            }
-                            
+                                                        
                        	$search_flag = ($value['search'] == 1) ? true : false;				
                         //populate guest index array, can be reassigned in module Interface Enable
                         $arr_guest_index = $arr_header['guest_index']['value'];
@@ -319,14 +347,31 @@ if ($main->button(3)) //submit_data
                     //check for unique key
                     //key exists must check for duplicate value
                     //$select_where_not & $unique_key passed and created as reference
-                    $unique_value = isset($arr_line[$m]) ? $arr_line[$m] : "";
+                    $unique_key = 0; //initital values
+                    $unique_value = "";
+                    if (isset($arr_column['layout']['unique']))
+                        {
+                        $unique_key = $arr_column['layout']['unique'];
+                        $m = 1;		
+                        foreach ($arr_column_reduced as $key => $value)
+                            {
+                            //used later $i is number of columns  
+                            //also find unique value/key index
+                            if ($key == $unique_key)
+                                {
+                                $n = $m;
+                                break;
+                                }
+                            $m++;		 
+                            }
+                        $unique_value = isset($arr_line[$n]) ? $arr_line[$n] : "";
+                        }
                     $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
                         
                     $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " .
                              "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ");";                 
                     $result = $main->query($con, $query);
-                    //echo "<p>" . $query . "</p>";
-                    
+                    //echo "<p>" . $query . "</p>";                    
                     if (pg_affected_rows($result) == 1)
                         {
                         $a++;
@@ -364,7 +409,8 @@ if ($main->button(3)) //submit_data
                             $main->process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
                             }
                         $i++;
-                        } //end column loop		
+                        }
+                        //end column loop		
                     
                     $str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
                     $str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
@@ -377,10 +423,28 @@ if ($main->button(3)) //submit_data
                     //check for unique key
                     //key exists must check for duplicate value
                     //$select_where_not & $unique_key passed and created as reference
-                    $unique_value = isset($arr_line[$m]) ? $arr_line[$m] : "";
-                    $main->unique_key(false, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
-
-                    //parent row has been deleted, multiuser situation, check on insert
+                    $unique_key = 0; //initital values
+                    $unique_value = "";
+                    if (isset($arr_column['layout']['unique']))
+                        {
+                        $unique_key = $arr_column['layout']['unique'];
+                        $m = 1;		
+                        foreach ($arr_column_reduced as $key => $value)
+                            {
+                            //used later $i is number of columns  
+                            //also find unique value/key index
+                            if ($key == $unique_key)
+                                {
+                                $n = $m;
+                                break;
+                                }
+                            $m++;		 
+                            }
+                        $unique_value = isset($arr_line[$n]) ? $arr_line[$n] : "";
+                        }
+                    $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
+                    
+                    //parent row has been deleted, multiuser situation, check on inser                    
                     $select_where_exists = "SELECT 1";
                     if ($post_key > 0)
                         {
