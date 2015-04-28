@@ -200,19 +200,66 @@ if ($main->button(3)) //submit_data
                         $type = $value['type'];
                         //EDIT
                         if ($edit_or_insert && !$main->blank($arr_line[$l]))
-                            {    
-                            if (!in_array($key, array(48)))                  
+                            { 
+                            //Note field or regular
+                            $quotes = in_array($key, $arr_notes) ? false : true;
+                            $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
+                            $return_validate = false; //why not initialize                            
+                            //populated string = error
+                            //boolean true is populated
+                            //standard validatation on non empty rows
+                            if (!$main->blank($arr_line[$l]))
                                 {
-                                //Note field or regular
-                                $quotes = in_array($key, $arr_notes) ? false : true;
-                                $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
-                                $return_validate = false; //why not initialize                            
-                                //populated string = error
-                                //boolean true is populated
+                                $return_validate = $main->validate_logic($con, $type, $arr_line[$l], true);
+                                //$arr_line[$l] passed as a reference and may change
+                                if (!is_bool($return_validate))
+                                    {
+                                    $line_error = true;
+                                    break;
+                                    }
+                                }
+                            //dropdown validation could could check for empty value
+                            //not used in input routine, could both validate on dropdown and type
+                            if (isset($arr_dropdowns[$row_type][$key]))
+                                {
+                                $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
+                                $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
+                                if (!is_bool($return_validate))
+                                    {
+                                    $line_error = true;
+                                    break;   
+                                    }
+                                }
+                            }                        
+                        //INSERT
+                        elseif (!$edit_or_insert) 
+                            {                        
+                            $required_flag = $value['required'] == 1 ? true : false;       
+                            //actual database column name
+                            $quotes = in_array($key, $arr_notes) ? false : true;
+                            $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
+                            $return_required = false; //boolean false for not required
+                            $return_validate = false; //why not initialize                            
+                            //check required field  
+                            if ($required_flag)
+                                {
+                                $return_required = $main->validate_required($arr_line[$l], true);    
+                                }
+                            //populated string = error
+                            //boolean true is populated
+                            if (!is_bool($return_required))
+                                {
+                                $line_error = true;
+                                break;
+                                }
+                            else  //another else
+                                {
                                 //standard validatation on non empty rows
+                                //empty row always valid in this sense
                                 if (!$main->blank($arr_line[$l]))
                                     {
                                     $return_validate = $main->validate_logic($con, $type, $arr_line[$l], true);
+                                    //string is error
                                     //$arr_line[$l] passed as a reference and may change
                                     if (!is_bool($return_validate))
                                         {
@@ -232,61 +279,7 @@ if ($main->button(3)) //submit_data
                                         break;   
                                         }
                                     }
-                                } //end validate and required                               
-                            }                        
-                        //INSERT
-                        elseif (!$edit_or_insert) 
-                            {                        
-                            $required_flag = $value['required'] == 1 ? true : false;       
-                            //actual database column name
-                            if (!in_array($key, array(48)))
-                                //validate, another else                       
-                                {
-                                $quotes = in_array($key, $arr_notes) ? false : true;
-                                $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
-                                $return_required = false; //boolean false for not required
-                                $return_validate = false; //why not initialize                            
-                                //check required field  
-                                if ($required_flag)
-                                    {
-                                    $return_required = $main->validate_required($arr_line[$l], true);    
-                                    }
-                                //populated string = error
-                                //boolean true is populated
-                                if (!is_bool($return_required))
-                                    {
-                                    $line_error = true;
-                                    break;
-                                    }
-                                else  //another else
-                                    {
-                                    //standard validatation on non empty rows
-                                    //empty row always valid in this sense
-                                    if (!$main->blank($arr_line[$l]))
-                                        {
-                                        $return_validate = $main->validate_logic($con, $type, $arr_line[$l], true);
-                                        //string is error
-                                        //$arr_line[$l] passed as a reference and may change
-                                        if (!is_bool($return_validate))
-                                            {
-                                            $line_error = true;
-                                            break;
-                                            }
-                                        }
-                                    //dropdown validation could could check for empty value
-                                    //not used in input routine, could both validate on dropdown and type
-                                    if (isset($arr_dropdowns[$row_type][$key]))
-                                        {
-                                        $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
-                                        $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
-                                        if (!is_bool($return_validate))
-                                            {
-                                            $line_error = true;
-                                            break;   
-                                            }
-                                        }
-                                    }//if required
-                                }//end validate and required
+                                }//if required
                             }//edit or insert
                         else
                             {

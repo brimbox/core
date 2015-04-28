@@ -104,34 +104,30 @@ if ($main->button(1))
         $required_flag = $value['required'] == 1 ? true : false; //required boolean       
         $col = $main->pad("c", $key);
             
-        //reserved no validation
-		if (!in_array($key, array(48)))
-			{
-            //regular column
-            $field = $arr_state[$col];
-            $return_required = false;
-			$return_validate = false;
-            //required field  
-            if ($required_flag) //false=not required, true=required
+        //all validated
+        $field = $arr_state[$col];
+        $return_required = false;
+        $return_validate = false;
+        //required field  
+        if ($required_flag) //false=not required, true=required
+            {
+            $return_required = $main->validate_required($field, true);
+            if (!is_bool($return_required)) 
                 {
-                $return_required = $main->validate_required($field, true);
-                if (!is_bool($return_required)) 
-                    {
-                    $arr_errors[$col] = $return_required;
-                    }
-                }            
-            //validate, field has data, trimmed already, will skip if blank
-            if (!$main->blank($field)) 
-                {
-				//value is passed a reference and may change in function if formatted
-                $return_validate = $main->validate_logic($con, $type, $field, true);
-                if (!is_bool($return_validate))
-                    {
-                    $arr_errors[$col] = $return_validate;
-                    }
+                $arr_errors[$col] = $return_required;
                 }
-			$main->set($col, $arr_state, $field);
-			}
+            }            
+        //validate, field has data, trimmed already, will skip if blank
+        if (!$main->blank($field)) 
+            {
+            //value is passed a reference and may change in function if formatted
+            $return_validate = $main->validate_logic($con, $type, $field, true);
+            if (!is_bool($return_validate))
+                {
+                $arr_errors[$col] = $return_validate;
+                }
+            }
+        $main->set($col, $arr_state, $field);
 		}
         /* END VALIDATION */
         
@@ -153,7 +149,7 @@ if ($main->button(1))
 				{
 				$col = $main->pad("c", $key);
 				$str = $arr_state[$col];
-				$update_clause .= "," . $col . " =  '" . pg_escape_string((string)$str) . "'";
+				$update_clause .= "," . $col . " =  '" . pg_escape_string($str) . "'";
 				//prepare fts and ftg
 				$search_flag = ($value['search'] == 1) ? true : false;				
                 //populate guest index array, can be reassigned in module Interface Enable
