@@ -200,7 +200,7 @@ if ($main->button(3)) //submit_data
                         $type = $value['type'];
                         //EDIT
                         if ($edit_or_insert && !$main->blank($arr_line[$l]))
-                            { 
+                            {
                             //Note field or regular
                             $quotes = in_array($key, $arr_notes) ? false : true;
                             $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
@@ -217,18 +217,18 @@ if ($main->button(3)) //submit_data
                                     $line_error = true;
                                     break;
                                     }
-                                }
-                            //dropdown validation could could check for empty value
-                            //not used in input routine, could both validate on dropdown and type
-                            //can have blank dropdown
-                            if (isset($arr_dropdowns[$row_type][$key]))
-                                {
-                                $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
-                                $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
-                                if (!is_bool($return_validate))
+                                //dropdown validation could could check for empty value
+                                //not used in input routine, could both validate on dropdown and type
+                                //can have blank dropdown
+                                if (isset($arr_dropdowns[$row_type][$key]))
                                     {
-                                    $line_error = true;
-                                    break;   
+                                    $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
+                                    $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
+                                    if (!is_bool($return_validate))
+                                        {
+                                        $line_error = true;
+                                        break;   
+                                        }
                                     }
                                 }
                             }                        
@@ -270,24 +270,19 @@ if ($main->button(3)) //submit_data
                                     //dropdown validation could could check for empty value
                                     //not used in input routine, could both validate on dropdown and type
                                     //cannot blank a dropdown on edit record
-                                    if (isset($arr_dropdowns[$row_type][$key]))
+                                    }
+                                if (isset($arr_dropdowns[$row_type][$key]))
+                                    {
+                                    $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
+                                    $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
+                                    if (!is_bool($return_validate))
                                         {
-                                        $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
-                                        $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
-                                        if (!is_bool($return_validate))
-                                            {
-                                            $line_error = true;
-                                            break;   
-                                            }
+                                        $line_error = true;
+                                        break;   
                                         }
                                     }
                                 }//if required
                             }//edit or insert
-                        else
-                            {
-                            $line_error = true;
-                            break;   
-                            }
                         $l++;
                         }//end validation loop
                     } //check that key is integer 
