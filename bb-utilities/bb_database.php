@@ -24,10 +24,13 @@ If not, see http://www.gnu.org/licenses/
 //query
 //query_params
 //get_mbox
-//get_xml
-//update_xml
-//search_xml
-//get_next_xml_node
+//get_json
+//update_json
+//search_json
+//get_next_node
+//full_text
+//process_related
+//unique_key
 	
 class bb_database extends bb_main {
 	
@@ -135,16 +138,18 @@ class bb_database extends bb_main {
 			}
 		}			
 
-	function full_text(&$arr_ts_vector_fts, &$arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index)
+	function full_text(&$arr_ts_vector_fts, &$arr_ts_vector_ftg, $str, $value, $arr_guest_index)
 		{
 		$str_esc = pg_escape_string($str);
+		$search_flag = $value['search'];
+		$secure_flag = $value['secure'];
 		if (empty($arr_guest_index))
 			{
-			$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
+			$guest_flag = (($search_flag == 1) && ($secure_flag == 0)) ? true : false;
 			}
 		else
 			{
-			$guest_flag = (($value['search'] == 1) && in_array($value['secure'], $arr_guest_index)) ? true : false;						
+			$guest_flag = (($search_flag == 1) && in_array($secure_flag, $arr_guest_index)) ? true : false;						
 			}
 		//build fts SQL code
 		if ($search_flag)
@@ -157,13 +162,13 @@ class bb_database extends bb_main {
 			}
 		}
 		
-	function process_related(&$arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key)
+	function process_related(&$arr_select_where, $arr_layouts_reduced, $value, $str)
 		{    
 		//process related records/table
-		if (isset($arr_column_reduced[$key])) //set column
+		if (isset($value)) //set column part
 			{
 			//proceed if not blank and relate is set
-			if (!$this->blank($str) && ($arr_column_reduced[$key]['relate'] > 0))
+			if (!$this->blank($str) && ($value['relate'] > 0))
 				{
 				//proper string, else bad
 				if ($this->relate_check($str))
@@ -171,7 +176,7 @@ class bb_database extends bb_main {
 					$row_type_relate = $this->relate_row_type($str);
 					$post_key_relate = $this->relate_post_key($str);
 					//proper row_type, else bad
-					if ($arr_column_reduced[$key]['relate'] == $row_type_relate) //check related
+					if ($value['relate'] == $row_type_relate) //check related
 						{
 						//layout defined, else bad
 						if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) //good value

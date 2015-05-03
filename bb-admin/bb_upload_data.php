@@ -318,12 +318,12 @@ if ($main->button(3)) //submit_data
                         $arr_guest_index = $arr_header['guest_index']['value'];
                         
                         //local function call, see top of module
-                        $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index);
+                        $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $arr_guest_index);
                         
                         //local function call, see top of module
                         if (in_array($key, array(41,42,43,44,45,46)))
                             {
-                            $main->process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
+                            $main->process_related($arr_select_where, $arr_layouts_reduced, $value, $str);    
                             }
                         $i++;
                         } //end column loop
@@ -394,12 +394,12 @@ if ($main->button(3)) //submit_data
                         $search_flag = ($child['search'] == 1) ? true : false;
                         //guest flag
                         //local function call, see top of module
-                        $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $search_flag, $arr_guest_index);
+                        $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $arr_guest_index);
                         
                         //local function call, see top of module
                         if (in_array($key, array(41,42,43,44,45,46)))
                             {
-                            $main->process_related($arr_select_where, $arr_layouts_reduced, $arr_column_reduced, $str, $key);    
+                            $main->process_related($arr_select_where, $arr_layouts_reduced, $value, $str);    
                             }
                         $i++;
                         }
