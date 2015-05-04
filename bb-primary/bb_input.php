@@ -156,7 +156,7 @@ if ($main->button(1))
                 $arr_guest_index = $arr_header['guest_index']['value'];
                 
                 //local function call, see top of module
-                $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $arr_guest_index);
+                $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $value, $str, $arr_guest_index);
                 
                 //local function call, see top of module
                 if (in_array($key, array(41,42,43,44,45,46)))
@@ -291,7 +291,7 @@ if ($main->button(1))
                 $arr_guest_index = $arr_header['guest_index']['value'];
                 
                 //local function call, see top of module
-                $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $str, $value, $arr_guest_index);
+                $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $value, $str, $arr_guest_index);
                 
                 //local function call, see top of module
                 if (in_array($key, array(41,42,43,44,45,46)))

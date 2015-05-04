@@ -138,7 +138,7 @@ class bb_database extends bb_main {
 			}
 		}			
 
-	function full_text(&$arr_ts_vector_fts, &$arr_ts_vector_ftg, $str, $value, $arr_guest_index)
+	function full_text(&$arr_ts_vector_fts, &$arr_ts_vector_ftg, $value, $str, $arr_guest_index)
 		{
 		$str_esc = pg_escape_string($str);
 		$search_flag = $value['search'];
