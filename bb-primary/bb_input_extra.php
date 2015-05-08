@@ -103,7 +103,7 @@ class bb_input_extra {
                     $str = $this->main->purge_chars($row[$col], false);
                     $this->main->set($col, $arr_state, $str);
                     }
-                if (in_array($key,$this->arr_file))
+                elseif (in_array($key,$this->arr_file))
                     {
                     $str = $this->main->purge_chars($row[$col]);
                     $this->main->set("lo", $arr_state, $str);
@@ -114,6 +114,7 @@ class bb_input_extra {
                     $this->main->set($col, $arr_state, $str);
                     }                
                 }
+
             $this->main->set('secure', $arr_state, $row['secure']);
             $this->main->set('archive', $arr_state, $row['archive']);
             }
@@ -246,6 +247,10 @@ class bb_input_extra {
                 if (in_array($key,$this->arr_notes))
                     {
                     $str = $this->main->purge_chars($textarea, false);
+                    }
+                elseif (in_array($key,$this->arr_file))
+                    {
+                    //do nothing
                     }
                 else
                     {

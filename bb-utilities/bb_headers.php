@@ -18,7 +18,7 @@ If not, see http://www.gnu.org/licenses/
 /* NO HTML OUTPUT */
 
 /* VERSION INFORMATION */
-define('BRIMBOX_PROGRAM', '1.8');
+define('BRIMBOX_PROGRAM', '1.8.1');
 define('BRIMBOX_DATABASE', '1.27');
 define('BRIMBOX_BACKUP', '1.5');
 
