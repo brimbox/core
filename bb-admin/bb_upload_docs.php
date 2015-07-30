@@ -27,12 +27,17 @@ function bb_set_hidden(id)
     bb_submit_form(2);
     return false;
     }
+function bb_reload()
+	{
+    bb_submit_form(0); //call javascript submit_form function	
+	}
 
 </script>
 
 <?php
 /* PRESERVE STATE */
 $main->retrieve($con, $array_state);
+$update = $main->post("update", $module, "");
 
 $arr_message = array();	
 
@@ -43,25 +48,43 @@ if ($main->button(1)) //submit_file
 		{
         $filename = $main->custom_trim_string($_FILES[$main->name('upload_file', $module)]["name"], 255);
         $filedata = str_replace(array("\\\\", "''"), array("\\", "'"), pg_escape_bytea(file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"]))); 
-        $query = "INSERT INTO docs_table (document, filename, username, level) " .
-                 "SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT 1 FROM docs_table WHERE filename = '" . pg_escape_string($filename) . "')";
-        $arr_params = array($filedata, $filename, $username, 0);
-        $result = $main->query_params($con, $query, $arr_params);
-        if (pg_affected_rows($result) == 1)
+        if ($update)
             {
-            array_push($arr_message, "Document has been stored.");
+            $query = "UPDATE docs_table SET document = $1, username = $2 " .
+                     "WHERE id = " . $update . " AND EXISTS (SELECT 1 FROM docs_table WHERE filename = '" . pg_escape_string($filename) . "')";
+            $arr_params = array($filedata, $username);
+            $result = $main->query_params($con, $query, $arr_params);
+            if (pg_affected_rows($result) == 1)
+                {
+                array_push($arr_message, "Document has been updated.");
+                }
+            else
+                {
+                array_push($arr_message, "Document not updated. Filename must match current filename.");   
+                }
             }
         else
             {
-            array_push($arr_message, "Document not stored. Possible duplicate file name.");   
-            }
+            $query = "INSERT INTO docs_table (document, filename, username, level) " .
+                     "SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT 1 FROM docs_table WHERE filename = '" . pg_escape_string($filename) . "')";
+            $arr_params = array($filedata, $filename, $username, 0);
+            $result = $main->query_params($con, $query, $arr_params);
+            if (pg_affected_rows($result) == 1)
+                {
+                array_push($arr_message, "Document has been stored.");
+                }
+            else
+                {
+                array_push($arr_message, "Document not stored. Possible duplicate file name.");   
+                }
+            }        
 		}
 	else
 		{
 		array_push($arr_message, "Must specify file name.");
 		}
 	}
-if ($main->button(2)) //submit_file
+if ($main->button(2)) //delete_file
 	{
     $id = $main->post("id",$module,0);
 	if ($id > 0)
@@ -77,7 +100,7 @@ if ($main->button(2)) //submit_file
 	}
 
 //title
-echo "<p class=\"spaced bold larger\">Upload Data</p>";
+echo "<p class=\"spaced bold larger\">Upload Documents</p>";
 
 $arr_message = array_unique($arr_message);
 echo "<div class=\"spaced\">";
@@ -94,8 +117,17 @@ $main->echo_object_vars();
 echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_file\" id=\"file\" />";
-$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Upload File");
+$button_label = empty($update) ? "Upload File" : "Update File";
+$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$button_label);
 $main->echo_button("submit_file", $params);
+/* POPULATE SELECT */
+//get all logins, order by date DESC  
+$query = "SELECT id FROM docs_table ORDER BY change_date DESC;";
+$result = $main->query($con, $query);
+$arr_result = pg_fetch_all_columns($result);
+array_unshift($arr_result, "");
+$params = array('onchange'=>"bb_reload()","select_class"=>"spaced");
+$main->array_to_select($arr_result, "update", $update, $params);
 
 echo "<input name=\"id\" type=\"hidden\" value=\"\" />";
 
