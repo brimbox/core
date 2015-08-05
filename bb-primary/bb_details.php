@@ -26,6 +26,25 @@ function bb_clear_textarea()
     document.forms["bb_form"].dump_area.value = "";
 	return false;
 	}
+//select div field when label is clicked
+function bb_select_field(div_id)
+	{
+    var node = document.getElementById(div_id);
+
+    if ( document.selection )
+        {
+        var range = document.body.createTextRange();
+        range.moveToElementText(node );
+        range.select();
+        }
+    else if ( window.getSelection )
+        {
+        var range = document.createRange();
+        range.selectNodeContents(node);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange( range );
+        }        
+ 	}
 </script>
 
 <?php
@@ -109,17 +128,17 @@ if ($post_key > 0) // a detail of a record
             if (in_array($key, $arr_notes)) //notes
                 {
                 $str_details = str_replace("\n", "<br>",  htmlentities($row[$col2]));
-                echo "<div class = \"clear\"><label class = \"spaced left floatleft overflow medium shaded\">" . htmlentities($value['name']) . ":</label>";
+                echo "<div class = \"clear\"><label class = \"spaced left floatleft overflow medium shaded\" onclick=\"bb_select_field('field_" . $key .  "')\">" . htmlentities($value['name']) . ":</label>";
                 echo "<div class = \"clear\"></div>";
                 //double it up for emheight
                 echo "<div class=\"spaced border half\">";
-                echo "<div class=\"spaced emheight\">" . $str_details . "</div></div>";				
+                echo "<div id=\"field_" . $key . "\" class=\"spaced emheight\">" . $str_details . "</div></div>";				
                 echo "</div>";
                 }
             elseif (in_array($key, $arr_file)) //files
                 {
-                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
-                echo "<button class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . htmlentities($row[$col2]) . "</button>";
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('field_" . $key .  "')\">" . htmlentities($value['name']) . ":</label>";
+                echo "<button id=\"field_" . $key . "\" class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . htmlentities($row[$col2]) . "</button>";
                 echo "</div>";
                 }
             elseif (in_array($key, $arr_relate) && $value['relate'])
@@ -128,14 +147,14 @@ if ($post_key > 0) // a detail of a record
                 $relate_post_key = $main->relate_post_key($row[$col2]);
                 $relate['id'] = $relate_post_key;
                 $relate['row_type'] = $relate_row_type;
-                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
-                $main->standard($relate, $arr_layouts_reduced, "bb_cascade", $row[$col2], array('class'=>"link spaced left floatleft"));
-                 echo "</div>";
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('field_" . $key .  "')\">" . htmlentities($value['name']) . ":</label>";
+                $main->standard($relate, $arr_layouts_reduced, "bb_cascade", $row[$col2], array('id'=>"field_" . $key, 'class'=>"link spaced left floatleft"));
+                echo "</div>";
                 }
             else //regular
                 {
-                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\">" . htmlentities($value['name']) . ":</label>";
-                echo "<div class=\"spaced left floatleft\">" . htmlentities($row[$col2]) . "</div>";
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('field_" . $key .  "')\">" . htmlentities($value['name']) . ":</label>";
+                echo "<div id=\"field_" . $key . "\" class=\"spaced left floatleft\">" . htmlentities($row[$col2]) . "</div>";
                 echo "</div>";
                 }
             }

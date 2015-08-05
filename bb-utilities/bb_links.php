@@ -38,11 +38,13 @@ class bb_links extends bb_database {
 	function standard($row, $arr_layouts_reduced, $target, $text, $params = array())
 		{
 		//standard row_type and post_key for a target
+		//commonly used in linking things
 		$filter = isset($params['layouts']) ? $params['layouts'] : array();
 		$class = isset($params['class']) ? $params['class'] : "link rightmargin";
+		$id = isset($params['id']) ? "id=\"" . $params['id'] . "\"" : "";
 		if (in_array($row['row_type'], $filter) || empty($filter))
 			{
-			echo "<button class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row['id'] . "," . $row['row_type'] . ",'" .  $target . "'); return false;\">";
+			echo "<button " . $id . " class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row['id'] . "," . $row['row_type'] . ",'" .  $target . "'); return false;\">";
 			echo $text . "</button>";
 			}
 		}
