@@ -25,7 +25,7 @@ $main->echo_module_vars($module);
 
 /* In case you need to put a quick link on the home page */
 $main->echo_common_vars();
-
+$main->echo_object_vars($module);
 $main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */

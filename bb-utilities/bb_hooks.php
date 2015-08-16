@@ -21,6 +21,7 @@ If not, see http://www.gnu.org/licenses/
 /* PHP FUNCTIONS */
 /* class bb_hooks() */
 //hook
+//filter
 //autofill
 //infolinks
 //postback_area
@@ -37,43 +38,114 @@ class bb_hooks extends bb_work {
 		{
 		//name passed as values so no error if hooks aren't set
 		//append is to make hook which which work when module name is changed
+		//hooks can loop and have multiple declaration and executions
 		global $array_hooks;
 		global $module;
 		
 		//will use current module name if append = true
-		$name = $append ? $module . "_" . $name : $name;
+		$fullname = $append ? $module . "_" . $name : $name;
 					
 		//hook must be set
-		if (!isset($array_hooks[$name]))
+		if (!isset($array_hooks[$fullname]))
 			return false;
 		//hook must be named properly, always good if append = true
-		elseif (substr($name, 0, strlen($module) + 1) <> ($module . "_"))
-			return false;
+		elseif (substr($fullname, 0, strlen($module) + 1) <> ($module . "_"))
+			return NULL;
 				
 		//hook loop
-		foreach ($array_hooks[$name] as $arr_hook)
+		foreach ($array_hooks[$fullname] as $arr_hook)
 			{
 			$args_hook = array(); //must initialize
-			//build arguments and variables
-			foreach ($arr_hook[1] as $var)
+			//allow for hooks with no argument variables
+			//check for callable function without parameters
+			if (is_callable($arr_hook))
+				{
+				call_user_func($arr_hook);
+				}
+			else
+				{
+				//build arguments and variables
+				//hook has variables
+				foreach ($arr_hook[1] as $var)
+					{
+					//passed by value
+					if (substr($var,0,1) == "&")
+						{
+						$var = substr($var,1);
+						${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : NULL;
+						$args_hook[] = &${$var};
+						}
+					//passed by reference
+					else
+						{
+						${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : NULL;
+						$args_hook[] = ${$var};
+					   }
+					}
+				//has parameters
+				call_user_func_array($arr_hook[0], $args_hook);
+				//emulate passed by value
+				foreach ($arr_hook[1] as $var)
+					{
+					if (substr($var,0,1) == "&")
+						{
+						$var = substr($var,1);
+						$GLOBALS[$var] = ${$var};
+						}
+					}
+				}
+			}
+		}
+		
+	function filter($name, $value, $append = false)
+		{
+		global $module;
+		global $array_filters;		
+		//name passed as values so no error if hooks aren't set
+		//append is to make hook which which work when module name is changed
+		//filters can only be declared once and do not loop
+
+		//will use current module name if append = true
+		$fullname = $append ? $module . "_" . $name : $name;
+					
+		//return the current value if not set
+		if (!isset($array_filters[$fullname]))
+			return $value;
+		//filter must be named properly, will always be good if append = true
+		elseif (substr($fullname, 0, strlen($module) + 1) <> ($module . "_"))
+			return NULL;
+				
+		//arr_filter has one value and does not loop
+		$arr_filter = $array_filters[$fullname];
+		//check for callable function without parameters
+		if (is_callable($arr_filter))
+			{
+			$value = call_user_func($arr_filter);
+			}
+		else
+			{
+			//has parameters, nested uncallable array
+			foreach ($arr_filter[1] as $var)
 				{
 				//passed by value
 				if (substr($var,0,1) == "&")
 					{
 					$var = substr($var,1);
 					${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : NULL;
-					$args_hook[] = &${$var};
+					$args_filter[] = &${$var};
 					}
 				//passed by reference
 				else
 					{
 					${$var} = isset($GLOBALS[$var]) ? $GLOBALS[$var] : NULL;
-					$args_hook[] = ${$var};
+					$args_filter[] = ${$var};
 				   }
 				}
-			call_user_func_array($arr_hook[0], $args_hook);
+			//return value important
+			//can also update vars passed by reference
+			$value = call_user_func_array($arr_filter[0], $args_filter);
 			//emulate passed by value
-			foreach ($arr_hook[1] as $var)
+			foreach ($arr_filter[1] as $var)
 				{
 				if (substr($var,0,1) == "&")
 					{
@@ -81,7 +153,8 @@ class bb_hooks extends bb_work {
 					$GLOBALS[$var] = ${$var};
 					}
 				}
-			}    
+			}
+		return $value;
 		}
 		
 	function autofill($row, &$arr_state, $arr_columns, $row_type, $parent_row_type)

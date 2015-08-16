@@ -128,6 +128,12 @@ if ($main->button(1))
                 }
             }
         $main->set($col, $arr_state, $field);
+        
+        //validation hook loop, by record type and field
+        //that is the discrete level of this loop
+        //if you need to validate one field using another do it here
+        $hookname = "validation" . "_" . $main->make_html_id($row_type, $key);
+        $main->hook($hookname, true);
 		}
         /* END VALIDATION */
         
@@ -497,6 +503,7 @@ if ($row_type > 0):
     /* POPULATE INPUT FIELDS */
     //check if empty, could be either empty or children not populated
     //this is dependent on admin module "Set Column Names"
+    echo "<div id=\"bb_input_fields\">"; //id wrapper
     if (!empty($arr_column_reduced))
         {
         foreach($arr_column_reduced as $key => $value)
@@ -506,13 +513,14 @@ if ($row_type > 0):
             $error = (isset($arr_errors[$col])) ? $arr_errors[$col] : "";
             $readonly = isset($arr_column_reduced[$key]['readonly']) ? $arr_column_reduced[$key]['readonly'] : false;
             $hidden =  isset($arr_column_reduced[$key]['hidden']) ? $arr_column_reduced[$key]['hidden'] : false;
+            $field_id = "input_" . $main->make_html_id($row_type, $key);
             if (isset($arr_dropdowns[$row_type][$key]))
                 {
                 //dropdown
                 $arr_droplist_reduced = $readonly ? array($input) : $main->filter_keys($arr_dropdowns[$row_type][$key]); //single item select for readonly
                 echo "<div class=\"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<select class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
+                echo "<select id=\"" . $field_id . "\" class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
                 foreach ($arr_droplist_reduced as $dropdown)
                     {                            
                     echo "<option value=\"" . htmlentities($dropdown) . "\" " . ((strtolower($input) == strtolower($dropdown)) ? "selected" : "" ) . ">" . htmlentities($dropdown) . "&nbsp;</option>";
@@ -525,7 +533,7 @@ if ($row_type > 0):
                 $attribute = $readonly ? "readonly" : ""; //readonly attribute    
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<input class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
+                echo "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
                 echo "<label class=\"error\">" . $error . "</label></div>";
                 }
             elseif (in_array($key, $arr_file))
@@ -535,10 +543,10 @@ if ($row_type > 0):
                 $lo = isset($arr_state['lo']) ? $arr_state['lo'] : "";
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<input class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \""  . htmlentities($lo) .  "\" readonly/><label class=\"error\">" . $error . "</label>";
+                echo "<input id=\"" . $field_id . "\" class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \""  . htmlentities($lo) .  "\" readonly/><label class=\"error\">" . $error . "</label>";
                 echo "</div>";
                 echo "<div class = \"clear " . $hidden . "\">";
-                echo "<input class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";
+                echo "<input id=\"" . $field_id . "\" class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";
                 if (!$value['required'])
                     {
                     echo "<span class = \"spaced border rounded padded shaded\">";                
@@ -555,7 +563,7 @@ if ($row_type > 0):
                 echo "<div class = \"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft left overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                 echo "<div class=\"clear " . $hidden . "\"></div>";
-                echo "<textarea class=\"spaced notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";				
+                echo "<textarea id=\"" . $field_id . "\" class=\"spaced notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";				
                 }				
             else
                 {
@@ -563,10 +571,11 @@ if ($row_type > 0):
                 $attribute = $readonly ? "readonly" : "";  //readonly attribute
                 echo "<div class=\"clear " . $hidden . "\">";
                 echo "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
-                echo "<input class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
+                echo "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \""  . htmlentities($input) .  "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
                 echo "<label class=\"error\">" . $error . "</label></div>";
                 }
             }
+        echo "</div>";
         echo "<div class=\"clear\"></div>";
         //submit button and textarea load
         //for hooking archive or security levels

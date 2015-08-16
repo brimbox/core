@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/
 */
 /* NO HTML OUTPUT */
 
-# STABDARD HOOKS #
+# STANDARD HOOKS #
 $array_global['bb_brimbox']['hooks']['bb_guest_infolinks'][] = array(array($main,"infolinks"), array());
 $array_global['bb_brimbox']['hooks']['bb_viewer_infolinks'][] = array(array($main,"infolinks"), array());
 $array_global['bb_brimbox']['hooks']['bb_home_infolinks'][] = array(array($main,"infolinks"), array());

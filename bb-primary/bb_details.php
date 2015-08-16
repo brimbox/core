@@ -34,7 +34,7 @@ function bb_select_field(div_id)
     if ( document.selection )
         {
         var range = document.body.createTextRange();
-        range.moveToElementText(node );
+        range.moveToElementText(node);
         range.select();
         }
     else if ( window.getSelection )
@@ -122,23 +122,25 @@ if ($post_key > 0) // a detail of a record
         $arr_layout =  $arr_layouts_reduced[$row_type];
         echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities((string)$arr_layout['singular']) . "</p>";
         /* return the details */
+        echo "<div id=\"bb_details_fields\">";
         foreach($arr_column_reduced as $key => $value)
             {
-            $col2 = $main->pad("c", $key);  
+            $col2 = $main->pad("c", $key);
+            $field_id = "details_" . $main->make_html_id($row_type, $key);
             if (in_array($key, $arr_notes)) //notes
                 {
                 $str_details = str_replace("\n", "<br>",  htmlentities($row[$col2]));
-                echo "<div class = \"clear\"><label class = \"spaced left floatleft overflow medium shaded\" onclick=\"bb_select_field('field_" . $key .  "')\">" . htmlentities($value['name']) . ":</label>";
+                echo "<div class = \"clear\"><label class = \"spaced left floatleft overflow medium shaded\" onclick=\"bb_select_field('" . $field_id .  "')\">" . htmlentities($value['name']) . ":</label>";
                 echo "<div class = \"clear\"></div>";
                 //double it up for emheight
                 echo "<div class=\"spaced border half\">";
-                echo "<div id=\"field_" . $key . "\" class=\"spaced emheight\">" . $str_details . "</div></div>";				
+                echo "<div id=\"" . $field_id . "\" class=\"spaced emheight\">" . $str_details . "</div></div>";				
                 echo "</div>";
                 }
             elseif (in_array($key, $arr_file)) //files
                 {
-                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('field_" . $key .  "')\">" . htmlentities($value['name']) . ":</label>";
-                echo "<button id=\"field_" . $key . "\" class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . htmlentities($row[$col2]) . "</button>";
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id .  "')\">" . htmlentities($value['name']) . ":</label>";
+                echo "<button id=\"" . $field_id . "\" class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . htmlentities($row[$col2]) . "</button>";
                 echo "</div>";
                 }
             elseif (in_array($key, $arr_relate) && $value['relate'])
@@ -147,17 +149,18 @@ if ($post_key > 0) // a detail of a record
                 $relate_post_key = $main->relate_post_key($row[$col2]);
                 $relate['id'] = $relate_post_key;
                 $relate['row_type'] = $relate_row_type;
-                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('field_" . $key .  "')\">" . htmlentities($value['name']) . ":</label>";
-                $main->standard($relate, $arr_layouts_reduced, "bb_cascade", $row[$col2], array('id'=>"field_" . $key, 'class'=>"link spaced left floatleft"));
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id .  "')\">" . htmlentities($value['name']) . ":</label>";
+                $main->standard($relate, $arr_layouts_reduced, "bb_cascade", $row[$col2], array('id'=>$field_id, 'class'=>"link spaced left floatleft"));
                 echo "</div>";
                 }
             else //regular
                 {
-                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('field_" . $key .  "')\">" . htmlentities($value['name']) . ":</label>";
-                echo "<div id=\"field_" . $key . "\" class=\"spaced left floatleft\">" . htmlentities($row[$col2]) . "</div>";
+                echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id .  "')\">" . htmlentities($value['name']) . ":</label>";
+                echo "<div id=\"" . $field_id . "\" class=\"spaced left floatleft\">" . htmlentities($row[$col2]) . "</div>";
                 echo "</div>";
                 }
             }
+            echo "</div>";
         }
     /* end return the details */
 	

@@ -65,6 +65,7 @@ If not, see http://www.gnu.org/licenses/
 //userrole_switch
 //on_constant
 //set_constant
+//make_field_id
 
 class bb_main {
 	
@@ -1208,6 +1209,18 @@ class bb_main {
             $text = $object;
             }
         echo "<button class=\"" . $class . "\" onclick=\"bb_submit_object('bb-links/bb_object_document_link.php', '" . $object . "'); return false;\">" . $text . "</button>";  
+        }
+        
+    function make_html_id($row_type, $col_type = 0)
+        {
+        if ($col_type)
+            {
+            return chr($row_type + 96) . $row_type . "_" . $this->pad("c", $col_type);
+            }
+        else
+            {
+            return chr($row_type + 96) . $row_type;   
+            }
         }
 } //end class
 ?>
