@@ -106,8 +106,7 @@ if ($main->button(1))
             
         //all validated
         $field = $arr_state[$col];
-        $return_required = false;
-        $return_validate = false;
+        $return_required = $return_validate = false;
         //required field  
         if ($required_flag) //false=not required, true=required
             {
@@ -127,13 +126,14 @@ if ($main->button(1))
                 $arr_errors[$col] = $return_validate;
                 }
             }
-        $main->set($col, $arr_state, $field);
         
-        //validation hook loop, by record type and field
-        //that is the discrete level of this loop
+        //validation hook loop, by record type and field, that is the discrete level of this loop
+        //you will need to pass $arr_errors and $col as variables and update if there is a validation error
         //if you need to validate one field using another do it here
-        $hookname = "validation" . "_" . $main->make_html_id($row_type, $key);
-        $main->hook($hookname, true);
+        $filtername = "validation" . "_" . $main->make_html_id($row_type, $key);
+        $field = $main->hook($filtername, $field, true);
+        //set the column with validated and formatted field
+        $main->set($col, $arr_state, $field);
 		}
         /* END VALIDATION */
         

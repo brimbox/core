@@ -65,7 +65,7 @@ If not, see http://www.gnu.org/licenses/
 //userrole_switch
 //on_constant
 //set_constant
-//make_field_id
+//make_html_id
 
 class bb_main {
 	
