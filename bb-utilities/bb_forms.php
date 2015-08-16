@@ -61,6 +61,8 @@ class bb_forms extends bb_validate {
 		echo "<input rel=\"ignore\" name=\"bb_userrole\" type=\"hidden\" value=\"\" />";
 		//used for processing image
 		echo "<input rel=\"ignore\" name=\"bb_image\" type=\"hidden\" value=\"\" />";
+		//the object needed when using file or document downloads
+		echo "<input rel=\"ignore\" name=\"bb_object\" type=\"hidden\" value = \"\">";
 		}
 				
 	function echo_common_vars()
@@ -81,8 +83,9 @@ class bb_forms extends bb_validate {
 		
 	function echo_object_vars()
 		{
-		//the object var is put in the required form when using file or document downloads
-		echo "<input rel=\"ignore\" type=\"hidden\"  name=\"bb_object\" value = \"\">";	
+		//deprcated, barely implemented
+		//do nothing
+		//object variable (bb_object) no included with module_vars
 		}
 		
 	function echo_state($array_state)
