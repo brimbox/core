@@ -62,7 +62,7 @@ class bb_hooks extends bb_work {
 				{
 				call_user_func($arr_hook);
 				}
-			else
+			elseif (is_callable($arr_hook[0]))
 				{
 				//build arguments and variables
 				//hook has variables
@@ -122,7 +122,7 @@ class bb_hooks extends bb_work {
 			{
 			$value = call_user_func($arr_filter);
 			}
-		else
+		elseif (is_callable($arr_filter[0]))
 			{
 			//has parameters, nested uncallable array
 			foreach ($arr_filter[1] as $var)

@@ -14,14 +14,6 @@ See the GNU GPL v3 for more details.
 You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
-
-//cause no cache -- important for security
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Cache-Control: no-store, no-cache, must-revalidate");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-
 // constant to verify include files are not accessed directly
 define('BASE_CHECK', true);
 // need DB_NAME from bb_config, must not have html output including blank spaces
@@ -32,6 +24,20 @@ include("bb-config/bb_config.php"); // need DB_NAME
 session_name(DB_NAME);
 session_start();
 session_regenerate_id();
+
+/*
+//cause no cache -- important for security
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+*/
+
+
+header('Cache-control: max-age=50');
+ini_set('session.cache_limiter','public');
+session_cache_limiter(false);
 
 /* START IF, IF (logged in) THEN (controller) ELSE (login) END */
 

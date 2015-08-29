@@ -82,8 +82,7 @@ $main->update($array_state, $module, $arr_state);
 //so these are basically global
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $arr_layout = $arr_layouts_reduced[$row_type];
-$arr_column = $main->filter_init($arr_columns[$row_type]);
-$arr_column_reduced = $main->filter_keys($arr_column);
+$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
 
 /* Standard Buttons */
 //Button 1 - update or insert (see below)
@@ -131,7 +130,7 @@ if ($main->button(1))
         //you will need to pass $arr_errors and $col as variables and update if there is a validation error
         //if you need to validate one field using another do it here
         $filtername = "validation" . "_" . $main->make_html_id($row_type, $key);
-        $field = $main->hook($filtername, $field, true);
+        $field = $main->filter($filtername, $field, true);
         //set the column with validated and formatted field
         $main->set($col, $arr_state, $field);
 		}

@@ -56,4 +56,6 @@ define('BB_DOCUMENT_DOWNLOAD_PERMISSIONS', '');
 //Browser notice, either blank to ignore or string message, standard navigation warning below
 //Database users should use tabs, buttons, and links to navigate. Browser back and forward buttons are not recommended.
 define('BB_CONTROLLER_MESSAGE', '');
+//"word" to search by whole word is default, "begin" to search by beginning of all tokens searched for
+define('BB_FULLTEXT_STATE', '');
 ?>

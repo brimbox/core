@@ -274,7 +274,9 @@ class bb_main {
         }
     
     function filter_init (&$arr_filter)
-        //quickly initializes array
+        //deprecated
+        //filter_keys will initialize array with pass by reference
+        //function was only used once in core and not documented
         {
         if (empty($arr_filter))
             {

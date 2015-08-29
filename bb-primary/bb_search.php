@@ -43,6 +43,7 @@ function bb_reload()
 $arr_layouts = $main->get_json($con, "bb_layout_names");
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 //default row_type is 0, for all layouts
+$fulltext_state = strtolower($main->get_constant('BB_FULLTEXT_STATE', 'word'));
 
 //message pile
 $arr_message = array();
@@ -74,6 +75,7 @@ $main->update($array_state, $module,  $arr_state);
 //function parse_boolean_string calls four non-object functions, advance, token, open, operator
 $boolean_parse = new php_boolean_validator();
 $boolean_parse->splice_or_tokens = true;
+$boolean_parse->splice_wildcard = ($fulltext_state == "begin") ? ":*" : "";
 $message = $boolean_parse->parse_boolean_string($search_parsed);
 array_push($arr_message, $message); 
 
@@ -134,7 +136,7 @@ $count_rows = 0;
 if ($main->blank($message))
 	{	
 	$lower_limit = (($offset - 1) * $return_rows);
-	$escaped_search_parsed = pg_escape_string($search_parsed); //search array is decoded
+    $escaped_search_parsed = pg_escape_string($search_parsed); //search array is decoded
     
     $and_clause = ($row_type == 0) ? " 1=1 " : " row_type = " . $row_type . " ";
 	
@@ -164,14 +166,11 @@ if ($main->blank($message))
         
     //must have full layout during return rows
     
-    $query = "SELECT count(*) OVER () as cnt, T3.*, T4.*, ts_rank_cd(fts, qry, 1) as rnk, '' as hdr FROM  " .
-             "((SELECT * FROM data_table) T1 " .
-             "INNER JOIN " .
-             "(SELECT to_tsquery('" . $escaped_search_parsed . "') qry) T2 " .
-             "ON T1.fts @@ T2.qry) T3 " .
+    $query = "SELECT count(*) OVER () as cnt, T1.*, T4.*, ts_rank_cd(fts, to_tsquery('" . $escaped_search_parsed ."'), 1) as rnk, '' as hdr FROM  " .
+             "(SELECT * FROM data_table WHERE fts @@ to_tsquery('" . $escaped_search_parsed ."')) T1 " .
              "LEFT JOIN " .
              "(SELECT id as id_left, row_type as row_type_left, " . $leftjoin . " FROM data_table) T4 " .
-             "ON T3.key1 = T4.id_left " .
+             "ON T1.key1 = T4.id_left " .
              "WHERE " . $mode . " AND " . $and_clause . " " .
              "ORDER BY rnk DESC, id DESC LIMIT " . $return_rows . " OFFSET ". $lower_limit .";";
              
