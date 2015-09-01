@@ -26,7 +26,7 @@ $arr_message = array();
 $archive_log = $main->on_constant('BB_ARCHIVE_LOG');
  
 //State vars --- there is no delete state
-$main->retrieve($con, $array_state);
+$post = $main->retrieve($con, $array_state);
 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_archive = $arr_header['row_archive']['value'];

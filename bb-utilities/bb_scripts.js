@@ -25,7 +25,11 @@ function bb_submit_form(button, target, passthis, image)
 	//required form
     var frmobj=document.forms['bb_form'];
     //action set to self, always through the controller
-    frmobj.action = "";
+	
+	if (target == '0_bb_logout')
+		{
+		frmobj.action = 'post.php';	
+		}
 
     //temporarily disable the calling object to prevent double submits
     //to use this you have to pass "this" refering to the button element

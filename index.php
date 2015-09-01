@@ -14,6 +14,14 @@ See the GNU GPL v3 for more details.
 You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
+
+//cause no cache -- important for security
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 // constant to verify include files are not accessed directly
 define('BASE_CHECK', true);
 // need DB_NAME from bb_config, must not have html output including blank spaces
@@ -24,20 +32,6 @@ include("bb-config/bb_config.php"); // need DB_NAME
 session_name(DB_NAME);
 session_start();
 session_regenerate_id();
-
-/*
-//cause no cache -- important for security
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Cache-Control: no-store, no-cache, must-revalidate");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-*/
-
-
-header('Cache-control: max-age=50');
-ini_set('session.cache_limiter','public');
-session_cache_limiter(false);
 
 /* START IF, IF (logged in) THEN (controller) ELSE (login) END */
 
@@ -75,45 +69,22 @@ if (isset($_SESSION['username'])):
 //other vars are all disposed of with unset
 
 //SESSION STUFF
+//set by login
 $username = $_SESSION['username'];
 $email = $_SESSION['email'];
+$interface = $_SESSION['interface'];
 $timeout = $_SESSION['timeout'];
 $userrole = $_SESSION['userrole']; //string containing userrole and interface
 $userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
+$archive = $_SESSION['archive'];
+$keeper = $_SESSION['keeper'];
+//set by post
+$module = isset($_SESSION['module']) ? $_SESSION['module'] : "";
+$submit = isset($_SESSION['submit']) ? $_SESSION['submit'] : "";
+$processing = isset($_SESSION['processing']) ? $_SESSION['processing'] : "";
+//unpack things
 list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
-$archive = $_SESSION['archive']; //archive mode
-//button post
-$button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0; //global button
 
-//logout algorithm used for interface change, userrole change and logout
-if (isset($_POST['bb_module']))
-	{
-    //sets the module and submit
-	$module = $_POST['bb_module'];
-	$submit = $_POST['bb_submit'];
-	if ($module == "bb_logout")
-		{
-		//logout and change interface/userrole could be on different or many pages
-		//check for session poisoning, userroles string should not be altered
-		//$userroles variable should be protected and not used or altered anywhere
-        // non-integer or empty usertype will convert to 0
-		if (((int)$usertype <> 0) && in_array($_POST['bb_userrole'], explode(",", $_SESSION['userroles'])))
-			{
-			$_SESSION['userrole'] = $_POST['bb_userrole']; 
-			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-			header($index_path);
-			die(); //important to stop script
-			}
-		//if logout, destroy session and force index, invalid $userrrole or $usertpye
-		else
-			{
-			session_destroy();
-			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-			header($index_path);
-			die(); //important to stop script
-			}
-		}
-	}
 
 /* INCLUDE CONSTANTS */    
 include("bb-config/bb_constants.php");
@@ -248,18 +219,16 @@ echo "</style>";
 <body id="bb_controller">
 <?php
 /* PROCESSING IMAGE */
-if (!$main->blank($_POST['bb_image']))
+if (!$main->blank($image))
     {
     //seems to flush nicely without explicitly flushing the output buffer
-    $processing_image = $_POST['bb_image'];
-    echo "<div id=\"bb_processor\"><img src=\"bb-config/" . $processing_image . "\"></div>";
+    echo "<div id=\"bb_processor\"><img src=\"bb-config/" . $image . "\"></div>";
     echo "<script>window.onload = function () { document.getElementById(\"bb_processor\").style.display = \"none\"; }</script>";
     }
 ?>
 <?php
 /* CONTROLLER ARRAYS*/
 //query the modules table to set up the interface according to $array_master
-
 //setup initial variables
 //arr_reduce is part of interface for current userrole
 $arr_reduce = $array_interface;
@@ -282,11 +251,9 @@ foreach($array_interface as $key => $value)
 	};
 //get modules type into string for query, reuse variable
 $arr_work['module_types'] = implode(",", array_unique($arr_work['module_types']));
-
 //query modules table
 $arr_work['query'] = "SELECT * FROM modules_table WHERE standard_module IN (0,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($arr_work['module_types']) . ") ORDER BY module_type, module_order;";
 $result = pg_query($con, $arr_work['query']);
-
 //populate controller arrays
 $controller_path = ""; //path to included module
 while($row = pg_fetch_array($result))
@@ -310,7 +277,6 @@ while($row = pg_fetch_array($result))
             }		
         }
     }
-
 //get default module to display initially
 //will be first file where file exists
 if (empty($module))
@@ -321,7 +287,6 @@ if (empty($module))
 	$controller_path = $arr_controller[$arr_work['key']][$module]['module_path'];
 	$controller_type = key($arr_controller);
 	}
-
 //if hidden, query hidden modules
 if (empty($controller_path))
 	{	
@@ -474,6 +439,7 @@ if (isset($_POST['index_login']))
     //get form variables
     $username = substr($_POST['username'],0,255); //email and password must be < 255 by definition
     $password = substr($_POST['password'],0,255); //do not want to process big post
+    $interface = substr($_POST['interface'],0,255);
     
     //default error message, information only provided with accurate credentials
     $message = "Login Failure: Bad Username and Password, Invalid IP, or Account Locked";
@@ -557,6 +523,12 @@ if (isset($_POST['index_login']))
                 $arr_userroles = explode(",",$row['userroles']);
                 $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
                 $_SESSION['archive'] = 1; //archive mode is off
+                //state row
+                $_SESSION['interface'] = $interface;
+                $query = "INSERT INTO state_table (jsondata) VALUES ('') RETURNING id;";
+                $result = pg_query($con, $query);
+                $row = pg_fetch_array($result);
+                $_SESSION['keeper'] = $row['id'];               
                 //log entry
                 $arr_log = array($username, $email, $ip, $log_message);
                 $query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
@@ -653,7 +625,9 @@ echo "<div id=\"index_holder\">";
 echo "<table><tr><td class=\"left\"><label for=\"username\">Username: </label></td>";
 echo "<td class=\"right\"><input name=\"username\" id=\"username\" class=\"long\" type=\"text\" /></td></tr>";
 echo "<tr><td class=\"left\"><label for=\"password\">Password: </label></td>";
-echo "<td class=\"right\"><input name=\"password\" id=\"password\"class=\"long\" type=\"password\" /></td></tr></table>";
+echo "<td class=\"right\"><input name=\"password\" id=\"password\"class=\"long\" type=\"password\" /></td></tr>";
+echo "<tr><td class=\"left\"><label for=\"interface\">Interface: </label></td>";
+echo "<td class=\"right\"><input name=\"interface\" id=\"interface\"class=\"long\" type=\"hidden\" value=\"bb_brimbox\"/></td></tr></table>";
 echo "</div>";
 echo "<button id=\"index_button\" name=\"index_login\" type=\"submit\" value=\"index_login\" />Login</button>";
 echo "<div id=\"index_message\">" . $message . "</div>";

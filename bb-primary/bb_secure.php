@@ -25,7 +25,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 $arr_message = array();
 
 /* GET STATE */
-$main->retrieve($con, $array_state);
+$post = $main->retrieve($con, $array_state);
 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_security = $arr_header['row_security']['value'];

@@ -28,7 +28,7 @@ $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /***START STATE AND VIEW POSTBACK***/
-$main->retrieve($con, $array_state);
+$post = $main->retrieve($con, $array_state);
 
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;

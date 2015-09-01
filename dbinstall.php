@@ -782,6 +782,41 @@ if ($do_docs_table)
     $result = pg_query($con, $query);
     echo "Docs Table Created (No Population)<br>";
     }
+    
+$query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'post_table'";
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
+$do_state_table = false;
+if ($num_rows == 0)
+    {
+    $do_state_table = true;
+    }
+    
+$query = <<<EOT
+CREATE TABLE state_table
+(
+  id serial NOT NULL,
+  jsondata text NOT NULL DEFAULT ''::text,
+  change_date timestamp with time zone,
+  CONSTRAINT state_table_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER SEQUENCE state_table_id_seq RESTART CYCLE;
+-- Trigger: ts1_update_change_date on xml_table
+CREATE TRIGGER ts1_update_change_date
+  BEFORE INSERT OR UPDATE
+  ON state_table
+  FOR EACH ROW
+  EXECUTE PROCEDURE bb_change_date();
+EOT;
+if ($do_state_table)
+    {
+    $result = pg_query($con, $query);
+    echo "State Table Created (No Population)<br>";
+    }
+
 
 
 echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";

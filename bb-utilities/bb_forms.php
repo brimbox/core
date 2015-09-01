@@ -40,9 +40,18 @@ class bb_forms extends bb_validate {
 		{
 		$name = isset($params['name']) ? $params['name'] : "bb_form";
 		$type = isset($params['type']) ? $params['type'] : "";
-		$action = isset($params['action']) ? $params['action'] : "";
 		$autocomplete = isset($params['autocomplete']) ? "autocomplete=\"On\"" : "autocomplete=\"Off\"";
 		//optional $type = enctype=\"multipart/form-data\"
+		
+		//action is important
+		if (isset($params['action']))
+			{
+			$action = $params['action'];
+			}
+		else
+			{
+			$action = "post.php";	
+			}
 		echo "<form name=\"" . $name . "\" action=\"" . $action . "\" method=\"post\" " . $type . " " . $autocomplete . ">";	
 		}
 		

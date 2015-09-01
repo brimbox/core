@@ -18,7 +18,7 @@ If not, see http://www.gnu.org/licenses/
 ?>
 <?php
 /* BEGIN REQUIRED FORM */
-$main->retrieve($con, $array_state, $userrole);
+$post = $main->retrieve($con, $array_state, $userrole);
 		
 $main->echo_form_begin();
 $main->echo_module_vars($module);
