@@ -67,7 +67,7 @@ If not, see http://www.gnu.org/licenses/
 //set_constant
 //make_html_id
 
-class bb_main {
+class bb_main extends bb_forms {
 	
 	//this quickly returns the query header stats including count and current time...
 	function return_stats($result)

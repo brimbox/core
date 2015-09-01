@@ -2,16 +2,20 @@
 /* NO HTML OUTPUT */
 define('BASE_CHECK', true);
 // need DB_NAME from bb_config, must not have html output including blank spaces
-include("bb-config/bb_config.php"); // need DB_NAME
+include("../bb-config/bb_config.php"); // need DB_NAME
 
 session_name(DB_NAME);
 session_start();
 
-$_SESSION['button'] = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
-$_SESSION['module'] = $_POST['bb_module'];
-$_SESSION['submit'] = $_POST['bb_submit'];   
+echo "Worked";
 
-if (isset($_SESSION['username'])): 
+if (isset($_SESSION['username'])):
+
+    $_SESSION['button'] = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
+    $_SESSION['module'] = $_POST['bb_module'];
+    $_SESSION['submit'] = $_POST['bb_submit'];
+    $_SESSION['path'] = $_POST['bb_path'];
+    
     
     //sets the module and submit
     if ($module == "bb_logout")
@@ -48,9 +52,9 @@ if (isset($_SESSION['username'])):
     pg_query_params($con, $query, array($jsondata));
     
     $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-    header($index_path);
+    //header($index_path);
 
 else :
-    die("Post Failed");
+    die();
 endif;
 ?>

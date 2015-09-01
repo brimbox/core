@@ -33,7 +33,7 @@ If not, see http://www.gnu.org/licenses/
 //add_drill_links
 
 //related PHP class
-class bb_links extends bb_database {
+class bb_links extends bb_work {
 	
 	function standard($row, $arr_layouts_reduced, $target, $text, $params = array())
 		{

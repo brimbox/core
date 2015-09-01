@@ -37,35 +37,6 @@ session_regenerate_id();
 
 if (isset($_SESSION['username'])):
 
-/* RESERVED VARIABLES (used in controller)*/
-//$userrole -- current security level string including the interface
-//$userroles -- valid security permissions, comma delimited string
-//$usertype -- current userrole integer without interface
-//$interface -- current interface
-//$email -- the current email/username
-//$module -- the current module
-//$con -- the connection to the database
-//$array_master -- contains all the interface arrays
-//$controller_path -- the path to the current module
-//$controller_type -- the current module type
-//$index_path - not unset because used in a header redirect
-
-//$less -- LESS parser invocations
-//$main -- Brimbox objects invoked
-
-/* RESERVED OBJECTS */
-//bb_main
-//bb_database
-//bb_links
-//bb_validate
-//bb_forms
-//bb_work
-//bb_hooks
-//bb_reports
-//bb_hooks
-
-//lessc -- LESS comnpiler
-
 //other vars are all disposed of with unset
 
 //SESSION STUFF
@@ -81,9 +52,12 @@ $keeper = $_SESSION['keeper'];
 //set by post
 $module = isset($_SESSION['module']) ? $_SESSION['module'] : "";
 $submit = isset($_SESSION['submit']) ? $_SESSION['submit'] : "";
-$processing = isset($_SESSION['processing']) ? $_SESSION['processing'] : "";
+$button = isset($_SESSION['button']) ? $_SESSION['button'] : 0;
+
 //unpack things
 list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
+//$path controller global
+//$type controller global
 
 
 /* INCLUDE CONSTANTS */    
@@ -92,27 +66,32 @@ include("bb-config/bb_constants.php");
 date_default_timezone_set(USER_TIMEZONE);
 	
 /* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
-//contains bb_main class
-include("bb-utilities/bb_main.php");
+/* these classes brought into both $main and $work */
 // contains bb_database class, extends bb_main
 include("bb-utilities/bb_database.php");
-// contains bb_links class, extends bb_database
-include("bb-utilities/bb_links.php");
 //contains bb_validation class, extend bb_links
 include("bb-utilities/bb_validate.php");
-//contains bb_form class, extends bb_validate
-include("bb-utilities/bb_forms.php");
-//contains bb_work class, extends bb_forms
-include("bb-utilities/bb_work.php");
 //contains bb_report class, extend bb_work
 include("bb-utilities/bb_hooks.php");
+//contains bb_work class, extends bb_forms
+include("bb-utilities/bb_work.php");
+
+
+/* these classes only brought into both $main */
+// contains bb_database class, extends bb_main
+include("bb-utilities/bb_links.php");
+//contains bb_form class, extends bb_validate
+include("bb-utilities/bb_forms.php");
 //contains bb_report class, extend bb_hooks
 include("bb-utilities/bb_reports.php");
+//contains bb_main class
+include("bb-utilities/bb_main.php");
+
 
 /* SET UP MAIN OBJECT */
 //objects are all daisy chained together
 //set up main from last object
-$main = new bb_reports();
+$main = new bb_main();
 
 /* GET DATABASE CONNECTION */
 //database connection passed into modules globally
@@ -255,7 +234,7 @@ $arr_work['module_types'] = implode(",", array_unique($arr_work['module_types'])
 $arr_work['query'] = "SELECT * FROM modules_table WHERE standard_module IN (0,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($arr_work['module_types']) . ") ORDER BY module_type, module_order;";
 $result = pg_query($con, $arr_work['query']);
 //populate controller arrays
-$controller_path = ""; //path to included module
+$path = ""; //path to included module
 while($row = pg_fetch_array($result))
     {
     //check module type not hidden
@@ -269,8 +248,8 @@ while($row = pg_fetch_array($result))
                 //set current module
                 if ($row['module_name'] == $module)
                     {
-                    $controller_path = $row['module_path'];
-                    $controller_type = $row['module_type']; 
+                    $path = $row['module_path'];
+                    $type = $row['module_type']; 
                     }
                 }
             $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path']);
@@ -284,17 +263,17 @@ if (empty($module))
 	//use $array[key($array)] to find first value
 	$arr_work['key'] = $arr_reduce[key($arr_reduce)]['module_type'];
 	$module = key($arr_controller[$arr_work['key']]);
-	$controller_path = $arr_controller[$arr_work['key']][$module]['module_path'];
-	$controller_type = key($arr_controller);
+	$path = $arr_controller[$arr_work['key']][$module]['module_path'];
+	$type = key($arr_controller);
 	}
 //if hidden, query hidden modules
-if (empty($controller_path))
+if (empty($path))
 	{	
 	$arr_work['query'] = "SELECT * FROM modules_table WHERE standard_module IN (1,2) AND module_type IN (0) AND module_name = '" . $module . "';";
 	$result = pg_query($con, $arr_work['query']);
 	$row = pg_fetch_array($result);
-	$controller_path = $row['module_path'];
-	$controller_type = $row['module_type'];
+	$path = $row['module_path'];
+	$type = $row['module_type'];
 	}
 /* END CONTROLLER AARAYS */
 
@@ -313,7 +292,7 @@ echo "<nav>"; //html5 nav tag
 foreach ($arr_reduce as $value)
 	{
 	$arr_work['selected'] = ""; //reset selected
-	if ($value['module_type'] == $controller_type)
+	if ($value['module_type'] == $type)
 		{
 		$arr_work['interface_type'] = $value['interface_type'];
 		}
@@ -347,7 +326,7 @@ foreach ($arr_reduce as $value)
 
 /* LINE UNDER TABS */
 //line either set under chosen tab or below all tabs and a hidden module
-$arr_work['lineclass'] = ($controller_type == 0) ? "line" : "under";
+$arr_work['lineclass'] = ($type == 0) ? "line" : "under";
 echo "<div class=\"" . $arr_work['lineclass'] . "\"></div>";
 echo "</div>"; //bb_header
 /* END LINE UNDER TABS */
@@ -359,7 +338,7 @@ if ($arr_work['interface_type'] == 'Auxiliary')
     {
     echo "<div id=\"bb_admin_menu\">";
     //echo Auxiliary buttons on the side
-    foreach ($arr_controller[$controller_type] as $key => $value)
+    foreach ($arr_controller[$type] as $key => $value)
         {
         echo "<button class=\"menu\" name=\"" . $key . "_name\" value=\"" . $key . "_value\"  onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value['friendly_name'] . "</button>";
         }
@@ -374,11 +353,11 @@ if ($arr_work['interface_type'] == 'Auxiliary')
     unset($arr_controller);
 	//module include this is where modules are included
     echo "<div id=\"bb_admin_content\">";
-    //$controller_path is reserved, this "include" includes the current module    
+    //$path is reserved, this "include" includes the current module    
     //the include must be done globally, will render standard php errors
     //if it bombs it bombs, the controller should still execute
     //Auxiliary type module is included here
-    if (file_exists($controller_path)) include($controller_path);
+    if (file_exists($path)) include($path);
     
     echo "</div>";
     echo "<div class=\"clear\"></div>";
@@ -395,11 +374,11 @@ else
 	unset($arr_controller);
 	//module include this is where modules are included
     echo "<div id=\"bb_content\">";
-    //$controller_path is reserved, this "include" includes the current module    
+    //$path is reserved, this "include" includes the current module    
     //the include must be done globally, will render standard php errors
     //if it bombs it bombs, the controller should still execute
     //Standard type module is included here
-    if (file_exists($controller_path)) include($controller_path);
+    if (file_exists($path)) include($path);
     
     echo "</div>";	
     echo "<div class=\"clear\"></div>";

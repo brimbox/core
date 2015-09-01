@@ -32,7 +32,7 @@ If not, see http://www.gnu.org/licenses/
 //process_related
 //unique_key
 	
-class bb_database extends bb_main {
+class bb_database {
 	
 	function connect()
 		{

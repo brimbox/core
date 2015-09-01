@@ -34,10 +34,13 @@ If not, see http://www.gnu.org/licenses/
 //echo_form_end
 //
 
-class bb_forms extends bb_validate {
+class bb_forms extends bb_links {
 	
 	function echo_form_begin($params = array())
 		{
+		global $module;
+		global $path;
+		
 		$name = isset($params['name']) ? $params['name'] : "bb_form";
 		$type = isset($params['type']) ? $params['type'] : "";
 		$autocomplete = isset($params['autocomplete']) ? "autocomplete=\"On\"" : "autocomplete=\"Off\"";
@@ -47,6 +50,10 @@ class bb_forms extends bb_validate {
 		if (isset($params['action']))
 			{
 			$action = $params['action'];
+			}
+		elseif (file_exists(dirname($path) . "/" . $module . "_post.php"))
+			{
+			$action = dirname($path) . "/" . $module . "_post.php";	
 			}
 		else
 			{

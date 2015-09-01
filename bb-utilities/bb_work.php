@@ -42,7 +42,7 @@ If not, see http://www.gnu.org/licenses/
 
 
 /* POSTBACK ANBD STATE FUNCTIONS */	
-class bb_work extends bb_forms {
+class bb_work extends bb_hooks {
 	
 	function button($number, $check = "")
 		{
@@ -75,6 +75,25 @@ class bb_work extends bb_forms {
 		//anything that is empty but not identical to the '0' string
 		return empty($var) && $var !== '0';
 		}
+		
+	function get($name, $module, $default = "")
+		{
+		//processed like post except these variable
+		//already processed by post module
+		global $processed;
+		
+		//gets the proceesed value of a variable
+	    $temp = $module . '_' . $name;
+	    if (isset($processed[$temp]))
+		    {
+		    return $processed[$temp];
+		    }
+		else
+			{
+			//should already be set
+			return $default;	
+			}
+	    }
 		
 	function check($name, $module)
 	    {
@@ -185,17 +204,34 @@ class bb_work extends bb_forms {
 	    return $var;	
 	    }
 		
-	function load($module, $array_state)
+	function load($module, $array_state = array())
         {
 		//gets and loads $arr_state from global $array_state
 	    global $array_state;
-		 
-	    $temp = $module . "_bb_state";
-		//will initialize array state if if not set set, happens in module install
-	    $arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
-	    return $arr_state;	
+		global $post;
+		
+		$temp = $module . "_bb_state";
+		if (empty($array_state))
+			{
+			$json_state = base64_decode($post[$temp]);
+			$arr_state = isset($post[$temp]) ? json_decode($json_state, true) : array();
+			return $arr_state;	
+			}
+		else
+			{
+			$arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
+			return $arr_state;	
+			}
 	    }
 		
+	function repost($module, $arr_state = array())
+		{
+		global $post;
+		
+		$temp = $module . '_bb_state';
+        $post[$temp] = json_encode($arr_state);			
+		}
+	
 	function keeper($con, $key = "")
 		{
 		global $module;
@@ -249,7 +285,7 @@ class bb_work extends bb_forms {
 		$post = $this->keeper($con, "post");
 	    
 		//build $array_state
-    while($row = pg_fetch_array($result))
+		while($row = pg_fetch_array($result))
 			{
 			$key = $row['module_name'] . '_bb_state';
 			if (!empty($post[$key])) //get state from post
@@ -261,7 +297,7 @@ class bb_work extends bb_forms {
 				$array_state[$key] = "";
 				}
 			}
-		    $this->hot_state($array_state, $userrole);		
+		$this->hot_state($array_state, $userrole);		
 		return $post;
 	    }
 	

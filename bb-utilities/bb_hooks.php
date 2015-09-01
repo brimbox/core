@@ -32,7 +32,7 @@ If not, see http://www.gnu.org/licenses/
 //textarea_load
 
 
-class bb_hooks extends bb_work {
+class bb_hooks extends bb_validate {
 	
 	function hook($name, $append = false)
 		{

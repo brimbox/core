@@ -44,7 +44,7 @@ If not, see http://www.gnu.org/licenses/
 //paginated table display one page at a time
 //single row report exists also
 
-class bb_reports extends bb_hooks {
+class bb_reports extends bb_forms {
 	
 	function report_type($selected, $params = array())
 		{
