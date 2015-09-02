@@ -445,7 +445,30 @@ class bb_main extends bb_forms {
 		$date = new DateTime($date, new DateTimeZone(USER_TIMEZONE));
 		$date->setTimezone(new DateTimeZone(DB_TIMEZONE));
 		return $date->format($format);
-		}	
+		}
+        
+    function include_exists($filepath)
+        {
+        //assumes relative for php files
+        if (file_exists($filepath))
+            {
+            include($filepath);
+            }
+        }       
+        
+    function include_file($filepath, $type)
+        {
+        //assumes index file root
+        $fullpath = dirname($_SERVER['PHP_SELF']) . "/" . $filepath;
+        if ($type == "css")
+            {
+            echo "<link rel=StyleSheet href=\"" . $fullpath . "\" type=\"text/css\" media=screen>";    
+            }
+        elseif ($type == "js")
+            {
+            echo "<script type=\"text/javascript\" src=\"" . $fullpath . "\"></script>";   
+            }     
+        }
 	
 	//function to get all paths in a directory
 	//directory recursion function

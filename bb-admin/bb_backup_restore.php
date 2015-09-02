@@ -32,7 +32,7 @@ $row_type = 0;
 $processing_image = $main->on_constant('BB_PROCESSING_IMAGE');
 
 /* RETRIEVE STATE */
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 include("bb_backup_restore_extra.php");
 

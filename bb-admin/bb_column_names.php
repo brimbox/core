@@ -51,7 +51,7 @@ $maxinput = $main->get_constant('BB_STANDARD_LENGTH', 255);
 $processing_image = $main->on_constant('BB_PROCESSING_IMAGE');
 
 /* RETRIEVE STATE */
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 //for sorting lists with uasort
 function cmp( $a, $b )

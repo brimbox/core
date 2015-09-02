@@ -129,7 +129,7 @@ function bb_set_field(col)
 
 <?php
 /* BEGIN QUEUE AND STATE POSTBACK  */
-$post = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 $arr_state = $main->load($module, $array_state);
 $email_number = $main->process('email_number', $module, $arr_state, -1);
@@ -297,14 +297,14 @@ $main->echo_module_vars();
 			
 		//get glean row_type -- standard email headers for guest pack and viewer pack
 		$row_type = 0;
-		$post_record = false;
+		$POST_record = false;
 		$arr_layouts = $main->get_json($con, "bb_layout_names");
 		$arr_layouts_reduced = $main->filter_keys($arr_layouts);
 		$arr_columns = $main->get_json($con, "bb_column_names");		
 		
 		if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
 			{
-			$post_record = true;
+			$POST_record = true;
 			$post_key = substr($var_subject,15);
 			if (ctype_digit($post_key))
 				{
@@ -324,7 +324,7 @@ $main->echo_module_vars();
 			}
 		elseif (substr($var_subject,0,13) == "Record Edit: " && preg_match("/^[A-Z]\d+/", substr($var_subject,13)))
 			{
-			$post_record = true;
+			$POST_record = true;
 			$post_key = substr($var_subject,14);
 			if (ctype_digit($post_key))
 				{
@@ -336,7 +336,7 @@ $main->echo_module_vars();
 			}
 		elseif (substr($var_subject,0,12) == "Record New: " && preg_match("/^[A-Z]$/", substr($var_subject,12)))
 			{
-			$post_record = true;			
+			$POST_record = true;			
 			$row_type = ord(substr($var_subject,12,1)) - 64;
 			$arr_layout = $arr_layouts_reduced[$row_type];
 			if ($arr_layout['parent'] > 0)
@@ -352,7 +352,7 @@ $main->echo_module_vars();
 			}
 		
 		//Check input state
-		if ((!$post_record) && ($row_type == 0))
+		if ((!$POST_record) && ($row_type == 0))
 			{
 			$temp_state = json_decode($array_state['bb_input_bb_state'], true);
 			$row_type = isset($temp_state['row_type']) ? $temp_state['row_type'] : 0;

@@ -16,18 +16,22 @@ If not, see http://www.gnu.org/licenses/
 */
 
 //cause no cache -- important for security
+/*
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
+*/
 
 // constant to verify include files are not accessed directly
 define('BASE_CHECK', true);
+//bootstrap up includes things
+include_once("init.php");
 // need DB_NAME from bb_config, must not have html output including blank spaces
-include("bb-config/bb_config.php"); // need DB_NAME
-//set PHP and User/Interface timezone based on bb_config
-
+//include config
+$init->include_config(0);
+//need db name
 // start session based on db name
 session_name(DB_NAME);
 session_start();
@@ -49,24 +53,52 @@ $userrole = $_SESSION['userrole']; //string containing userrole and interface
 $userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
 $archive = $_SESSION['archive'];
 $keeper = $_SESSION['keeper'];
+//get slug from url
+preg_match("/\/[a-z0-9\-]*$/", $_SERVER['REQUEST_URI'], &$match);
+$slug = trim($match[0], "/");
+//unpack things
+list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
 //set by post
 $module = isset($_SESSION['module']) ? $_SESSION['module'] : "";
 $submit = isset($_SESSION['submit']) ? $_SESSION['submit'] : "";
 $button = isset($_SESSION['button']) ? $_SESSION['button'] : 0;
 
-//unpack things
-list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
-//$path controller global
-//$type controller global
+//also $path controller global
+//also $type controller global
+//also $module and $slug initalized if empty when array_global is processed
+
+//logout algorithm used for interface change, userrole change and logout
+if (isset($_SESSION['module']))
+	{
+    //sets the module and submit
+	if ($module == "bb_logout")
+		{
+		//logout and change interface/userrole could be on different or many pages
+		//check for session poisoning, userroles string should not be altered
+		//$userroles variable should be protected and not used or altered anywhere
+        // non-integer or empty usertype will convert to 0
+		if (((int)$usertype <> 0) && in_array($_POST['bb_userrole'], explode(",", $_SESSION['userroles'])))
+			{
+			$_SESSION['userrole'] = $_POST['bb_userrole']; 
+			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+			header($index_path);
+			die(); //important to stop script
+			}
+		//if logout, destroy session and force index, invalid $userrrole or $usertpye
+		else
+			{
+			session_destroy();
+			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+			header($index_path);
+			die(); //important to stop script
+			}
+		}
+	}
 
 
-/* INCLUDE CONSTANTS */    
-include("bb-config/bb_constants.php");
-/* SET TIME ZONE */
-date_default_timezone_set(USER_TIMEZONE);
-	
-/* INCLUDE ALL BRIMBOX STANDARD FUNCTIONS */
-/* these classes brought into both $main and $work */
+/* SET UP MAIN OBJECT */
+//objects are all daisy chained together
+//set up main from last object
 // contains bb_database class, extends bb_main
 include("bb-utilities/bb_database.php");
 //contains bb_validation class, extend bb_links
@@ -74,9 +106,7 @@ include("bb-utilities/bb_validate.php");
 //contains bb_report class, extend bb_work
 include("bb-utilities/bb_hooks.php");
 //contains bb_work class, extends bb_forms
-include("bb-utilities/bb_work.php");
-
-
+include("bb-utilities/bb_work.php");		
 /* these classes only brought into both $main */
 // contains bb_database class, extends bb_main
 include("bb-utilities/bb_links.php");
@@ -87,10 +117,6 @@ include("bb-utilities/bb_reports.php");
 //contains bb_main class
 include("bb-utilities/bb_main.php");
 
-
-/* SET UP MAIN OBJECT */
-//objects are all daisy chained together
-//set up main from last object
 $main = new bb_main();
 
 /* GET DATABASE CONNECTION */
@@ -100,8 +126,8 @@ $con = $main->connect();
 /* USER LOCKED OR DELETED */
 //once $con is set check live whether user is locked or deleted
 //0_bb_brimbox is only locked userrole, for active lock
-$arr_work['locked'] = "SELECT id FROM users_table WHERE username = '" . pg_escape_string($username) . "' AND NOT '0_bb_brimbox' = ANY (userroles);";
-$result = pg_query($con, $arr_work['locked']);
+$query = "SELECT id FROM users_table WHERE username = '" . pg_escape_string($username) . "' AND NOT '0_bb_brimbox' = ANY (userroles);";
+$result = pg_query($con, $query);
 if (pg_num_rows($result) <> 1)
     {
     session_destroy();
@@ -116,46 +142,45 @@ if (pg_num_rows($result) <> 1)
 //do not want controller to bomb
 //global for all interfaces
 include("bb-utilities/bb_headers.php");
-$arr_work['headers'] = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-3) ORDER BY module_order;";
-$result = pg_query($con, $arr_work['headers']);
+$query = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-3) ORDER BY module_order;";
+$result = pg_query($con, $query);
 while($row = pg_fetch_array($result))
     {
     //will ignore file that does not exists so can debug by deleting file
     //checking syntax would be too much overhead
-    if (file_exists($row['module_path'])) include($row['module_path']);
+    $main->include_exists($row['module_path']);
     }
 /* ADHOC HEADERS */
-if (file_exists("bb-config/bb_admin_headers.php")) include("bb-config/bb_admin_headers.php");
+$main->include_exists("bb-config/bb_admin_headers.php");
 
 /* DO FUNCTION MODULES */
 //only for interface being loaded
-$arr_work['functions'] = "SELECT module_path FROM modules_table WHERE interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-2) ORDER BY module_order;";
-$result = pg_query($con, $arr_work['functions']);
+$query = "SELECT module_path FROM modules_table WHERE interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-2) ORDER BY module_order;";
+$result = pg_query($con, $query);
 while($row = pg_fetch_array($result))
     {
     //will ignore file that does not exists so can debug by deleting file
     //checking syntax would be too much overhead
-    if (file_exists($row['module_path'])) include($row['module_path']);
+    $main->include_exists($row['module_path']);
     }
 /* ADHOC FUNCTIONS */
 //will ignore file if missing
-if (file_exists("bb-config/bb_admin_functions.php")) include("bb-config/bb_admin_functions.php");
+$main->include_exists("bb-config/bb_admin_functions.php");
 
 /* DO GLOBAL MODULES */
 //only for interface being loaded
 include("bb-utilities/bb_globals.php");
-$arr_work['globals'] = "SELECT module_path FROM modules_table WHERE  interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
-$result = pg_query($con, $arr_work['globals']);
+$query = "SELECT module_path FROM modules_table WHERE  interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
+$result = pg_query($con, $query);
 while($row = pg_fetch_array($result))
     {
     //will ignore file that does not exists so can debug by deleting file
     //checking syntax would be too much overhead
-    if (file_exists($row['module_path'])) include($row['module_path']);
+    $main->include_exists($row['module_path']);
     }
 /* ADHOC GLOBALS */
 //will ignore file if missing
-if (file_exists("bb-config/bb_admin_globals.php")) include("bb-config/bb_admin_globals.php");
-
+$main->include_exists("bb-config/bb_admin_globals.php");
 /* UNPACK $array_global for given interface */
 //will overwrite existing arrays
 if (isset($array_global))
@@ -165,6 +190,12 @@ if (isset($array_global))
         ${'array_' . $key} = $value;
         }
     }
+//initialize module and slug if empty
+if (($module == "") || ($slug == ""))
+    {
+    $module = $array_landing[$usertype]['landing_module'];
+    $slug = $array_landing[$usertype]['landing_slug'];
+    }
 ?>
 <?php /* START HTML OUTPUT */ ?>
 <!DOCTYPE html>    
@@ -172,16 +203,16 @@ if (isset($array_global))
 <head>    
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-<?php /* JAVASCRIPT AND CSS INCLUDES */ ?>
-<script type="text/javascript" src="bb-utilities/bb_scripts.js"></script>
-<script type="text/javascript" src="bb-config/bb_admin_javascript.js"></script>
+<?php /* JAVASCRIPT AND CSS INCLUDES */
+//include file deals with path
+$main->include_file("bb-utilities/bb_scripts.js", "js");
+$main->include_file("bb-config/bb_admin_javascript.js", "js");
+$main->include_file("bb-utilities/bb_styles.css", "css");
+$main->include_file("bb-config/bb_admin_css.css", "css");
 
-<link rel=StyleSheet href="bb-utilities/bb_styles.css" type="text/css" media=screen>
-<link rel=StyleSheet href="bb-config/bb_admin_css.css" type="text/css" media=screen>
-<?php
 /* INCLUDE HACKS LAST after all other bb-config includes */
 //hacks file useful for debugging
-if (file_exists("bb-config/bb_admin_hacks.php")) include("bb-config/bb_admin_hacks.php");
+$main->include_exists("bb-config/bb_admin_hacks.php");
 
 /* SET UP LESS SUBSTITUTER */
 include("bb-less/bb_less_substituter.php");
@@ -190,11 +221,11 @@ echo "<style>";
 echo $less->parse_less_file("bb-utilities/bb_styles.less");
 echo "</style>";
 /* END LESS LESS SUBSTITUTER */
+unset($query, $result, $row);
 ?>
 
 <title><?php echo PAGE_TITLE; ?></title> 
 </head>
-
 <body id="bb_controller">
 <?php
 /* PROCESSING IMAGE */
@@ -210,71 +241,78 @@ if (!$main->blank($image))
 //query the modules table to set up the interface according to $array_master
 //setup initial variables
 //arr_reduce is part of interface for current userrole
-$arr_reduce = $array_interface;
+$arr_interface = $array_interface;
 //arr_work is an array of temp variables for quick disposal
-$arr_work['interface_type'] = "";
-$arr_work['module_types'] = array();
+$module_types = array();
 //get the module types for current interface
 foreach($array_interface as $key => $value)
 	{
     //display appropriate modules, usertypes is array of numeric part of userroles
 	if (in_array($usertype, $value['usertypes']))
 		{
-		array_push($arr_work['module_types'], $value['module_type']);
+		array_push($module_types, $value['module_type']);
 		}
 	else
 		{
         //unset interface type
-		unset($arr_reduce[$key]);	
+		unset($arr_interface[$key]);	
 		}
 	};
-//get modules type into string for query, reuse variable
-$arr_work['module_types'] = implode(",", array_unique($arr_work['module_types']));
+//get modules type into string for query, reuse variable, recast
+$module_types = implode(",", array_unique($module_types));
 //query modules table
-$arr_work['query'] = "SELECT * FROM modules_table WHERE standard_module IN (0,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($arr_work['module_types']) . ") ORDER BY module_type, module_order;";
-$result = pg_query($con, $arr_work['query']);
+$query = "SELECT *, lower(trim(regexp_replace(friendly_name, E'(\\W)+', '-', 'g'))) as module_slug FROM modules_table WHERE standard_module IN (0,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($module_types) . ") ORDER BY module_type, module_order;";
+//echo "<p>" . $query . "</p>";
+$result = pg_query($con, $query);
+
+//set hidden flag
+$hidden = true;
 //populate controller arrays
-$path = ""; //path to included module
 while($row = pg_fetch_array($result))
     {
+    //get the first module
     //check module type not hidden
 	if ($row['module_type'] > 0)
 		{
         //check that file exists
         if (file_exists($row['module_path']))
             {
-            if (!empty($module))
+            //slightly inefficient bu there are reasons
+            if ($module == $row['module_name'] && $slug == $row['module_slug'])
                 {
-                //set current module
-                if ($row['module_name'] == $module)
-                    {
-                    $path = $row['module_path'];
-                    $type = $row['module_type']; 
-                    }
+                list($path, $type) = array($row['module_path'], $row['module_type']);
+                $hidden = false;
                 }
-            $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path']);
+            elseif ($slug == $row['module_slug'] && $module <> $row['module_name'])
+                {
+                list($module, $path, $type) = array($row['module_name'], $row['module_path'], $row['module_type']);
+                $hidden = false;
+                }
+             //need to address controller by both module_type and module_name    
+            //$array[key][key] is easiest
+            $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path'], 'module_slug'=>$row['module_slug']);
             }		
         }
     }
-//get default module to display initially
-//will be first file where file exists
-if (empty($module))
-	{
-	//use $array[key($array)] to find first value
-	$arr_work['key'] = $arr_reduce[key($arr_reduce)]['module_type'];
-	$module = key($arr_controller[$arr_work['key']]);
-	$path = $arr_controller[$arr_work['key']][$module]['module_path'];
-	$type = key($arr_controller);
-	}
-//if hidden, query hidden modules
-if (empty($path))
-	{	
-	$arr_work['query'] = "SELECT * FROM modules_table WHERE standard_module IN (1,2) AND module_type IN (0) AND module_name = '" . $module . "';";
-	$result = pg_query($con, $arr_work['query']);
-	$row = pg_fetch_array($result);
-	$path = $row['module_path'];
-	$type = $row['module_type'];
-	}
+//could be hidden
+if ($hidden)
+    {
+    //check hidden
+    $query = "SELECT * FROM modules_table WHERE standard_module IN (1,2) AND module_type IN (0) AND module_name = '" . $module . "';";
+    $result = pg_query($con, $query);
+    if (pg_num_rows($result) == 1)
+        {
+        $row = pg_fetch_array($result);
+        if ($module == $row['module_name'] && $slug == $row['module_slug'])
+            {
+            list($path, $type) = array($row['module_path'], $row['module_type']);
+            }
+        elseif ($slug == $row['module_slug'] && $module <> $row['module_name'])
+            {
+            list($module, $path, $type) = array($row['module_name'], $row['module_path'], $row['module_type']);
+            }
+        }
+    }
 /* END CONTROLLER AARAYS */
 
 /* ECHO TABS */
@@ -289,19 +327,19 @@ if (!$main->blank($controller_message))
     }
 
 echo "<nav>"; //html5 nav tag
-foreach ($arr_reduce as $value)
+foreach ($arr_interface as $value)
 	{
-	$arr_work['selected'] = ""; //reset selected
+	$selected = ""; //reset selected
 	if ($value['module_type'] == $type)
 		{
-		$arr_work['interface_type'] = $value['interface_type'];
+		$interface_type = $value['interface_type'];
 		}
 	if ($value['interface_type'] == 'Standard')
 		{
 		foreach ($arr_controller[$value['module_type']] as $key => $value)       
 			{
-			$arr_work['selected'] = ($module == $key) ? "chosen" : "";
-			echo "<button class=\"tabs " . $arr_work['selected'] . "\" onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value['friendly_name'] . "</button>";
+			$selected = ($module == $key) ? "chosen" : "";
+			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(0,'" . $key . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
 			}
 		}
 	elseif ($value['interface_type'] == 'Auxiliary')
@@ -311,14 +349,14 @@ foreach ($arr_reduce as $value)
 			{
 			if (array_key_exists($module, $arr_controller[$value['module_type']]))
 				{
-				$arr_work['selected'] = "chosen";
-				$arr_work['module'] = $module;
+				$selected = "chosen";
+				$module_work = $module;
 				}
 			else
 				{
-				$arr_work['module'] = key($arr_controller[$value['module_type']]);
+				$module_work = key($arr_controller[$value['module_type']]);
 				}
-			echo "<button class=\"tabs " . $arr_work['selected'] . "\"  onclick=\"bb_submit_form(0,'" . $arr_work['module'] . "')\">" . $value['friendly_name'] . "</button>";
+			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(0,'" . $module_work . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
 			}			
 		}		
 	}
@@ -326,31 +364,26 @@ foreach ($arr_reduce as $value)
 
 /* LINE UNDER TABS */
 //line either set under chosen tab or below all tabs and a hidden module
-$arr_work['lineclass'] = ($type == 0) ? "line" : "under";
-echo "<div class=\"" . $arr_work['lineclass'] . "\"></div>";
+$lineclass = ($type == 0) ? "line" : "under";
+echo "<div class=\"" . $lineclass  . "\"></div>";
 echo "</div>"; //bb_header
 /* END LINE UNDER TABS */
 
 /* INCLUDE APPROPRIATE MODULE */
 echo "<div id=\"bb_wrapper\">";
 //Auxiliary tabs
-if ($arr_work['interface_type'] == 'Auxiliary')
+if ($interface_type == 'Auxiliary')
     {
     echo "<div id=\"bb_admin_menu\">";
     //echo Auxiliary buttons on the side
     foreach ($arr_controller[$type] as $key => $value)
         {
-        echo "<button class=\"menu\" name=\"" . $key . "_name\" value=\"" . $key . "_value\"  onclick=\"bb_submit_form(0,'" . $key . "')\">" . $value['friendly_name'] . "</button>";
+        echo "<button class=\"menu\" name=\"" . $key . "_name\" value=\"" . $key . "_value\"  onclick=\"bb_submit_form(0,'" . $key . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
         }
     echo "</div>";
     
     //clean up before include
-	unset($key);
-    unset($value);
-	unset($arr_work);
-	unset($arr_reduce);
-	unset($result);
-    unset($arr_controller);
+	unset($key, $value, $arr_interface, $arr_controller, $interface_type);
 	//module include this is where modules are included
     echo "<div id=\"bb_admin_content\">";
     //$path is reserved, this "include" includes the current module    
@@ -368,7 +401,7 @@ else
     //clean up before include
 	unset($key);
     unset($value);
-	unset($arr_reduce);
+	unset($arr_interface);
 	unset($arr_work);
 	unset($result);
 	unset($arr_controller);

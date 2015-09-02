@@ -26,13 +26,13 @@ $arr_message = array();
 $archive_log = $main->on_constant('BB_ARCHIVE_LOG');
  
 //State vars --- there is no delete state
-$post = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_archive = $arr_header['row_archive']['value'];
 
-$post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;
-$row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;
+$post_key = isset($POST['bb_post_key']) ? $POST['bb_post_key'] : -1;
+$row_type = isset($POST['bb_row_type']) ? $POST['bb_row_type'] : -1;
 
 //get postback vars
 /* BEGIN ARCHIVE CASCADE */

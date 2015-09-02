@@ -16,7 +16,7 @@ If not, see http://www.gnu.org/licenses/
 
 //this is the module submit javascript function
 //each time a tab is clicked this function executes
-function bb_submit_form(button, target, passthis, image)
+function bb_submit_form(button, target, direct, passthis)
     {
     //button, target, and passthis are optional
     
@@ -25,11 +25,6 @@ function bb_submit_form(button, target, passthis, image)
 	//required form
     var frmobj=document.forms['bb_form'];
     //action set to self, always through the controller
-	
-	if (target == '0_bb_logout')
-		{
-		frmobj.action = 'post.php';	
-		}
 
     //temporarily disable the calling object to prevent double submits
     //to use this you have to pass "this" refering to the button element
@@ -50,23 +45,22 @@ function bb_submit_form(button, target, passthis, image)
         }
         
     //module is current module always, this for submitting form vars
-    module=frmobj.elements['bb_module'].value;
-    
-    //once module is set for form module submission
-    //actual target is always index.php
-    //bb_submit is to save where you are coming from
+    module = frmobj.elements['bb_module'].value;    
     frmobj['bb_submit'].value = frmobj['bb_module'].value;
-    //if undefined, target is current module
+	//get module submittted to
     if (target!=undefined)
         {
         //set bb_module as target module
+		frmobj.elements['bb_module'].target
         frmobj['bb_module'].value = target;
         }
-	
-	//set the processing image
-	if (image!=undefined)
-		{
-		frmobj.elements['bb_image'].value = image;
+		
+	//use the slug
+	slug = frmobj.elements['bb_slug'].value;
+	if (direct!=undefined)
+        {
+        //set bb_module as target module
+        frmobj['bb_slug'].value = direct;
 		}
         
     for (var i=0; i<frmobj.length; i++)

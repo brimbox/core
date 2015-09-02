@@ -37,7 +37,7 @@ $arr_message = array();
 $arr_notes = array("49","50");
 
 /* GET STATE */
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 //This area creates the form for choosing the lists
 $arr_layouts = $main->get_json($con, "bb_layout_names");

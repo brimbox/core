@@ -57,7 +57,7 @@ $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /* BROWSE AND STATE POSTBACK */
 //do browse postback, get variables from state
-$post = $main->retrieve($con, $array_state); //run first
+$POST = $main->retrieve($con, $array_state); //run first
     
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;

@@ -21,7 +21,7 @@ If not, see http://www.gnu.org/licenses/
 $main->check_permission("bb_brimbox", 5);
 
 //it is necessary to retrieve the state to echo it back into the form
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 $arr_message = array();
 
 $arr_header = $main->get_json($con,"bb_interface_enable");

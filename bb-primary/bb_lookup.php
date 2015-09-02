@@ -45,7 +45,7 @@ $arr_messages = array();
 
 /* LOOKUP AND STATE POSTBACK */
 //do lookup state and postback
-$post = $main->retrieve($con, $array_state); //run first
+$POST = $main->retrieve($con, $array_state); //run first
     
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;

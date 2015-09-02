@@ -42,13 +42,15 @@ class bb_input_extra {
     /* MAIN FUNCTION FOR RECORD LINKS */    
     function linkspost()
         {
+        global $POST;
+        
         //row_type set in global link, should be positive
         //empty works because 0 row-type is invalid
-        if (!empty($_POST['bb_row_type'])) 
+        if (!empty($POST['bb_row_type'])) 
             {
             return $this->global_row_type();   
             }
-        elseif (!empty($_POST['bb_relate'])) 
+        elseif (!empty($POST['bb_relate'])) 
             {
             return $this->global_relate();  
             }
@@ -78,11 +80,13 @@ class bb_input_extra {
     /* EITHER ADD OR EDIT FROM RECORD LINK */    
     function global_row_type()
         {
+        global $POST;
+        
         $arr_state = array();
 	
-        $row_type = $this->main->set('row_type', $arr_state, $_POST['bb_row_type']);
-        $row_join = $this->main->set('row_join', $arr_state, $_POST['bb_row_join']);
-        $post_key = $this->main->set('post_key', $arr_state, $_POST['bb_post_key']);
+        $row_type = $this->main->set('row_type', $arr_state, $POST['bb_row_type']);
+        $row_join = $this->main->set('row_join', $arr_state, $POST['bb_row_join']);
+        $post_key = $this->main->set('post_key', $arr_state, $POST['bb_post_key']);
         
         //consider empty possibility
         $arr_column_reduced = $this->main->filter_keys($this->arr_columns[$row_type]);
@@ -124,11 +128,13 @@ class bb_input_extra {
         
     function global_relate()
         {
+        global $POST;
+        
         $arr_state = $this->arr_state; //returned
         $row_type = $this->main->state('row_type', $arr_state, $this->default_row_type);
         $row_join = $this->main->state('row_join', $arr_state, 0);
         $post_key = $this->main->state('post_key', $arr_state, 0);
-        $relate = $_POST['bb_relate'];
+        $relate = $POST['bb_relate'];
         
         //consider empty possibility
         //check proper layouts on input

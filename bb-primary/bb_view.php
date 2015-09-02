@@ -43,7 +43,7 @@ $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /***START STATE AND VIEW POSTBACK***/
-$post = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
@@ -52,12 +52,12 @@ $arr_state = $main->load($module, $array_state);
 
 //coming from an view link, set $arr_state
 //bb_row_type is empty if not set with javascript, empty works here
-if (!empty($_POST['bb_row_type']))
+if (!empty($POST['bb_row_type']))
         {
 		//global post_key and row_type
 		$offset = $main->set('offset', $arr_state, 1);
-		$row_type = $main->set('row_type', $arr_state, $_POST['bb_row_type']);
-		$post_key = $main->set('post_key', $arr_state, $_POST['bb_post_key']);
+		$row_type = $main->set('row_type', $arr_state, $POST['bb_row_type']);
+		$post_key = $main->set('post_key', $arr_state, $POST['bb_post_key']);
 		$col1 = $main->set('col1', $arr_state, "create_date");
 		$asc_desc = $main->set('asc_desc', $arr_state, "DESC");
         }		

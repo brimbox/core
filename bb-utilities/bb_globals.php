@@ -29,15 +29,23 @@ $array_global['bb_brimbox']['hooks']['bb_input_quick_links'][] = array(array($ma
 $array_global['bb_brimbox']['hooks']['bb_input_submit_buttons'][] = array(array($main,"submit_buttons"), array("arr_column_reduced", "module", "row_type", "row_join"));
 $array_global['bb_brimbox']['hooks']['bb_input_textarea_load'][] = array(array($main,"textarea_load"), array("arr_column_reduced", "arr_column", "module"));
 
-
 # STANDARD INTERFACE DEFINITION #
 $array = array();
-$array[] = array('interface_type'=>'Standard','usertypes'=>array(1),'module_type'=>1);
-$array[] = array('interface_type'=>'Standard','usertypes'=>array(2),'module_type'=>2);
-$array[] = array('interface_type'=>'Standard','usertypes'=>array(3,4,5),'module_type'=>3);
-$array[] = array('interface_type'=>'Auxiliary','usertypes'=>array(4,5),'module_type'=>4,'friendly_name'=>'Setup');
-$array[] = array('interface_type'=>'Auxiliary','usertypes'=>array(5),'module_type'=>5,'friendly_name'=>'Admin');
+$array[] = array('interface_type'=>'Standard','usertypes'=>array(1),'module_type'=>1,'landing_module'=>'bb_guest');
+$array[] = array('interface_type'=>'Standard','usertypes'=>array(2),'module_type'=>2,'landing_module'=>'bb_viewer');
+$array[] = array('interface_type'=>'Standard','usertypes'=>array(3,4,5),'module_type'=>3,'landing_module'=>'bb_home');
+$array[] = array('interface_type'=>'Auxiliary','usertypes'=>array(4,5),'module_type'=>4,'friendly_name'=>'Setup','landing_module'=>'bb_home');
+$array[] = array('interface_type'=>'Auxiliary','usertypes'=>array(5),'module_type'=>5,'friendly_name'=>'Admin','landing_module'=>'bb_home');
 $array_global['bb_brimbox']['interface'] = $array;
+
+# LANDING PAGES #
+$array = array();
+$array[1] = array('landing_page'=>"bb_guest", 'landing_slug'=>'guest');
+$array[2] = array('landing_page'=>"bb_viewer", 'landing_slug'=>'viewer');
+$array[3] = array('landing_page'=>"bb_home", 'landing_slug'=>'home');
+$array[4] = array('landing_page'=>"bb_home", 'landing_slug'=>'home');
+$array[5] = array('landing_page'=>"bb_home", 'landing_slug'=>'home');
+$array_global['bb_brimbox']['landing'] = $array;
 
 # COMMON VARS SHARED WITH OTHER TABS #
 //will not be processed through the form posting engine

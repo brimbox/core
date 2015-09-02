@@ -41,7 +41,7 @@ $main->check_permission("bb_brimbox", array(4,5));
 $arr_message = array();
 
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 //start code here
 $arr_lists = $main->get_json($con, "bb_create_lists");

@@ -25,13 +25,13 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 $arr_message = array();
 
 /* GET STATE */
-$post = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_security = $arr_header['row_security']['value'];
 
-$post_key = isset($_POST['bb_post_key']) ? $_POST['bb_post_key'] : -1;
-$row_type = isset($_POST['bb_row_type']) ? $_POST['bb_row_type'] : -1;
+$post_key = isset($POST['bb_post_key']) ? $POST['bb_post_key'] : -1;
+$row_type = isset($POST['bb_row_type']) ? $POST['bb_row_type'] : -1;
 
 //handle security levels constant
 /* BEGIN SECURE CASCADE */

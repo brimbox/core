@@ -41,8 +41,8 @@ $arr_message = array();
 
 /* PRESERVE STATE */
 //retrieve state after updating database, all state for this module in database
-//$main->retrieve called at beginning of form
-$main->retrieve($con, $array_state);
+//$POST = $main->retrieve called at beginning of form
+$POST = $main->retrieve($con, $array_state);
 //state not preserved for this module
 $module_id = $main->post('module_id', $module, 0);
 $module_action = $main->post('module_action', $module, 0);

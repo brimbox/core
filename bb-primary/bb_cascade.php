@@ -28,7 +28,7 @@ $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /***START STATE AND VIEW POSTBACK***/
-$post = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
@@ -37,11 +37,11 @@ $arr_state = $main->load($module, $array_state);
 
 //coming from an add or edit link, reset $arr_state
 //bb_row_type is empty if not set with javascript, row_type should be 1 to 26, 0 will render as empty 
-if (!empty($_POST['bb_row_type']))
+if (!empty($POST['bb_row_type']))
         {
 		$offset = $main->set('offset', $arr_state, 1);
-		$row_type = $main->set('row_type', $arr_state, $_POST['bb_row_type']);
-		$post_key = $main->set('post_key', $arr_state, $_POST['bb_post_key']);
+		$row_type = $main->set('row_type', $arr_state, $POST['bb_row_type']);
+		$post_key = $main->set('post_key', $arr_state, $POST['bb_post_key']);
         }		
 else //default = nothing, or populate with input_state if coming from other page
         {

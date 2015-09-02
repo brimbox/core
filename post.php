@@ -7,36 +7,24 @@ include("bb-config/bb_config.php"); // need DB_NAME
 session_name(DB_NAME);
 session_start();
 
-$_SESSION['button'] = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
-$_SESSION['module'] = $_POST['bb_module'];
-$_SESSION['submit'] = $_POST['bb_submit'];   
+if (isset($_SESSION['username'])):
 
-if (isset($_SESSION['username'])): 
+	include("bb-utilities/bb_database.php");
+	//contains bb_validation class, extend bb_links
+	include("bb-utilities/bb_validate.php");
+	//contains bb_report class, extend bb_work
+	include("bb-utilities/bb_hooks.php");
+	//contains bb_work class, extends bb_forms
+	include("bb-utilities/bb_work.php");		
     
-    //sets the module and submit
-    if ($module == "bb_logout")
-        {
-        //logout and change interface/userrole could be on different or many pages
-        //check for session poisoning, userroles string should not be altered
-        //$userroles variable should be protected and not used or altered anywhere
-        // non-integer or empty usertype will convert to 0
-        if (((int)$usertype <> 0) && in_array($_POST['bb_userrole'], explode(",",$_SESSION['userroles'])))
-            {
-            $_SESSION['userrole'] = $_POST['bb_userrole']; 
-            $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-            header($index_path);
-            die(); //important to stop script
-            }
-        //if logout, destroy session and force index, invalid $userrrole or $usertpye
-        else
-            {
-            session_destroy();
-            $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-            header($index_path);
-            die(); //important to stop script
-            }
-        }
-    
+    $work = new bb_work();
+
+    $_SESSION['button'] = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
+    $_SESSION['module'] = $_POST['bb_module'];
+    $_SESSION['submit'] = $_POST['bb_submit'];
+    if ($_POST['bb_userrole'] <> "")  $_SESSION['userrole'] = $_POST['bb_userrole'];
+    $slug = $_POST['bb_slug'];
+    ;
     $keeper = $_SESSION['keeper'];
     
     $arraydata['post'] = $_POST;
@@ -47,10 +35,8 @@ if (isset($_SESSION['username'])):
     $query = "UPDATE state_table SET jsondata = $1 WHERE id = " . $keeper . ";";
     pg_query_params($con, $query, array($jsondata));
     
-    $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+    $index_path = "Location: " . dirname($_SERVER['PHP_SELF'])  . "/" . $slug;
     header($index_path);
-
-else :
-    die("Post Failed");
+    die();
 endif;
 ?>

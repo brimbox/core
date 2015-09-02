@@ -31,7 +31,7 @@ function bb_reload()
 
 <?php
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 $arr_message = array();	
 $arr_relate = array(41,42,43,44,45,46);

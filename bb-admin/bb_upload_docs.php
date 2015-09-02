@@ -36,7 +36,7 @@ function bb_reload()
 
 <?php
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 $update = $main->post("update", $module, "");
 
 $arr_message = array();	

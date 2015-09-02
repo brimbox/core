@@ -65,7 +65,7 @@ $arr_message = array();
 
 /* START STATE AND DETAILS POSTBACK */
 //do details postback, get variables from state
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 //get archive mode
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
@@ -74,11 +74,11 @@ $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
 $arr_state = $main->load($module, $array_state);
 
 //coming from an add or edit link, reset $arr_state, row_type and post key should be positive
-if (!empty($_POST['bb_row_type']))
+if (!empty($POST['bb_row_type']))
         {
         //global post variables		
-		$row_type = $main->set('row_type', $arr_state, $_POST['bb_row_type']);
-		$post_key = $main->set('post_key', $arr_state, $_POST['bb_post_key']);
+		$row_type = $main->set('row_type', $arr_state, $POST['bb_row_type']);
+		$post_key = $main->set('post_key', $arr_state, $POST['bb_post_key']);
 		$link_values = $main->set('link_values', $arr_state, "");
         }		
 else //default = nothing, or populate with input_state if coming from other page

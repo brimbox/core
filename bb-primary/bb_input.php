@@ -69,7 +69,8 @@ $message = ""; //blank return message
 /* END INITIALIZE*/
 
 /* INPUT STATE AND POSTBACK */  
-$post = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
+
 $arr_state = $main->load($module, $array_state);
 //hook for postback routines, will include bb_input_extra
 $main->hook("postback_area", true);

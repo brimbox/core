@@ -28,7 +28,7 @@ function bb_reload()
 <?php
 
 /* PRESERVE STATE */
-$main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 $arr_notes = array("49","50");
 
 //start code here

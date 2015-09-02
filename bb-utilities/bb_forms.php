@@ -66,9 +66,12 @@ class bb_forms extends bb_links {
 		{
 		//global make the most sense since these are global variables
 		global $module;
+		global $slug;
 		/* These variables support javascript function bb_submit_form() */
 		//starts with current module and changes to target, where you're going
 		echo "<input rel=\"ignore\" name=\"bb_module\" type=\"hidden\" value=\"" . $module . "\" />";
+		//starts with current module and changes to target, where you're going
+		echo "<input rel=\"ignore\" name=\"bb_slug\" type=\"hidden\" value=\"" . $slug . "\" />";
 		//starts empty and changes to current module, where you're coming from
 		echo "<input rel=\"ignore\" name=\"bb_submit\" type=\"hidden\" value=\"\" />";
 		//working Brimbox button submitted processed in the controller, always set w/ javascript

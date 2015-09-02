@@ -50,7 +50,7 @@ $arr_message = array();
 
 /* BEGIN STATE AND POSTBACK PROCESS */
 //do search postback
-$post = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con, $array_state);
 
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
@@ -95,7 +95,7 @@ $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
 //echo state variables into form
-//variables to hold the $_POST variables for the links
+//variables to hold the $POST variables for the links
 $main->echo_common_vars();
 
 //button and end form
