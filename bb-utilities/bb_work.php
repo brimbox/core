@@ -76,33 +76,14 @@ class bb_work extends bb_hooks {
 		return empty($var) && $var !== '0';
 		}
 		
-	function get($name, $module, $default = "")
-		{
-		//processed like post except these variable
-		//already processed by post module
-		global $processed;
-		
-		//gets the proceesed value of a variable
-	    $temp = $module . '_' . $name;
-	    if (isset($processed[$temp]))
-		    {
-		    return $processed[$temp];
-		    }
-		else
-			{
-			//should already be set
-			return $default;	
-			}
-	    }
-		
 	function check($name, $module)
 	    {
-		//equivalent of $_POST
-		global $post;
+		//psuedo post var
+		global $POST;
 		
-	    //checks to see if a $_POST variable is set
+	    //checks to see if a $POST variable is set
 	    $temp = $module . '_' . $name;
-	    if (isset($post[$temp]))
+	    if (isset($POST[$temp]))
 			{
 			return true;	
 			}
@@ -114,13 +95,14 @@ class bb_work extends bb_hooks {
 		
 	function full($name, $module)
 	    {
-		//equivalent of $_POST
-		global $post;
+		//psuedo post var
+		global $POST;
 		
-	    //to check if full, opposite of empty function, returns false if empty
-	    //post var must be set or you will get a notice		
+		//to check if full, opposite of empty function, returns false if empty
+	    //post var must be set or you will get a notice
+
 	    $temp = $module . '_' . $name;
-	    if (!$this->blank(trim($post[$temp])))
+	    if (!$this->blank(trim($POST[$temp])))
 		    {
 		    return true;
 			}
@@ -132,14 +114,14 @@ class bb_work extends bb_hooks {
 		
 	function post($name, $module, $default = "")
 	    {
-		//equivalent of $_POST
-		global $post;
+		//psuedo post var
+		global $POST;
 		
 		//gets the post value of a variable
 	    $temp = $module . '_' . $name;
-	    if (isset($post[$temp]))
+	    if (isset($POST[$temp]))
 		    {
-		    return $post[$temp];
+		    return $POST[$temp];
 		    }
 		else
 			{
@@ -163,16 +145,15 @@ class bb_work extends bb_hooks {
 	
 	function process($name, $module, &$arr_state, $default = "")
 	    {
-		//equivalent of $_POST
-		global $post;
+		//psuedo post var
+		global $POST;
 		
-		//fully processes $_POST variable into state setting with initial value
+		//fully processes $POST variable into state setting with initial value
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default;
 	    $temp = $module . '_' . $name;
-		
-		if (isset($post[$temp]))
+		if (isset($POST[$temp]))
 			{
-			$var = $post[$temp];
+			$var = $POST[$temp];
 			}
 	    $arr_state[$name] = $var;
 	    return $var;	
@@ -180,10 +161,10 @@ class bb_work extends bb_hooks {
 		
 	function render($con, $name, $module, &$arr_state, $type, &$check, $default = "")
 	    {
-		//equivalent of $_POST
-		global $post;
-		
-		//fully processes $_POST variable into state rendering type if validated
+		//psuedo post var
+		global $POST;			
+			
+		//fully processes $POST variable into state setting with initial value		
 	    $arr_header = $this->get_json($con, "bb_interface_enable");
         $arr_validation = $arr_header['validation'];
 	    
@@ -191,9 +172,9 @@ class bb_work extends bb_hooks {
 	    $temp = $module . '_' . $name;
 
 		//if variable is set use variable
-		if (isset($post[$temp]))
+		if (isset($POST[$temp]))
 			{
-			$var = $post[$temp];
+			$var = $POST[$temp];
 			}
 
 	    //will format value if valid, otherwise leaves $var untouched
@@ -204,60 +185,43 @@ class bb_work extends bb_hooks {
 	    return $var;	
 	    }
 		
-	function load($module, $array_state = array())
+	function load($module, $array_state)
         {
 		//gets and loads $arr_state from global $array_state
 	    global $array_state;
-		global $post;
-		
-		$temp = $module . "_bb_state";
-		if (empty($array_state))
-			{
-			$json_state = base64_decode($post[$temp]);
-			$arr_state = isset($post[$temp]) ? json_decode($json_state, true) : array();
-			return $arr_state;	
-			}
-		else
-			{
-			$arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
-			return $arr_state;	
-			}
+		 
+	    $temp = $module . "_bb_state";
+		//will initialize array state if if not set set, happens in module install
+	    $arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
+	    return $arr_state;	
 	    }
 		
-	function repost($module, $arr_state = array())
-		{
-		global $post;
-		
-		$temp = $module . '_bb_state';
-        $post[$temp] = json_encode($arr_state);			
-		}
-	
 	function keeper($con, $key = "")
 		{
 		global $module;
 		global $keeper;
 		
 		//get module number
-		list($module_id, $module_name) = explode("_", $module, 2);
-		//query to get state
 		$query = "SELECT jsondata FROM state_table WHERE id = " . $keeper . ";";		
 		$result = $this->query($con, $query);
 		$row = pg_fetch_array($result);
 		
 		if ($this->blank($key))
 			{
-			return json_decode($row['jsondata'], true);		
+			return json_decode($row['jsondata'], true);			
 			}
 		else
 			{
-			$arr =  json_decode($row['jsondata'], true);
-			return $arr[$key];	
-			}					
+			$arr = json_decode($row['jsondata'], true);
+			return $arr[$key];				
+			}
 		}
 		
 	function retrieve($con, &$array_state)
-	    //retrieves state from $_POST based on known tabs with state from tab table in database
 	    {
+		//psuedo post var
+		global $POST;
+
 		global $array_interface;
 		global $interface;
 		global $userrole;
@@ -277,28 +241,28 @@ class bb_work extends bb_hooks {
 	    $and_clause = " module_type IN (" . implode(",",$arr_modules_active) . ") ";
 	    		    
 		//get module list from modules table WHERE maintain_state = 1
-	    $query = "SELECT id, module_name FROM modules_table WHERE maintain_state = 1 AND " . $and_clause . " AND standard_module IN (0,1,2,4,6);";
+	    $query = "SELECT module_name FROM modules_table WHERE maintain_state = 1 AND " . $and_clause . " AND standard_module IN (0,1,2,4,6);";
 	    //echo "<p>" . $query . "</p>";
 		$result = $this->query($con, $query);
 		
-		
-		$post = $this->keeper($con, "post");
+		$POST = $this->keeper($con, "post");
 	    
 		//build $array_state
-		while($row = pg_fetch_array($result))
+	    while($row = pg_fetch_array($result))
 			{
 			$key = $row['module_name'] . '_bb_state';
-			if (!empty($post[$key])) //get state from post
+			if (!empty($POST[$key])) //get state from post
 				{
-				$array_state[$key] = base64_decode($post[$key]);
+				$array_state[$key] = base64_decode($POST[$key]);
 				}
 			else  //initialize state
 				{                
 				$array_state[$key] = "";
 				}
 			}
-		$this->hot_state($array_state, $userrole);		
-		return $post;
+	    $this->hot_state($array_state, $userrole);
+		
+		return $POST;
 	    }
 	
 	function update(&$array_state, $module, $arr_state)
