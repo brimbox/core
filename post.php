@@ -29,7 +29,6 @@ if (isset($_SESSION['username'])):
     $keeper = $_SESSION['keeper'];    
     
     //get the actual querystring
-    $querystring = "";
     if (!empty($_GET))
         {
         $arrayget = array();
@@ -46,7 +45,7 @@ if (isset($_SESSION['username'])):
         
     /* YOU HAVE TO MAKE THE STATE RULE SOMEWHERE */
     // pockback rely on get, change tabs update state    
-    if ($_POST['bb_module'] == $_POST['bb_submit'])
+    if (($_POST['bb_module'] == $_POST['bb_submit']) && ($work->blank($querystring)))
         {
         $querystring = "?" . implode("&", $arrayget);
         }
