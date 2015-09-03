@@ -567,6 +567,7 @@ echo "<div class=\"table spaced border\">";
     echo "<div class=\"row shaded\">";
     echo "<div class=\"padded bold cell middle\">Path</div>";
     echo "<div class=\"padded bold cell middle\">Module Name</div>";
+    echo "<div class=\"padded bold cell middle\">Module Slug</div>";
     echo "<div class=\"padded bold cell middle\">Friendly Name</div>";
     echo "<div class=\"padded bold cell middle\">Interface: Type</div>";
     echo "<div class=\"padded bold cell middle\">Version</div>";
@@ -607,6 +608,7 @@ echo "<div class=\"table spaced border\">";
         echo "<div class=\"row " . $shade_class . "\">";
         echo "<div class=\"twice cell long middle\">" . $row['module_path'] . "</div>";
         echo "<div class=\"twice cell medium middle\">" . $row['module_name'] . "</div>";
+         echo "<div class=\"twice cell medium middle\">" . $row['module_slug'] . "</div>";
         echo "<div class=\"twice cell long middle\">" . $row['friendly_name'] . "</div>";
         //combine interface and module type, account for possibility of unknown or undefined
         $interface_name = isset($array_header[$row['interface']]['interface_name']) ? $array_header[$row['interface']]['interface_name']  : "Unknown";

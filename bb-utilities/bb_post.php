@@ -42,7 +42,7 @@ If not, see http://www.gnu.org/licenses/
 
 
 /* POSTBACK ANBD STATE FUNCTIONS */	
-class bb_work extends bb_hooks {
+class bb_post extends bb_hooks {
 	
 	function button($number, $check = "")
 		{
@@ -79,11 +79,11 @@ class bb_work extends bb_hooks {
 	function check($name, $module)
 	    {
 		//psuedo post var
-		global $POST;
+		global $_POST;
 		
-	    //checks to see if a $POST variable is set
+	    //checks to see if a $_POST variable is set
 	    $temp = $module . '_' . $name;
-	    if (isset($POST[$temp]))
+	    if (isset($_POST[$temp]))
 			{
 			return true;	
 			}
@@ -96,13 +96,13 @@ class bb_work extends bb_hooks {
 	function full($name, $module)
 	    {
 		//psuedo post var
-		global $POST;
+		global $_POST;
 		
 		//to check if full, opposite of empty function, returns false if empty
 	    //post var must be set or you will get a notice
 
 	    $temp = $module . '_' . $name;
-	    if (!$this->blank(trim($POST[$temp])))
+	    if (!$this->blank(trim($_POST[$temp])))
 		    {
 		    return true;
 			}
@@ -115,13 +115,13 @@ class bb_work extends bb_hooks {
 	function post($name, $module, $default = "")
 	    {
 		//psuedo post var
-		global $POST;
+		global $_POST;
 		
 		//gets the post value of a variable
 	    $temp = $module . '_' . $name;
-	    if (isset($POST[$temp]))
+	    if (isset($_POST[$temp]))
 		    {
-		    return $POST[$temp];
+		    return $_POST[$temp];
 		    }
 		else
 			{
@@ -146,14 +146,14 @@ class bb_work extends bb_hooks {
 	function process($name, $module, &$arr_state, $default = "")
 	    {
 		//psuedo post var
-		global $POST;
+		global $_POST;
 		
-		//fully processes $POST variable into state setting with initial value
+		//fully processes $_POST variable into state setting with initial value
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default;
 	    $temp = $module . '_' . $name;
-		if (isset($POST[$temp]))
+		if (isset($_POST[$temp]))
 			{
-			$var = $POST[$temp];
+			$var = $_POST[$temp];
 			}
 	    $arr_state[$name] = $var;
 	    return $var;	
@@ -162,9 +162,9 @@ class bb_work extends bb_hooks {
 	function render($con, $name, $module, &$arr_state, $type, &$check, $default = "")
 	    {
 		//psuedo post var
-		global $POST;			
+		global $_POST;			
 			
-		//fully processes $POST variable into state setting with initial value		
+		//fully processes $_POST variable into state setting with initial value		
 	    $arr_header = $this->get_json($con, "bb_interface_enable");
         $arr_validation = $arr_header['validation'];
 	    
@@ -172,9 +172,9 @@ class bb_work extends bb_hooks {
 	    $temp = $module . '_' . $name;
 
 		//if variable is set use variable
-		if (isset($POST[$temp]))
+		if (isset($_POST[$temp]))
 			{
-			$var = $POST[$temp];
+			$var = $_POST[$temp];
 			}
 
 	    //will format value if valid, otherwise leaves $var untouched
@@ -195,23 +195,6 @@ class bb_work extends bb_hooks {
 	    $arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
 	    return $arr_state;	
 	    }
-		
-	function get($module, &$arr_state)
-		{
-		$GET = $_GET;
-		if (!empty($GET))
-			{
-			foreach ($GET as $var => $value)
-				{
-				if (!$this->blank($value))
-					{
-					$GLOBALS[$var] = $value;
-					$arr_state[$var] = $value;					
-					}		
-				}
-			}
-		return $GET;
-		}
 		
 	function keeper($con, $key = "")
 		{
@@ -237,7 +220,7 @@ class bb_work extends bb_hooks {
 	function retrieve($con, &$array_state)
 	    {
 		//psuedo post var
-		global $POST;
+		global $_POST;
 
 		global $array_interface;
 		global $interface;
@@ -262,15 +245,15 @@ class bb_work extends bb_hooks {
 	    //echo "<p>" . $query . "</p>";
 		$result = $this->query($con, $query);
 		
-		$POST = $this->keeper($con, "post");
+		$_POST = $this->keeper($con, "post");
 	    
 		//build $array_state
 	    while($row = pg_fetch_array($result))
 			{
 			$key = $row['module_name'] . '_bb_state';
-			if (!empty($POST[$key])) //get state from post
+			if (!empty($_POST[$key])) //get state from post
 				{
-				$array_state[$key] = base64_decode($POST[$key]);
+				$array_state[$key] = base64_decode($_POST[$key]);
 				}
 			else  //initialize state
 				{                
@@ -279,7 +262,7 @@ class bb_work extends bb_hooks {
 			}
 	    $this->hot_state($array_state, $userrole);
 		
-		return $POST;
+		return $_POST;
 	    }
 	
 	function update(&$array_state, $module, $arr_state)

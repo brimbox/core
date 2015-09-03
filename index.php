@@ -26,11 +26,9 @@ header("Pragma: no-cache");
 
 // constant to verify include files are not accessed directly
 define('BASE_CHECK', true);
-//bootstrap up includes things
-include_once("init.php");
 // need DB_NAME from bb_config, must not have html output including blank spaces
-//include config
-$init->include_config(0);
+include_once("bb-config/bb_config.php");
+
 //need db name
 // start session based on db name
 session_name(DB_NAME);
@@ -53,12 +51,16 @@ $userrole = $_SESSION['userrole']; //string containing userrole and interface
 $userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
 $archive = $_SESSION['archive'];
 $keeper = $_SESSION['keeper'];
-//get slug from url
-preg_match("/\/[a-z0-9\-]*$/", $_SERVER['REQUEST_URI'], &$match);
-$slug = trim($match[0], "/");
+
+//get slug, remove querystring at end, reverve, remove path now at end, reverse for slug,cast to string for empty string
+$slug = strpos($_SERVER['REQUEST_URI'], "?")
+    ? (string)strrev(strstr(strrev(strstr($_SERVER['REQUEST_URI'], "?", true)), "/", true))
+    : (string)strrev(strstr(strrev($_SERVER['REQUEST_URI']), "/", true));
+
 //unpack things
 list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
-//set by post
+
+//set by post.php
 $module = isset($_SESSION['module']) ? $_SESSION['module'] : "";
 $submit = isset($_SESSION['submit']) ? $_SESSION['submit'] : "";
 $button = isset($_SESSION['button']) ? $_SESSION['button'] : 0;
@@ -190,6 +192,7 @@ if (isset($array_global))
         ${'array_' . $key} = $value;
         }
     }
+    
 //initialize module and slug if empty
 if (($module == "") || ($slug == ""))
     {
@@ -226,7 +229,7 @@ unset($query, $result, $row);
 
 <title><?php echo PAGE_TITLE; ?></title> 
 </head>
-<body id="bb_controller">
+<body id="bb_brimbox">
 <?php
 /* PROCESSING IMAGE */
 if (!$main->blank($image))
@@ -243,7 +246,7 @@ if (!$main->blank($image))
 //arr_reduce is part of interface for current userrole
 $arr_interface = $array_interface;
 //arr_work is an array of temp variables for quick disposal
-$module_types = array();
+$module_types = array(0);
 //get the module types for current interface
 foreach($array_interface as $key => $value)
 	{
@@ -261,12 +264,10 @@ foreach($array_interface as $key => $value)
 //get modules type into string for query, reuse variable, recast
 $module_types = implode(",", array_unique($module_types));
 //query modules table
-$query = "SELECT *, lower(trim(regexp_replace(friendly_name, E'(\\W)+', '-', 'g'))) as module_slug FROM modules_table WHERE standard_module IN (0,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($module_types) . ") ORDER BY module_type, module_order;";
+$query = "SELECT * FROM modules_table WHERE standard_module IN (0,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($module_types) . ") ORDER BY module_type, module_order;";
 //echo "<p>" . $query . "</p>";
 $result = pg_query($con, $query);
 
-//set hidden flag
-$hidden = true;
 //populate controller arrays
 while($row = pg_fetch_array($result))
     {
@@ -277,40 +278,25 @@ while($row = pg_fetch_array($result))
         //check that file exists
         if (file_exists($row['module_path']))
             {
-            //slightly inefficient bu there are reasons
-            if ($module == $row['module_name'] && $slug == $row['module_slug'])
+            //work with slug
+            if ($slug == $row['module_slug'])
                 {
-                list($path, $type) = array($row['module_path'], $row['module_type']);
-                $hidden = false;
+                if ($module == $row['module_name']) //module and slug match
+                    {
+                    list($path, $type) = array($row['module_path'], $row['module_type']);
+                    }
+                else //module and slug don't match, get module also
+                    {
+                    list($module, $path, $type) = array($row['module_name'], $row['module_path'], $row['module_type']);    
+                    }
                 }
-            elseif ($slug == $row['module_slug'] && $module <> $row['module_name'])
+            //need to address controller by both module_type and module_name            
+            if ($row['module_type'] <> 0)
                 {
-                list($module, $path, $type) = array($row['module_name'], $row['module_path'], $row['module_type']);
-                $hidden = false;
+                //$array[key][key] is easiest
+                $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path'], 'module_slug'=>$row['module_slug']);
                 }
-             //need to address controller by both module_type and module_name    
-            //$array[key][key] is easiest
-            $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path'], 'module_slug'=>$row['module_slug']);
             }		
-        }
-    }
-//could be hidden
-if ($hidden)
-    {
-    //check hidden
-    $query = "SELECT * FROM modules_table WHERE standard_module IN (1,2) AND module_type IN (0) AND module_name = '" . $module . "';";
-    $result = pg_query($con, $query);
-    if (pg_num_rows($result) == 1)
-        {
-        $row = pg_fetch_array($result);
-        if ($module == $row['module_name'] && $slug == $row['module_slug'])
-            {
-            list($path, $type) = array($row['module_path'], $row['module_type']);
-            }
-        elseif ($slug == $row['module_slug'] && $module <> $row['module_name'])
-            {
-            list($module, $path, $type) = array($row['module_name'], $row['module_path'], $row['module_type']);
-            }
         }
     }
 /* END CONTROLLER AARAYS */
@@ -334,12 +320,13 @@ foreach ($arr_interface as $value)
 		{
 		$interface_type = $value['interface_type'];
 		}
+        
 	if ($value['interface_type'] == 'Standard')
 		{
-		foreach ($arr_controller[$value['module_type']] as $key => $value)       
+		foreach ($arr_controller[$value['module_type']] as $module_work => $value)       
 			{
-			$selected = ($module == $key) ? "chosen" : "";
-			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(0,'" . $key . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
+			$selected = ($module == $module_work) ? "chosen" : "";
+			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(0,'" . $module_work . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
 			}
 		}
 	elseif ($value['interface_type'] == 'Auxiliary')
@@ -350,13 +337,15 @@ foreach ($arr_interface as $value)
 			if (array_key_exists($module, $arr_controller[$value['module_type']]))
 				{
 				$selected = "chosen";
-				$module_work = $module;
+                $module_work = $module;
+                $slug_work = $arr_controller[$value['module_type']][$module_work]['module_slug'];
 				}
 			else
 				{
 				$module_work = key($arr_controller[$value['module_type']]);
+                $slug_work = $arr_controller[$value['module_type']][$module_work]['module_slug'];
 				}
-			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(0,'" . $module_work . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
+			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(0,'" . $module_work . "', '" . $slug_work . "')\">" . $value['friendly_name'] . "</button>";
 			}			
 		}		
 	}

@@ -27,7 +27,7 @@ function bb_reload()
     var frmobj = document.forms["bb_form"];
 
     frmobj.offset.value = 1;
-    bb_submit_form(); //call javascript submit_form function
+    bb_submit_form(0); //call javascript submit_form function
 	return false;
     }
 /* END MODULE JAVASCRIPT */

@@ -28,7 +28,7 @@ function bb_set_hidden(lt)
     var frmobj = document.forms["bb_form"];  
     frmobj.letter.value = lt;
     frmobj.offset.value = 1;   
-    bb_submit_form(); //call javascript submit_form function
+    bb_submit_form(0); //call javascript submit_form function
 	return false;
     }
 
@@ -41,7 +41,7 @@ function bb_reload()
     var frmobj = document.forms["bb_form"];
     
     frmobj.offset.value = 1;
-    bb_submit_form(); //call javascript submit_form function
+    bb_submit_form(0); //call javascript submit_form function
 	return false;
     }
 //standard reload column
@@ -89,6 +89,10 @@ else
 //process row_type	
 $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 
+//process the get string into state
+$back = array("row_type", "col_type", "letter", "offset");
+$GET = $main->get($module, $arr_state);
+
 //update state, back to string, get name
 $main->update($array_state, $module, $arr_state);
 /* END POSTBACK */
@@ -99,7 +103,7 @@ echo "<div class=\"center\">"; //centering
 
 /* START REQUIRED FORM */
 //form tag
-$main->echo_form_begin();
+$main->echo_form_begin($back);
 $main->echo_module_vars();
 
 echo "<span class=\"padded larger\">"; //font size

@@ -24,7 +24,7 @@ function bb_reload()
     //this goes off when row_type is changed    
     var frmobj = document.forms["bb_form"];
     
-    bb_submit_form(); //call javascript submit_form function
+    bb_submit_form(0); //call javascript submit_form function
 	return false;
     }
 </script>

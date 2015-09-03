@@ -36,7 +36,7 @@ If not, see http://www.gnu.org/licenses/
 
 class bb_forms extends bb_links {
 	
-	function echo_form_begin($params = array())
+	function echo_form_begin($get = array(), $params = array())
 		{
 		global $module;
 		global $path;
@@ -44,9 +44,8 @@ class bb_forms extends bb_links {
 		$name = isset($params['name']) ? $params['name'] : "bb_form";
 		$type = isset($params['type']) ? $params['type'] : "";
 		$autocomplete = isset($params['autocomplete']) ? "autocomplete=\"On\"" : "autocomplete=\"Off\"";
-		//optional $type = enctype=\"multipart/form-data\"
 		
-		//action is important
+		//can do a custom post page
 		if (isset($params['action']))
 			{
 			$action = $params['action'];
@@ -59,6 +58,22 @@ class bb_forms extends bb_links {
 			{
 			$action = "post.php";	
 			}
+			
+		//cannot be longe than 26 variables
+		if (!empty($get))
+			{
+			$i = 97;
+			$arr = array();
+			while (!empty($get) && ($i<=122))
+				{
+				$var = array_shift($get);
+				$var = chr($i) . "=" . $var;
+				array_push($arr, $var);
+				$i++;
+				}
+			$action = $action . "?" . implode("&", $arr);
+			}
+			
 		echo "<form name=\"" . $name . "\" action=\"" . $action . "\" method=\"post\" " . $type . " " . $autocomplete . ">";	
 		}
 		
@@ -72,7 +87,7 @@ class bb_forms extends bb_links {
 		echo "<input rel=\"ignore\" name=\"bb_module\" type=\"hidden\" value=\"" . $module . "\" />";
 		//starts with current module and changes to target, where you're going
 		echo "<input rel=\"ignore\" name=\"bb_slug\" type=\"hidden\" value=\"" . $slug . "\" />";
-		//starts empty and changes to current module, where you're coming from
+		//starts empty and changes to current module, where you're coming from, $module become $submit
 		echo "<input rel=\"ignore\" name=\"bb_submit\" type=\"hidden\" value=\"\" />";
 		//working Brimbox button submitted processed in the controller, always set w/ javascript
 		echo "<input rel=\"ignore\" name=\"bb_button\" type=\"hidden\" value=\"\" />";
@@ -125,23 +140,13 @@ class bb_forms extends bb_links {
 		//javascript parameters
 		$number = isset($params['number']) ? $params['number'] : 0;
 		$target = isset($params['target']) ? "'" . $params['target'] . "'" : "undefined";
+		$slug - isset($params['slug']) ? "'" . $params['slug'] . "'" : "undefined";
 		$passthis = isset($params['passthis']) ? "this" : "undefined";
-		//allows boolean true for default proicessing image		
-		if (isset($params['image']))
-			{
-			if (is_bool($params['image']))
-				{
-				$image = $params['image'] == true ? "'processing_image.gif'" : "undefined";
-				}
-			else
-				{
-				$image = "'" . $params['image'] . "'";	
-				}
-			}
-		else
-			{
-			$image = "undefined";	
-			}
+		//allows boolean true for default proicessing image
+		
+		//DEPRACATED */
+		//image now done with hooK
+		
 		//implode parameters with comma
 		$params_str = implode(",", array($number, $target, $passthis, $image));
 		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"bb_submit_form(" . $params_str . "); return false;\">" . $label . "</button>"; 
