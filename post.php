@@ -26,28 +26,28 @@ if (isset($_SESSION['username'])):
     $module = $_POST['bb_module'];
     if ($_POST['bb_userrole'] <> "")  $_SESSION['userrole'] = $_POST['bb_userrole'];
     $slug = $_POST['bb_slug'];
-    $keeper = $_SESSION['keeper'];    
+    $keeper = $_SESSION['keeper'];
     
     //get the actual querystring
     if (!empty($_GET))
         {
-        $arrayget = array();
+        $arr_get = array();
         foreach ($_GET as $var)
             {
             if ($work->check($var, $module))
                 {
                 $value = $work->post($var, $module);
                 $push = $var . "=" . $value;
-                array_push($arrayget, $var . "="  . $value);
+                array_push($arr_get, $var . "="  . $value);
                 }
             }
         }
         
     /* YOU HAVE TO MAKE THE STATE RULE SOMEWHERE */
     // pockback rely on get, change tabs update state    
-    if (($_POST['bb_module'] == $_POST['bb_submit']) && (!$work->blank($querystring)))
+    if (($_POST['bb_module'] == $_POST['bb_submit']) && (!empty($arr_get)))
         {
-        $querystring = "?" . implode("&", $arrayget);
+        $querystring = "?" . implode("&", $arr_get);
         }
     else 
         {
