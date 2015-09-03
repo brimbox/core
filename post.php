@@ -45,7 +45,7 @@ if (isset($_SESSION['username'])):
         
     /* YOU HAVE TO MAKE THE STATE RULE SOMEWHERE */
     // pockback rely on get, change tabs update state    
-    if (($_POST['bb_module'] == $_POST['bb_submit']) && ($work->blank($querystring)))
+    if (($_POST['bb_module'] == $_POST['bb_submit']) && (!$work->blank($querystring)))
         {
         $querystring = "?" . implode("&", $arrayget);
         }
