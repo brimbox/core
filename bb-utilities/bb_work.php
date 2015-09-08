@@ -82,7 +82,7 @@ class bb_work extends bb_hooks {
 		global $POST;
 		
 	    //checks to see if a $POST variable is set
-	    $temp = $module . '_' . $name;
+	    $temp = $this->name($name, $module);
 	    if (isset($POST[$temp]))
 			{
 			return true;	
@@ -101,7 +101,7 @@ class bb_work extends bb_hooks {
 		//to check if full, opposite of empty function, returns false if empty
 	    //post var must be set or you will get a notice
 
-	    $temp = $module . '_' . $name;
+	    $temp = $this->name($name, $module);
 	    if (!$this->blank(trim($POST[$temp])))
 		    {
 		    return true;
@@ -118,7 +118,7 @@ class bb_work extends bb_hooks {
 		global $POST;
 		
 		//gets the post value of a variable
-	    $temp = $module . '_' . $name;
+	    $temp = $this->name($name, $module);
 	    if (isset($POST[$temp]))
 		    {
 		    return $POST[$temp];
@@ -150,11 +150,13 @@ class bb_work extends bb_hooks {
 		
 		//fully processes $POST variable into state setting with initial value
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default;
-	    $temp = $module . '_' . $name;
+		$temp = $this->name($name, $module);
+
 		if (isset($POST[$temp]))
 			{
 			$var = $POST[$temp];
 			}
+			
 	    $arr_state[$name] = $var;
 	    return $var;	
 	    }
@@ -162,14 +164,14 @@ class bb_work extends bb_hooks {
 	function render($con, $name, $module, &$arr_state, $type, &$check, $default = "")
 	    {
 		//psuedo post var
-		global $POST;			
+		global $POST;
 			
 		//fully processes $POST variable into state setting with initial value		
 	    $arr_header = $this->get_json($con, "bb_interface_enable");
         $arr_validation = $arr_header['validation'];
 	    
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default; 
-	    $temp = $module . '_' . $name;
+	    $temp = $this->name($name, $module);
 
 		//if variable is set use variable
 		if (isset($POST[$temp]))
@@ -195,23 +197,6 @@ class bb_work extends bb_hooks {
 	    $arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
 	    return $arr_state;	
 	    }
-		
-	function get($module, &$arr_state)
-		{
-		$GET = $_GET;
-		if (!empty($GET))
-			{
-			foreach ($GET as $var => $value)
-				{
-				if (!$this->blank($value))
-					{
-					$GLOBALS[$var] = $value;
-					$arr_state[$var] = $value;					
-					}		
-				}
-			}
-		return $GET;
-		}
 		
 	function keeper($con, $key = "")
 		{

@@ -70,15 +70,15 @@ $array[2][] = array(array($main,'standard'), array("bb_viewer_cascade","Cascade"
 $array[2][] = array(array($main,'edit'), array("bb_viewer_post","Edit"));
 $array[2][] = array(array($main,'children'), array("bb_viewer_post","Add","bb_viewer_view","View"));
 //for standard interface
-$array[3][] = array(array($main,'standard'), array("bb_details","Details"));
-$array[3][] = array(array($main,'standard'), array("bb_cascade","Cascade"));
-$array[3][] = array(array($main,'edit'), array("bb_input","Edit"));
-$array[3][] = array(array($main,'relate'), array("bb_input","Relate"));
-$array[3][] = array(array($main,'standard'), array("bb_listchoose","List"));
-$array[3][] = array(array($main,'standard'), array("bb_archive","Archive"));
-$array[3][] = array(array($main,'standard'), array("bb_delete","Delete"));
-$array[3][] = array(array($main,'standard'), array("bb_secure","Secure"));
-$array[3][] = array(array($main,'children'), array("bb_input","Add","bb_view","View"));
+$array[3][] = array(array($main,'standard'), array("bb_details","details","Details"));
+$array[3][] = array(array($main,'standard'), array("bb_cascade","cascade","Cascade"));
+$array[3][] = array(array($main,'edit'), array("bb_input","input","Edit"));
+$array[3][] = array(array($main,'relate'), array("bb_input","input","Relate"));
+$array[3][] = array(array($main,'standard'), array("bb_listchoose","listchoose","List"));
+$array[3][] = array(array($main,'standard'), array("bb_archive","archive","Archive"));
+$array[3][] = array(array($main,'standard'), array("bb_delete","delete","Delete"));
+$array[3][] = array(array($main,'standard'), array("bb_secure","secure","Secure"));
+$array[3][] = array(array($main,'children'), array("bb_input","input","Add","bb_view","view","View"));
 //same for admin and superuser
 $array[4] = $array[3];
 $array[5] = $array[3];

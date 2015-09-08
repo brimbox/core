@@ -132,6 +132,7 @@ function bb_set_field(col)
 $POST = $main->retrieve($con, $array_state);
 
 $arr_state = $main->load($module, $array_state);
+
 $email_number = $main->process('email_number', $module, $arr_state, -1);
 	
 $main->update($array_state, $module,  $arr_state);

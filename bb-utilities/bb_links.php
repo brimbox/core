@@ -35,7 +35,7 @@ If not, see http://www.gnu.org/licenses/
 //related PHP class
 class bb_links extends bb_work {
 	
-	function standard($row, $arr_layouts_reduced, $target, $text, $params = array())
+	function standard($row, $arr_layouts_reduced, $target, $slug, $text, $params = array())
 		{
 		//standard row_type and post_key for a target
 		//commonly used in linking things
@@ -44,12 +44,12 @@ class bb_links extends bb_work {
 		$id = isset($params['id']) ? "id=\"" . $params['id'] . "\"" : "";
 		if (in_array($row['row_type'], $filter) || empty($filter))
 			{
-			echo "<button " . $id . " class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row['id'] . "," . $row['row_type'] . ",'" .  $target . "'); return false;\">";
+			echo "<button " . $id . " class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row['id'] . "," . $row['row_type'] . ",'" .  $target . "','" .  $slug . "' ); return false;\">";
 			echo $text . "</button>";
 			}
 		}
 			
-	function edit($row, $arr_layouts_reduced, $target, $text, $params = array())
+	function edit($row, $arr_layouts_reduced, $target, $slug, $text, $params = array())
 		{
 		//edit row, row_type and row_join are the same and from row
 		//target is input and text is editable, uses js input function
@@ -57,12 +57,12 @@ class bb_links extends bb_work {
 		$class = isset($params['class']) ? $params['class'] : "link rightmargin";
 		if (!$row['archive'] && (in_array($row['row_type'], $filter) || empty($filter)))
 			{
-			echo "<button class = \"" . $class . "\" onclick=\"bb_links.input(" . $row['id'] . "," . $row['row_type'] . "," . $row['row_type'] . ",'" . $target . "'); return false;\">";
+			echo "<button class = \"" . $class . "\" onclick=\"bb_links.input(" . $row['id'] . "," . $row['row_type'] . "," . $row['row_type'] . ",'" . $target . "','" . $slug . "'); return false;\">";
 			echo $text . "</button>";
 			}
 		}
 		
-	function relate($row, $arr_layouts_reduced, $target, $text, $params = array())
+	function relate($row, $arr_layouts_reduced, $target, $slug, $text, $params = array())
 		{
 		//edit row, row_type and row_join are the same and from row
 		//target is input and text is editable, uses js input function
@@ -70,12 +70,12 @@ class bb_links extends bb_work {
 		$class = isset($params['class']) ? $params['class'] : "link rightmargin";
 		if (!$row['archive'] && $arr_layouts_reduced[$row['row_type']]['relate'] && (in_array($row['row_type'], $filter) || empty($filter)))
 			{
-			echo "<button class = \"" . $class . "\" onclick=\"bb_links.relate(" . $row['id'] . ",'" . $target . "'); return false;\">";
+			echo "<button class = \"" . $class . "\" onclick=\"bb_links.relate(" . $row['id'] . ",'" . $target . "','" . $slug . "'); return false;\">";
 			echo $text . "</button>";
 			}
 		}
 	
-	function children($row, $arr_layouts_reduced, $target_add, $text_add, $target_view, $text_view, $params = array())
+	function children($row, $arr_layouts_reduced, $target_add, $slug_add, $text_add, $target_view, $slug_view, $text_view, $params = array())
 		{
 		//view children and add child links, outputted at once
 		//row_join is row_type of current row
@@ -102,12 +102,12 @@ class bb_links extends bb_work {
 			foreach ($arr_children as $arr_child)
 				{
 				//view link, sues standard js function			
-				echo "<button class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row['id'] . "," . $arr_child['row_type'] . ",'" . $target_view . "'); return false;\">";
+				echo "<button class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row['id'] . "," . $arr_child['row_type'] . ",'" . $target_view . "','" . $slug_view . "' ); return false;\">";
 				echo $text_view . " " . $arr_child['plural'] . "</button>";
 				//add link, not available when archived
 				if (!$row['archive'])
 					{		
-					echo "<button class = \"" . $class . "\" onclick=\"bb_links.input(" . $row['id'] . "," . $row['row_type'] . "," . $arr_child['row_type'] . ",'" . $target_add . "'); return false;\">";
+					echo "<button class = \"" . $class . "\" onclick=\"bb_links.input(" . $row['id'] . "," . $row['row_type'] . "," . $arr_child['row_type'] . ",'" . $target_add . "','" . $slug_add . "'); return false;\">";
 					echo $text_add . " " . $arr_child['singular'] . "</button>";
 					}
 				}

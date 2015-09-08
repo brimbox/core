@@ -36,7 +36,7 @@ If not, see http://www.gnu.org/licenses/
 
 class bb_forms extends bb_links {
 	
-	function echo_form_begin($get = array(), $params = array())
+	function echo_form_begin($params = array())
 		{
 		global $module;
 		global $path;
@@ -57,21 +57,6 @@ class bb_forms extends bb_links {
 		else
 			{
 			$action = "post.php";	
-			}
-			
-		//cannot be longe than 26 variables
-		if (!empty($get))
-			{
-			$i = 97;
-			$arr = array();
-			while (!empty($get) && ($i<=122))
-				{
-				$var = array_shift($get);
-				$var = chr($i) . "=" . $var;
-				array_push($arr, $var);
-				$i++;
-				}
-			$action = $action . "?" . implode("&", $arr);
 			}
 			
 		echo "<form name=\"" . $name . "\" action=\"" . $action . "\" method=\"post\" " . $type . " " . $autocomplete . ">";	
@@ -135,20 +120,21 @@ class bb_forms extends bb_links {
 		{
 		/* function to output button */
 		//class and label
+		
 		$class = isset($params['class']) ? $params['class'] : "";
 		$label = isset($params['label']) ? $params['label'] : "";		
 		//javascript parameters
 		$number = isset($params['number']) ? $params['number'] : 0;
 		$target = isset($params['target']) ? "'" . $params['target'] . "'" : "undefined";
-		$slug - isset($params['slug']) ? "'" . $params['slug'] . "'" : "undefined";
+		$slug = isset($params['slug']) ? "'" . $params['slug'] . "'" : "undefined";
 		$passthis = isset($params['passthis']) ? "this" : "undefined";
 		//allows boolean true for default proicessing image
 		
 		//DEPRACATED */
-		//image now done with hooK
+		//image now done with hook
 		
 		//implode parameters with comma
-		$params_str = implode(",", array($number, $target, $passthis, $image));
+		$params_str = implode(",", array($number, $target, $slug, $passthis));
 		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"bb_submit_form(" . $params_str . "); return false;\">" . $label . "</button>"; 
 		}
 		

@@ -167,7 +167,7 @@ if (!$main->button(1))
 		}
 	else
 		{
-		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Set Security To");
+		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "slug"=>$slug, "passthis"=>true, "label"=>"Set Security To");
 		$main->echo_button("secure_cascade", $params);
 		echo "<select name=\"setbit\" class=\"spaced\"\">";
 		foreach($arr_security as $key => $value)

@@ -73,6 +73,7 @@ $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
 //get details state variables are set use them
 $arr_state = $main->load($module, $array_state);
 
+
 //coming from an add or edit link, reset $arr_state, row_type and post key should be positive
 if (!empty($POST['bb_row_type']))
         {

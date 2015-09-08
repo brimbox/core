@@ -138,7 +138,7 @@ $main->echo_module_vars();
 
 if (!$main->button(1))
 	{
-	$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Delete Cascade");
+	$params = array("class"=>"spaced","number"=>1,"target"=>$module, "slug"=>$slug, "passthis"=>true, "label"=>"Delete Cascade");
 	$main->echo_button("delete_cascade", $params);
  	}
 

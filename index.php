@@ -41,7 +41,7 @@ if (isset($_SESSION['username'])):
 
 //other vars are all disposed of with unset
 
-//SESSION STUFF
+//CONTROLLER VARS
 //set by login
 $username = $_SESSION['username'];
 $email = $_SESSION['email'];
@@ -68,6 +68,7 @@ $button = isset($_SESSION['button']) ? $_SESSION['button'] : 0;
 //also $path controller global
 //also $type controller global
 //also $module and $slug initalized if empty when array_global is processed
+/* END CONTROLLER VARS */
 
 //logout algorithm used for interface change, userrole change and logout
 if (isset($_SESSION['module']))
@@ -226,9 +227,10 @@ echo "</style>";
 /* END LESS LESS SUBSTITUTER */
 unset($query, $result, $row);
 ?>
-
 <title><?php echo PAGE_TITLE; ?></title> 
 </head>
+
+
 <body id="bb_brimbox">
 <?php
 /* PROCESSING IMAGE */
@@ -238,9 +240,8 @@ if (!$main->blank($image))
     echo "<div id=\"bb_processor\"><img src=\"bb-config/" . $image . "\"></div>";
     echo "<script>window.onload = function () { document.getElementById(\"bb_processor\").style.display = \"none\"; }</script>";
     }
-?>
-<?php
-/* CONTROLLER ARRAYS*/
+    
+/* CONTROLLER ARRAY*/
 //query the modules table to set up the interface according to $array_master
 //setup initial variables
 //arr_reduce is part of interface for current userrole
@@ -264,7 +265,7 @@ foreach($array_interface as $key => $value)
 //get modules type into string for query, reuse variable, recast
 $module_types = implode(",", array_unique($module_types));
 //query modules table
-$query = "SELECT * FROM modules_table WHERE standard_module IN (0,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($module_types) . ") ORDER BY module_type, module_order;";
+$query = "SELECT * FROM modules_table WHERE standard_module IN (0,1,2,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($module_types) . ") ORDER BY module_type, module_order;";
 //echo "<p>" . $query . "</p>";
 $result = pg_query($con, $query);
 
@@ -273,33 +274,30 @@ while($row = pg_fetch_array($result))
     {
     //get the first module
     //check module type not hidden
-	if ($row['module_type'] > 0)
-		{
-        //check that file exists
-        if (file_exists($row['module_path']))
+    //check that file exists
+    if (file_exists($row['module_path']))
+        {
+        //work with slug
+        if ($slug == $row['module_slug'])
             {
-            //work with slug
-            if ($slug == $row['module_slug'])
+            if ($module == $row['module_name']) //module and slug match
                 {
-                if ($module == $row['module_name']) //module and slug match
-                    {
-                    list($path, $type) = array($row['module_path'], $row['module_type']);
-                    }
-                else //module and slug don't match, get module also
-                    {
-                    list($module, $path, $type) = array($row['module_name'], $row['module_path'], $row['module_type']);    
-                    }
+                list($path, $type) = array($row['module_path'], $row['module_type']);
                 }
-            //need to address controller by both module_type and module_name            
-            if ($row['module_type'] <> 0)
+            else //module and slug don't match, get module also
                 {
-                //$array[key][key] is easiest
-                $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path'], 'module_slug'=>$row['module_slug']);
+                list($module, $path, $type) = array($row['module_name'], $row['module_path'], $row['module_type']);    
                 }
-            }		
-        }
+            }
+        //need to address controller by both module_type and module_name            
+        if ($row['module_type'] > 0)
+            {
+            //$array[key][key] is easiest
+            $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path'], 'module_slug'=>$row['module_slug']);
+            }
+        }		
     }
-/* END CONTROLLER AARAYS */
+/* END CONTROLLER ARRAY */
 
 /* ECHO TABS */
 //echo tabs and links for each module
@@ -312,7 +310,6 @@ if (!$main->blank($controller_message))
     echo "<div id=\"controller_message\">" .  $controller_message . "</div>";    
     }
 
-echo "<nav>"; //html5 nav tag
 foreach ($arr_interface as $value)
 	{
 	$selected = ""; //reset selected
@@ -365,14 +362,14 @@ if ($interface_type == 'Auxiliary')
     {
     echo "<div id=\"bb_admin_menu\">";
     //echo Auxiliary buttons on the side
-    foreach ($arr_controller[$type] as $key => $value)
+    foreach ($arr_controller[$type] as $module_work => $value)
         {
-        echo "<button class=\"menu\" name=\"" . $key . "_name\" value=\"" . $key . "_value\"  onclick=\"bb_submit_form(0,'" . $key . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
+        echo "<button class=\"menu\" name=\"" . $module_work . "_name\" value=\"" . $module_work . "_value\"  onclick=\"bb_submit_form(0,'" . $module_work . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
         }
     echo "</div>";
     
     //clean up before include
-	unset($key, $value, $arr_interface, $arr_controller, $interface_type);
+	unset($key, $value, $arr_interface, $arr_controller, $interface_type, $lineclass, $module_work);
 	//module include this is where modules are included
     echo "<div id=\"bb_admin_content\">";
     //$path is reserved, this "include" includes the current module    
@@ -388,12 +385,7 @@ if ($interface_type == 'Auxiliary')
 else 
     {
     //clean up before include
-	unset($key);
-    unset($value);
-	unset($arr_interface);
-	unset($arr_work);
-	unset($result);
-	unset($arr_controller);
+    unset($key, $value, $arr_interface, $arr_controller, $interface_type, $lineclass, $module_work);
 	//module include this is where modules are included
     echo "<div id=\"bb_content\">";
     //$path is reserved, this "include" includes the current module    

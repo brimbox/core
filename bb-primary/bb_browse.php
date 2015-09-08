@@ -89,10 +89,6 @@ else
 //process row_type	
 $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 
-//process the get string into state
-$back = array("row_type", "col_type", "letter", "offset");
-$GET = $main->get($module, $arr_state);
-
 //update state, back to string, get name
 $main->update($array_state, $module, $arr_state);
 /* END POSTBACK */
@@ -103,7 +99,7 @@ echo "<div class=\"center\">"; //centering
 
 /* START REQUIRED FORM */
 //form tag
-$main->echo_form_begin($back);
+$main->echo_form_begin();
 $main->echo_module_vars();
 
 echo "<span class=\"padded larger\">"; //font size
@@ -136,9 +132,6 @@ echo "<span class=\"padded larger\">"; //font size
  echo "</span>"; //end font size
 //do alpha and numeric links
 	
-//$xml is retrieved early in browse module to populate combo boxes	
-//this sets the correct column xml -- carries through to browse return
-
 //get column names based on row_type/record types (repeated after state load but why not for clarity)
 $column = $main->pad("c", $col_type);
 

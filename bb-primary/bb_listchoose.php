@@ -42,7 +42,7 @@ $row_type = isset($POST['bb_row_type']) ? $POST['bb_row_type'] : -1;
 if ($main->button(1))
     {
     $post_key = $main->post('post_key',$module);
-    $row_type = $main->post('row_type',$module);   
+    $row_type = $main->post('row_type',$module);
     }
 /* END STATE */
 
@@ -86,8 +86,7 @@ $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
      "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " .
      "ON T1.key1 = T2.id " . 
-     "WHERE T1.id = " . $post_key . ";";	
-
+     "WHERE T1.id = " . $post_key . ";";
 $result = $main->query($con, $query);
 
 $main->return_stats($result);
@@ -144,7 +143,7 @@ echo "</select>";
 echo "</div>"; // cell
 
 echo "<div class=\"cell padded middle\">";
-$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"<< Move >>");
+$params = array("class"=>"spaced","number"=>1,"target"=>$module, "slug"=>$slug, "passthis"=>true, "label"=>"<< Move >>");
 $main->echo_button("move_list", $params);
 echo "</div>"; // cell
 

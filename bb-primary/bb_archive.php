@@ -179,7 +179,7 @@ if (!$main->button(1)) //not equal to 1
 		{
 		$button_value = ($setbit == 0) ? 1 : 0; //set value is value to set secure to
 		$button_text = ($setbit == 0) ? "Archive Cascade" : "Retrieve Cascade";
-		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$button_text);
+		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "slug"=>$slug, "passthis"=>true, "label"=>$button_text);
 		$main->echo_button("archive_cascade", $params);
 		echo "<input type = \"hidden\"  name = \"setbit\" value = \"" . $button_value . "\">";
 		}
