@@ -75,7 +75,8 @@ $main->update($array_state, $module,  $arr_state);
 //function parse_boolean_string calls four non-object functions, advance, token, open, operator
 $boolean_parse = new php_boolean_validator();
 $boolean_parse->splice_or_tokens = true;
-$boolean_parse->splice_wildcard = ($fulltext_state == "begin") ? ":*" : "";
+//use 0 & 1 in case other states evolve
+$boolean_parse->splice_wildcard = ($fulltext_state == "begin") ? 1 : 0;
 $message = $boolean_parse->parse_boolean_string($search_parsed);
 array_push($arr_message, $message); 
 

@@ -97,7 +97,11 @@ if (isset($_SESSION['module']))
 			}
 		}
 	}
-
+    
+/* INCLUDE CONSTANTS */    
+include("bb-config/bb_constants.php");
+/* SET TIME ZONE */
+date_default_timezone_set(USER_TIMEZONE);
 
 /* SET UP MAIN OBJECT */
 //objects are all daisy chained together

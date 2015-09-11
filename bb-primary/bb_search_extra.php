@@ -113,7 +113,6 @@ class php_boolean_validator {
             {
             //pointer is a token
             //custom splice for brimbox
-            $tokens[$i] .= $this->splice_wildcard;
             $boolean_tokens[] = $next; //save token
             $this->closed($booleans, $tokens, $i, $error, $boolean_tokens); 
             }
@@ -173,6 +172,11 @@ class php_boolean_validator {
             $arr_callback = array('from'=>$booleans,'to'=>$boolean_return);
             array_walk($tokens, array($this, 'substitute'), $arr_callback);
             
+            if ($this->splice_wildcard == 1)
+                {
+                $tokens = array_map(array($this,'wildcard'), $tokens);
+                }
+            
             /* SUCCESSFUL PARSE - IMPLODE, TRIM AND RETURN FALSE */
             //$boolean_string passed as a value       
             $boolean_string = implode($tokens);
@@ -181,6 +185,14 @@ class php_boolean_validator {
             }    
     }            
     /* END MAIN FUNCTION */
+    protected function wildcard (&$item)
+        {
+        if (preg_match("/.+\*$/", $item ))
+            {
+            $item = substr_replace($item, ":*", -1);
+            }
+        return $item;
+        }
     
     /* SUBSTITUTION CALLBACK */
     protected function substitute(&$item, $key, $arr)
@@ -194,7 +206,7 @@ class php_boolean_validator {
         }
      
     /* RECURSIVE DESCENT PARSING FUNCTIONS */
-    protected function open($booleans, &$tokens, &$i, &$error, &$boolean_tokens)
+    protected function open($booleans, $tokens, &$i, &$error, &$boolean_tokens)
         {
         //comes from an open parenthesis or not
         $i++;
@@ -203,7 +215,6 @@ class php_boolean_validator {
             {
             //pointer is a token
             //custom splice for brimbox
-            $tokens[$i] .= $this->splice_wildcard;
             $boolean_tokens[] = $next; //save token
             $this->closed($booleans, $tokens, $i, $error, $boolean_tokens);
             }
@@ -219,7 +230,7 @@ class php_boolean_validator {
             }
         }
         
-    protected function operator($booleans, &$tokens, &$i, &$error, &$boolean_tokens)
+    protected function operator($booleans, $tokens, &$i, &$error, &$boolean_tokens)
         {
         //comes from an operator
         $i++;
@@ -228,7 +239,6 @@ class php_boolean_validator {
             {
             //pointer is a token
             //custom splice for brimbox
-            $tokens[$i] .= $this->splice_wildcard;
             $boolean_tokens[] = $next;
             $this->closed($booleans, $tokens, $i, $error, $boolean_tokens);
             }
