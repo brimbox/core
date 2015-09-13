@@ -799,7 +799,8 @@ $query = <<<EOT
 CREATE TABLE state_table
 (
   id serial NOT NULL,
-  jsondata text NOT NULL DEFAULT ''::text,
+  statedata text[] NOT NULL DEFAULT '{}',
+  postdata text NOT NULL DEFAULT '',
   change_date timestamp with time zone,
   CONSTRAINT state_table_pkey PRIMARY KEY (id)
 )

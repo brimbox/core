@@ -45,32 +45,35 @@ if (isset($_SESSION['username'])):
 //set by login
 $username = $_SESSION['username'];
 $email = $_SESSION['email'];
-$interface = $_SESSION['interface'];
-$timeout = $_SESSION['timeout'];
+$interface = $_SESSION['interface']; //the current interface
+$timeout = $_SESSION['timeout']; //not implemented, for session timout
 $userrole = $_SESSION['userrole']; //string containing userrole and interface
 $userroles = $_SESSION['userroles']; //comma separated string careful with userroles session, used to check for valid userrole
-$archive = $_SESSION['archive'];
-$keeper = $_SESSION['keeper'];
-
-//get slug, remove querystring at end, reverve, remove path now at end, reverse for slug,cast to string for empty string
-$slug = strpos($_SERVER['REQUEST_URI'], "?")
-    ? (string)strrev(strstr(strrev(strstr($_SERVER['REQUEST_URI'], "?", true)), "/", true))
-    : (string)strrev(strstr(strrev($_SERVER['REQUEST_URI']), "/", true));
+$archive = $_SESSION['archive']; //archive state
+$keeper = $_SESSION['keeper']; //state_table id
 
 //unpack things
 list($usertype, $interface) = explode("_", $_SESSION['userrole'], 2);
 
 //set by post.php
+//the current module
 $module = isset($_SESSION['module']) ? $_SESSION['module'] : "";
+//the previous module where the form is submitted
 $submit = isset($_SESSION['submit']) ? $_SESSION['submit'] : "";
+//the current button, 0 default
 $button = isset($_SESSION['button']) ? $_SESSION['button'] : 0;
+//the current module id, used in the database statedata variable array
+$saver = isset($_SESSION['saver']) ? $_SESSION['saver'] : 0;
 
-//also $path controller global
-//also $type controller global
-//also $module and $slug initalized if empty when array_global is processed
+//the current slug, the part of the url after the index file path
+$slug = substr_replace(parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH),"",0, strlen(dirname($_SERVER['SCRIPT_NAME'])) + 1);
+
+//$path controller file path global
+//$type controller module type global
+
 /* END CONTROLLER VARS */
 
-//logout algorithm used for interface change, userrole change and logout
+//logout algorithm used for interface and userrole change, userrole change and logout
 if (isset($_SESSION['module']))
 	{
     //sets the module and submit
@@ -142,39 +145,34 @@ if (pg_num_rows($result) <> 1)
 	header($index_path);
 	die(); //important to stop script    
     }
-    
-//NOTE: file_exists checked before header and module includes, therefore no missing file errors allowed
 
-/* INCLUDE HEADER FILES */
-//do not want controller to bomb
+/* INCLUDE HEADER MODULES AND FILE */
 //global for all interfaces
 include("bb-utilities/bb_headers.php");
 $query = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-3) ORDER BY module_order;";
 $result = pg_query($con, $query);
 while($row = pg_fetch_array($result))
     {
-    //will ignore file that does not exists so can debug by deleting file
-    //checking syntax would be too much overhead
+    //will ignore file if missing
     $main->include_exists($row['module_path']);
     }
 /* ADHOC HEADERS */
 $main->include_exists("bb-config/bb_admin_headers.php");
 
-/* DO FUNCTION MODULES */
+/* DO FUNCTION MODULES AND FILE*/
 //only for interface being loaded
 $query = "SELECT module_path FROM modules_table WHERE interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-2) ORDER BY module_order;";
 $result = pg_query($con, $query);
 while($row = pg_fetch_array($result))
     {
-    //will ignore file that does not exists so can debug by deleting file
-    //checking syntax would be too much overhead
+    //will ignore file if missing
     $main->include_exists($row['module_path']);
     }
 /* ADHOC FUNCTIONS */
 //will ignore file if missing
 $main->include_exists("bb-config/bb_admin_functions.php");
 
-/* DO GLOBAL MODULES */
+/* DO GLOBAL MODULES AND FILE */
 //only for interface being loaded
 include("bb-utilities/bb_globals.php");
 $query = "SELECT module_path FROM modules_table WHERE  interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
@@ -182,14 +180,14 @@ $result = pg_query($con, $query);
 while($row = pg_fetch_array($result))
     {
     //will ignore file that does not exists so can debug by deleting file
-    //checking syntax would be too much overhead
     $main->include_exists($row['module_path']);
     }
 /* ADHOC GLOBALS */
 //will ignore file if missing
 $main->include_exists("bb-config/bb_admin_globals.php");
+
 /* UNPACK $array_global for given interface */
-//will overwrite existing arrays
+//this creates array from the global array
 if (isset($array_global))
     {
     foreach($array_global[$interface] as $key => $value)
@@ -218,7 +216,7 @@ $main->include_file("bb-config/bb_admin_javascript.js", "js");
 $main->include_file("bb-utilities/bb_styles.css", "css");
 $main->include_file("bb-config/bb_admin_css.css", "css");
 
-/* INCLUDE HACKS LAST after all other bb-config includes */
+/* INCLUDE HACKS FILE LAST after all other bb-config includes */
 //hacks file useful for debugging
 $main->include_exists("bb-config/bb_admin_hacks.php");
 
@@ -233,7 +231,7 @@ unset($query, $result, $row);
 ?>
 <title><?php echo PAGE_TITLE; ?></title> 
 </head>
-
+<?php /* END HEAD */ ?>
 
 <body id="bb_brimbox">
 <?php
@@ -246,11 +244,10 @@ if (!$main->blank($image))
     }
     
 /* CONTROLLER ARRAY*/
-//query the modules table to set up the interface according to $array_master
-//setup initial variables
-//arr_reduce is part of interface for current userrole
+//query the modules table to set up the interface
+//setup initial variables from $array_interface
 $arr_interface = $array_interface;
-//arr_work is an array of temp variables for quick disposal
+//module type 0 for hidden modules
 $module_types = array(0);
 //get the module types for current interface
 foreach($array_interface as $key => $value)
@@ -266,10 +263,11 @@ foreach($array_interface as $key => $value)
 		unset($arr_interface[$key]);	
 		}
 	};
-//get modules type into string for query, reuse variable, recast
+//get modules type into string for query
 $module_types = implode(",", array_unique($module_types));
 //query modules table
-$query = "SELECT * FROM modules_table WHERE standard_module IN (0,1,2,4,6) AND interface IN ('" . pg_escape_string($interface) . "') AND module_type IN (" . pg_escape_string($module_types) . ") ORDER BY module_type, module_order;";
+$query = "SELECT * FROM modules_table WHERE standard_module IN (0,1,2,4,6) AND interface IN ('" . pg_escape_string($interface) . "') " .
+         "AND module_type IN (" . pg_escape_string($module_types) . ") ORDER BY module_type, module_order;";
 //echo "<p>" . $query . "</p>";
 $result = pg_query($con, $query);
 
@@ -297,7 +295,7 @@ while($row = pg_fetch_array($result))
         if ($row['module_type'] > 0)
             {
             //$array[key][key] is easiest
-            $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path'], 'module_slug'=>$row['module_slug']);
+            $arr_controller[$row['module_type']][$row['module_name']] = array('friendly_name'=>$row['friendly_name'],'module_path'=>$row['module_path']);
             }
         }		
     }
@@ -308,28 +306,31 @@ while($row = pg_fetch_array($result))
 echo "<div id=\"bb_header\">";
 //header image
 echo "<div id=\"controller_image\"></div>";
+//global message for all users
 $controller_message = $main->get_constant('BB_CONTROLLER_MESSAGE', '');
 if (!$main->blank($controller_message))
     {
     echo "<div id=\"controller_message\">" .  $controller_message . "</div>";    
     }
-
+//set up standard tab and auxiliary header tabs
 foreach ($arr_interface as $value)
 	{
 	$selected = ""; //reset selected
+    //active module type
 	if ($value['module_type'] == $type)
 		{
 		$interface_type = $value['interface_type'];
 		}
-        
+    //layout standard tabs   
 	if ($value['interface_type'] == 'Standard')
 		{
 		foreach ($arr_controller[$value['module_type']] as $module_work => $value)       
 			{
 			$selected = ($module == $module_work) ? "chosen" : "";
-			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(0,'" . $module_work . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
+			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(0,'" . $module_work . "')\">" . $value['friendly_name'] . "</button>";
 			}
 		}
+    //layout auxiliary header tab
 	elseif ($value['interface_type'] == 'Auxiliary')
 		{
 		//this section
@@ -339,14 +340,12 @@ foreach ($arr_interface as $value)
 				{
 				$selected = "chosen";
                 $module_work = $module;
-                $slug_work = $arr_controller[$value['module_type']][$module_work]['module_slug'];
 				}
 			else
 				{
 				$module_work = key($arr_controller[$value['module_type']]);
-                $slug_work = $arr_controller[$value['module_type']][$module_work]['module_slug'];
 				}
-			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(0,'" . $module_work . "', '" . $slug_work . "')\">" . $value['friendly_name'] . "</button>";
+			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(0,'" . $module_work . "')\">" . $value['friendly_name'] . "</button>";
 			}			
 		}		
 	}
@@ -361,14 +360,14 @@ echo "</div>"; //bb_header
 
 /* INCLUDE APPROPRIATE MODULE */
 echo "<div id=\"bb_wrapper\">";
-//Auxiliary tabs
+//Auxiliary tabs and links
 if ($interface_type == 'Auxiliary')
     {
     echo "<div id=\"bb_admin_menu\">";
-    //echo Auxiliary buttons on the side
+    //echo auxiliary buttons on the side
     foreach ($arr_controller[$type] as $module_work => $value)
         {
-        echo "<button class=\"menu\" name=\"" . $module_work . "_name\" value=\"" . $module_work . "_value\"  onclick=\"bb_submit_form(0,'" . $module_work . "', '" . $value['module_slug'] . "')\">" . $value['friendly_name'] . "</button>";
+        echo "<button class=\"menu\" name=\"" . $module_work . "_name\" value=\"" . $module_work . "_value\"  onclick=\"bb_submit_form(0,'" . $module_work . "')\">" . $value['friendly_name'] . "</button>";
         }
     echo "</div>";
     
@@ -520,9 +519,9 @@ if (isset($_POST['index_login']))
                 $arr_userroles = explode(",",$row['userroles']);
                 $_SESSION['userrole'] =  $arr_userroles[0]; //first item of array
                 $_SESSION['archive'] = 1; //archive mode is off
-                //state row
+                //state and post data row, keeper is id
                 $_SESSION['interface'] = $interface;
-                $query = "INSERT INTO state_table (jsondata) VALUES ('') RETURNING id;";
+                $query = "INSERT INTO state_table (statedata, postdata) VALUES ('{}','') RETURNING id;";
                 $result = pg_query($con, $query);
                 $row = pg_fetch_array($result);
                 $_SESSION['keeper'] = $row['id'];               

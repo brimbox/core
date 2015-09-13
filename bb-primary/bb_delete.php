@@ -23,8 +23,8 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 /* INITIALIZE */
 $arr_message = array();
 
-//State vars --- there is no delete state
-$POST = $main->retrieve($con, $array_state);
+//get $_POST var
+$POST = $main->retrieve($con);
 
 $post_key = isset($POST['bb_post_key']) ? $POST['bb_post_key'] : -1;
 $row_type = isset($POST['bb_row_type']) ? $POST['bb_row_type'] : -1;
@@ -148,8 +148,6 @@ echo "<input type = \"hidden\"  name = \"row_type\" value = \"" . $row_type . "\
 
 //form vars necessary for header link
 $main->echo_common_vars();
-
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* FORM */
 ?>

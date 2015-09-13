@@ -44,14 +44,14 @@ $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 $arr_messages = array();
 
 /* LOOKUP AND STATE POSTBACK */
-//do lookup state and postback
-$POST = $main->retrieve($con, $array_state); //run first
+//get $_POST
+$POST = $main->retrieve($con); //run first
     
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
-//get lookup state variables are use them
-$arr_state = $main->load($module, $array_state);
+//get state
+$arr_state = $main->load($con, $saver);
 
 //process offset and archive
 $offset = $main->process('offset', $module, $arr_state, 1);
@@ -89,7 +89,7 @@ $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 $archive_flag = $main->process('archive_flag', $module, $arr_state, 0);
 	
 //back to string
-$main->update($array_state, $module, $arr_state);
+$main->update($con, $arr_state, $saver);
 /* END POSTBACK */
 ?>
 <?php 
@@ -209,9 +209,6 @@ echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
 //post_key is the record id or drill down record key (two uses)
 $main->echo_common_vars();
-
-//this echos the state variables into the form
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */
 

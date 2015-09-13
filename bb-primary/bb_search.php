@@ -49,14 +49,14 @@ $fulltext_state = strtolower($main->get_constant('BB_FULLTEXT_STATE', 'word'));
 $arr_message = array();
 
 /* BEGIN STATE AND POSTBACK PROCESS */
-//do search postback
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
     
-//get search state variables are set use them
-$arr_state = $main->load($module, $array_state);
+//get state
+$arr_state = $main->load($con, $saver);
 
 $search = $main->process('search', $module, $arr_state, "");
 //make a copy
@@ -68,7 +68,7 @@ $row_type = $main->process('row_type', $module, $arr_state, 0);
 $archive_flag = $main->process('archive_flag', $module, $arr_state, 0);
 
 //back to string
-$main->update($array_state, $module,  $arr_state);
+$main->update($con, $arr_state, $saver);
 /* END STATE PROCESS */
 
 /* PARSE SEARCH STRING */
@@ -95,10 +95,6 @@ $params = array("all"=>true);
 $main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
-//echo state variables into form
-//variables to hold the $POST variables for the links
-$main->echo_common_vars();
-
 //button and end form
 $params = array("class"=>"spaced","onclick"=>"bb_reload()", "label"=>"Search Database");
 $main->echo_script_button("post_search", $params);
@@ -119,9 +115,9 @@ if ($main->on_constant('BB_ARCHIVE_INTERWORKING'))
 	}
 	
 echo "</div>"; //end align center
-
 //echo state variables into form
-$main->echo_state($array_state);
+//variables to hold the $POST variables for the links
+$main->echo_common_vars();
 $main->echo_form_end();
 /* END FORM */ ?>
 

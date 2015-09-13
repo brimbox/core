@@ -66,12 +66,9 @@ class bb_forms extends bb_links {
 		{
 		//global make the most sense since these are global variables
 		global $module;
-		global $slug;
 		/* These variables support javascript function bb_submit_form() */
 		//starts with current module and changes to target, where you're going
 		echo "<input rel=\"ignore\" name=\"bb_module\" type=\"hidden\" value=\"" . $module . "\" />";
-		//starts with current module and changes to target, where you're going
-		echo "<input rel=\"ignore\" name=\"bb_slug\" type=\"hidden\" value=\"" . $slug . "\" />";
 		//starts empty and changes to current module, where you're coming from, $module become $submit
 		echo "<input rel=\"ignore\" name=\"bb_submit\" type=\"hidden\" value=\"\" />";
 		//working Brimbox button submitted processed in the controller, always set w/ javascript
@@ -126,7 +123,6 @@ class bb_forms extends bb_links {
 		//javascript parameters
 		$number = isset($params['number']) ? $params['number'] : 0;
 		$target = isset($params['target']) ? "'" . $params['target'] . "'" : "undefined";
-		$slug = isset($params['slug']) ? "'" . $params['slug'] . "'" : "undefined";
 		$passthis = isset($params['passthis']) ? "this" : "undefined";
 		//allows boolean true for default proicessing image
 		
@@ -134,7 +130,7 @@ class bb_forms extends bb_links {
 		//image now done with hook
 		
 		//implode parameters with comma
-		$params_str = implode(",", array($number, $target, $slug, $passthis));
+		$params_str = implode(",", array($number, $target, $passthis));
 		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"bb_submit_form(" . $params_str . "); return false;\">" . $label . "</button>"; 
 		}
 		

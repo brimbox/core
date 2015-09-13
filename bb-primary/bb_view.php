@@ -42,13 +42,13 @@ $arr_layouts = $main->get_json($con, "bb_layout_names");
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
-/***START STATE AND VIEW POSTBACK***/
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
-$arr_state = $main->load($module, $array_state);
+$arr_state = $main->load($con, $saver);
 
 //coming from an view link, set $arr_state
 //bb_row_type is empty if not set with javascript, empty works here
@@ -72,7 +72,7 @@ else //get on postback, or populate with input_state if coming from other page
        }
         
 //save state
-$main->update($array_state, $module, $arr_state);
+$main->update($con, $arr_state, $saver);
 /*** END POSTBACK ***/
 ?>
 <?php
@@ -121,8 +121,6 @@ echo "<input type=\"hidden\" name=\"post_key\" value=\"" . $post_key . "\" />";
 
 //global POST variables
 $main->echo_common_vars();
-
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */
 

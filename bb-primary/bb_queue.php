@@ -129,13 +129,15 @@ function bb_set_field(col)
 
 <?php
 /* BEGIN QUEUE AND STATE POSTBACK  */
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
-$arr_state = $main->load($module, $array_state);
+//get state
+$arr_state = $main->load($con, $saver);
 
 $email_number = $main->process('email_number', $module, $arr_state, -1);
 	
-$main->update($array_state, $module,  $arr_state);
+$main->update($con, $arr_state, $saver);
 /*** END POSTBACK ***/
 ?>
 
@@ -392,7 +394,6 @@ $main->echo_module_vars();
 		}    
 	imap_close($mbox);
 	endif; //long colon if
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */
 ?>

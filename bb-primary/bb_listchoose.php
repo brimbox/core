@@ -31,8 +31,8 @@ select.box
 <?php
 /* INITIALIZE */
 /* BEGIN STATE */
-//State vars --- there is no listchoose state
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
 //get post_key
 $post_key = isset($POST['bb_post_key']) ? $POST['bb_post_key'] : -1;
@@ -170,8 +170,6 @@ echo "<input type = \"hidden\"  name = \"row_type\" value = \"" . $row_type . "\
 
 //form vars necessary for header link
 $main->echo_common_vars();
-
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */
 ?>

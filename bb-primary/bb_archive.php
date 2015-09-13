@@ -25,8 +25,8 @@ $arr_message = array();
 
 $archive_log = $main->on_constant('BB_ARCHIVE_LOG');
  
-//State vars --- there is no delete state
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_archive = $arr_header['row_archive']['value'];
@@ -34,7 +34,6 @@ $arr_archive = $arr_header['row_archive']['value'];
 $post_key = isset($POST['bb_post_key']) ? $POST['bb_post_key'] : -1;
 $row_type = isset($POST['bb_row_type']) ? $POST['bb_row_type'] : -1;
 
-//get postback vars
 /* BEGIN ARCHIVE CASCADE */
 if ($main->button(1))
 	{
@@ -173,7 +172,7 @@ echo "<br>";
 $main->echo_form_begin();
 $main->echo_module_vars();
 
-if (!$main->button(1)) //not equal to 1
+if (!$main->button(1))
 	{
 	if (empty($arr_archive))
 		{
@@ -201,8 +200,6 @@ echo "<input type = \"hidden\"  name = \"post_key\" value = \"" . $post_key . "\
 echo "<input type = \"hidden\"  name = \"row_type\" value = \"" . $row_type . "\">";
 
 $main->echo_common_vars();
-
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* FORM */
 ?>

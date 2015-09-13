@@ -71,7 +71,9 @@ $message = ""; //blank return message
 /* INPUT STATE AND POSTBACK */  
 $POST = $main->retrieve($con, $array_state);
 
+//get state
 $arr_state = $main->load($module, $array_state);
+
 //hook for postback routines, will include bb_input_extra
 $main->hook("postback_area", true);
 //returns $post_key, $row_type, $row_join, and $arr_state

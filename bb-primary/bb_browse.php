@@ -23,7 +23,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 /* MODULE JAVASCRIPT */
 function bb_set_hidden(lt)
     {
-    //set vars and submit form, return value is reset to 1
+    //set vars and submit form, offset value is reset to 1
     //this goes off when letter is clicked
     var frmobj = document.forms["bb_form"];  
     frmobj.letter.value = lt;
@@ -31,8 +31,7 @@ function bb_set_hidden(lt)
     bb_submit_form(0); //call javascript submit_form function
 	return false;
     }
-
-//standard reload layout
+//standard reload on dropdown change
 function bb_reload()
     {
     //change row_type, reload appropriate columns
@@ -44,7 +43,6 @@ function bb_reload()
     bb_submit_form(0); //call javascript submit_form function
 	return false;
     }
-//standard reload column
 /* END MODULE JAVASCRIPT */
 </script>
 <?php
@@ -56,16 +54,16 @@ $arr_columns = $main->get_json($con, "bb_column_names");
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /* BROWSE AND STATE POSTBACK */
-//do browse postback, get variables from state
-$POST = $main->retrieve($con, $array_state); //run first
+//get $_POST variable
+$POST = $main->retrieve($con); //run first
     
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
     
-//get browse_state variables are set use them
-$arr_state = $main->load($module, $array_state);
+//get state from db
+$arr_state = $main->load($con, $saver);
 
-//get variable from state, or initialize
+//process variables from state and postback
 $letter = $main->process('letter', $module, $arr_state, "A");
 $offset = $main->process('offset', $module, $arr_state, 1);
 
@@ -89,8 +87,8 @@ else
 //process row_type	
 $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 
-//update state, back to string, get name
-$main->update($array_state, $module, $arr_state);
+//update state, back to db
+$main->update($con, $arr_state, $saver);
 /* END POSTBACK */
 ?>
 <?php 
@@ -106,31 +104,31 @@ echo "<span class=\"padded larger\">"; //font size
 //do alpha and numeric links
 //this area make the alphabetic and numeric links including the posting javascript
     for ($i = 65; $i <= 90; $i++) //alpha
-	{
-	$alpha_number = chr($i);
-	
-	//underline and bold chosen letter
-	$class = ($alpha_number == $letter) ? "link bold underline" : "link";
-	echo "<button class=\"" . $class . "\"  onclick=\"bb_set_hidden('" . $alpha_number . "'); return false;\">";
-	echo $alpha_number;
-	echo "</button>&nbsp;";
-	}
+        {
+        $alpha_number = chr($i);
+        
+        //underline and bold chosen letter
+        $class = ($alpha_number == $letter) ? "link bold underline" : "link";
+        echo "<button class=\"" . $class . "\"  onclick=\"bb_set_hidden('" . $alpha_number . "'); return false;\">";
+        echo $alpha_number;
+        echo "</button>&nbsp;";
+        }
 	  
     echo "&nbsp;&nbsp;";
 
 	  
     for ($i = 48; $i <= 57; $i++) //numeric
-	{
-	$alpha_number = chr($i);
-	
-	//underline and bold chosen number
-	$class = ($alpha_number == $letter) ? "link bold underline" : "link"; 
-	echo "<button class=\"" . $class . "\"  onclick=\"bb_set_hidden('" . $alpha_number . "'); return false;\">";
-	echo $alpha_number;
-	echo "</button>&nbsp;";
-	} 
+        {
+        $alpha_number = chr($i);
+        
+        //underline and bold chosen number
+        $class = ($alpha_number == $letter) ? "link bold underline" : "link"; 
+        echo "<button class=\"" . $class . "\"  onclick=\"bb_set_hidden('" . $alpha_number . "'); return false;\">";
+        echo $alpha_number;
+        echo "</button>&nbsp;";
+        } 
  echo "</span>"; //end font size
-//do alpha and numeric links
+//end do alpha and numeric links
 	
 //get column names based on row_type/record types (repeated after state load but why not for clarity)
 $column = $main->pad("c", $col_type);
@@ -155,14 +153,8 @@ echo "<input type = \"hidden\"  name = \"letter\" value = \"" . $letter . "\">";
 //hidden element containing the current return page, this is related to the row offset in the query LIMIT clause
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
  
-//these variables hold the variables used when a return record link is selected
-//these variables are for the links that follow every return record
 //these variable are only set via javascript, when a link is followed
-
 $main->echo_common_vars();
-
-//this echos the state variables into the form
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */
 

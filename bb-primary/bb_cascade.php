@@ -28,12 +28,14 @@ $arr_layouts_reduced = $main->filter_keys($arr_layouts);
 $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 /***START STATE AND VIEW POSTBACK***/
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
-$arr_state = $main->load($module, $array_state);
+//get state
+$arr_state = $main->load($con, $saver);
 
 //coming from an add or edit link, reset $arr_state
 //bb_row_type is empty if not set with javascript, row_type should be 1 to 26, 0 will render as empty 
@@ -50,7 +52,8 @@ else //default = nothing, or populate with input_state if coming from other page
 		$post_key = $main->process('post_key', $module, $arr_state, 0);
         }
 
-$main->update($array_state, $module, $arr_state);
+//pus state back into db
+$main->update($con, $arr_state, $saver);
 /*** END POSTBACK ***/
 ?>
 <?php
@@ -75,16 +78,14 @@ echo "<input type=\"hidden\" name=\"offset\" value=\"" . $offset . "\" />";
 echo "<input type=\"hidden\" name=\"row_type\" value=\"" . $row_type . "\" />";
 echo "<input type=\"hidden\" name=\"post_key\" value=\"" . $post_key . "\" />";
 
-//global POST variables
+//common variables for links
 $main->echo_common_vars();
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */
 
 /* BEGIN RETURN ROWS */
 //calculate lower limit of ordered query, return rows will be dealt with later
 //initialize $count_rows in case no rows are returned
-
 $return_rows = $main->get_constant('BB_RETURN_ROWS',4);
 $pagination = $main->get_constant('BB_PAGINATION',5);
 $count_rows = 0;

@@ -24,8 +24,8 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 //error message pile
 $arr_message = array();
 
-/* GET STATE */
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_security = $arr_header['row_security']['value'];
@@ -184,8 +184,6 @@ echo "<input type = \"hidden\"  name = \"row_type\" value = \"" . $row_type . "\
 
 //form vars necessary for header link
 $main->echo_common_vars();
-
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* FORM */
 ?>

@@ -16,7 +16,7 @@ If not, see http://www.gnu.org/licenses/
 
 //this is the module submit javascript function
 //each time a tab is clicked this function executes
-function bb_submit_form(button, target, direct, passthis)
+function bb_submit_form(button, target, passthis)
     {
     //button, target, and passthis are optional
     
@@ -55,14 +55,6 @@ function bb_submit_form(button, target, direct, passthis)
         frmobj['bb_module'].value = target;
         }
 		
-	//use the slug
-	slug = frmobj.elements['bb_slug'].value;
-	if (direct!=undefined)
-        {
-        //set bb_module as target module
-        frmobj['bb_slug'].value = direct;
-		}
-        
     for (var i=0; i<frmobj.length; i++)
         {
         //rel attribute from form element tag
@@ -124,16 +116,16 @@ function bb_submit_link(f)
 //links javascript
 var bb_links = new Object();
 
-	bb_links.standard = function(k,rt,tg,sg) {
+	bb_links.standard = function(k,rt,tg) {
 		var frmobj=document.forms['bb_form'];
 		
 		frmobj.bb_post_key.value = k;
 		frmobj.bb_row_type.value = rt;
-		bb_submit_form(0,tg,sg);
+		bb_submit_form(0,tg);
 		return false;
 	}
 	
-	bb_links.input = function(k,rj,rt,tg,sg) {
+	bb_links.input = function(k,rj,rt,tg) {
 		var frmobj=document.forms['bb_form'];
 		
 		frmobj.bb_post_key.value = k;
@@ -143,11 +135,11 @@ var bb_links = new Object();
 		return false;
 	}
 	
-	bb_links.relate = function(rl,tg,sg) {
+	bb_links.relate = function(rl,tg) {
 		var frmobj=document.forms['bb_form'];
 		
 		frmobj.bb_relate.value = rl;
-		bb_submit_form(0,tg,sg);
+		bb_submit_form(0,tg);
 		return false;
 	}
 

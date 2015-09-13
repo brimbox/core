@@ -64,15 +64,14 @@ $arr_notes = array(49,50);
 $arr_message = array();
 
 /* START STATE AND DETAILS POSTBACK */
-//do details postback, get variables from state
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
 //get archive mode
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
   
-//get details state variables are set use them
-$arr_state = $main->load($module, $array_state);
-
+//get state
+$arr_state = $main->load($con, $saver);
 
 //coming from an add or edit link, reset $arr_state, row_type and post key should be positive
 if (!empty($POST['bb_row_type']))
@@ -90,7 +89,7 @@ else //default = nothing, or populate with input_state if coming from other page
 		$link_values = $main->process('link_values', $module, $arr_state, "");
         }
            
-$main->update($array_state, $module, $arr_state);
+$main->update($con, $arr_state, $saver);
 
 /*** END DETAILS POSTBACK ***/		
 ?>
@@ -102,8 +101,7 @@ if ($post_key > 0) // a detail of a record
 	{
 	//post_key is an int, row_type to find record id
 	$letter = strtoupper(chr($row_type + 96));
-	$query = "SELECT count(*) OVER () as cnt, * FROM data_table WHERE id = " . $post_key . ";";
-	
+	$query = "SELECT count(*) OVER () as cnt, * FROM data_table WHERE id = " . $post_key . ";";	
 	//echo "<p>" . $query . "</p>";
 	$result = $main->query($con, $query);
 
@@ -312,7 +310,6 @@ if ($post_key > 0) // a detail of a record
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
 $main->echo_module_vars();
-$main->echo_common_vars();
  
 //message and textarea align left
 echo "<div class=\"left\">";
@@ -344,8 +341,7 @@ echo "<input type=\"hidden\" name=\"row_type\" value=\"" . $row_type . "\" />";
 echo "<input type=\"hidden\" name=\"post_key\" value=\"" . $post_key . "\" />";
 
 echo "</div>";
-$main->echo_object_vars();
-$main->echo_state($array_state);
+$main->echo_common_vars();
 $main->echo_form_end();
 /* END FORM */
 ?>

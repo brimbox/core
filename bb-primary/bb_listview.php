@@ -46,12 +46,14 @@ $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 //view value is the list position
 
 /*** BEGIN LISTVIEW POSTBACK ***/
-$POST = $main->retrieve($con, $array_state);
+//get $_POST
+$POST = $main->retrieve($con);
 
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
-$arr_state = $main->load($module, $array_state);
+//get state
+$arr_state = $main->load($con, $saver);
 
 $row_type = $main->state('row_type', $arr_state, $default_row_type);
 $offset = $main->process('offset', $module, $arr_state, 1);
@@ -82,7 +84,7 @@ else
     }
 
 /* back to string */
-$main->update($array_state, $module, $arr_state);
+$main->update($con, $arr_state, $saver);
 /*** END POSTBACK ***/
 ?>
 <?php
@@ -121,8 +123,6 @@ echo "<div class=\"cell padded middle\">";
 $main->echo_textarea("description", $description, $params = array("rows"=>2,"cols"=>50,"class"=>"spaced border","readonly"=>"readonly"));
 
 $main->echo_common_vars();
-
-$main->echo_state($array_state);
 $main->echo_form_end();
 
 echo "</div></div></div>"; //end align center, table, row

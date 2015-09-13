@@ -187,16 +187,29 @@ class bb_work extends bb_hooks {
 	    return $var;	
 	    }
 		
-	function load($module, $array_state)
+	function load($con, $saver)
         {
 		//gets and loads $arr_state from global $array_state
-	    global $array_state;
-		 
-	    $temp = $module . "_bb_state";
-		//will initialize array state if if not set set, happens in module install
-	    $arr_state = isset($array_state[$temp]) ? json_decode($array_state[$temp], true) : array();
+		//module doesn't need to be defalut module
+	    global $keeper;
+		
+		$query = "SELECT statedata[" . $saver . "] as jsondata FROM state_table WHERE id IN (" . $keeper . ");";
+		$result = pg_query($con, $query);
+		$row = pg_fetch_array($result);
+		$arr_state = json_decode($row['jsondata'], true);
+		
 	    return $arr_state;	
 	    }
+		
+	function saver($con, $module)
+		{
+		$query = "SELECT id, module_name, module_slug FROM modules_table WHERE module_name IN ('" . $module . "');";
+		$result = pg_query($con, $query);
+		$row = pg_fetch_array($result);
+		$saver = $row['id'];
+	
+		return $saver;
+		}
 		
 	function keeper($con, $key = "")
 		{
@@ -204,74 +217,33 @@ class bb_work extends bb_hooks {
 		global $keeper;
 		
 		//get module number
-		$query = "SELECT jsondata FROM state_table WHERE id = " . $keeper . ";";		
+		$query = "SELECT postdata FROM state_table WHERE id = " . $keeper . ";";		
 		$result = $this->query($con, $query);
 		$row = pg_fetch_array($result);
 		
-		if ($this->blank($key))
-			{
-			return json_decode($row['jsondata'], true);			
-			}
-		else
-			{
-			$arr = json_decode($row['jsondata'], true);
-			return $arr[$key];				
-			}
+		return json_decode($row['postdata'], true);	
 		}
 		
-	function retrieve($con, &$array_state)
+	function retrieve($con)
 	    {
-		//psuedo post var
 		global $POST;
-
-		global $array_interface;
-		global $interface;
-		global $userrole;
-		
-		$array_state = array();		
-		$arr_modules_active = array();		
-		
-		//go through $array_interface and get active modules based on interface
-		foreach ($array_interface as $key => $value)
-			{
-			if (in_array($userrole, $value['usertypes']))
-				{
-				array_push($arr_modules_active, $value['module_type']);
-				}
-			}
-	    //explode module types
-	    $and_clause = " module_type IN (" . implode(",",$arr_modules_active) . ") ";
-	    		    
-		//get module list from modules table WHERE maintain_state = 1
-	    $query = "SELECT module_name FROM modules_table WHERE maintain_state = 1 AND " . $and_clause . " AND standard_module IN (0,1,2,4,6);";
-	    //echo "<p>" . $query . "</p>";
-		$result = $this->query($con, $query);
-		
-		$POST = $this->keeper($con, "post");
+			
+		$POST = $this->keeper($con);
 	    
-		//build $array_state
-	    while($row = pg_fetch_array($result))
-			{
-			$key = $row['module_name'] . '_bb_state';
-			if (!empty($POST[$key])) //get state from post
-				{
-				$array_state[$key] = base64_decode($POST[$key]);
-				}
-			else  //initialize state
-				{                
-				$array_state[$key] = "";
-				}
-			}
 	    $this->hot_state($array_state, $userrole);
 		
 		return $POST;
 	    }
 	
-	function update(&$array_state, $module, $arr_state)
+	function update($con, $arr_state, $saver)
 		//updates $array_state with $arr_state
         {
-		$temp = $module . '_bb_state';
-        $array_state[$temp] = json_encode($arr_state);
+		global $keeper;
+		$jsondata = json_encode($arr_state);
+		
+		$query = "UPDATE state_table SET statedata[$1] = $2 WHERE id = " . $keeper . ";";
+		$params = array($saver, $jsondata);
+		$this->query_params($con, $query, $params);
         }
 			
 	private function hot_state(&$array_state, $userrole)
