@@ -31,7 +31,6 @@ function bb_reload()
 </script>
 <?php
 /* PRESERVE STATE */
-
 $arr_messages = array();
 
 $POST = $main->retrieve($con);
@@ -143,7 +142,7 @@ if ($fullquery <> "")
     if (substr(strtoupper(trim($fullquery)), 0, 6 ) == "SELECT")
         {
         echo "<div class=\"spaced padded border\">" . $fullquery . "</div>";
-        @$result = pg_query($con, stripslashes($fullquery));
+        @$result = pg_query($con, $fullquery);
         $settings[2][0] = array('start_column'=>0,'ignore'=>true,'shade_rows'=>true,'title'=>'Query Results');
         if ($result === false)
             {
