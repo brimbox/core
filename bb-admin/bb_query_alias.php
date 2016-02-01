@@ -31,6 +31,7 @@ function bb_reload()
 </script>
 <?php
 /* PRESERVE STATE */
+
 $arr_messages = array();
 
 $POST = $main->retrieve($con);
@@ -113,21 +114,22 @@ if ($number_sub_queries > 0)
 //display main query  
 $main->echo_textarea("substituter", $substituter, array('class'=>"spaced",'cols'=>160,'rows'=>7));
 
+$tokenized = preg_split("/( |\(|\))/", $substituter, NULL, PREG_SPLIT_DELIM_CAPTURE);
+
 //build full query
 if ($main->button(-1))
-    {
-    $fullquery = $substituter; 
+    {    
     for ($i=1;$i<=$number_sub_queries;$i++)
         {
-        if ($p = stripos($fullquery, $arr_sub_queries[$i]['name']))
+        foreach ($tokenized as $key => &$value)
             {
-            $l = strlen($arr_sub_queries[$i]['name']);  //token length
-            $t = strlen($fullquery); //total length
-            $right_splice = substr($fullquery,0, $p);
-            $left_splice = substr($fullquery, $p + $l, $t - 1);
-            $fullquery = $right_splice . "(" . $arr_sub_queries[$i]['subquery'] . ")" . $left_splice; 
+            if ($value == $arr_sub_queries[$i]['name'])
+                {
+                $value = "(" . $arr_sub_queries[$i]['subquery'] . ")";    
+                }
             }
         }
+    $fullquery = implode($tokenized);
     }
 //or run subquery
 else
@@ -141,8 +143,8 @@ if ($fullquery <> "")
     if (substr(strtoupper(trim($fullquery)), 0, 6 ) == "SELECT")
         {
         echo "<div class=\"spaced padded border\">" . $fullquery . "</div>";
-        @$result = pg_query($con, $fullquery);
-        $settings[2][0] = array('start_column'=>0,'ignore'=>true,'shade_rows'=>true,'title'=>'Return Meeting List');
+        @$result = pg_query($con, stripslashes($fullquery));
+        $settings[2][0] = array('start_column'=>0,'ignore'=>true,'shade_rows'=>true,'title'=>'Query Results');
         if ($result === false)
             {
             array_push($arr_messages, pg_last_error($con));
@@ -163,7 +165,6 @@ if ($fullquery <> "")
 //echo report
 if (isset($result))
     {
-    echo "<br>";    
     $main->echo_report_vars();
     //output report	
     if ($result)
