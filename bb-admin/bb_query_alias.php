@@ -59,8 +59,6 @@ for ($i=1;$i<=10; $i++)
         }
     }
 
-print_r($arr_sub_queries);
-
 $current['report_type'] = 2;
 
 //process the form
