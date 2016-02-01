@@ -66,19 +66,19 @@ if (isset($_SESSION['username'])):
     $arr_guest_index = $arr_header['guest_index']['value'];
 
     //will handle postback
-    if ($main->changed('row_type', $module, $arr_state, $default_row_type))
+    if ($main->changed('row_type', $submit, $arr_state, $default_row_type))
         {
-        $row_type = $main->process('row_type', $module, $arr_state, $default_row_type); 
+        $row_type = $main->process('row_type', $submit, $arr_state, $default_row_type); 
         $data_area = "";
         $data_file = "default";
         $edit_or_insert = 0;
         }
     else
         {
-        $row_type = $main->process('row_type', $module, $arr_state, $default_row_type); 
-        $data_area = $main->process('data_area', $module, $arr_state, "");
-        $data_file = $main->process('data_file', $module, $arr_state, "default");
-        $edit_or_insert = $main->process('edit_or_insert', $module, $arr_state, 0);
+        $row_type = $main->process('row_type', $submit, $arr_state, $default_row_type); 
+        $data_area = $main->process('data_area', $submit, $arr_state, "");
+        $data_file = $main->process('data_file', $submit, $arr_state, "default");
+        $edit_or_insert = $main->process('edit_or_insert', $submit, $arr_state, 0);
         }
         
     //get column names based on row_type/record types
@@ -111,9 +111,9 @@ if (isset($_SESSION['username'])):
     //button 2 -- submit_file     
     if ($main->button(2)) 
         {
-        if (is_uploaded_file($_FILES[$main->name('upload_file', $module)]["tmp_name"]))
+        if (is_uploaded_file($_FILES[$main->name('upload_file', $submit)]["tmp_name"]))
             {
-            $data_area = file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"]);
+            $data_area = file_get_contents($_FILES[$main->name('upload_file', $submit)]["tmp_name"]);
             }
         else
             {

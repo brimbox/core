@@ -49,6 +49,7 @@ $edit_or_insert = $main->state('edit_or_insert', $arr_state, 0);
 $arr_messages = $main->state('arr_messages', $arr_state, array());
 $arr_errors_all = $main->state('arr_errors_all', $arr_state, array());
 $arr_messages_all = $main->state('arr_messages_all', $arr_state, array());
+
 //update state, back to db
 $main->update($con, $module, $arr_state);
 

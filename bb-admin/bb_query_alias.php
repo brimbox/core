@@ -36,26 +36,30 @@ $arr_messages = array();
 $POST = $main->retrieve($con);
 
 //get state from db
-$arr_state = $main->load($con, $module);
+$_arr_state = $main->load($con, $module);
 
 //check that there are enough form areas for sub_queries
-$number_sub_queries =  $main->process("number_sub_queries", $module, $arr_state, 0);     
+$number_sub_queries =  $main->process("number_sub_queries", $module, $arr_state, 1);
 
 //process the form
 $arr_sub_queries = array();
-for ($i=1;$i<=10;$i++)
+for ($i=1;$i<=10; $i++)
     {
     $name = $main->pad("s",$i);
-    if ($main->check($name, $module))
+    $subquery = $main->pad("q",$i);
+    if ($i <= $number_sub_queries)
         {
         $arr_sub_queries[$i]['name'] = $main->process($name, $module, $arr_state, "");
-        }
-    $subquery = $main->pad("q",$i);
-    if ($main->check($subquery, $module))
-        {
         $arr_sub_queries[$i]['subquery'] = $main->process($subquery, $module, $arr_state, "");
         }
+    else
+        {
+        unset($arr_state[$name]);
+        unset($arr_state[$subquery]); 
+        }
     }
+
+print_r($arr_sub_queries);
 
 $current['report_type'] = 2;
 
@@ -115,7 +119,7 @@ $main->echo_textarea("substituter", $substituter, array('class'=>"spaced",'cols'
 if ($main->button(-1))
     {
     $fullquery = $substituter; 
-    for ($i=1;$i<=10;$i++)
+    for ($i=1;$i<=$number_sub_queries;$i++)
         {
         if ($p = stripos($fullquery, $arr_sub_queries[$i]['name']))
             {

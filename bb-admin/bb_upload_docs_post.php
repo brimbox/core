@@ -128,7 +128,7 @@ if (isset($_SESSION['username'])):
         }
         
     $main->set('arr_messages', $arr_state, $arr_messages);
-    $main->update($con, $module, $arr_state);
+    $main->update($con, $submit, $arr_state);
     
     $postdata = json_encode($POST);
         

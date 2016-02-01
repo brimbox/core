@@ -37,6 +37,7 @@ $POST = $main->retrieve($con);
 $arr_state = $main->load($con, $module);
 
 $update_id = $main->process("update_id", $module, $arr_state, "");
+
 $arr_messages = $main->process('arr_messages', $module, $arr_state, array());
 
 //update state, back to db
