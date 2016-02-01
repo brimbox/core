@@ -16,22 +16,31 @@ If not, see http://www.gnu.org/licenses/
 
 //this is the module submit javascript function
 //each time a tab is clicked this function executes
-function bb_submit_form(button, target, passthis)
+function bb_submit_form(params)
     {
+	//need defined but empty javascript array
+	//cannot get undefined item value from undefined array
+	params = typeof params !== 'undefined' ? params : [];
+	//disable submit button asap
     //button, target, and passthis are optional
-    
-    //all three parameters are optional, this nasty little piece of javascript works in all
-    //current major browsers, it is a very important piece of code
-	//required form
-    var frmobj=document.forms['bb_form'];
-    //action set to self, always through the controller
-
-    //temporarily disable the calling object to prevent double submits
+	//can only be this or undefined
+	var passthis = params[3];
+	//temporarily disable the calling object to prevent double submits
     //to use this you have to pass "this" refering to the button element
     if (passthis!=undefined)
         {
         passthis.disabled = true;
-        }    
+        }
+		
+	//default button = 0
+	var button = params[0];
+	//undefined target and slug will result in postback
+	var target = params[1];
+	var slug = params[2];
+    //all three parameters are optional, this nasty little piece of javascript works in all
+    //current major browsers, it is a very important piece of code
+	//required form
+    var frmobj=document.forms['bb_form'];
     
     //because multiple submit buttons are handled inconsistantly in major browsers
     //set a hidden value to keep track of which buttons are selected
@@ -44,16 +53,24 @@ function bb_submit_form(button, target, passthis)
         frmobj.elements['bb_button'].value = button;   
         }
         
-    //module is current module always, this for submitting form vars
+    //update bb_submit with module coming from
+	//form objects bb_submit and bb_module should be equal on postback
     module = frmobj.elements['bb_module'].value;    
     frmobj['bb_submit'].value = frmobj['bb_module'].value;
-	//get module submittted to
+	
     if (target!=undefined)
         {
+		//update bb_module with module going to
         //set bb_module as target module
-		frmobj.elements['bb_module'].target
         frmobj['bb_module'].value = target;
         }
+	if (slug!=undefined)
+		{
+		//update bb_slug with slug going to
+		//set bb_slug as target slug
+		//slug coming from not preserved
+		frmobj['bb_slug'].value = slug;	
+		}
 		
     for (var i=0; i<frmobj.length; i++)
         {
@@ -89,7 +106,7 @@ function bb_logout_selector(i)
 	var frmobj = document.forms['bb_form'];
 	var frmele = frmobj.elements['bb_userrole'];
 	frmele.value = i;
-	bb_submit_form(0,'bb_logout');
+	bb_submit_form([0,'bb_logout']);
 	return false;
 	}
 	
@@ -116,30 +133,30 @@ function bb_submit_link(f)
 //links javascript
 var bb_links = new Object();
 
-	bb_links.standard = function(k,rt,tg) {
+	bb_links.standard = function(k,rt,tg,sl) {
 		var frmobj=document.forms['bb_form'];
 		
 		frmobj.bb_post_key.value = k;
 		frmobj.bb_row_type.value = rt;
-		bb_submit_form(0,tg);
+		bb_submit_form([0,tg,sl]);
 		return false;
 	}
 	
-	bb_links.input = function(k,rj,rt,tg) {
+	bb_links.input = function(k,rj,rt,tg,sl) {
 		var frmobj=document.forms['bb_form'];
 		
 		frmobj.bb_post_key.value = k;
 		frmobj.bb_row_type.value = rt;
 		frmobj.bb_row_join.value = rj;
-		bb_submit_form(0,tg);
+		bb_submit_form([0,tg,sl]);
 		return false;
 	}
 	
-	bb_links.relate = function(rl,tg) {
+	bb_links.relate = function(rl,tg,sl) {
 		var frmobj=document.forms['bb_form'];
 		
 		frmobj.bb_relate.value = rl;
-		bb_submit_form(0,tg);
+		bb_submit_form([0,tg,sl]);
 		return false;
 	}
 

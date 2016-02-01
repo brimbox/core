@@ -26,7 +26,7 @@ If not, see http://www.gnu.org/licenses/
 //get_default_layout
 //get_default_column
 //filter_keys
-//filter_init
+//filter_init -- deprecated
 //layout_dropdown
 //column_dropdown
 //list_dropdown
@@ -44,6 +44,7 @@ If not, see http://www.gnu.org/licenses/
 //custom_trim_string
 //purge_chars
 //echo_messages
+//has_error_messages
 //check_permission
 //validate_password
 //build_indexes
@@ -67,7 +68,12 @@ If not, see http://www.gnu.org/licenses/
 //set_constant
 //make_html_id
 
-class bb_main extends bb_forms {
+class bb_main extends bb_reports {
+    
+    function return_main($main)
+		{
+		$main = new bb_main();
+		}
 	
 	//this quickly returns the query header stats including count and current time...
 	function return_stats($result)
@@ -109,21 +115,21 @@ class bb_main extends bb_forms {
 				echo "<span class=\"error bold\">" . $str . "</span>";
 				}
 			}
-		 if (!$this->blank($row['hdr']) && ($link == 1))
+		 if (!static::blank($row['hdr']) && ($link == 1))
 			{
 			//calls javascript in bb_link
 			echo " <button class = \"link italic\" onclick=\"bb_links.standard(" . (int)$row['key1'] . "," . (int)$row['row_type_left'] . ", '" . $target . "'); return false;\">";
 			echo htmlentities($row['hdr']) . "</button> / ";
 			}
-        elseif (!$this->blank($row['hdr']) && ($link == -1))
+        elseif (!static::blank($row['hdr']) && ($link == -1))
             {
             //non linked row
             echo " <span class = \"colored italic\">";
 			echo htmlentities($row['hdr']) . "</span> / ";  
             }
         //else link 0 no output
-		echo " Created: " .  $this->convert_date($row['create_date'], "Y-m-d h:i A") . " / ";	
-		echo "Modified: " .  $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
+		echo " Created: " .  static::convert_date($row['create_date'], "Y-m-d h:i A") . " / ";	
+		echo "Modified: " .  static::convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
 		} //function
 		
 	//this outputs a record of data, returning the total number of rows, which is found in the cnt column 
@@ -140,7 +146,7 @@ class bb_main extends bb_forms {
 		$pop = false; //to catch empty rows, pop = true for non-empty rows
         
         ##DEPRACATED##
-        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
+        $arr_column_reduced = static::filter_keys($arr_column_reduced);
         ##DEPRACATED##
 
 		foreach($arr_column_reduced as $key => $value)
@@ -148,7 +154,7 @@ class bb_main extends bb_forms {
             if (is_integer($key)) //integer keys reserved for columns
                 {
                 $row1 = (int)$value['row']; //current row number
-                $col2 = $this->pad("c", $key);
+                $col2 = static::pad("c", $key);
                 //always skipped first time
                 if ($row2 != $row1) 
                     {
@@ -183,14 +189,14 @@ class bb_main extends bb_forms {
 		return $row['cnt'];
 		}
 		      
-    function get_default_layout($arr_layouts_reduced, $check = 0)
+    function get_default_layout($layouts, $check = 0)
 		{
         //layouts are in order, will return first array if $check is false
         //if check is true, $available array of secure values will be considered
         //$available is an array of available securities to allow
         //loop through $arr_layouts
         
-        foreach ($arr_layouts_reduced as $key => $value)
+        foreach ($layouts as $key => $value)
             {
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
@@ -202,18 +208,15 @@ class bb_main extends bb_forms {
         return 1;
 	    }
         
-    function get_default_column($arr_column_reduced, $check = 0)
+    function get_default_column($arr_columns, $check = 0)
 		{
         //columns are in order, will return first array if $check is false
         //if check is true, $available array of secure values will be considered
         //$available is an array of available securities to allow
         //loop through $arr_columns
-        
-        ##DEPRACATED##
-        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
-        ##DEPRACATED##
 
-        foreach ($arr_column_reduced as $key => $value)
+
+        foreach ($arr_columns as $key => $value)
             {
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
@@ -225,14 +228,14 @@ class bb_main extends bb_forms {
         return 1;
 	    }
         
-    function get_default_list($arr_list_reduced, $archive = 1)
+    function get_default_list($lists, $archive = 1)
 		{
         //default only ones that are not archived
         //columns are in order, will return first array if $check is false
         //if check is true, $available array of secure values will be considered
         //$available is an array of available securities to allow
         //loop through $arr_list
-        foreach ($arr_list_reduced as $key => $value)
+        foreach ($lists as $key => $value)
             {
             //not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$default = ($archive && ($value['archive'] >= $archive)) ? true : false;
@@ -243,51 +246,7 @@ class bb_main extends bb_forms {
             }
         return 1;
 	    }
-    
-    function filter_keys (&$arr_filter, $filter = array(), $mode = true)
-        //function to return array with only integer keys
-        //will return empty array if $arr is no set
-        {
-        if (!empty($arr_filter))
-            {
-            //copy so $arr_column is not altered
-            $arr = $arr_filter;
-            $keys = array_filter(array_keys($arr), 'is_integer');
-            $arr = array_intersect_key($arr, array_flip($keys));
-            if (!empty($filter))
-                {
-                if ($mode) //keep the keys in filter
-                    {
-                    $arr = array_intersect_key($arr, array_flip($filter));   
-                    }
-                else //discard the keys in filter
-                    {
-                    $arr = array_diff_key($arr, array_flip($filter)); 
-                    }
-                }
-            return $arr;    
-            }
-        else
-            {
-            return array();    
-            }
-        }
-    
-    function filter_init (&$arr_filter)
-        //deprecated
-        //filter_keys will initialize array with pass by reference
-        //function was only used once in core and not documented
-        {
-        if (empty($arr_filter))
-            {
-            return array();    
-            }
-        else
-            {
-            return($arr_filter);    
-            }
-        }
-			
+       			
 	//this returns a standard header combo for selecting record type
 	//for this function the javascript function reload_on_layout() is uniquely tailored to the calling module    
         
@@ -338,7 +297,7 @@ class bb_main extends bb_forms {
 		$label = isset($params['label']) ? $params['label'] : "";
         
         ##DEPRACATED##
-        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
+        $arr_column_reduced = static::filter_keys($arr_column_reduced);
         ##DEPRACATED##
         
 		if (!empty($label))
@@ -446,27 +405,17 @@ class bb_main extends bb_forms {
 		$date->setTimezone(new DateTimeZone(DB_TIMEZONE));
 		return $date->format($format);
 		}
-        
-    function include_exists($filepath)
-        {
-        //assumes relative for php files
-        if (file_exists($filepath))
-            {
-            include($filepath);
-            }
-        }       
-        
+                
     function include_file($filepath, $type)
         {
         //assumes index file root
-        $fullpath = dirname($_SERVER['PHP_SELF']) . "/" . $filepath;
         if ($type == "css")
             {
-            echo "<link rel=StyleSheet href=\"" . $fullpath . "\" type=\"text/css\" media=screen>";    
+            echo "<link rel=StyleSheet href=\"" . $filepath . "\" type=\"text/css\" media=screen>";    
             }
         elseif ($type == "js")
             {
-            echo "<script type=\"text/javascript\" src=\"" . $fullpath . "\"></script>";   
+            echo "<script type=\"text/javascript\" src=\"" . $filepath . "\"></script>";   
             }     
         }
 	
@@ -481,13 +430,13 @@ class bb_main extends bb_forms {
 		if (is_dir($directory . $d))
 			{
 			$d = $d . "/";
-			$dir_array[$d] = $this->get_directory_tree($directory . $d);
+			$dir_array[$d] = static::get_directory_tree($directory . $d);
 			}
 		else
 			{
 			$dir_array[$d] = $directory . $d;
 			}
-		return $this->array_flatten($dir_array);
+		return static::array_flatten($dir_array);
 		}		
 			
 	//flattens the array returned in $main->get_directory_tree
@@ -525,7 +474,7 @@ class bb_main extends bb_forms {
 						{
 						//not empty recurse
 						$object = $object . "/";
-						$this->empty_directory($dir . $object, $root);
+						static::empty_directory($dir . $object, $root);
 						}
 					else
 						{
@@ -554,7 +503,7 @@ class bb_main extends bb_forms {
 				  {
 				  $d = $d . "/";
 				  @mkdir( $to_directory . $d);
-				  $dir_array[$d] = $this->copy_directory($from_directory . $d, $to_directory . $d);
+				  $dir_array[$d] = static::copy_directory($from_directory . $d, $to_directory . $d);
 				  }
 			  else
 				  {
@@ -655,26 +604,43 @@ class bb_main extends bb_forms {
 
 			
 	//$input can be either array or string   
-	function echo_messages($input)
+	function echo_messages($messages)
 		{
-		if (!$this->blank($input))
+        //could be string or array
+		if (!static::blank($messages))
 			{
-			if (is_string($input))
+			if (is_string($messages))
 				{
-				$message = $input;
-				$class = (strncasecmp($message, "Error:", 6) == 1) ? "error": "message";
-				echo "<p class=\"" . $class . "\">" . $message . "</p>";
+				$messages = array($messages);
 				}
-			elseif (is_array($input))
+			if (is_array($messages))
 				{
-				foreach ($input as $message)
-					{
+				foreach ($messages as $message)
+					{ 
 					$class = (strncasecmp($message, "Error:", 6) == 0) ? "error": "message";
 					echo "<p class=\"" . $class . "\">" . $message . "</p>";
 					}
 				}
 			}  
-		}	
+		}
+        
+    function has_error_messages($messages)
+		{
+        //could be string or array
+		if (is_string($messages))
+			{
+            $messages = array($messages);
+			}
+        if (is_array($messages))
+            {
+            $arr = preg_grep("/^Error:/i", $messages);
+            if (empty($arr))
+                {
+                return false;    
+                }
+            return true;
+			}  
+		}        
 	
 	function check_permission($optional, $usertypes = NULL)
 		{
@@ -757,7 +723,7 @@ class bb_main extends bb_forms {
         if (in_array($userrole, $userlevels))
             {
             $query = "SELECT * FROM users_table WHERE '" . $userrole . "' = ANY (userroles) AND UPPER(username) = UPPER('". pg_escape_string($username) . "');";
-            $result = $this->query($con, $query);
+            $result = static::query($con, $query);
             if (pg_num_rows($result) == 1)
                 {
                 $row = pg_fetch_array($result);
@@ -770,15 +736,109 @@ class bb_main extends bb_forms {
 		return false; 
 		}
         
+    function logout_link($class = "bold link underline", $label = "Logout")
+        {
+            
+        $params = array("class"=>$class, "passthis"=>true, "label"=>$label, "onclick"=>"bb_logout_selector('0_bb_brimbox')");
+        static::echo_script_button("logout", $params); 
+        }
+        
+    function archive_link($class_button = "link underline bold",  $class_span = "bold")
+        {
+        //careful not to use -1 on on pages with archive link
+        global $button;
+        global $module;
+        //on postback toggle
+        if (bb_work::button(-1))
+            {
+            if ($_SESSION['archive'] == 0)
+                {
+                $_SESSION['archive'] = 1;
+                }
+            else
+                {
+                $_SESSION['archive'] = 0;           
+                }
+            }
+            
+        $label = ($_SESSION['archive'] == 0) ? "On" : "Off";
+        
+        echo "<span class=\"" . $class_span . "\">Archive mode is: ";
+        $params = array("class"=>$class_button,"number"=>-1,"target"=>$module, "passthis"=>true, "label"=>$label);
+        bb_forms::echo_button("archive", $params);
+        echo "</span>";
+        }
+        
+    function database_stats($class_div = "bold", $class_span = "colored")
+        {
+        echo "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
+        echo "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['username'] . "</span></div>";	
+        echo "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
+        echo "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
+        echo "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
+        }
+        
+    function replicate_link($class_div = "bold",  $class_link = "colored")
+        {        
+        echo "<div class=\"" . $class_div . "\">To open in new window: ";
+        echo "<a class=\"" . $class_link . "\" href=\"" . dirname($_SERVER['PHP_SELF']) . "\" target=\"_blank\">Click here</a>";
+        echo "</div>";
+        }
+        
+    function userrole_switch($class_span = "bold", $class_button = "link underline")
+        {
+        global $array_header;        
+        global $userroles;
+        global $userrole;
+        
+        $arr_userroles = explode(",", $userroles);
+        $cnt = count($arr_userroles);
+        if ($cnt > 1)
+            {
+            echo "<span class=\"" . $class_span . "\">Current userrole is: ";
+            $i = 1;
+            foreach ($arr_userroles as $value)
+                {
+                //careful with the globals
+                list($usertype, $interface) = explode("_", $value, 2);
+                if (isset($array_header[$interface]['interface_name']) && isset($array_header[$interface]['userroles'][$usertype]))
+                    {
+                    $bold = ($value == $userrole) ? " bold" : "";                
+                    $params = array("class"=>$class_button . $bold, "label"=>$array_header[$interface]['interface_name'] . ":" . $array_header[$interface]['userroles'][$usertype], "onclick"=>"bb_logout_selector('" . $value . "')");
+                    static::echo_script_button("role" . $value, $params);
+                    $separator = ($i <> $cnt) ? ", " : "";
+                    echo $separator;
+                    }
+                $i++;
+                }
+            echo "</span>";
+            }
+        }
+        				
+	function infolinks()
+		{
+		echo "<div class=\"floatright\">";
+		static::logout_link();
+		echo "</div>";
+		
+		echo "<div class=\"floatleft\">";
+		static::database_stats();
+		static::archive_link();
+		static::replicate_link();
+		static::userrole_switch();
+		echo "</div>";
+		echo "<div class=\"clear\"></div>";
+		}
+        
 	function build_indexes($con, $row_type = 0)
 		{
 		//reduce xml_layout to include only 1 row_type for column update, all for rebuild indexes
 		global $array_guest_index;
 		
 		$arr_union_query = array();
-		$arr_layouts = $this->get_json($con, "bb_layout_names");
-        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
-		$arr_columns = $this->get_json($con, "bb_column_names");
+		$arr_layouts = static::get_json($con, "bb_layout_names");
+        $arr_layouts_reduced = static::filter_keys($arr_layouts);
+		$arr_columns = static::get_json($con, "bb_column_names");
 		
 		$arr_row_type = array();    
 		if ($row_type == 0) //all
@@ -797,11 +857,11 @@ class bb_main extends bb_forms {
 		$arr_ts_vector_ftg = array();
 		foreach ($arr_row_type as $row_type)
 			{
-			$arr_column = $this->filter_keys($arr_columns[$row_type]);
+			$arr_column = static::filter_keys($arr_columns[$row_type]);
 			//loop through searchable columns
 			foreach($arr_column as $key => $value)
 				{
-				$col = $this->pad("c", $key);
+				$col = static::pad("c", $key);
 				$search_flag = ($value['search'] == 1) ? true : false;
 				//guest flag
 				if (empty($array_guest_index))
@@ -839,7 +899,7 @@ class bb_main extends bb_forms {
 				 "FROM (" . $str_union_query . ") T1 " .
 				 "WHERE data_table.id = T1.id";
 		//echo $query . "<br><br>";
-		$this->query($con, $query);    
+		static::query($con, $query);    
 		}
 		
 	function cleanup_database_data($con)
@@ -850,7 +910,7 @@ class bb_main extends bb_forms {
 			//POSIX regex, no null because db text fields cannot have nulls
 			//change tabs, form feeds, new lines, returns and vertical tabs to space and trim
 			$query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r\\n]+', ' ', 'g' )) WHERE " . $col . " <> '';";
-			$this->query($con, $query);
+			static::query($con, $query);
 			}
 		for ($i=49; $i<=50; $i++)
 			{
@@ -859,15 +919,15 @@ class bb_main extends bb_forms {
 			//replace all tab, form feeds and return with a space and then remove all space from end of line keeping new lines
 			$query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(col, E' {0,}\\n{1} {0,}', E'\n', 'g' )) " .
 				     "FROM (SELECT id, regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r]+', ' ', 'g' ) as col FROM data_table WHERE " . $col . " <> '') T1 WHERE data_table.id = T1.id;";
-			$this->query($con, $query);
+			static::query($con, $query);
 			}
 		}
 	function cleanup_database_layouts($con)
 		{
-		$arr_layouts = $this->get_json($con,"bb_layout_names");
-        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
-		$arr_columns = $this->get_json($con,"bb_column_names");
-		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
+		$arr_layouts = static::get_json($con,"bb_layout_names");
+        $arr_layouts_reduced = static::filter_keys($arr_layouts);
+		$arr_columns = static::get_json($con,"bb_column_names");
+		$arr_dropdowns = static::get_json($con, "bb_dropdowns");
 		for ($i=1; $i<=26; $i++)
 			{
 			if (!isset($arr_layouts_reduced[$i])) //clean up rows
@@ -875,17 +935,17 @@ class bb_main extends bb_forms {
 				unset($arr_columns[$i]);
 				unset($arr_dropdowns[$i]);
 				$query = "DELETE FROM data_table WHERE row_type IN (" . $i . ");";
-				$this->query($con, $query);
+				static::query($con, $query);
 				}
 			}
-		$this->update_json($con, $arr_dropdowns, "bb_dropdowns");
-		$this->update_json($con, $arr_columns, "bb_column_names");
+		static::update_json($con, $arr_dropdowns, "bb_dropdowns");
+		static::update_json($con, $arr_columns, "bb_column_names");
 		}
 		
 	function cleanup_database_columns($con)
 		{
-		$arr_columns = $this->get_json($con,"bb_column_names");
-		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
+		$arr_columns = static::get_json($con,"bb_column_names");
+		$arr_dropdowns = static::get_json($con, "bb_dropdowns");
 		for ($i=1; $i<=26; $i++)
 			{
 			$arr_column = isset($arr_columns[$i]) ? $arr_columns[$i] : array() ;
@@ -893,10 +953,10 @@ class bb_main extends bb_forms {
 				{
 				if (!isset($arr_column[$j]))
 					{
-                    $col = $this->pad("c", $j);
+                    $col = static::pad("c", $j);
 					$set_clause = $col . " = ''";
 					$query = "UPDATE data_table SET " .  $set_clause . " WHERE row_type = " . $i . " AND " . $col . " <> '';";
-					$this->query($con, $query);
+					static::query($con, $query);
 					if (isset($arr_dropdowns[$i][$j]))
 						{
 						unset($arr_dropdowns[$i][$j]);	
@@ -904,7 +964,7 @@ class bb_main extends bb_forms {
 					}
 				}
 			}
-		$this->update_json($con, $arr_dropdowns, "bb_dropdowns"); 	
+		static::update_json($con, $arr_dropdowns, "bb_dropdowns"); 	
 		}
         
 	function log_entry($con, $message, $email = "")
@@ -916,7 +976,7 @@ class bb_main extends bb_forms {
 		$ip = $_SERVER['REMOTE_ADDR'];
 		$arr_log = array($email,$ip, $message);
 		$query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
-		$this->query_params($con, $query, $arr_log);
+		static::query_params($con, $query, $arr_log);
 		}
         
     function log($con, $message, $username = NULL, $email = NULL)
@@ -926,10 +986,10 @@ class bb_main extends bb_forms {
 		$ip = $_SERVER['REMOTE_ADDR'];
 		$arr_log = array($username, $email,$ip, $message);
 		$query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
-		$this->query_params($con, $query, $arr_log);
+		static::query_params($con, $query, $arr_log);
 		}
 		
-	function output_links($row, $arr_layouts_reduced, $userrole)
+	function output_links($row, $layouts, $userrole)
 		{
         //for standard interface
 		global $array_links;
@@ -972,16 +1032,16 @@ class bb_main extends bb_forms {
 		
 		foreach ($arr_work as $arr)
 			{
-			array_unshift($arr[1], $arr_layouts_reduced);	
+			array_unshift($arr[1], $layouts);	
 			array_unshift($arr[1], $row);
 			call_user_func_array($arr[0], $arr[1]);
 			}
 		}
 		
-	function check_child($row_type, $arr_layouts_reduced)
+	function check_child($row_type, $layouts)
 		{
 		//checks for child records or record
-		foreach($arr_layouts_reduced as $key => $value)
+		foreach($layouts as $key => $value)
 			{
 			if ($row_type == $value['parent'])
 				{
@@ -992,10 +1052,10 @@ class bb_main extends bb_forms {
 		return false;
 		}
 		
-	function drill_links($post_key, $row_type, $arr_layouts_reduced, $module, $text)
+	function drill_links($post_key, $row_type, $layouts, $module, $text)
 		{
 		//call function add drill links in class bb_link
-		call_user_func_array(array($this, "drill") , array($post_key, $row_type, $arr_layouts_reduced, $module, $text));
+		call_user_func_array("static::drill", array($post_key, $row_type, $layouts, $module, $text));
 		}
 		
 	function page_selector($element, $offset, $count_rows, $return_rows, $pagination)
@@ -1061,7 +1121,7 @@ class bb_main extends bb_forms {
 		{
 		//validates a data type set in "Set Column Names"
 		//returns false on good, true or error string if bad
-        $arr_header = $this->get_json($con, "bb_interface_enable");
+        $arr_header = static::get_json($con, "bb_interface_enable");
         $arr_validation = $arr_header['validation'];
         //parse function
 
@@ -1074,7 +1134,7 @@ class bb_main extends bb_forms {
 		//Checks to see that a field has some data
 		//returns false on good, true or error string if bad
 		$field = trim($field);
-		if (!$this->blank($field))
+		if (!static::blank($field))
 			{
 			$return_value = false;
 			}
@@ -1085,151 +1145,44 @@ class bb_main extends bb_forms {
 		return $return_value;
 		}
 				
-	function validate_dropdown(&$field, $dropdown_reduced, $error = false)
+	function validate_dropdown(&$field, $dropdown, $error = false)
 		{
 		//validates dropdowns, primarily used in bulk loads (Upload Data)
 		//returns false on good, true or error string if bad
-        $key = array_search(strtolower($field), array_map('strtolower', $dropdown_reduced));
-        //key will be false, otherwise int
-		if ($key !== false)
-			{
-			//update $field, return false for no error
-			$field = $dropdown_reduced[$key];
-			$return_value = false;
-			}
-		else
-			{
-			//return string error or boolean true depending on error flag
-			$return_value = $error ? "Value not found in dropdown list." : true;
-			}
-		return $return_value;
+        $dropdown_reduced = static::filter_keys($dropdown);
+        $delimiter = static::get_constant('BB_MULTISELECT_DELIMITER', ",");
+        if ($dropdown['multiselect'])
+            {
+            $arr_dropdown = explode($delimiter, $field);
+            }
+        else
+            {
+            $arr_dropdown = array($field); 
+            }
+        //field built from dropdown for return values   
+        $arr_field = array();
+        foreach ($arr_dropdown as $value)
+            {
+            $key = array_search(strtolower($value), array_map('strtolower', $dropdown_reduced));
+            if ($key === false)
+                {
+                $return = $error ? "Error: Value not found in dropdown list." : true;
+                return $return;
+                }
+            else
+                {
+                array_push($arr_field, $dropdown_reduced[$key]);
+                }
+            }
+        //passed as value
+        $field = implode($delimiter, $arr_field);
+        //false is no error
+		return false;
 		}
-        
-    function logout_link($class = "bold link underline", $label = "Logout")
-        {
             
-        $params = array("class"=>$class, "passthis"=>true, "label"=>$label, "onclick"=>"bb_logout_selector('0_bb_brimbox')");
-        $this->echo_script_button("logout", $params); 
-        }
-        
-    function archive_link($class_button = "link underline bold",  $class_span = "bold")
-        {
-        //careful not to use -1 on on pages with archive link
-        global $button;
-        global $module;
-        //on postback toggle
-        if ($this->button(-1))
-            {
-            if ($_SESSION['archive'] == 0)
-                {
-                $_SESSION['archive'] = 1;
-                }
-            else
-                {
-                $_SESSION['archive'] = 0;           
-                }
-            }
-            
-        $label = ($_SESSION['archive'] == 0) ? "On" : "Off";
-        
-        echo "<span class=\"" . $class_span . "\">Archive mode is: ";
-        $params = array("class"=>$class_button,"number"=>-1,"target"=>$module, "passthis"=>true, "label"=>$label);
-        $this->echo_button("archive", $params);
-        echo "</span>";
-        }
-        
-    function database_stats($class_div = "bold", $class_span = "colored")
-        {
-        echo "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['username'] . "</span></div>";	
-        echo "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
-        }
-        
-    function replicate_link($class_div = "bold",  $class_link = "colored")
-        {        
-        echo "<div class=\"" . $class_div . "\">To open in new window: ";
-        echo "<a class=\"" . $class_link . "\" href=\"" . dirname($_SERVER['PHP_SELF']) . "\" target=\"_blank\">Click here</a>";
-        echo "</div>";
-        }
-        
-    function userrole_switch($class_span = "bold", $class_button = "link underline")
-        {
-        global $array_header;        
-        global $userroles;
-        global $userrole;
-        
-        $arr_userroles = explode(",", $userroles);
-        $cnt = count($arr_userroles);
-        if ($cnt > 1)
-            {
-            echo "<span class=\"" . $class_span . "\">Current userrole is: ";
-            $i = 1;
-            foreach ($arr_userroles as $value)
-                {
-                //careful with the globals
-                list($usertype, $interface) = explode("_", $value, 2);
-                if (isset($array_header[$interface]['interface_name']) && isset($array_header[$interface]['userroles'][$usertype]))
-                    {
-                    $bold = ($value == $userrole) ? " bold" : "";                
-                    $params = array("class"=>$class_button . $bold, "label"=>$array_header[$interface]['interface_name'] . ":" . $array_header[$interface]['userroles'][$usertype], "onclick"=>"bb_logout_selector('" . $value . "')");
-                    $this->echo_script_button("role" . $value, $params);
-                    $separator = ($i <> $cnt) ? ", " : "";
-                    echo $separator;
-                    }
-                $i++;
-                }
-            echo "</span>";
-            }
-        }
-    
-    //checks and processes OFF/ON constants   
-    function on_constant($constant)
-        {
-        if (defined($constant))
-            {
-            if (!strcasecmp(constant($constant), "ON"))
-                {
-                return true;    
-                }
-            else
-                {
-                //certain things are undefined if layout exceed the natural alphabet
-                return false;    
-                }
-            }
-        else
-            {
-            return false;    
-            }            
-        }
-    
-    //for numeric and string constants    
-    function get_constant($constant, $default = "")
-        {
-        //if type doesn't match return default
-        if (defined($constant))
-            {
-            if ($this->blank(constant($constant)))
-                {
-                return $default;
-                }
-            else
-                {
-                return constant($constant);
-                }
-            }
-        else
-            {
-            //return default if not set
-            return $default;    
-            }
-        }
-        
     function document($object, $text = "", $class = "link spaced")
         {
-        if ($this->blank($text))
+        if (static::blank($text))
             {
             $text = $object;
             }
@@ -1240,7 +1193,7 @@ class bb_main extends bb_forms {
         {
         if ($col_type)
             {
-            return chr($row_type + 96) . $row_type . "_" . $this->pad("c", $col_type);
+            return chr($row_type + 96) . $row_type . "_" . static::pad("c", $col_type);
             }
         else
             {

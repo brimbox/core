@@ -95,7 +95,7 @@ function bb_set_hidden(em)
     var frmobj = document.forms["bb_form"];
 	
 	frmobj.email_number.value = em;
-	bb_submit_form(0);
+	bb_submit_form();
 	return false;
 	}        
 //clear clipboard
@@ -125,19 +125,17 @@ function bb_set_field(col)
 	}
 /* END MODULE JAVASCRIPT */
 </script>
-
-
 <?php
 /* BEGIN QUEUE AND STATE POSTBACK  */
 //get $_POST
 $POST = $main->retrieve($con);
 
 //get state
-$arr_state = $main->load($con, $saver);
+$arr_state = $main->load($con, $module);
 
 $email_number = $main->process('email_number', $module, $arr_state, -1);
 	
-$main->update($con, $arr_state, $saver);
+$main->update($con, $module, $arr_state);
 /*** END POSTBACK ***/
 ?>
 
@@ -300,14 +298,12 @@ $main->echo_module_vars();
 			
 		//get glean row_type -- standard email headers for guest pack and viewer pack
 		$row_type = 0;
-		$POST_record = false;
-		$arr_layouts = $main->get_json($con, "bb_layout_names");
-		$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-		$arr_columns = $main->get_json($con, "bb_column_names");		
-		
+		$post_record = false;
+		$arr_layouts = $main->layouts($con);
+				
 		if (substr($var_subject,0,12) == "Record Add: " && preg_match("/^[A-Z][-][A-Z]\d+/", substr($var_subject,12)))
 			{
-			$POST_record = true;
+			$post_record = true;
 			$post_key = substr($var_subject,15);
 			if (ctype_digit($post_key))
 				{
@@ -317,8 +313,8 @@ $main->echo_module_vars();
 				if ($cnt_rows)
 					{
 					$row_type = ord(substr($var_subject,12,1)) - 64;
-					$arr_layout = $arr_layouts_reduced[$row_type];
-					if ($arr_layout['parent'] == 0)
+					$layout = $main->reduce($arr_layouts, $row_type);
+					if ($layout['parent'] == 0)
 						{
 						$row_type = 0;	
 						}					
@@ -327,7 +323,7 @@ $main->echo_module_vars();
 			}
 		elseif (substr($var_subject,0,13) == "Record Edit: " && preg_match("/^[A-Z]\d+/", substr($var_subject,13)))
 			{
-			$POST_record = true;
+			$post_record = true;
 			$post_key = substr($var_subject,14);
 			if (ctype_digit($post_key))
 				{
@@ -339,29 +335,31 @@ $main->echo_module_vars();
 			}
 		elseif (substr($var_subject,0,12) == "Record New: " && preg_match("/^[A-Z]$/", substr($var_subject,12)))
 			{
-			$POST_record = true;			
+			$post_record = true;			
 			$row_type = ord(substr($var_subject,12,1)) - 64;
-			$arr_layout = $arr_layouts_reduced[$row_type];
-			if ($arr_layout['parent'] > 0)
+			$layout = $main->reduce($arr_layouts, $row_type);
+			if ($layout['parent'] > 0)
 				{
 				$row_type = 0;	
 				}
 			}
 		
 		//Record Add, New or Edit
-		if ($row_type > 0)
+		if ($row_type)
 			{
-			$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+			$arr_columns = $main->columns($con, $row_type);
 			}
 		
 		//Check input state
-		if ((!$POST_record) && ($row_type == 0))
+		if ((!$post_record) && (!$row_type))
 			{
-			$temp_state = json_decode($array_state['bb_input_bb_state'], true);
-			$row_type = isset($temp_state['row_type']) ? $temp_state['row_type'] : 0;
+            $default_row_type = $main->get_default_layout($arr_layouts);
+			$saver_input = $main->saver($con, "bb_input");
+			$arr_state_input = $main->load($con, $saver_input);
+            $row_type = $main->state('row_type', $arr_state_input, $default_row_type);
 			if ($row_type > 0)
 				{
-				$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+				$arr_columns = $main->columns($con, $row_type);
 				}
 			}
 		
@@ -378,9 +376,9 @@ $main->echo_module_vars();
 		$i = 1;
 	    //visable queue fields
 		echo "<div class=\"floatleft\"><ul class=\"nobullets noindent\">";
-		if (!empty($arr_column_reduced))
+		if (!empty($arr_columns))
 			{
-			foreach($arr_column_reduced as $key => $value)
+			foreach($arr_columns as $key => $value)
 				{
 				$col = $main->pad("c", $key);
 				echo "<input name=\"" . $col . "\" type=\"hidden\" value=\"\" />";

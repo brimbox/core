@@ -25,6 +25,7 @@ If not, see http://www.gnu.org/licenses/
 //name
 //blank
 //check
+//changed
 //full
 //post
 //state
@@ -32,17 +33,18 @@ If not, see http://www.gnu.org/licenses/
 //process
 //render
 //load
+//saver
+//keeper
 //retrieve
 //update
 //hot_state (private)
 //report
-//get_relate
-//get_key
-//get_value
+//on_constant
+//get_constant
 
 
 /* POSTBACK ANBD STATE FUNCTIONS */	
-class bb_work extends bb_hooks {
+class bb_work extends bb_meta {
 	
 	function button($number, $check = "")
 		{
@@ -51,16 +53,16 @@ class bb_work extends bb_hooks {
 		global $button;
 		
 		if (is_int($number)) //convert int to array
-			{
+			{			
 			$number = array($number);	
 			}		
-		if (!$this->blank($check)) //check where it was submitted from
+		if (!static::blank($check)) //check where it was submitted from
 			{
 			return (($submit == $check) && in_array($button, $number)) ? true : false;
 			}
 		else //postback, submit is module
 			{
-			return (($submit == $module) && in_array($button, $number))? true : false;	
+			return (($submit == $module) && in_array($button, $number)) ? true : false;	
 			}
 		}
 		
@@ -76,13 +78,24 @@ class bb_work extends bb_hooks {
 		return empty($var) && $var !== '0';
 		}
 		
+	function hot($var)
+		{
+		global $module;
+		global $submit;
+		
+		if (($module <> $var) && ($submit == $var))
+			return true;
+		else
+			return false;		
+		}
+		
 	function check($name, $module)
 	    {
 		//psuedo post var
 		global $POST;
 		
 	    //checks to see if a $POST variable is set
-	    $temp = $this->name($name, $module);
+	    $temp = static::name($name, $module);
 	    if (isset($POST[$temp]))
 			{
 			return true;	
@@ -91,7 +104,23 @@ class bb_work extends bb_hooks {
 			{
 			return false;	
 			}
-	    }		
+	    }
+		
+	function changed($name, $module, $arr_state, $default = "")
+	    {
+		//psuedo post var
+		global $POST;
+		
+		if (static::check($name, $module))
+			{
+			if (static::post($name, $module, $default) <> static::state($name, $arr_state, $default))
+				{
+				return true;	
+				}
+			}
+		return false;
+		}
+	
 		
 	function full($name, $module)
 	    {
@@ -101,8 +130,8 @@ class bb_work extends bb_hooks {
 		//to check if full, opposite of empty function, returns false if empty
 	    //post var must be set or you will get a notice
 
-	    $temp = $this->name($name, $module);
-	    if (!$this->blank(trim($POST[$temp])))
+	    $temp = static::name($name, $module);
+	    if (!static::blank(trim($POST[$temp])))
 		    {
 		    return true;
 			}
@@ -118,7 +147,7 @@ class bb_work extends bb_hooks {
 		global $POST;
 		
 		//gets the post value of a variable
-	    $temp = $this->name($name, $module);
+	    $temp = static::name($name, $module);
 	    if (isset($POST[$temp]))
 		    {
 		    return $POST[$temp];
@@ -150,7 +179,7 @@ class bb_work extends bb_hooks {
 		
 		//fully processes $POST variable into state setting with initial value
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default;
-		$temp = $this->name($name, $module);
+		$temp = static::name($name, $module);
 
 		if (isset($POST[$temp]))
 			{
@@ -167,11 +196,11 @@ class bb_work extends bb_hooks {
 		global $POST;
 			
 		//fully processes $POST variable into state setting with initial value		
-	    $arr_header = $this->get_json($con, "bb_interface_enable");
+	    $arr_header = static::get_json($con, "bb_interface_enable");
         $arr_validation = $arr_header['validation'];
 	    
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default; 
-	    $temp = $this->name($name, $module);
+	    $temp = static::name($name, $module);
 
 		//if variable is set use variable
 		if (isset($POST[$temp]))
@@ -187,30 +216,25 @@ class bb_work extends bb_hooks {
 	    return $var;	
 	    }
 		
-	function load($con, $saver)
+	function load($con, $module)
         {
 		//gets and loads $arr_state from global $array_state
 		//module doesn't need to be defalut module
 	    global $keeper;
 		
-		$query = "SELECT statedata[" . $saver . "] as jsondata FROM state_table WHERE id IN (" . $keeper . ");";
+		//nasty little implicit unconstrained JOIN
+		//under the hood changes could occur
+		//However I am designing for 8.4 so JSON is not available
+		//Also hstore has a limit in 8.4
+		$query = "SELECT T1.statedata[T2.id]  as jsondata FROM state_table T1, modules_table T2 " .
+				 "WHERE T1.id IN (" . $keeper . ") AND T2.module_name = '" . $module . "';";
 		$result = pg_query($con, $query);
 		$row = pg_fetch_array($result);
 		$arr_state = json_decode($row['jsondata'], true);
 		
 	    return $arr_state;	
 	    }
-		
-	function saver($con, $module)
-		{
-		$query = "SELECT id, module_name, module_slug FROM modules_table WHERE module_name IN ('" . $module . "');";
-		$result = pg_query($con, $query);
-		$row = pg_fetch_array($result);
-		$saver = $row['id'];
-	
-		return $saver;
-		}
-		
+				
 	function keeper($con, $key = "")
 		{
 		global $module;
@@ -218,7 +242,7 @@ class bb_work extends bb_hooks {
 		
 		//get module number
 		$query = "SELECT postdata FROM state_table WHERE id = " . $keeper . ";";		
-		$result = $this->query($con, $query);
+		$result = static::query($con, $query);
 		$row = pg_fetch_array($result);
 		
 		return json_decode($row['postdata'], true);	
@@ -227,99 +251,107 @@ class bb_work extends bb_hooks {
 	function retrieve($con)
 	    {
 		global $POST;
+		global $array_hot_state;
+		global $submit;
 			
-		$POST = $this->keeper($con);
+		$POST = static::keeper($con);
 	    
-	    $this->hot_state($array_state, $userrole);
+		//check if module has hot state
+		if (isset($array_hot_state[$submit]))
+			static::hot_state($con);
 		
 		return $POST;
 	    }
 	
-	function update($con, $arr_state, $saver)
+	function update($con, $module, $arr_state)
 		//updates $array_state with $arr_state
         {
 		global $keeper;
 		$jsondata = json_encode($arr_state);
 		
-		$query = "UPDATE state_table SET statedata[$1] = $2 WHERE id = " . $keeper . ";";
-		$params = array($saver, $jsondata);
-		$this->query_params($con, $query, $params);
+		//unconstrained JOIN
+		$query = "UPDATE state_table T1 SET statedata[T2.id] = $1 FROM modules_table T2 " .
+		         "WHERE T1.id = " . $keeper . " AND T2.module_name = '" . $module . "';";
+		$params = array($jsondata);
+		static::query_params($con, $query, $params);
         }
 			
-	private function hot_state(&$array_state, $userrole)
+	function hot_state($con)
 	    {
-	    //hot state used to update state vars when tabs are switched without postback
-	    global $array_hot_state;
-	    
-	    $arr_work = array();
-	    if (isset($array_hot_state[$userrole]))
+	    //hot state used to update state vars when tabs are switched without postback	    
+		global $usertype;
+		global $array_hot_state;
+		global $submit;
+		
+		//check usertype set	    
+	    if (isset($array_hot_state[$submit][$usertype]))
 			{
-			$arr_work = $array_hot_state[$userrole];	
-			}
-	    
-	    //do not update the state unless coming from that tab
-	    $update = false;
-	    //$arr_work contains hot states for appropriate user level
-	    foreach ($arr_work as $module => $arr_value)
-			{
-			//check one value before proceeding, makes the loop inefficiency acceptable
-			if ($this->check(current($arr_value), $module))
+			$arr_work = $array_hot_state[$submit][$usertype];
+			if (!empty($arr_work));
 				{
-				$key = $module . "_bb_state";
-				$arr_state = json_decode($array_state[$key], true);
-				//loop through hot state values
-				foreach ($arr_value as $value)
+				$arr_state = static::load($con, $submit);
+				foreach ($arr_work as $value)
 					{
-					if ($this->check($value, $module))
+					if (static::check($value, $submit))
 						{
-						$this->process($value, $module, $arr_state);
+						$value = static::process($value, $submit, $arr_state);
 						}
 					}
-				$update = true;
+				static::update($con, $submit, $arr_state);
 				}
-			}
-		//update $array_state
-	    if ($update)
-			{
-		    $this->update($array_state, $module, $arr_state);
-			}
+			}			
 	    }
 	
 	//this function duplicated in both reports and work classes under different names	
 	function report(&$arr_state, $module_submit, $module_display, $params = array())
 	    {
 	    //alias of report_post
-	    $current = $this->report_post($arr_state, $module_submit, $module_display, $params = array());
+	    $current = static::report_post($arr_state, $module_submit, $module_display, $params = array());
 	    return $current;
 	    }
 		
-	//get the row_type from a related field	
-	function relate_check($related)
-		{
-		if (preg_match("/^[A-Z]\d+:.*/", $related))
-			{
-			return true;
-			}
-		return false;	
-		}
-		
-	//get the row_type from a related field	
-	function relate_row_type($related)
-		{
-		return ord(substr($related,0,1)) - 64;	
-		}
-		
-	//get post_key or id from related field
-	function relate_post_key($related)
-		{
-		return substr($related,1, strpos($related,":") - 1);	
-		}
-			
-	//gets primary string from related field
-	function relate_value($related)
-		{
-		return substr($related, strpos($related,":") + 1);	
-		}
+	//checks and processes OFF/ON constants   
+    function on_constant($constant)
+        {
+        if (defined($constant))
+            {
+            if (!strcasecmp(constant($constant), "ON"))
+                {
+                return true;    
+                }
+            else
+                {
+                //certain things are undefined if layout exceed the natural alphabet
+                return false;    
+                }
+            }
+        else
+            {
+            return false;    
+            }            
+        }
+    
+    //for numeric and string constants    
+    function get_constant($constant, $default = "")
+        {
+        //if type doesn't match return default
+        if (defined($constant))
+            {
+            if (static::blank(constant($constant)))
+                {
+                return $default;
+                }
+            else
+                {
+                return constant($constant);
+                }
+            }
+        else
+            {
+            //return default if not set
+            return $default;    
+            }
+        }
 		
 } //end class
 

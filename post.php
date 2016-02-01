@@ -8,42 +8,38 @@ session_name(DB_NAME);
 session_start();
 
 if (isset($_SESSION['username'])):
-
-	include("bb-utilities/bb_database.php");
-	//contains bb_validation class, extend bb_links
-	include("bb-utilities/bb_validate.php");
-	//contains bb_report class, extend bb_work
-	include("bb-utilities/bb_hooks.php");
-	//contains bb_work class, extends bb_forms
-	include("bb-utilities/bb_work.php");		
     
-    $work = new bb_work();    
-    $con = $work->connect();
-
-    $_SESSION['button'] = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
-    $_SESSION['module'] = $module = $_POST['bb_module'];
-    $_SESSION['submit'] = $submit = $_POST['bb_submit'];
-    if ($_POST['bb_userrole'] <> "")  $_SESSION['userrole'] = $_POST['bb_userrole'];
-        
+    //needed for this algorythm
+    $webpath = $_SESSION['webpath'];
     $keeper = $_SESSION['keeper'];
+
+    //dela with module variables the post
+    $_SESSION['button'] = $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
+    $_SESSION['module'] = $module = $_POST['bb_module'];
+    $_SESSION['slug'] = $slug = $_POST['bb_slug'];
+    $_SESSION['submit'] = $submit = $_POST['bb_submit'];
+    if (($_POST['bb_userrole'] <> "")  && in_array($_POST['bb_userrole'], explode(",", $_SESSION['userroles'])))
+        $_SESSION['userrole'] = $_POST['bb_userrole'];  //double checked when build->locked is call in index
+    
+    //include build object
+    include_once("bb-utilities/bb_build.php");
+    //build object for hooks
+    $build = new bb_build();
+    //need connection
+    $con = $build->connect();
     
     $POST = $_POST;
-    $postdata = json_encode($POST);
     
-    //need both slug and saver
-    $query = "SELECT id, module_name, module_slug FROM modules_table WHERE module_name IN ('" . $module . "');";
-    $result = pg_query($con, $query);
-    $row = pg_fetch_array($result);
-    $slug = $row['module_slug'];
-    $_SESSION['saver'] = $row['id'];
+    $postdata = json_encode($POST);
     
     //set $_POST for $POST
     $query = "UPDATE state_table SET postdata = $1 WHERE id = " . $keeper . ";";
     pg_query_params($con, $query, array($postdata));
     
     //REDIRECT
-    $index_path = "Location: " . dirname($_SERVER['PHP_SELF'])  . "/" . $slug;
-    header($index_path);
+    header("Location: " . $webpath . "/" . $slug);
+    
     die();
+    
 endif;
 ?>

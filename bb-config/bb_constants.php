@@ -35,6 +35,8 @@ define('BB_ARCHIVE_INTERWORKING', 'OFF');
 define('BB_DEFAULT_USERROLE_ASSIGN', '');
 //Use processing image in standard modules (ON/OFF)
 define('BB_PROCESSING_IMAGE', 'OFF');
+//multiselect delimiter for dropdown columns
+define('BB_MULTISELECT_DELIMITER', ',');
 //Turn on log for insert (ON/OFF)
 define('BB_INPUT_INSERT_LOG', 'OFF');
 //Turn on log for update (ON/OFF)

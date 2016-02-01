@@ -27,42 +27,57 @@ If not, see http://www.gnu.org/licenses/
 
 /* END CSS */
 </style>
-
+<script>
+function bb_reload()
+    {    
+    var frmobj = document.forms["bb_form"];
+    
+    bb_submit_form(); //call javascript submit_form function
+	return false;
+    }
+</script>
 <?php
 $main->check_permission("bb_brimbox", 5);
 ?>
 <?php
+$arr_messages = array();
+$arr_options = array('1 day'=>"Preserve 1 Day", '1 week'=>"Preserve 1 Week", '1 month'=>"Preserve 1 Month");
+$arr_options = $build->filter("truncate_array", $arr_options);
+
+end($arr_options);
+$default_truncate_option = key($arr_options);
+reset($arr_options);
+
 /* PRESERVE STATE */
-$POST = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con);
+
+//get state from db
+$arr_state = $main->load($con, $module);
+
+//get truncate option
+$truncate_option = $main->process("truncate_option", $module, $arr_state, $default_truncate_option);
+
+//update state
+$main->update($con, $module, $arr_state);
 
 //This area is for truncating the table
 if ($main->button(1)) //truncate_table
     {
-    $truncate_option = (int)$main->post('truncate_option', $module);
-    //switch based on select option
-    switch ($truncate_option)
-        {
-        case 0:
-            $interval = "1 day";
-            break;
-        case 1:
-            $interval = "1 week";
-            break;
-        case 2:
-            $interval = "1 month";
-            break;
-        }
    //delete query
-   $query = "DELETE FROM log_table WHERE change_date + interval '" . $interval . "' < now();";
-   $main->query($con, $query);
+    $query = "DELETE FROM log_table WHERE change_date + interval '" . $truncate_option . "' < now();";
+    $result = $main->query($con, $query);
+    $num_rows = pg_affected_rows($result);
+    array_push($arr_messages, $num_rows . " rows deleted from log table.");
+    }
    
-   //reset the the table identity upon full truncation
-    if ($truncate_option == 3)
-        {
-        //reset serial id upon truncation
-        $query = "SELECT setval('login_table_id_seq', (SELECT max(id) + 1 from login_table));";
-        $main->query($con, $query);       
-        }
+    
+if ($main->button(2)) //truncate_table
+    {
+    //delete query
+    $query = "DELETE FROM state_table WHERE change_date + interval '" . $truncate_option . "' < now();";
+    $result = $main->query($con, $query);
+    $num_rows = pg_affected_rows($result);
+    array_push($arr_messages, $num_rows . " rows deleted from state table.");
     }
 
 //get all logins, order by date DESC  
@@ -70,9 +85,14 @@ $query = "SELECT * FROM log_table ORDER BY change_date DESC;";
 $result = $main->query($con, $query);
 
 //title
-echo "<p class=\"spaced bold larger\">Manage Log</p>";
+echo "<p class=\"spaced bold larger\">Manage Log and State Tables</p>";
+
+echo "<div class=\"padded\">";
+$main->echo_messages($arr_messages);
+echo "</div>";
 
 //div container with scroll bar
+echo "<div class=\"spaced padded bold\">Log Table</div>";
 echo "<div class=\"spaced padded border logwrap\">";
 echo "<div class=\"table padded\">";
 
@@ -106,22 +126,19 @@ echo "</div>";
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
-$main->echo_module_vars();;
+$main->echo_module_vars();
 
 //truncate_option select tag
-$arr_options = array("Preserve 1 Day", "Preserve 1 Week", "Preserve 1 Month");
-echo "<select class=\"spaced\" name=\"truncate_option\">";
-foreach ($arr_options as $key => $value)
-    {
-    echo "<option value=\"" . $key. "\">" . $value . "</option>";    
-    }
-echo "</select>";
+$params = array('select_class'=>"spaced",'onchange'=>"bb_reload()",'usekey'=>true);
+$main->array_to_select($arr_options, "truncate_option", $truncate_option, $params);
 
 //submit button
-$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Truncate Log");
-$main->echo_button("truncate_table", $params);
+$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Truncate Log Table");
+$main->echo_button("truncate_log", $params);
 
-$main->echo_state($array_state);
+$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Truncate State Table");
+$main->echo_button("truncate_state", $params);
+
 $main->echo_form_end();
 /* END FORM */
 ?>

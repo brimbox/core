@@ -27,7 +27,7 @@ function bb_reload()
     var frmobj = document.forms["bb_form"];
 
     frmobj.offset.value = 1;
-    bb_submit_form(0); //call javascript submit_form function
+    bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 /* END MODULE JAVASCRIPT */
@@ -38,9 +38,8 @@ function bb_reload()
 
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_layouts = $main->layouts($con);
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 //get $_POST
 $POST = $main->retrieve($con);
@@ -48,7 +47,7 @@ $POST = $main->retrieve($con);
 //get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
-$arr_state = $main->load($con, $saver);
+$arr_state = $main->load($con, $module);
 
 //coming from an view link, set $arr_state
 //bb_row_type is empty if not set with javascript, empty works here
@@ -72,22 +71,21 @@ else //get on postback, or populate with input_state if coming from other page
        }
         
 //save state
-$main->update($con, $arr_state, $saver);
+$main->update($con, $module, $arr_state);
 /*** END POSTBACK ***/
 ?>
 <?php
 /*** COLUMN AND LAYOUT INFO ***/
             
 //get xml_column and sort column type
-$arr_columns = $main->get_json($con, "bb_column_names");
-$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+$arr_columns = $main->columns($con, $row_type);
 
 //for the header left join
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
-$arr_layout = $arr_layouts_reduced[$row_type];
-$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
+$parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+$leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
 /*** END COLUMN AND LAYOUT INFO ***/
 
 /* BEGIN REQUIRED FORM */
@@ -101,7 +99,7 @@ echo "<select name=\"col1\" class=\"spaced\" onchange=\"bb_reload()\">";
 echo "<option value=\"create_date\" " . ($col1 == "create_date" ? "selected" : "") . ">Created&nbsp;</option>";
 echo "<option value=\"modify_date\" " . ($col1 == "modify_date" ? "selected" : "") . ">Modified&nbsp;</option>";
 //build field options for column names
-foreach($arr_column_reduced as $key => $value)
+foreach($arr_columns as $key => $value)
     {
     $col = $main->pad("c", $key);
     echo "<option value=\"" . $col . "\" " . ($col == $col1 ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
@@ -153,9 +151,9 @@ if ($post_key > 0) //viewing children of record
 		echo "<div class =\"margin divider\">";
 		$main->return_header($row, "bb_cascade");
 		echo "<div class=\"clear\"></div>";	
-  		$count_rows = $main->return_rows($row, $arr_column_reduced);
+  		$count_rows = $main->return_rows($row, $arr_columns);
 		echo "<div class=\"clear\"></div>";		 
-		$main->output_links($row, $arr_layouts_reduced, $userrole);
+		$main->output_links($row, $arr_layouts, $userrole);
 		echo "<div class=\"clear\"></div>";
         echo "</div>";	 
   		}

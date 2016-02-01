@@ -34,7 +34,9 @@ class bb_less_substituter {
         $i = 0;
         
         //descend into recursion
+        echo "<style>";
         $this->recurse($arr_css, $arr_trans, $i);
+        echo "</style>";
         }
         
     //load file into string and explode into array    

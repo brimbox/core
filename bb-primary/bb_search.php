@@ -33,20 +33,20 @@ function bb_reload()
     var frmobj = document.forms["bb_form"];
     
     frmobj.offset.value = 1;
-    bb_submit_form(1);
+    bb_submit_form([1]);
 	return false;
     }
 </script>
 <?php
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
+$arr_layouts = $main->layouts($con);
+
 //default row_type is 0, for all layouts
 $fulltext_state = strtolower($main->get_constant('BB_FULLTEXT_STATE', 'word'));
 
 //message pile
-$arr_message = array();
+$arr_messages = array();
 
 /* BEGIN STATE AND POSTBACK PROCESS */
 //get $_POST
@@ -56,7 +56,7 @@ $POST = $main->retrieve($con);
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
     
 //get state
-$arr_state = $main->load($con, $saver);
+$arr_state = $main->load($con, $module);
 
 $search = $main->process('search', $module, $arr_state, "");
 //make a copy
@@ -67,8 +67,8 @@ $row_type = $main->process('row_type', $module, $arr_state, 0);
 //archive flag checkbox
 $archive_flag = $main->process('archive_flag', $module, $arr_state, 0);
 
-//back to string
-$main->update($con, $arr_state, $saver);
+//save state
+$main->update($con, $module, $arr_state);
 /* END STATE PROCESS */
 
 /* PARSE SEARCH STRING */
@@ -78,10 +78,10 @@ $boolean_parse->splice_or_tokens = true;
 //use 0 & 1 in case other states evolve
 $boolean_parse->splice_wildcard = ($fulltext_state == "begin") ? 1 : 0;
 $message = $boolean_parse->parse_boolean_string($search_parsed);
-array_push($arr_message, $message); 
+array_push($arr_messages, $message); 
 
 /* GET LAYOUT */
-$arr_columns = $main->get_json($con, "bb_column_names");
+$all_columns = $main->get_json($con, "bb_column_names");
 
 /* BEGIN REQUIRED FORM */
 //search form
@@ -92,7 +92,7 @@ echo "<div class=\"center\">";
 //search vars
 echo "<input type=\"text\" name=\"search\" class = \"spaced\" size=\"35\" value = \"" . htmlentities($search) . "\"/>";
 $params = array("all"=>true);
-$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
 //button and end form
@@ -140,14 +140,14 @@ if ($main->blank($message))
     //parent columns could come from a variety of rows
 	//left join cols, get all possible columns, and then make them distict with _left
     $arr_parent_columns = array(0=>"c01"); //default value, if not set
-    foreach ($arr_layouts_reduced as $value)  //loop through arr_layout
+    foreach ($arr_layouts as $value)  //loop through arr_layout
         {
         if ($value['parent'] > 0) //indicator set to zero when xml made into array
             {
             $parent_row_type = $value['parent']; //parent row type will be zero if not set
-            if (isset($arr_columns[$parent_row_type]['primary']))
+            if (isset($all_columns[$parent_row_type]['primary']))
                 {
-                $column = $main->pad("c", $arr_columns[$parent_row_type]['primary']);
+                $column = $main->pad("c", $all_columns[$parent_row_type]['primary']);
                 array_push($arr_parent_columns, $column); //push on stack
                 }             
             }
@@ -178,7 +178,7 @@ if ($main->blank($message))
     $cnt_rows = $main->return_stats($result);
     if ($cnt_rows == 0)
         {
-        array_push($arr_message, "No rows have been found");    
+        array_push($arr_messages, "No rows have been found");    
         }
         
     while($row = pg_fetch_array($result))
@@ -186,10 +186,10 @@ if ($main->blank($message))
         //this sets the correct column xml -- each iteration requires new columns
         //$xml is global so there is only one round trip to the db per page load
         //get row type from returned rows
-        $arr_column_reduced = $main->filter_keys($arr_columns[$row['row_type']]);
+        $arr_columns = $main->reduce($all_columns, $row['row_type'], false);
         
         //get the primary column and set $row['hdr'] based on primary header      
-        $parent_row_type = $arr_layouts_reduced[$row['row_type']]['parent'];
+        $parent_row_type = $arr_layouts[$row['row_type']]['parent'];
         $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
      
         $row['hdr'] = $row[$leftjoin . "_left"];
@@ -198,9 +198,9 @@ if ($main->blank($message))
         echo "<div class =\"margin divider\">";
         $main->return_header($row, "bb_cascade");
         echo "<div class=\"clear\"></div>";
-        $count_rows = $main->return_rows($row, $arr_column_reduced);
+        $count_rows = $main->return_rows($row, $arr_columns);
         echo "<div class=\"clear\"></div>";				
-        $main->output_links($row, $arr_layouts_reduced, $userrole);
+        $main->output_links($row, $arr_layouts, $userrole);
         echo "<div class=\"clear\"></div>";
         echo "</div>";	 
         }
@@ -208,7 +208,7 @@ if ($main->blank($message))
 /*END RETURN ROWS */
 
 echo "<div class=\"center\">";
-$main->echo_messages($arr_message);
+$main->echo_messages($arr_messages);
 echo "</div>";
 
 $main->page_selector("offset", $offset, $count_rows, $return_rows, $pagination);

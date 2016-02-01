@@ -1,0 +1,53 @@
+/*
+Copyright (C) 2012 - 2015  Kermit Will Richardson, Brimbox LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+as published by the Free Software Foundation. 
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU GPL v3 for more details. 
+
+You should have received a copy of the GNU GPL v3 along with this program.
+If not, see http://www.gnu.org/licenses/
+*/
+
+/* LESS COLORS */
+
+/* These are the Tab Colors */
+@bb_tab_text_color : #56006F;
+@bb_tab_background_color : #F2EAFF;
+@bb_tab_hover_color : #F6F0FF;
+@bb_tab_chosen_color : #FFFFFF;
+
+/* Border and Divider Colors */
+@bb_border_color : #A070B6;
+
+/* Controller and Index Color */
+@bb_controller_image_width : 728px;
+@bb_controller_image_height : 54px;
+@bb_controller_message_color : #56006F;
+
+/* CUSTOM LESS */
+
+@import "bb-config/bb_admin_less.less";
+
+/* CONTROLLER AREA */
+
+#bb_header #controller_image { width: @bb_controller_image_width; height: @bb_controller_image_height; }
+#bb_header #controller_message { color: @bb_controller_message_color; }
+#bb_admin_content { border-top: 1px solid @bb_border_color; border-left: 1px solid @bb_border_color; } #bb_header div.line { border-color: @bb_border_color; } 
+#bb_header div.under { border-top-color: @bb_border_color; }   
+#bb_header button { color: @bb_tab_text_color; background: @bb_tab_background_color; border-color: @bb_border_color;}
+#bb_header button:hover{ background: @bb_tab_hover_color; }
+#bb_header button.chosen { background: @bb_tab_chosen_color; }
+
+/* END CONTROLLER AREA */
+
+
+
+
+
+

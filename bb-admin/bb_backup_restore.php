@@ -21,7 +21,7 @@ $main->check_permission("bb_brimbox", 5);
 ?>
 <?php
 /* INTITALIZE */
-$arr_message = array();
+$arr_messages = array();
 set_time_limit(0);
 $arr_layouts = $main->get_json($con,"bb_layout_names");
 $arr_layouts_reduced = $main->filter_keys($arr_layouts);
@@ -32,7 +32,7 @@ $row_type = 0;
 $processing_image = $main->on_constant('BB_PROCESSING_IMAGE');
 
 /* RETRIEVE STATE */
-$POST = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con);
 
 include("bb_backup_restore_extra.php");
 
@@ -59,12 +59,12 @@ if ($main->button(1)) //submit_file
 	$valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
 	if (!$valid_password)
 		{
-		array_push($arr_message, "Invalid Password.");	
+		array_push($arr_messages, "Invalid Password.");	
 		}
 	else
 		{
 		$main->cleanup_database_data($con);
-		array_push($arr_message, "Database Data has been cleaned of unwanted tabs and new lines.");
+		array_push($arr_messages, "Database Data has been cleaned of unwanted tabs and new lines.");
 		}
 	}
 //CLEAN DATABASE COLUMN	
@@ -73,12 +73,12 @@ if ($main->button(2)) //clean_up_columns
 	$valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
 	if (!$valid_password)
 		{
-		array_push($arr_message, "Invalid Password.");	
+		array_push($arr_messages, "Invalid Password.");	
 		}
 	else
 		{
 		$main->cleanup_database_columns($con);
-		array_push($arr_message, "Unused database columns have been emptied and cleaned.");
+		array_push($arr_messages, "Unused database columns have been emptied and cleaned.");
 		}
     }
 	
@@ -88,12 +88,12 @@ if ($main->button(3)) //clean_up_columns
 	$valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
 	if (!$valid_password)
 		{
-		array_push($arr_message, "Invalid Password.");	
+		array_push($arr_messages, "Invalid Password.");	
 		}
 	else
 		{
 		$main->cleanup_database_layouts($con);
-		array_push($arr_message, "Unused database layouts have been removed.");
+		array_push($arr_messages, "Unused database layouts have been removed.");
 		}
     }
 
@@ -104,7 +104,7 @@ if ($main->button(4)) //submit_file
     $valid_password = $main->validate_password($con, $main->post("admin_passwd_1", $module), "5_bb_brimbox");
     if (!$valid_password)
         {
-        $arr_message[] = "Error: Admin password not verified.";
+        $arr_messages[] = "Error: Admin password not verified.";
         }
     else
         {
@@ -174,7 +174,7 @@ if ($main->button(4)) //submit_file
                         //install triggers indexes etc
                         $query = $json_after_eot;
                         $main->query($con, $query);
-                        array_push($arr_message, "JSON table has been restored from backup.");
+                        array_push($arr_messages, "JSON table has been restored from backup.");
                         }
                     else //advance file pointer
                         {
@@ -211,7 +211,7 @@ if ($main->button(4)) //submit_file
                             }
                         $query = $users_after_eot;
                         $main->query($con, $query);
-                        array_push($arr_message, "Users table has been restored from backup.");
+                        array_push($arr_messages, "Users table has been restored from backup.");
                         }
                     else
                         {
@@ -247,7 +247,7 @@ if ($main->button(4)) //submit_file
                             }
                         $query = $modules_after_eot;
                         $main->query($con, $query);
-                        array_push($arr_message, "Modules table has been restored from backup.");
+                        array_push($arr_messages, "Modules table has been restored from backup.");
                         }
                     else
                         {
@@ -281,7 +281,7 @@ if ($main->button(4)) //submit_file
                             }
                         $query = $log_after_eot;
                         $main->query($con, $query);
-                        array_push($arr_message, "Log table has been restored from backup.");
+                        array_push($arr_messages, "Log table has been restored from backup.");
                         }
                     else
                         {
@@ -345,7 +345,7 @@ if ($main->button(4)) //submit_file
                         $query = $data_after_eot;
                         $main->query($con, $query);
                         
-                        array_push($arr_message, "Data table has been restored from backup.");
+                        array_push($arr_messages, "Data table has been restored from backup.");
                         }
                     else //close file if not restoring data table
                         {
@@ -354,17 +354,17 @@ if ($main->button(4)) //submit_file
                     } //hash password test
                 else //bad password
                     {
-                    array_push($arr_message, "Error: Password for backup file not verified.");	
+                    array_push($arr_messages, "Error: Password for backup file not verified.");	
                     }
                 } //first line check
             else //bad first line
                 {
-                array_push($arr_message, "Error: File is not a valid backup file.");	
+                array_push($arr_messages, "Error: File is not a valid backup file.");	
                 }
             } //file exists
         else //no file at all
             {
-            array_push($arr_message, "Error: Must choose backup file.");
+            array_push($arr_messages, "Error: Must choose backup file.");
             }
         } //check admin password
 	}
@@ -374,7 +374,7 @@ if ($main->button(4)) //submit_file
 if ($main->button(5)) //submit_file
 	{
 	$main->build_indexes($con, 0);
-	array_push($arr_message, "Indexes have been rebuilt.");
+	array_push($arr_messages, "Indexes have been rebuilt.");
 	}
     
 if ($main->button(6)) //submit_file
@@ -383,7 +383,7 @@ if ($main->button(6)) //submit_file
     $valid_password = $main->validate_password($con, $main->post("admin_passwd_2", $module), "5_bb_brimbox");
     if (!$valid_password)
         {
-        $arr_message[] = "Error: Admin password not verified.";
+        $arr_messages[] = "Error: Admin password not verified.";
         }
     else
         {
@@ -457,30 +457,30 @@ if ($main->button(6)) //submit_file
                                 pg_lo_close($lo);
                                 }
                             pg_query($con, "COMMIT");
-                            array_push($arr_message, "Files have been restored from backup.");
+                            array_push($arr_messages, "Files have been restored from backup.");
                             } //count or lo_open
                         } //total
                     }
                 else //bad password
                     {
-                    array_push($arr_message, "Error: Password for backup file not verified.");	
+                    array_push($arr_messages, "Error: Password for backup file not verified.");	
                     }
                 } //first line check
             else //bad first line
                 {
-                array_push($arr_message, "Error: File is not a valid backup file.");	
+                array_push($arr_messages, "Error: File is not a valid backup file.");	
                 }
             } //file exists
         else //no file at all
             {
-            array_push($arr_message, "Error: Must choose backup file.");
+            array_push($arr_messages, "Error: Must choose backup file.");
             }
         }
     }
 
-$arr_message = array_unique($arr_message);
+$arr_messages = array_unique($arr_messages);
 echo "<div class=\"spaced\">";
-$main->echo_messages($arr_message);
+$main->echo_messages($arr_messages);
 echo "</div>";	
 	
 /* START REQUIRED FORM */
@@ -586,7 +586,6 @@ echo "<input class=\"spaced\" type=\"password\" name=\"file_passwd_2\"/></div>";
 $params = array("class"=>"spaced","number"=>6,"image"=>$processing_image, "passthis"=>true, "label"=>"Restore Files");
 $main->echo_button("restore_lo", $params);
 echo "</div><br>";
-$main->echo_state($array_state);
 $main->echo_form_end();
 /* END FORM */
 ?>

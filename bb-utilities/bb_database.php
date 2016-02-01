@@ -31,6 +31,10 @@ If not, see http://www.gnu.org/licenses/
 //full_text
 //process_related
 //unique_key
+//relate_check
+//relate_row_type
+//relate_post_key
+//relate_value
 	
 class bb_database {
 	
@@ -46,7 +50,7 @@ class bb_database {
 		return $con;
 		}
 	
-	function query($con, $query, $display = false)
+	function query($con, $query, $display = true)
 		{
 		//standard query will die on error
 		$result = pg_query($con, $query);
@@ -92,7 +96,7 @@ class bb_database {
 		//gets an xml object from the xml_table
 		$query = "SELECT jsondata FROM json_table WHERE lookup IN ('" . pg_escape_string($lookup) . "');";
 	
-		$result = $this->query($con, $query);
+		$result = static::query($con, $query);
 		
 		$row = pg_fetch_array($result);
 		$json = $row['jsondata'];
@@ -105,7 +109,7 @@ class bb_database {
 		//update xml_table with a whole xml object
 		$query = "UPDATE json_table SET jsondata = '" . pg_escape_string(json_encode($arr)) . "' WHERE lookup = '" . $lookup . "';";
 	
-		$this->query($con, $query);
+		static::query($con, $query);
 		}
 		
 	function get_next_node($arr, $limit)
@@ -168,13 +172,13 @@ class bb_database {
 		if (isset($value)) //set column part
 			{
 			//proceed if not blank and relate is set
-			if (!$this->blank($str) && ($value['relate'] > 0))
+			if (!static::blank($str) && ($value['relate'] > 0))
 				{
 				//proper string, else bad
-				if ($this->relate_check($str))
+				if (static::relate_check($str))
 					{
-					$row_type_relate = $this->relate_row_type($str);
-					$post_key_relate = $this->relate_post_key($str);
+					$row_type_relate = static::relate_row_type($str);
+					$post_key_relate = static::relate_post_key($str);
 					//proper row_type, else bad
 					if ($value['relate'] == $row_type_relate) //check related
 						{
@@ -207,7 +211,7 @@ class bb_database {
 		$select_where_not = "SELECT 1 WHERE 1 = 0";
 		if ($unique_key) //no key = 0
 			{
-			$unique_column = $this->pad("c", $unique_key);
+			$unique_column = static::pad("c", $unique_key);
 			//edit
 			if ($edit_or_insert)
 				{
@@ -219,6 +223,34 @@ class bb_database {
 				$select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";				
 				}
 			}    
+		}
+					
+	//get the row_type from a related field	
+	function relate_check($related)
+		{
+		if (preg_match("/^[A-Z]\d+:.*/", $related))
+			{
+			return true;
+			}
+		return false;	
+		}
+		
+	//get the row_type from a related field	
+	function relate_row_type($related)
+		{
+		return ord(substr($related,0,1)) - 64;	
+		}
+		
+	//get post_key or id from related field
+	function relate_post_key($related)
+		{
+		return substr($related,1, strpos($related,":") - 1);	
+		}
+			
+	//gets primary string from related field
+	function relate_value($related)
+		{
+		return substr($related, strpos($related,":") + 1);	
 		}
 		
 } //end class

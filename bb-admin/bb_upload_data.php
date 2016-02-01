@@ -24,479 +24,79 @@ function bb_reload()
     //this goes off when row_type is changed    
     var frmobj = document.forms["bb_form"];
     
-    bb_submit_form(0); //call javascript submit_form function
+    bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 </script>
 
 <?php
 /* PRESERVE STATE */
-$POST = $main->retrieve($con, $array_state);
+$POST = $main->retrieve($con);
 
-$arr_message = array();	
-$arr_relate = array(41,42,43,44,45,46);
-$arr_file = array(47);
-$arr_reserved = array(48);
-$arr_notes = array(49,50);
-		
+//get state from db
+$arr_state = $main->load($con, $module);
+
 //get layouts
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
-$arr_columns = $main->get_json($con, "bb_column_names");
-//get guest index
-$arr_header = $main->get_json($con, "bb_interface_enabler");
-$arr_guest_index = $arr_header['guest_index']['value'];
+$arr_layout = $main->layouts($con);
+$default_row_type = $main->get_default_layout($arr_layout);
 
-//will handle postback
-$row_type = $main->post('row_type', $module, $default_row_type); 
-$data = $main->post('bb_data_area', $module);
-$data_file = $main->post('bb_data_file_name', $module, "default");
-$edit_or_insert = $main->post('edit_or_insert', $module, 0);
+$row_type = $main->state('row_type', $arr_state, $default_row_type); 
+$data_area = $main->state('data_area', $arr_state, "");
+$data_stats = $main->state('data_stats', $arr_state, "");
+$data_file = $main->state('data_file', $arr_state, "default");
+$edit_or_insert = $main->state('edit_or_insert', $arr_state, 0);
+    
+$arr_messages = $main->state('arr_messages', $arr_state, array());
+$arr_errors_all = $main->state('arr_errors_all', $arr_state, array());
+$arr_messages_all = $main->state('arr_messages_all', $arr_state, array());
+//update state, back to db
+$main->update($con, $module, $arr_state);
 
 //get column names based on row_type/record types
 $arr_layout = $arr_layouts_reduced[$row_type];
-$parent = $arr_layout['parent'];
-//need unreduced column
-$arr_column = $main->filter_init($arr_columns[$row_type]);
-$arr_column_reduced = $main->filter_keys($arr_column);
-//get dropdowns for validation
-$arr_dropdowns = $main->get_json($con, "bb_dropdowns");
 
-//get column names for layout    
-if ($main->button(1)) 
-	{
-    if (!$parent && !$edit_or_insert)
-        {
-        $arr_implode = array();    
-        }
-    else
-        {
-        $arr_implode = array("Link");    
-        }
-    foreach ($arr_column_reduced as $value)
-        {
-        array_push($arr_implode, $value['name']); 
-        }
-    $data = implode("\t", $arr_implode) . PHP_EOL;
-	}
+//button 1
+//get column names for layout
 
-//submit file to textarea	
-if ($main->button(2)) //submit_file
-	{
-	if (is_uploaded_file($_FILES[$main->name('upload_file', $module)]["tmp_name"]))
-		{
-		$data = file_get_contents($_FILES[$main->name('upload_file', $module)]["tmp_name"]);
-		}
-	else
-		{
-		$message = "Must specify file name.";
-		}
-	}
+//button 2
+//submit file to textarea
 
-//post data to database	
-if ($main->button(3)) //submit_data
-    {
-    $arr_lines = explode(PHP_EOL, trim($data));
-    $cnt = count($arr_lines);
-    
-    /* Check Header */
-    $check_header = true;
-    $arr_row = explode("\t", trim($arr_lines[0]));
-    $i = 0;
-    if (($parent) || $edit_or_insert)
-        {
-        //link corresponds to database id
-        if (strcasecmp($arr_row[0], "Link"))
-            {
-            $check_header = false;
-            }
-        $i = 1;
-        }   
-	foreach($arr_column_reduced as $value)
-		{
-        //there is a value to check
-        if (isset($arr_row[$i]))
-            {
-            if (strcasecmp($value['name'], $arr_row[$i]))
-                {
-                $check_header = false;
-                }
-            }
-        //no value to check
-        else
-            {
-            $check_header = false;    
-            }
-		$i++;
-		}
-    /* End Check Header */
-    
-    //check header checks that the first line of data matches $xml_column
-    //$arr_lines may need trim function
-	if ($check_header)
-		{
-        $data = "";
-        //$i counts the current number of columns and is used to set up query params
-        //$j is the number of rows of data, 0 is header row, 1 starts data
-        //$m is the unique key position in the line array
-        //$l is the position in line array when validating
-        //$k is used when line is short, to add empty array vars
-		
-        $i = 1;
-        $unique_key = isset($arr_column['layout']['unique']) ? $arr_column['layout']['unique'] : 0;
-		foreach ($arr_column_reduced as $key => $value)
-			{
-			//used later $i is number of columns  
-            //also find unique value/key index
-            if ($key == $unique_key)
-                {
-                $m = $i;
-                }
-            $i++;		 
-			}	
-        
-        /* START LOOP */
-        //loops through each row of data
-        $a = 0; //count of rows entered
-        for ($j=1; $j<$cnt; $j++)
-			{
-            //bad line boolean
-            $line_error = false;
-            //trim and add key1 if no link
-            $line = (!$parent && !$edit_or_insert) ? "-1" . "\t" . trim($arr_lines[$j]) : $line = trim($arr_lines[$j]);
-			
-            //put data row into array            
-			$arr_line = explode("\t", $line);
-            //trim to remove all spaces
-            $arr_line = array_map('trim',$arr_line);
-            
-            if (count($arr_line) > $i)
-                {
-                //line too long
-                $line_error = true;
-                }    
-            else
-                {
-                //add onto short line
-                for ($k=count($arr_line); $k<$i; $k++) 
-                    {
-                    //if a line is shorter than a 
-                    $arr_line[$k] = ""; //tricky, k happens to be the array value, one less
-                    }
-                //continue inside else
-                //validate key1 if link is set                
-                if (!ctype_digit($arr_line[0]) && (($parent <> 0) || $edit_or_insert))
-                    {
-                    //check that link is int
-                    $line_error = true;
-                    }
-                else
-                    {               
-                    $l = 1;
-                    foreach($arr_column_reduced as $key => $value)
-                        {
-                        /* START VALIDATION LOOP*/                       
-                        $type = $value['type'];
-                        //EDIT
-                        if ($edit_or_insert && !$main->blank($arr_line[$l]))
-                            {
-                            //Note field or regular
-                            $quotes = in_array($key, $arr_notes) ? false : true;
-                            $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
-                            $return_validate = false; //why not initialize                            
-                            //populated string = error
-                            //boolean true is populated
-                            //standard validatation on non empty rows
-                            if (!$main->blank($arr_line[$l]))
-                                {
-                                $return_validate = $main->validate_logic($con, $type, $arr_line[$l], true);
-                                //$arr_line[$l] passed as a reference and may change
-                                if (!is_bool($return_validate))
-                                    {
-                                    $line_error = true;
-                                    break;
-                                    }
-                                //dropdown validation could could check for empty value
-                                //not used in input routine, could both validate on dropdown and type
-                                //can have blank dropdown
-                                if (isset($arr_dropdowns[$row_type][$key]))
-                                    {
-                                    $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
-                                    $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
-                                    if (!is_bool($return_validate))
-                                        {
-                                        $line_error = true;
-                                        break;   
-                                        }
-                                    }
-                                }
-                            }                        
-                        //INSERT
-                        elseif (!$edit_or_insert) 
-                            {                        
-                            $required_flag = $value['required'] == 1 ? true : false;       
-                            //actual database column name
-                            $quotes = in_array($key, $arr_notes) ? false : true;
-                            $arr_line[$l] = $main->purge_chars($arr_line[$l], $quotes);
-                            $return_required = false; //boolean false for not required
-                            $return_validate = false; //why not initialize                            
-                            //check required field  
-                            if ($required_flag)
-                                {
-                                $return_required = $main->validate_required($arr_line[$l], true);    
-                                }
-                            //populated string = error
-                            //boolean true is populated
-                            if (!is_bool($return_required))
-                                {
-                                $line_error = true;
-                                break;
-                                }
-                            else  //another else
-                                {
-                                //standard validatation on non empty rows
-                                //empty row always valid in this sense
-                                if (!$main->blank($arr_line[$l]))
-                                    {
-                                    $return_validate = $main->validate_logic($con, $type, $arr_line[$l], true);
-                                    //string is error
-                                    //$arr_line[$l] passed as a reference and may change
-                                    if (!is_bool($return_validate))
-                                        {
-                                        $line_error = true;
-                                        break;
-                                        }
-                                    //dropdown validation could could check for empty value
-                                    //not used in input routine, could both validate on dropdown and type
-                                    //cannot blank a dropdown on edit record
-                                    }
-                                if (isset($arr_dropdowns[$row_type][$key]))
-                                    {
-                                    $dropdown = $main->filter_keys($arr_dropdowns[$row_type][$key]);
-                                    $return_validate = $main->validate_dropdown($arr_line[$l], $dropdown, true);
-                                    if (!is_bool($return_validate))
-                                        {
-                                        $line_error = true;
-                                        break;   
-                                        }
-                                    }
-                                }//if required
-                            }//edit or insert
-                        $l++;
-                        }//end validation loop
-                    } //check that key is integer 
-                } //line too long         
-
-             if (!$line_error)
-                {
-                $owner = $main->purge_chars($username);
-                $post_key = $arr_line[0];
-                
-                $arr_ts_vector_fts = array();
-                $arr_ts_vector_ftg = array();
-                $arr_select_where = array();
-                $i = 1;                    
-
-                if ($edit_or_insert)
-                    {
-                    $update_clause = "updater_name = '" . pg_escape_string($owner) . "'";
-                                      
-                    foreach($arr_column_reduced as $key => $child)
-                        {
-                        $col = $main->pad("c",$key);
-                        $str = $arr_line[$i];
-                        
-                        //build update clause
-                        if (!$main->blank($str))
-                            {
-                            $update_clause .= "," . $col . " =  '" . pg_escape_string($str) . "'";
-                            }
-                                                        
-                       	$search_flag = ($value['search'] == 1) ? true : false;				
-                        //populate guest index array, can be reassigned in module Interface Enable
-                        $arr_guest_index = $arr_header['guest_index']['value'];
-                        
-                        //local function call, see top of module
-                        $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $value, $str, $arr_guest_index);
-                        
-                        //local function call, see top of module
-                        if (in_array($key, array(41,42,43,44,45,46)))
-                            {
-                            $main->process_related($arr_select_where, $arr_layouts_reduced, $value, $str);    
-                            }
-                        $i++;
-                        } //end column loop
-                
-                    //explode full text update
-                    $str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
-                    $str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
-                    
-                    //explode relate check array
-                    $select_where = empty($arr_select_where) ? "SELECT 1" : "SELECT 1 FROM data_table WHERE (" . implode(" OR ", $arr_select_where) . ") HAVING count(*) = " . (int)count($arr_select_where);
-
-                    //no security, security stays the same
-                    
-                    //check for unique key
-                    //key exists must check for duplicate value
-                    //$select_where_not & $unique_key passed and created as reference
-                    $unique_key = 0; //initital values
-                    $unique_value = "";
-                    if (isset($arr_column['layout']['unique']))
-                        {
-                        $unique_key = $arr_column['layout']['unique'];
-                        $m = 1;		
-                        foreach ($arr_column_reduced as $key => $value)
-                            {
-                            //used later $i is number of columns  
-                            //also find unique value/key index
-                            if ($key == $unique_key)
-                                {
-                                $n = $m;
-                                break;
-                                }
-                            $m++;		 
-                            }
-                        $unique_value = isset($arr_line[$n]) ? $arr_line[$n] : "";
-                        }
-                    $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
-                        
-                    $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " .
-                             "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ");";                 
-                    $result = $main->query($con, $query);
-                    //echo "<p>" . $query . "</p>";                    
-                    if (pg_affected_rows($result) == 1)
-                        {
-                        $a++;
-                        }
-                    else
-                        {
-                        array_push($arr_message,"Error: Some rows returned because of duplicate keys or invalid links.");
-                        $data .= $arr_lines[$j] . PHP_EOL;
-                        }            		
-                    }
-                else
-                    {
-                    $insert_clause = "row_type, key1, owner_name, updater_name";
-                    $select_clause = $row_type . " as row_type, " . $post_key . " as key1, '" . $owner . "' as owner_name, '" . $owner . "' as updater_name";
-        
-                    foreach($arr_column_reduced as $key => $child)
-                        {
-                        $col = $main->pad("c",$key);
-                        $str = pg_escape_string($arr_line[$i]);
-                        //unique value
-                        if (isset($arr_column['layout']['unique']))
-                            {
-                            if (($arr_column['layout']['unique']) == $key) $unique_value = trim($str);
-                            }                        
-                        $insert_clause .= "," . $col;
-                        $select_clause .= ", '" . $str . "'";
-                        $search_flag = ($child['search'] == 1) ? true : false;
-                        //guest flag
-                        //local function call, see top of module
-                        $main->full_text($arr_ts_vector_fts, $arr_ts_vector_ftg, $value, $str, $arr_guest_index);
-                        
-                        //local function call, see top of module
-                        if (in_array($key, array(41,42,43,44,45,46)))
-                            {
-                            $main->process_related($arr_select_where, $arr_layouts_reduced, $value, $str);    
-                            }
-                        $i++;
-                        }
-                        //end column loop		
-                    
-                    $str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
-                    $str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
-                    
-                    $insert_clause .= ", fts, ftg, secure, archive ";
-                    $select_clause .= ", to_tsvector(" . $str_ts_vector_fts . ") as fts, to_tsvector(" . $str_ts_vector_ftg . ") as ftg, ";
-                    $select_clause .= "CASE WHEN (SELECT  coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, "; 
-                    $select_clause .= "CASE WHEN (SELECT  coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
-                    
-                    //check for unique key
-                    //key exists must check for duplicate value
-                    //$select_where_not & $unique_key passed and created as reference
-                    $unique_key = 0; //initital values
-                    $unique_value = "";
-                    if (isset($arr_column['layout']['unique']))
-                        {
-                        $unique_key = $arr_column['layout']['unique'];
-                        $m = 1;		
-                        foreach ($arr_column_reduced as $key => $value)
-                            {
-                            //used later $i is number of columns  
-                            //also find unique value/key index
-                            if ($key == $unique_key)
-                                {
-                                $n = $m;
-                                break;
-                                }
-                            $m++;		 
-                            }
-                        $unique_value = isset($arr_line[$n]) ? $arr_line[$n] : "";
-                        }
-                    $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_type, $post_key);
-                    
-                    //parent row has been deleted, multiuser situation, check on inser                    
-                    $select_where_exists = "SELECT 1";
-                    if ($post_key > 0)
-                        {
-                        $select_where_exists = "SELECT 1 FROM data_table WHERE id IN (" . $post_key . ") AND row_type IN (" . $parent . ")";
-                        }
-                    //main query
-                    $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ");";
-                    //echo "<p>" . $query . "</p>";
-                    //print_r($arr_insert);
-                    $result = $main->query($con, $query);
-                    if (pg_affected_rows($result) == 1)
-                        {
-                        $a++;
-                        }
-                    else
-                        {
-                        array_push($arr_message,"Error: Some rows returned because of duplicate keys or invalid links.");
-                        $data .= $arr_lines[$j] . PHP_EOL;
-                        }                  		
-                    } //else insert row
-                } //$insert_or_update
-            else
-                {
-                //validation error
-                array_push($arr_message,"Error: Some rows returned because data not validated or required values missing."); 
-                $data .= $arr_lines[$j] . PHP_EOL;   
-                }	
-			} /* END FOR LOOP */
-			
-        if (!empty($data))
-            {
-            $data = $arr_lines[0] . PHP_EOL . $data;
-            }
-        if ($a > 0)
-            {
-            if ($edit_or_insert)
-                {
-                array_push($arr_message, $a ." database row(s) edited.");    
-                }
-            else
-                {
-                array_push($arr_message, $a ." row(s) entered into the database.");
-                }
-            }
-		}        
-	else
-		{
-		array_push($arr_message,"Error: Header row does not match the column names of layout chosen.");
-		}
-	}
+//button 3
+//post data to database
 
 //title
 echo "<p class=\"spaced bold larger\">Upload Data</p>";
-
-$arr_message = array_unique($arr_message);
-echo "<div class=\"spaced\">";
-$main->echo_messages($arr_message);
-echo "</div>";
-
+if (count($arr_messages) > 0)
+    {
+    echo "<div class=\"spaced\">";
+    $main->echo_messages($arr_messages);
+    echo "</div>";
+    }
+if ($data_stats['not_validated'])
+    {
+    echo "<div class=\"spaced\">";
+    echo "<p>" . $data_stats['not_validated'] . " row(s) rejected because data validation errors.</p>";
+    $main->echo_messages($arr_errors_all);
+    echo "</div>";
+    }
+if ($data_stats['not_inputted'])
+    {
+    echo "<div class=\"spaced\">";
+    echo "<p>" . $data_stats['not_inputted'] . " row(s) rejected by insert algorithm.</p>";
+    $main->echo_messages($arr_messages_all);
+    echo "</div>";
+    }
+if ($data_stats['inputted'])
+    {
+    echo "<div class=\"spaced\">";
+    if ($edit_or_insert == 0)
+        echo "<p>" . $data_stats['inputted'] . " row(s) inserted into database.</p>";
+    if ($edit_or_insert == 1)
+         echo "<p>" . $data_stats['inputted'] . " database row(s) edited.</p>";
+    if ($edit_or_insert == 2)
+        echo "<p>" . $data_stats['inputted'] . " database row(s) updated.</p>";
+    echo "</div>";
+    }
 
 /* START REQUIRED FORM */
 $main->echo_form_begin(array("type"=>"enctype=\"multipart/form-data\""));
@@ -505,14 +105,14 @@ $main->echo_module_vars();;
 //upload row_type calls dummy function
 echo "<div class=\"spaced border floatleft padded\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layout, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Get Upload Header");
 $main->echo_button("get_header", $params);
 echo "</div>";
 echo "<div class=\"clear\"></div>";
 echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
-echo "<input type=\"text\" name=\"bb_data_file_name\" value=\"" . $data_file . "\" class=\"spaced\">";
+echo "<input type=\"text\" name=\"data_file\" value=\"" . $data_file . "\" class=\"spaced\">";
 echo "<input type=\"hidden\" name=\"bb_data_file_extension\" value=\"txt\" class=\"spaced\">";
 $params = array("class"=>"spaced","onclick"=>"bb_submit_link('bb-links/bb_upload_data_link.php')", "label"=>"Download Data Area");
 $main->echo_script_button("dump_button", $params);
@@ -526,12 +126,11 @@ $main->echo_button("submit_file", $params);
 $label = "Post " . $arr_layout['plural'];
 $params = array("class"=>"spaced","number"=>3,"target"=>$module, "passthis"=>true, "label"=>$label);
 $main->echo_button("submit_data", $params);
-$arr_select = array("Insert","Edit");
+$arr_select = array("Insert","Edit","Update");
 $main->array_to_select($arr_select, "edit_or_insert", $edit_or_insert, array('usekey'=>true,'select_class'=>"spaced"));
 echo "</div>";
 echo "<div class=\"clear\"></div>";
-echo "<textarea class=\"spaced\" name=\"bb_data_area\" cols=\"160\" rows=\"25\" wrap=\"off\">" . $data . "</textarea>";
-$main->echo_state($array_state);
+echo "<textarea class=\"spaced\" name=\"data_area\" cols=\"160\" rows=\"25\" wrap=\"off\">" . $data_area . "</textarea>";
 $main->echo_form_end();
 /* END FORM */
 ?>

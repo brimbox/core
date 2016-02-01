@@ -50,10 +50,8 @@ function bb_select_field(div_id)
 <?php
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$arr_columns = $main->get_json($con, "bb_column_names");
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_layouts = $main->layouts($con);
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 $arr_relate = array(41,42,43,44,45,46);
 $arr_file = array(47);
@@ -61,7 +59,7 @@ $arr_reserved = array(48);
 $arr_notes = array(49,50);
 
 //message pile
-$arr_message = array();
+$arr_messages = array();
 
 /* START STATE AND DETAILS POSTBACK */
 //get $_POST
@@ -71,7 +69,7 @@ $POST = $main->retrieve($con);
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
   
 //get state
-$arr_state = $main->load($con, $saver);
+$arr_state = $main->load($con, $module);
 
 //coming from an add or edit link, reset $arr_state, row_type and post key should be positive
 if (!empty($POST['bb_row_type']))
@@ -89,7 +87,7 @@ else //default = nothing, or populate with input_state if coming from other page
 		$link_values = $main->process('link_values', $module, $arr_state, "");
         }
            
-$main->update($con, $arr_state, $saver);
+$main->update($con, $module, $arr_state);
 
 /*** END DETAILS POSTBACK ***/		
 ?>
@@ -115,14 +113,14 @@ if ($post_key > 0) // a detail of a record
         $row = pg_fetch_array($result);
                 
         //get columns for details row_type
-        $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+        $arr_columns = $main->columns($con, $row_type);
     
          //call to function that outputs details
-        $arr_layout =  $arr_layouts_reduced[$row_type];
-        echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities((string)$arr_layout['singular']) . "</p>";
+        $layout =  $main->reduce($arr_layouts, $row_type);
+        echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities((string)$layout['singular']) . "</p>";
         /* return the details */
         echo "<div id=\"bb_details_fields\">";
-        foreach($arr_column_reduced as $key => $value)
+        foreach($arr_columns as $key => $value)
             {
             $col2 = $main->pad("c", $key);
             $field_id = "details_" . $main->make_html_id($row_type, $key);
@@ -149,7 +147,7 @@ if ($post_key > 0) // a detail of a record
                 $relate['id'] = $relate_post_key;
                 $relate['row_type'] = $relate_row_type;
                 echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id .  "')\">" . htmlentities($value['name']) . ":</label>";
-                $main->standard($relate, $arr_layouts_reduced, "bb_cascade", $row[$col2], array('id'=>$field_id, 'class'=>"link spaced left floatleft"));
+                $main->standard($relate, $arr_layouts, "bb_cascade", $row[$col2], array('id'=>$field_id, 'class'=>"link spaced left floatleft"));
                 echo "</div>";
                 }
             else //regular
@@ -167,7 +165,7 @@ if ($post_key > 0) // a detail of a record
 	if ($main->button(2))
 		{
        	$text_str = ""; 	
-        foreach($arr_column_reduced as $key => $value)
+        foreach($arr_columns as $key => $value)
             { 	 
             $col2 = $main->pad("c", $key);     	
             $text_str .= $row[$col2] . PHP_EOL;	 	
@@ -183,11 +181,11 @@ if ($post_key > 0) // a detail of a record
         $link_values = preg_replace('/\s+/', '', $link_values);        
 		if (empty($link_values)) //check if link_values is empty
 			{
-			array_push($arr_message, "Error: No values supplied.");	
+			array_push($arr_messages, "Error: No values supplied.");	
 			}
 		else //check to see if record is linkable
 			{
-			foreach($arr_layouts_reduced as $key => $value)
+			foreach($arr_layouts as $key => $value)
 				{
 				if ($row_type == $value['parent'])
 					{
@@ -196,7 +194,7 @@ if ($post_key > 0) // a detail of a record
 				}
 			 if (empty($arr_link_row_type))
 				{
-				array_push($arr_message, "Error: Cannot link records to this type of record.");
+				array_push($arr_messages, "Error: Cannot link records to this type of record.");
 				}
 			}        
         
@@ -281,24 +279,24 @@ if ($post_key > 0) // a detail of a record
 			//none linked
 			if (empty($arr_linked))
 				{
-				array_push($arr_message, "No Records were linked.");
+				array_push($arr_messages, "No Records were linked.");
 				$link_values = "";
 				}
 			//linked
 			else 
 				{
-				array_push($arr_message, "Record(s) " . htmlentities($str_linked) . " were linked to record " . $letter . (string)$post_key);   
+				array_push($arr_messages, "Record(s) " . htmlentities($str_linked) . " were linked to record " . $letter . (string)$post_key);   
 				$link_values = "";
 				}
 			//not linked
 			if (!empty($arr_not_linked))
 				{
-				array_push($arr_message, "Record(s) " . htmlentities($str_not_linked) . " were not linked.");
+				array_push($arr_messages, "Record(s) " . htmlentities($str_not_linked) . " were not linked.");
 				$link_values = "";
 				}
 			if (!empty($arr_not_valid_value))
 				{
-				array_push($arr_message, "Value(s) " . htmlentities($str_not_valid_value) . " were not valid records and were not linked.");
+				array_push($arr_messages, "Value(s) " . htmlentities($str_not_valid_value) . " were not valid records and were not linked.");
 				$link_values = "";
 				}
             }//not empty link row type
@@ -322,7 +320,7 @@ if (($post_key > 0) && ($cnt_rows == 1))
     echo "<input type=\"text\" name=\"link_values\" class =\"spaced\" size=\"50\" value=\"" . htmlentities($link_values) . "\" />";
     echo "<div class = \"clear\"></div>";
 	echo "<div class = \"spaced\">";
-    $main->echo_messages($arr_message);
+    $main->echo_messages($arr_messages);
 	echo "</div>";
 	$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Link Values");
 	$main->echo_button("link_button", $params);

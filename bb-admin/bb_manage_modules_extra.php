@@ -22,7 +22,9 @@ If not, see http://www.gnu.org/licenses/
 //build_module_array
 //error waterfall
 
-//message is empty if no error, populated if error
+//module has header and is good if false,
+//has no header if true,
+//message is populated wath error message if header found and error
 
 //There are many error reports in these modules, the appear in waterfall order
 
@@ -32,8 +34,7 @@ class bb_manage_modules {
         {
         global $array_header;
         
-        $this->arr_maintain_state = $arr_maintain_state = array(-1=>"Code",0=>'No',1=>'Yes');
-        $this->arr_required = array("@module_path","@module_name","@friendly_name","@interface","@module_type","@module_version","@maintain_state");
+        $this->arr_required = array("@module_path","@module_name","@module_slug","@friendly_name","@interface","@module_type","@module_version","@module_url");
         $this->arr_header = $array_header;
         }
 
@@ -43,48 +44,51 @@ class bb_manage_modules {
         //all possible header values    
         $path = $arr_module['@module_path'];
        
-        //MAJOR FUNCTION CALL
+        //check for @module_name
         $message = $this->build_module_array($arr_module);        
-        if ($message)
+        if (is_string($message))
             {
-            //exit on duplicate values or module name not set
+            //exit on duplicate values in module defination
             return $message;
             }
-            
-        //MAJOR FUNCTION CALL
+        //has valid @module_name, continue waterfall
         if (isset($arr_module['@module_name']))
             {
             //check for errors in declaration
             $message = $this->error_waterfall($arr_module);
-            if ($message)
+            if (is_string($message))
                 {
                 return $message;
-                }
-                
-            //MAJOR FUNCTION CALL   
+                }                
+            //format the details
             $message = $this->format_details($arr_module);
-            if ($message)
+            if (is_string($message))
                 {
                 return $message;
-                }
-                /* get database representation (the numeric keys) of certain module variables*/
-            }            
-                
-        //message will be empty if all's well
-        return false;     
+                }            
+            //message will be false if all's well
+            return false;
+            }
+        else
+            {
+            return true;
+            }
         }
 
     //this function parses the module header creating $arr_module
-    //$arr_module contains all the module variable
+    //$arr_module contains all the module variables
     protected function build_module_array(&$arr_module)
         {
         //path is php path
+        $abspath = $_SESSION['abspath'];
         $path = $arr_module['@module_path'];
+        $fullpath = $abspath . "/" . $path;
         
-        //this checks all php files for syntax
+        //this checks all php files for syntax errors
         //there is a check syntax function but would have to bring in $main object
-        $fileesc = escapeshellarg($path);
+        $fileesc = escapeshellarg($fullpath);
         $output = shell_exec("php-cli -l " .  $fileesc);
+        //no syntax errors
         if (!preg_match("/^No syntax errors/", trim($output)))
             {
             //will exit here on good check
@@ -92,71 +96,77 @@ class bb_manage_modules {
             }            
          
         //strip all the /* */ comments out of file
-        $file = file_get_contents($path);        
+        $file = file_get_contents($fullpath);        
         //tricky regex, accounts for new lines
         $count_comments = preg_match_all('/\/\*(.*?)\*\//sm', $file, $comments);
         
         //no comments found
         if ($count_comments == 0)
             {
-            return "Error: Could not find comment block with Module header.";       
+            //no comments, no module definition
+            return true;       
             }
-
-        //look for module name or included
-        foreach ($comments[1] as $comment)
-            {
-            //if if finds @module_name returns with no dups return first first comment block
-            //else returns couldn't find module error;
-            //this checks first line in comment for valid module name
-            //check for installed file name, will check further later
-            $pattern = "/^\s*?(@module_name|@included)\s*?=[^\\/?*:;{}\\\\]+;/i";            
-            if (preg_match($pattern, trim($comment)))
+        else
+            {    
+            //look for module name or included
+            foreach ($comments[1] as $comment)
                 {
-                //only entered on first comment with module name
-                //explode on semicolon
-                $arr_pairs = explode(";", trim($comment));
-                //explode produces empty value at end
-                $arr_pairs = array_filter($arr_pairs);
-                foreach($arr_pairs as $value)
+                //if if finds @module_name returns with no dups return first first comment block
+                //else returns couldn't find module error;
+                //this checks first line in comment for valid module name
+                //check for installed file name, will check further later
+                $pattern = "/^\s*?(@module_name)\s*?=[^\\/?*:;{}\\\\]+;/i";            
+                if (preg_match($pattern, trim($comment)))
                     {
-                    //loop through and explode each pair
-                    $arr_pair = explode("=", trim($value), 2);
-                    //trim and put into key/value pairs
-                    if (isset($arr_module[trim(strtolower($arr_pair[0]))]))
+                    //only entered on first comment with module name
+                    //explode on semicolon
+                    $arr_pairs = explode(";", trim($comment));
+                    //explode produces empty value at end
+                    $arr_pairs = array_filter($arr_pairs);
+                    foreach($arr_pairs as $value)
                         {
-                        return "Error: Duplicate module variable in " . $path . ". Module declarations must be unique.";
-                        }
-                    else
-                        {
-                        $arr_module[trim(strtolower($arr_pair[0]))] = trim($arr_pair[1]);    
-                        }
-                    } //end foreach
-                //check for multiple declarations
-                if (count(array_intersect(array_keys($arr_module),array("@module_name", "@included"))) > 1)
-                    {
-                    return "Error: Can only define one of @module_name or @included.";   
-                    }
-                //found header
-                return false; 
-                } // end if
-            } //end foreach
-        //did not find header
-        return  "Error: Module Name or Included not set. Must specify module parameter \"@module_name\" or  \"@included\" in all optional PHP module files.";        
+                        //loop through and explode each pair
+                        $arr_pair = explode("=", trim($value), 2);
+                        //trim and put into key/value pairs
+                        if (isset($arr_module[trim(strtolower($arr_pair[0]))]))
+                            {
+                            return "Error: Duplicate module variable in " . $path . ". Module declarations must be unique.";
+                            }
+                        else
+                            {
+                            $arr_module[trim(strtolower($arr_pair[0]))] = trim($arr_pair[1]);    
+                            }
+                        } //end foreach
+                    //found valid module header
+                    return false; 
+                    } // end if
+                } //end foreach
+            } 
         } //end function
     
     /* ERROR WATERFALL */
-    //arr_module passed as a value, check arr_module for error
+    //arr_module passed as a value
     //this function checks $arr_module for errors
     protected function error_waterfall(&$arr_module)
         {
         //check for valid module name
         $path = $arr_module['@module_path'];
-        $pattern = "/[^A-Za-z0-9_]/";
-        if (preg_match($pattern, $arr_module['@module_name']))
+        $pattern_name = "/[^A-Za-z0-9_]/";
+        $pattern_slug = "/[^A-Za-z0-9-]/";
+        //proper version numbers, dots and hypens
+        $pattern_version_update = "/[^0-9-\.]/";
+        //alphanetic
+        $pattern_version_ignore = "/[^A-Za-x_]/";
+        if (preg_match($pattern_name, $arr_module['@module_name']))
             {
-            //module name must be the same as principle php file name wihtout the .php extension
             //any other files should contain the principle php file name + _extra, or _css or _javascript etc
-            return "Error: Module name in " . $path . " must contain only alphanumeric characters or underscores.";
+            return "Error: Module name in " . $path . " must contain only alphanumeric characters, dashes, or underscores.";
+            }
+            
+        if (preg_match($pattern_slug, $arr_module['@module_slug']))
+            {
+            //any other files should contain the principle php file name + _extra, or _css or _javascript etc
+            return "Error: Module slug in " . $path . " must contain only alphanumeric characters, dashes, or underscores.";
             }
                 
         //check that file name matches module name
@@ -176,13 +186,18 @@ class bb_manage_modules {
             return "Error: Required module variable missing in " . $path . ". Certain module variables are required in the module definition.";
             }
             
-        if (preg_match($pattern, $arr_module['@interface']))
+        //interface must be properly named   
+        if (preg_match($pattern_name, $arr_module['@interface']))
             {
-            //module name must be the same as principle php file name wihtout the .php extension
-            //any other files should contain the principle php file name + _extra, or _css or _javascript etc
-            return"Error: Interface name " . $path . " must contain only alphanumeric characters or underscores.";
+            return"Error: Interface name in " . $path . " must contain only alphanumeric characters or underscores.";
             }
-       
+        
+        //version must be properly named   
+        if (preg_match($pattern_version_update, $arr_module['@module_version']) && preg_match($pattern_version_ignore, $arr_module['@module_version']))
+            {
+            return"Error: Version in " . $path . " must numeric with dots and dashes, or alphabetic with underscores.";
+            }
+            
         //checks json declarations, will ignore all declarations not starting with @json
         foreach ($arr_module as $key => $value)
             {
@@ -194,7 +209,7 @@ class bb_manage_modules {
                     {
                     return "Error: Invalid JSON lookup specification in " . $path . ". Lookup value must start with module name.";
                     }
-                //check for valid xml
+                //check for valid JSON
                 if (!json_decode($value) && ($value <> "[]"))
                     {
                     return "Error: Invalid JSON markup in " . $path . " module header. Please properly form your JSON in module declaration.";
@@ -229,28 +244,7 @@ class bb_manage_modules {
                 //module type set to numeric value for insert/update
                 $arr_module['@module_type'] = array_search(strtolower($arr_module['@module_type']), $arr_values);
                 }
-            }
-
-        //check the maintaion state variable
-        //tricky to validate ints, deal with value as a string
-        if (filter_var((string)$arr_module['@maintain_state'], FILTER_VALIDATE_INT))
-            {
-            if (!in_array($arr_module['@maintain_state'], array(-1,0,1)))
-                {
-                return "Error: Invalid maintain state variable supplied in " . $path . " module header. Must be -1, 0 or 1.";
-                }
-            }
-        else
-            {
-            $arr_values = array(-1=>"code",0=>"no", 1=>"yes");
-            if (!in_array(strtolower($arr_module['@maintain_state']), $arr_values))
-                {
-                return "Error: Invalid maintain state supplied in " . $path . " module header. Maintain state must be Code, No or Yes (-1,0,1).";        
-                }
-            //maintain state set to 0 or 1
-            $arr_module['@maintain_state'] = array_search(strtolower($arr_module['@maintain_state']), $arr_values);
             }            
-            
         //made it
         return false;   
         }

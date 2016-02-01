@@ -23,9 +23,9 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 <?php
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_layouts = $main->layouts($con);
+
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 /***START STATE AND VIEW POSTBACK***/
 //get $_POST
@@ -35,7 +35,7 @@ $POST = $main->retrieve($con);
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
 //get state
-$arr_state = $main->load($con, $saver);
+$arr_state = $main->load($con, $module);
 
 //coming from an add or edit link, reset $arr_state
 //bb_row_type is empty if not set with javascript, row_type should be 1 to 26, 0 will render as empty 
@@ -53,20 +53,17 @@ else //default = nothing, or populate with input_state if coming from other page
         }
 
 //pus state back into db
-$main->update($con, $arr_state, $saver);
+$main->update($con, $module, $arr_state);
 /*** END POSTBACK ***/
 ?>
 <?php
 /*** COLUMN AND LAYOUT INFO ***/
-//get xml_column and sort column type
-$arr_columns = $main->get_json($con, "bb_column_names");
-
 //for the header left join
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
-$arr_layout = $arr_layouts_reduced[$row_type];
-$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
+$parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+$leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
 /*** END COLUMN AND LAYOUT INFO ***/
 
 /* BEGIN REQUIRED FORM */
@@ -111,7 +108,7 @@ if ($post_key > 0) //cascade children of record
         $union_cascade = "SELECT " . implode(" as id UNION SELECT ", $arr_ids) . " as id";
             
         $arr_union = array();
-        foreach ($arr_layouts_reduced as $key => $value)
+        foreach ($arr_layouts as $key => $value)
             {
             $str_union = "SELECT " . $key . " as row_type_union, " . $value['order'] . " as sort";
             array_push($arr_union, $str_union);
@@ -138,7 +135,7 @@ if ($post_key > 0) //cascade children of record
             //$xml is global so there is only one round trip to the db per page load
             //get row type from returned rows
             $row_type = $row['row_type'];
-            $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+            $arr_columns = $main->columns($con, $row_type);
             
             if ($row_type <> $row_type_catch)
                 {
@@ -154,9 +151,9 @@ if ($post_key > 0) //cascade children of record
             $bool_header = ($row['id'] == $post_key) ? true : false;
             $main->return_header($row, "bb_cascade", $bool_header);
             echo "<div class=\"clear\"></div>";
-            $count_rows = $main->return_rows($row, $arr_column_reduced);
+            $count_rows = $main->return_rows($row, $arr_columns);
             echo "<div class=\"clear\"></div>";				
-            $main->output_links($row, $arr_layouts_reduced, $userrole);
+            $main->output_links($row, $arr_layouts, $userrole);
             echo "<div class=\"clear\"></div>";
             echo "</div>";
             $row_type_catch = $row_type;

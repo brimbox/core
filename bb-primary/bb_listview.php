@@ -26,7 +26,7 @@ function bb_reload()
     var frmobj = document.forms["bb_form"];
     
     frmobj.offset.value = 1;
-	bb_submit_form(0); //call javascript submit_form function
+	bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 /* END MODULE JAVASCRIPT */
@@ -35,11 +35,8 @@ function bb_reload()
 <?php
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$arr_columns = $main->get_json($con, "bb_column_names");
-$arr_lists = $main->get_json($con, "bb_create_lists");
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_layouts = $main->layouts($con);
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 //State vars
 //do list view postback, get variables from browse_state
@@ -53,46 +50,43 @@ $POST = $main->retrieve($con);
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
 //get state
-$arr_state = $main->load($con, $saver);
+$arr_state = $main->load($con, $module);
 
-$row_type = $main->state('row_type', $arr_state, $default_row_type);
 $offset = $main->process('offset', $module, $arr_state, 1);
-
 //change row_type, get first value for that row type
-if ($main->check('row_type',$module) && ($row_type <> $main->post('row_type',$module)))
+if ($main->changed('row_type', $module, $arr_state, $default_row_type))
     {
-    $row_type = $main->post('row_type', $module, $default_row_type);
+    $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
     //use default
-    $arr_list_reduced = $main->filter_keys($arr_lists[$row_type]);
-    $list_number = $main->get_default_list($arr_list_reduced);
-    $row_type = $main->set('row_type', $arr_state, $row_type);
+    $arr_lists = $main->lists($con, $row_type);
+    $list_number = $main->get_default_list($arr_lists);
     }
 //change list   
 else
     {
     $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
-    $arr_list_reduced = $main->filter_keys($arr_lists[$row_type]);
+    $arr_lists = $main->lists($con, $row_type);
     //find default
-    $default_list_number = $main->get_default_list($arr_list_reduced);
+    $default_list_number = $main->get_default_list($arr_lists);
 	$list_number = $main->process('list_number', $module, $arr_state, $default_list_number);
     //check in case archived since last refresh
-    if (isset($arr_list_reduced[$list_number]))
+    if (isset($arr_lists[$list_number]))
         {
-        $list_number = !$arr_list_reduced[$list_number]['archive'] ? $list_number : $default_list_number;
+        $list_number = !$arr_lists[$list_number]['archive'] ? $list_number : $default_list_number;
         $main->set('list_number', $arr_state, $list_number);
         }
     }
 
 /* back to string */
-$main->update($con, $arr_state, $saver);
+$main->update($con, $module, $arr_state);
 /*** END POSTBACK ***/
 ?>
 <?php
 //get list fields, xml4 is the list fields
 //get description
-if (isset($arr_list_reduced[$list_number]))
+if (isset($arr_lists[$list_number]))
     {
-    $list = $arr_list_reduced[$list_number];
+    $list = $main->reduce($arr_lists, $list_number);
     $description = $list['description'];
     }
 else
@@ -100,6 +94,8 @@ else
     $list = array();
     $description = "";       
     }
+    
+$arr_columns = $main->columns($con, $row_type);
 
 //center
 echo "<div class=\"table spaced border tablecenter\"><div class=\"row padded\">";
@@ -112,9 +108,9 @@ $main->echo_module_vars();
 echo "<div class=\"cell padded middle\">";
 echo "Choose List: ";
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->list_dropdown($arr_list_reduced, "list_number", $list_number, $params);
+$main->list_dropdown($arr_lists, "list_number", $list_number, $params);
 
 //list return
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
@@ -140,14 +136,14 @@ $lower_limit = ($offset - 1) * $return_rows;
 if ($list_number > 0)
 	{
 	//if a list has been selected
-    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
-	$col1 = isset($arr_column['layout']['primary']) ? $main->pad("c", $arr_column['layout']['primary']) : "c01";
+    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+	$col1 = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
     
     //get column name from "primary" attribute in column array
     //this is used to populate the record header link to parent record
-    $arr_layout = $arr_layouts_reduced[$row_type];
-    $parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-    $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
+    $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+    $leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
 
 	//query
 	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
@@ -166,9 +162,9 @@ if ($list_number > 0)
 		echo "<div class =\"margin divider\">";
 		$main->return_header($row, "bb_cascade");
 		echo "<div class=\"clear\"></div>";
-  		$count_rows = $main->return_rows($row, $arr_column_reduced);
+  		$count_rows = $main->return_rows($row, $arr_columns);
 		echo "<div class=\"clear\"></div>";			 
-		$main->output_links($row, $arr_layouts_reduced, $userrole);
+		$main->output_links($row, $arr_layouts, $userrole);
           echo "</div>";		 
 		echo "<div class=\"clear\"></div>"; 
 		}

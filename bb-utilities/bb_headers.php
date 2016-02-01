@@ -31,6 +31,16 @@ $array_header['bb_brimbox']['userroles'] = array(0=>'Locked',1=>'Guest',2=>'View
 //careful, standard install must have 0-5 populated, names may be changed, database stores the integer values
 //$array_module_types -- required
 $array_header['bb_brimbox']['module_types'] = array(1=>"Guest",2=>"Viewer",3=>"Tab",4=>"Setup",5=>"Admin");
+//$array_module_types -- required
+$array_header['bb_brimbox']['controller'] = "/box.php";
+
+# LANDING PAGES #
+//based on usertype, if module or slug are blank
+$array_header['bb_brimbox']['landing'] = array(1=>array("bb_guest","guest"),
+                                               2=>array("bb_viewer","viewer"),
+                                               3=>array("bb_home","home"),
+                                               4=>array("bb_home","home"),
+                                               5=>array("bb_home","home"));
 
 # DEFAULT SECURITY #
 $array_header['bb_brimbox']['row_security'] = array(); //empty array causes standard 0 & 1 checkboxes
@@ -54,4 +64,5 @@ $array_header['bb_brimbox']['validation']['yesno'] = array('function'=>'bb_valid
 # GUEST INDEX #
 //data table has one customizable full text column aside from the default column
 $array_header['bb_brimbox']['guest_index'] = array(); //will use default security = 0 and search = 1
+
 ?>

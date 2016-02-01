@@ -71,17 +71,15 @@ if ($main->check('remove_names',$module))
 	}
 
 //get layout   
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$arr_columns = $main->get_json($con, "bb_column_names");
-$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+$arr_layouts = $main->layouts($con);
+$arr_columns = $main->columns($con, $row_type);
 
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
-$arr_layout = $arr_layouts_reduced[$row_type];
-$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
-    
+$parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+$leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
+   
 //one int and a string
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
      "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " .
@@ -99,7 +97,7 @@ echo "<div class =\"margin divider\">";
 //outputs the row we are working with
 $main->return_header($row, "bb_cascade");
 echo "<div class=\"clear\"></div>";   
-$main->return_rows($row, $arr_column_reduced);
+$main->return_rows($row, $arr_columns);
 echo "<div class=\"clear\"></div>";
 echo "</div>";
 echo "<div class =\"margin divider\"></div>"; 
@@ -109,8 +107,7 @@ $row_type = $row['row_type'];
 $list_string = $row['list_string'];
 
 //get list arr
-$arr_lists = $main->get_json($con, "bb_create_lists");
-$arr_list_reduced = $main->filter_keys($arr_lists[$row_type]);
+$arr_lists = $main->lists($con, $row_type);
 
 //start form containing select add and remove boxes
 echo "<div class=\"clear\"></div>";
@@ -131,7 +128,7 @@ echo "<div class=\"cell padded box\">";
 
 echo "<select class=\"box\" name = \"add_names[]\" multiple>";
 //echo the xml lists not set
-foreach($arr_list_reduced as $key => $value)
+foreach($arr_lists as $key => $value)
     {
 	$i = $key - 1; //start string at 0
     if ((int)substr($list_string, $i, 1) == 0)  
@@ -152,7 +149,7 @@ echo "<div class=\"cell padded\">";
 echo"<select class=\"box\" name=\"remove_names[]\" multiple>";
 //echo the xml lists already set
 //no need to get $arr_list again
-foreach($arr_list_reduced as $key => $value)
+foreach($arr_lists as $key => $value)
     {
     $i = $key - 1; //start string at 0
     if ((int)substr($list_string, $i, 1) == 1)  

@@ -29,7 +29,7 @@ function bb_reload()
     var frmobj = document.forms["bb_form"];
     
     frmobj.offset.value = 1;
-    bb_submit_form(0); //call javascript submit_form function
+    bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 /* END MODULE JAVASCRIPT */
@@ -37,10 +37,8 @@ function bb_reload()
 <?php
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$arr_columns = $main->get_json($con, "bb_column_names");
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_layouts = $main->layouts($con);
+$default_row_type = $main->get_default_layout($arr_layouts);
 $arr_messages = array();
 
 /* LOOKUP AND STATE POSTBACK */
@@ -51,7 +49,7 @@ $POST = $main->retrieve($con); //run first
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 
 //get state
-$arr_state = $main->load($con, $saver);
+$arr_state = $main->load($con, $module);
 
 //process offset and archive
 $offset = $main->process('offset', $module, $arr_state, 1);
@@ -59,12 +57,12 @@ $record_id = $main->process('record_id', $module, $arr_state, "");
 
 // get row_type to find posted layout
 $row_type = $main->post('row_type', $module, $default_row_type);
-$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+$arr_columns = $main->columns($con, $row_type);
 //get default col_type or deal with possibility of no columns, then 1
-$default_col_type = $main->get_default_column($arr_column_reduced);
+$default_col_type = $main->get_default_column($arr_columns);
 
 //set col_type state from default if postback and row_type changed
-if ($main->check('row_type', $module) && $main->post('row_type', $module) <> $main->state('row_type', $arr_state))
+if ($main->changed('row_type', $module, $arr_state, $default_row_type))
 	{
 	$col_type_1 = $main->set('col_type_1', $arr_state, $default_col_type);
 	$col_type_2 = $main->set('col_type_2', $arr_state, $default_col_type);
@@ -89,15 +87,14 @@ $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 $archive_flag = $main->process('archive_flag', $module, $arr_state, 0);
 	
 //back to string
-$main->update($con, $arr_state, $saver);
+$main->update($con, $module, $arr_state);
 /* END POSTBACK */
-?>
-<?php 
+
 /* BEGIN TAB */
 
 /* GET COLUMN AND LAYOUT VALUES */
 //get column names based on row_type/record types
-$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+$arr_columns = $main->columns($con, $row_type);
 $column_1 = $main->pad("c", $col_type_1);
 $column_2 = $main->pad("c", $col_type_2);
 /* END COLUMN AND LAYOUT VALUES */	
@@ -172,7 +169,7 @@ echo "<input type =\"text\" class=\"spaced short\" name = \"record_id\" value = 
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
 $params = array("onchange"=>"bb_reload()");
-$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "</td>";
 echo "<td class=\"borderleft nowrap padded\">";
 //column 1 values
@@ -183,7 +180,7 @@ echo "<span class=\"spaced middle\">Like:</span><input type=\"radio\" class=\"mi
 echo "<span class=\"spaced middle\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
 echo "&nbsp;";
 $params = array("class"=>"spaced");
-$main->column_dropdown($arr_column_reduced, "col_type_1", $col_type_1, $params);
+$main->column_dropdown($arr_columns, "col_type_1", $col_type_1, $params);
 echo "</td>";
 
 //column 2 values
@@ -195,7 +192,7 @@ echo "<span class=\"spaced\">Like:</span><input type=\"radio\" class=\"middle\" 
 echo "<span class=\"spaced\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"4\"" . ($radio_2 == 4 ? "checked" : "") . ">";
 echo "&nbsp;";
 $params = array("class"=>"spaced");
-$main->column_dropdown($arr_column_reduced, "col_type_2", $col_type_2, $params);
+$main->column_dropdown($arr_columns, "col_type_2", $col_type_2, $params);
 echo "</td>";
 
 echo "</tr></table>"; //table 1
@@ -239,8 +236,8 @@ if ($valid_id) //record_id
 	$row_type =  ord(strtolower(substr($record_id, 0, 1))) - 96;
 	$layout = $main->pad("l", $row_type);
 	//reset column for output, and layout for parent row type, state will remain
-	$arr_layout = $arr_layouts_reduced[$row_type];
-	$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+	$layout = $main->reduce($layout, $row_type);
+	$arr_columns = $main->columns($con, $row_type);
 	$and_clause_3 = " 1 = 1 ";
 	$and_clause_4 = " id = " . $id . " ";
 	}
@@ -301,9 +298,10 @@ else //value_1 or value_2
 
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
-$arr_layout = $arr_layouts_reduced[$row_type];
-$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
+$layout = $main->reduce($arr_layouts, $row_type);
+$parent_row_type = $layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+$leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
 
 //return query, order by column 1 and column 2
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM (SELECT * FROM data_table WHERE " . $and_clause_4 . ") T1 " .
@@ -328,10 +326,10 @@ while($row = pg_fetch_array($result))
 	$main->return_header($row, "bb_cascade");
 	echo "<div class=\"clear\"></div>";
 	//returns the record data in appropriate row
-	$count_rows = $main->return_rows($row, $arr_column_reduced); 
+	$count_rows = $main->return_rows($row, $arr_columns); 
 	echo "<div class=\"clear\"></div>";
 	//return the links along the bottom of a record
-	$main->output_links($row, $arr_layouts_reduced, $userrole);
+	$main->output_links($row, $arr_layouts, $userrole);
     echo "</div>";
 	echo "<div class=\"clear\"></div>";	
 	}

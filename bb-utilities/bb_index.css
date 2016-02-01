@@ -2,40 +2,64 @@
 /* index styles */
 /* defines the position of the login box */
 #bb_index
-	 {
-     padding-top: 150px;
-	 margin: 0 auto;
-     text-align: center;
-	 }/* this is how the index image is displayed */
+	{
+	margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    width: 300px;
+    height: 300px;
+    text-align: center;
+    }
      
-#bb_index #index_image
+/* this is how the index image is displayed */     
+#bb_image
 	 {
 	 /* image path related to css file */
-     margin: 0 auto;
 	 background-image: url("../bb-config/login_image.gif");
+     width: 300px;
+     height: 50px;
 	 background-repeat:no-repeat;
 	 background-position:center;
-	 }	
-     
-#bb_index #index_holder
-	 {
-	 /* image path related to css file */
-     margin: 0px auto;
-     width:300px;
-     padding:2px;
 	 }
      
-#bb_index #index_holder input
-	 {
-	 /* image path related to css file */
-     padding:2px;
-     width: 200px;
-	 }
+#bb_table
+    {
+    width: 298px;
+    border: 1px solid #A070B6;    
+    }
+    
+#bb_table td.right
+    {
+    width: 60%;
+    text-align: left;    
+    }
+    
+#bb_table td.left
+    {
+    width: 40%;
+    text-align: right;
+    background-color: #F2EAFF;
+    }
+    
+#bb_table td,
+#bb_login input,
+#bb_submit
+    {
+    font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
+    line-height: 140%;  
+    }
+         
+#bb_login input
+	{
+	/* image path related to css file */
+    padding: 2px;
+    width: 200px;
+    border: 1px solid #A070B6;
+    background-color: #FFFFFF;
+    }
      
-#bb_index #index_holder td,
-#bb_index #index_holder input,
-#bb_index #index_message,
-#bb_index #index_button
+#bb_message
 	{
     /* font of label and input */
     font-size: 12px;
@@ -43,24 +67,14 @@
     line-height: 140%;
     }
      
-#bb_index #index_holder td.left
-	 {
-	 /* image path related to css file */
-     width: 40%;
-     text-align: right;
-	 }
-
-#bb_index #index_holder td.right
-	{
-	/* the right area holding the inout fields */
-    width: 60%;
-	}
      
-#bb_index #index_button 
+#bb_submit
 	{
 	/* the login button */
+    color: #F2EAFF;
+    border: 1px solid #A070B6;
     margin: 5px;
-    padding: 1px;
+    padding: 3px;
     border-radius: 2px;
     -moz-border-radius: 2px;
 	-webkit-border-radius: 2px;

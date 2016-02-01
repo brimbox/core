@@ -24,52 +24,48 @@ include("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
 session_name(DB_NAME);
 session_start();
 
-//contains bb_main class
-include("../bb-utilities/bb_main.php");
-include("../bb-utilities/bb_database.php");
-include("../bb-utilities/bb_links.php");
-include("../bb-utilities/bb_validate.php");
-include("../bb-utilities/bb_forms.php");
-include("../bb-utilities/bb_work.php");
-include("../bb-utilities/bb_hooks.php");
-include("../bb-utilities/bb_reports.php");
+if (isset($_SESSION['username'])):
 
-/* SET UP MAIN OBJECT */
-$main = new bb_reports();
-
-$userroles = $main->get_constant('BB_DOCUMENT_DOWNLOAD_PERMISSIONS', "3_bb_brimbox,4_bb_brimbox,5_bb_brimbox");
-$main->check_permission($userroles);
-
-set_time_limit(0);
-$con = $main->connect();
-
-//convert to integer for security
-if (filter_var($_POST['bb_object'], FILTER_VALIDATE_INT))
-    {
-    $where_clause =  " id = " . $_POST['bb_object'];
-    }
-else
-    {
-    $where_clause =  " filename = '" . $_POST['bb_object'] . "'";
-    }
-
-
-$query = "SELECT * FROM docs_table WHERE " . $where_clause . ";";
-$result = $main->query($con, $query);
-
-if (pg_num_rows($result) <> 1) die("Unable to find file.");
-
-$row = pg_fetch_array($result);
-$filename = $row['filename'];
-$document = pg_unescape_bytea($row['document']);
+    /* SET UP MAIN OBJECT */    
+    include("../bb-blocks/bb_main_include.php");
     
-//Here go the headers
-header ("Content-Type: application/octet-stream");
-header ("Content-disposition: attachment; filename=\"$filename\"");
-header ("Content-Transfer-Encoding: binary");
-ob_clean();
-flush();
+    $main = new bb_main();
+    
+    $userroles = $main->get_constant('BB_DOCUMENT_DOWNLOAD_PERMISSIONS', "3_bb_brimbox,4_bb_brimbox,5_bb_brimbox");
+    $main->check_permission($userroles);
+    
+    set_time_limit(0);
+    $con = $main->connect();
+    
+    //convert to integer for security
+    if (filter_var($_POST['bb_object'], FILTER_VALIDATE_INT))
+        {
+        $where_clause =  " id = " . $_POST['bb_object'];
+        }
+    else
+        {
+        $where_clause =  " filename = '" . $_POST['bb_object'] . "'";
+        }
+    
+    
+    $query = "SELECT * FROM docs_table WHERE " . $where_clause . ";";
+    $result = $main->query($con, $query);
+    
+    if (pg_num_rows($result) <> 1) die("Unable to find file.");
+    
+    $row = pg_fetch_array($result);
+    $filename = $row['filename'];
+    $document = pg_unescape_bytea($row['document']);
+        
+    //Here go the headers
+    header ("Content-Type: application/octet-stream");
+    header ("Content-disposition: attachment; filename=\"$filename\"");
+    header ("Content-Transfer-Encoding: binary");
+    ob_clean();
+    flush();
 
-echo $document;
+    echo $document;
+
+endif;
 
 ?>

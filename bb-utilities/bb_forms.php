@@ -26,7 +26,6 @@ If not, see http://www.gnu.org/licenses/
 //echo_form_begin
 //echo_module_vars
 //echo_common_vars
-//echo_state
 //echo_button
 //echo_script_button
 //echo_input
@@ -65,12 +64,14 @@ class bb_forms extends bb_links {
 	function echo_module_vars()
 		{
 		//global make the most sense since these are global variables
-		global $module;
+		global $module, $slug;
 		/* These variables support javascript function bb_submit_form() */
 		//starts with current module and changes to target, where you're going
 		echo "<input rel=\"ignore\" name=\"bb_module\" type=\"hidden\" value=\"" . $module . "\" />";
 		//starts empty and changes to current module, where you're coming from, $module become $submit
 		echo "<input rel=\"ignore\" name=\"bb_submit\" type=\"hidden\" value=\"\" />";
+		//slug corresponds to next module being displayed
+		echo "<input rel=\"ignore\" name=\"bb_slug\" type=\"hidden\" value=\"" . $slug . "\" />";
 		//working Brimbox button submitted processed in the controller, always set w/ javascript
 		echo "<input rel=\"ignore\" name=\"bb_button\" type=\"hidden\" value=\"\" />";
 		//used when logging out or changing state
@@ -103,9 +104,11 @@ class bb_forms extends bb_links {
 		//do nothing
 		//object variable (bb_object) no included with module_vars
 		}
-		
+	
+	/*	DEPRACATED */
 	function echo_state($array_state)
         {
+		//deprecated
 		//this echos the state into the form for posting
         foreach ($array_state as $key => $value)
             {
@@ -122,7 +125,8 @@ class bb_forms extends bb_links {
 		$label = isset($params['label']) ? $params['label'] : "";		
 		//javascript parameters
 		$number = isset($params['number']) ? $params['number'] : 0;
-		$target = isset($params['target']) ? "'" . $params['target'] . "'" : "undefined";
+		$target = isset($params['target']) ?  "'" . $params['target'] . "'" : "undefined";
+		$slug = isset($params['slug']) ? "'" . $params['slug']  . "'" : "undefined";
 		$passthis = isset($params['passthis']) ? "this" : "undefined";
 		//allows boolean true for default proicessing image
 		
@@ -130,8 +134,8 @@ class bb_forms extends bb_links {
 		//image now done with hook
 		
 		//implode parameters with comma
-		$params_str = implode(",", array($number, $target, $passthis));
-		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"bb_submit_form(" . $params_str . "); return false;\">" . $label . "</button>"; 
+		$submit_form_params = "[$number, $target, $slug, this]";
+		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"bb_submit_form(" . $submit_form_params . "); return false;\">" . $label . "</button>"; 
 		}
 		
 	function echo_script_button($name, $params = array())
@@ -170,7 +174,7 @@ class bb_forms extends bb_links {
 		
 		$begin = "";
 		$end = "";
-		if (!$this->blank($label))
+		if (!static::blank($label))
 			{
 			if (strcasecmp($position, "end")) //0 is match
 				{

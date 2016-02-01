@@ -22,7 +22,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 <?php 
 /* INITIALIZE */
 //error message pile
-$arr_message = array();
+$arr_messages = array();
 
 //get $_POST
 $POST = $main->retrieve($con);
@@ -71,21 +71,21 @@ if ($main->button(1))
 			{
 			if ($setbit)
 				{
-				array_push($arr_message, "This Cascade Secure secured " . $cnt_affected . " rows.");   
+				array_push($arr_messages, "This Cascade Secure secured " . $cnt_affected . " rows.");   
 				}
 			elseif (!$setbit)
 				{
-				array_push($arr_message, "This Unsecure Cascade unsecured " . $cnt_affected . " rows.");   
+				array_push($arr_messages, "This Unsecure Cascade unsecured " . $cnt_affected . " rows.");   
 				}
 			}
 		else
 			{
-			array_push($arr_message, "This Cascade action set " . $cnt_affected . " rows to security level \"" . $arr_secure[$setbit] . "\"."); 	
+			array_push($arr_messages, "This Cascade action set " . $cnt_affected . " rows to security level \"" . $arr_secure[$setbit] . "\"."); 	
 			}
 		}			
 	else
 		{
-		array_push($arr_message, "Error: There may have been an underlying data change.");      
+		array_push($arr_messages, "Error: There may have been an underlying data change.");      
 		}
     }
 /* END CASCADE */        
@@ -105,23 +105,21 @@ else
     
     if ($cnt_cascade > 1)
         {
-        array_push($arr_message, "This record has " . ($cnt_cascade - 1) . " child records.");
+        array_push($arr_messages, "This record has " . ($cnt_cascade - 1) . " child records.");
         }
     else
         {
-        array_push($arr_message, "This record does not have child records.");    
+        array_push($arr_messages, "This record does not have child records.");    
         }
     
-    $arr_layouts = $main->get_json($con, "bb_layout_names");
-    $arr_layouts_reduced = $main->filter_keys($arr_layouts);
-    $arr_columns = $main->get_json($con, "bb_column_names");
-    $arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+    $arr_layouts = $main->layouts($con);
+    $arr_columns = $main->columns($con, $row_type);
 
     //get column name from "primary" attribute in column array
     //this is used to populate the record header link to parent record
-    $arr_layout = $arr_layouts_reduced[$row_type];
-    $parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-    $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
+    $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+    $leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
     
     //return record
     $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
@@ -140,7 +138,7 @@ else
     //outputs the row we are working with
     $main->return_header($row, "bb_cascade");
     echo "<div class=\"clear\"></div>";   
-    $main->return_rows($row, $arr_column_reduced);
+    $main->return_rows($row, $arr_columns);
     echo "<div class=\"clear\"></div>";
     echo "</div>";
     echo "<div class =\"margin divider\"></div>";
@@ -148,7 +146,7 @@ else
 /* END RETURN RECORD */
 
 echo "<br>";
-$main->echo_messages($arr_message);
+$main->echo_messages($arr_messages);
 echo "<br>";
 
 /* BEGIN REQUIRED FORM */

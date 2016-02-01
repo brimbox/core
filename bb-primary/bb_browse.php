@@ -27,8 +27,8 @@ function bb_set_hidden(lt)
     //this goes off when letter is clicked
     var frmobj = document.forms["bb_form"];  
     frmobj.letter.value = lt;
-    frmobj.offset.value = 1;   
-    bb_submit_form(0); //call javascript submit_form function
+    frmobj.offset.value = 1;
+    bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 //standard reload on dropdown change
@@ -40,7 +40,7 @@ function bb_reload()
     var frmobj = document.forms["bb_form"];
     
     frmobj.offset.value = 1;
-    bb_submit_form(0); //call javascript submit_form function
+    bb_submit_form(); //call javascript submit_form function
 	return false;
     }
 /* END MODULE JAVASCRIPT */
@@ -48,10 +48,8 @@ function bb_reload()
 <?php
 /* INITIALIZE */
 //find default row_type, $arr_layouts must have one layout set
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$arr_columns = $main->get_json($con, "bb_column_names");
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_layouts = $main->layouts($con);
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 /* BROWSE AND STATE POSTBACK */
 //get $_POST variable
@@ -61,7 +59,7 @@ $POST = $main->retrieve($con); //run first
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
     
 //get state from db
-$arr_state = $main->load($con, $saver);
+$arr_state = $main->load($con, $module);
 
 //process variables from state and postback
 $letter = $main->process('letter', $module, $arr_state, "A");
@@ -70,12 +68,12 @@ $offset = $main->process('offset', $module, $arr_state, 1);
 //must get post while preserving row_type state to reset col_type when row_type changes
 $row_type = $main->post('row_type', $module, $default_row_type);
 //must get arr_column on current row_type before setting default col_type
-$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+$arr_columns = $main->columns($con, $row_type);
 //get default col_type or deal with possibility of no columns, then 1
-$default_col_type = $main->get_default_column($arr_column_reduced);
+$default_col_type = $main->get_default_column($arr_columns);
 
 // if row_type changed and postback (post is different than state) use default column type
-if ($main->check('row_type', $module) && ($row_type <> $main->state('row_type', $arr_state)))
+if ($main->changed('row_type', $module, $arr_state, $default_row_type))
 	{
 	$col_type = $main->set('col_type', $arr_state, $default_col_type);
 	}
@@ -88,7 +86,7 @@ else
 $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
 
 //update state, back to db
-$main->update($con, $arr_state, $saver);
+$main->update($con, $module, $arr_state);
 /* END POSTBACK */
 ?>
 <?php 
@@ -131,22 +129,23 @@ echo "<span class=\"padded larger\">"; //font size
 //end do alpha and numeric links
 	
 //get column names based on row_type/record types (repeated after state load but why not for clarity)
-$column = $main->pad("c", $col_type);
+$col = $main->pad("c", $col_type);
 
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
-$arr_layout = $arr_layouts_reduced[$row_type];
-$parent_row_type = $arr_layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-$leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
+//will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+$parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent")); 
+$arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+$leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
 
 echo "&nbsp;&nbsp;";
 //layout types, this produces $row_type
 $params = array("onchange"=>"bb_reload()");
-$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "&nbsp;&nbsp;";
 //column names, $column is currently selected column
 $params = array("onchange"=>"bb_reload()");
-$main->column_dropdown($arr_column_reduced, "col_type", $col_type, $params);
+$main->column_dropdown($arr_columns, "col_type", $col_type, $params);
 
 //hidden element containing the current chosen letter
 echo "<input type = \"hidden\"  name = \"letter\" value = \"" . $letter . "\">";
@@ -173,13 +172,13 @@ $pagination = $main->get_constant('BB_PAGINATION',5);
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
 $esc_lt = pg_escape_string($letter);
-$esc_col1 = pg_escape_string($column);
+$esc_col1 = pg_escape_string($col);
 
 //return query
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
 		 "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table WHERE row_type = " . $parent_row_type . ") T2 " .
 		 "ON T1.key1 = T2.id " .
-		 "WHERE UPPER(SUBSTRING(" . $esc_col1 . " FROM 1 FOR 1)) = '" . $esc_lt . "' AND row_type = " . $row_type . " AND " . $mode . " ORDER BY " . $column . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
+		 "WHERE UPPER(SUBSTRING(" . $esc_col1 . " FROM 1 FOR 1)) = '" . $esc_lt . "' AND row_type = " . $row_type . " AND " . $mode . " ORDER BY " . $col . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
 
 //echo "<p>" . $query . "</p>";
 $result = $main->query($con, $query);
@@ -196,10 +195,10 @@ while($row = pg_fetch_array($result))
 	$main->return_header($row, "bb_cascade");
 	echo "<div class=\"clear\"></div>";
 	//returns the record data in appropriate row
-	$count_rows = $main->return_rows($row, $arr_column_reduced); 
+	$count_rows = $main->return_rows($row, $arr_columns); 
 	echo "<div class=\"clear\"></div>";
 	//return the links along the bottom of a record
-	$main->output_links($row, $arr_layouts_reduced, $userrole);
+	$main->output_links($row, $arr_layouts, $userrole);
     echo "</div>";
 	echo "<div class=\"clear\"></div>";	
 	}  

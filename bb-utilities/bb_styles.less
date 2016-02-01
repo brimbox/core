@@ -31,152 +31,30 @@ If not, see http://www.gnu.org/licenses/
 @bb_shaded_color : #F2EAFF;
 @bb_button_color  : #F2EAFF;
 
-/* These are the Tab Colors */
-@bb_tab_text_color : #56006F;
-@bb_tab_background_color : #F2EAFF;
-@bb_tab_hover_color : #F6F0FF;
-@bb_tab_chosen_color : #FFFFFF;
-
 /* Border and Divider Colors */
 @bb_border_color : #A070B6;
 @bb_divider_color : #A070B6;
 @bb_darkline_color : #CCBBDD;
 
-/* Controller and Index Color */
-@bb_controller_image_width : 728px;
-@bb_controller_image_height : 54px;
-@bb_controller_message_color : #56006F;
+/* CUSTOM LESS */
 
-
-/* Import Will Overwrite Colors if Defined in bb_admin_less.php */
 @import "bb-config/bb_admin_less.less";
 
-/*****************CONTROLLER AREA******************/
+/* GLOBALS AREA */
 
-/* Note: LESS styles are separated to improve speed */
-/* Right now mainly colors are the only variable css */
-
-body
-	 {
-	 border-left-color: @bb_border_color;	
-	 background-color: @bb_background_color; 
-	 }
-	 
-#bb_index #index_image
-	 {
-	 width: @bb_login_image_width;
-     height: @bb_login_image_height;
-	 }
-
-#bb_header #controller_image
-	 {
-	 width: @bb_controller_image_width;
-	 height: @bb_controller_image_height;
-	 }
-	 
-#bb_header #controller_message
-	 {
-	 color: @bb_controller_message_color;
-	 }
-
-/* see bb-styles.css for comments */
-#bb_admin_content
-	 {
-	 border-top: 1px solid @bb_border_color;
-	 border-left: 1px solid @bb_border_color;
-	 }
-
-#bb_header div.line
-	 {
-	 border-color: @bb_border_color;
-	 }
-	 
-#bb_header div.under
-	 {
-	 border-top-color: @bb_border_color;  
-	 }
-	   	
-#bb_header button
-	{
-    color: @bb_tab_text_color;
-    background: @bb_tab_background_color;
-    border-color: @bb_border_color;
-	}
-
-#bb_header button:hover
-	{
-	background: @bb_tab_hover_color;
-	}
-	
-#bb_header button.chosen
-	{
-	background: @bb_tab_chosen_color;	
-	}
-	
-/***************END CONTROLLER AREA****************/
-
-/*******************GLOBALS AREA*******************/
-
-/* Some global styles do not have css
-   property defintions in bb_styles.css */
-	
-/* font declaration */
-body, td, input, select, button, textarea
-    {
-    color: @bb_text_color;
-    }
-
-button, input, select, textarea
-	{
-	border-color: @bb_border_color;
-	}
-	
-button
-	{
-    background-color: @bb_button_color;
-    }
-	
-button.link
-	 {
-	 color: @bb_link_color;
-	 }
-	 
-/* CSS global classes */
-.border, .borderleft, .borderright, .bordertop, .borderbottom
-	{
-	border-color: @bb_border_color;
-	}
-	
-.divider
-	{
-	border-color: @bb_divider_color;
-	}
-    
-.darkline
-	{
-	border-color: @bb_darkline_color;
-	}
-
-.colored, .message
-	{
-	color: @bb_colored_text_color;
-	}
-.error
-     {
-     color: @bb_error_color;     
-     }
-.odd
-     {
-     background-color: @bb_odd_color;
-	 }
-.shaded
-	{
-	background-color: @bb_shaded_color;	
-	}
-.even
-	{
-	background-color: @bb_even_color;	
-	}
+body { border-left-color: @bb_border_color;	background-color: @bb_background_color;  }
+body, td, input, select, button, textarea { color: @bb_text_color; }
+button, input, select, textarea { border-color: @bb_border_color; }
+button { background-color: @bb_button_color; }
+button.link { color: @bb_link_color; }
+.border, .borderleft, .borderright, .bordertop, .borderbottom { border-color: @bb_border_color; }
+.divider { border-color: @bb_divider_color; }
+.darkline { border-color: @bb_darkline_color; }
+.colored, .message { color: @bb_colored_text_color; }
+.error { color: @bb_error_color; }
+.odd { background-color: @bb_odd_color; }
+.shaded { background-color: @bb_shaded_color; }
+.even { background-color: @bb_even_color; }
 
 
 
