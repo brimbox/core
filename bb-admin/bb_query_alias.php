@@ -36,7 +36,7 @@ $arr_messages = array();
 $POST = $main->retrieve($con);
 
 //get state from db
-$_arr_state = $main->load($con, $module);
+$arr_state = $main->load($con, $module);
 
 //check that there are enough form areas for sub_queries
 $number_sub_queries =  $main->process("number_sub_queries", $module, $arr_state, 1);
