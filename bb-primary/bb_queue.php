@@ -354,8 +354,7 @@ $main->echo_module_vars();
 		if ((!$post_record) && (!$row_type))
 			{
             $default_row_type = $main->get_default_layout($arr_layouts);
-			$saver_input = $main->saver($con, "bb_input");
-			$arr_state_input = $main->load($con, $saver_input);
+			$arr_state_input = $main->load($con, "bb_input");
             $row_type = $main->state('row_type', $arr_state_input, $default_row_type);
 			if ($row_type > 0)
 				{

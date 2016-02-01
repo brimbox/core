@@ -147,7 +147,7 @@ $build->hook("index_return_main"); //creates main instance
 //this javascript necessary for the standard main class functions
 //all other javascript function included in specific modules by default
 $javascript = $webpath . "/bb-utilities/bb_scripts.js";
-$javascript = $build->filter("index_main_javascript", $javascript, $params);
+$javascript = $build->filter("index_main_javascript", $javascript);
 echo "<script src=\"" . $javascript . "\"></script>";
 unset($javascript); //clean up
 
@@ -167,8 +167,8 @@ include_once($abspath . $array_header[$interface]['controller']);
 else: /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */
 
 /* LOGIN SECTION */
-//this for including a custom login screen
-//in turn the login file includes custom login css
+/* INCLUDES THE LOGIN VERIFICATION */
+/* WHICH INCLUDES THE LOGIN FORM *?
 if (file_exists("verify.php"))
     {
     include_once("verify.php");   

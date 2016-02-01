@@ -78,7 +78,7 @@ $arr_columns = $main->columns($con, $row_type);
 //this is used to populate the record header link to parent record
 $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-$leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
+$leftjoin = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
    
 //one int and a string
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .

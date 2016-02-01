@@ -138,8 +138,8 @@ class bb_input_module_hooks {
 			}	
 		}
 		
-	function submit_buttons($main, $arr_columns, $arr_state)
-		{
+	function submit_buttons($main, $module, $arr_columns, $arr_state)
+		{		
 		$row_type = $main->state('row_type', $arr_state, 0);
 		$row_join = $main->state('row_join', $arr_state, 0);
 		if (count($arr_columns) > 0) //checked twice

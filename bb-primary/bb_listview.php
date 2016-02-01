@@ -135,21 +135,19 @@ $lower_limit = ($offset - 1) * $return_rows;
 //list numbers should always be positive
 if ($list_number > 0)
 	{
-	//if a list has been selected
-    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-	$col1 = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
-    
+	//if a list has been selected    
     //get column name from "primary" attribute in column array
     //this is used to populate the record header link to parent record
     $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-    $leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
+    if ($parent_row_type)
+        $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+    $leftjoin = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
 
 	//query
 	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
 			 "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table WHERE row_type = " . $parent_row_type . ") T2 " .
 		 	 "ON T1.key1 = T2.id " .
-			 "WHERE bb_list(list_string, " . $list_number . ") = 1 AND row_type = " . $row_type . " AND " . $mode . " ORDER BY " . $col1 . ", id LIMIT " . $return_rows . " OFFSET ". $lower_limit .";";
+			 "WHERE bb_list(list_string, " . $list_number . ") = 1 AND row_type = " . $row_type . " AND " . $mode . " ORDER BY " . $leftjoin . ", id LIMIT " . $return_rows . " OFFSET ". $lower_limit .";";
     
     //echo "<p>" . $query . "</p>";
 	$result = $main->query($con, $query);		

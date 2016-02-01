@@ -79,9 +79,20 @@ if (!function_exists('bb_data_table_render_form')) :
                 $col = $main->pad("c", $key);
                 $input = (isset($arr_state[$col])) ? $arr_state[$col] : "";
                 $error = (isset($arr_errors[$key])) ? $arr_errors[$key] : "";
-                $readonly = $arr_columns[$key]['readonly'] ? $arr_columns[$key]['readonly'] : false;
-                $hidden =  $arr_columns[$key]['hidden'] ? $arr_columns[$key]['hidden'] : false;
+                $readonly = false;
+                $hidden = "";
+                $display = isset($arr_columns[$key]['display']) ? $arr_columns[$key]['display'] : 0;
+                switch ($display)
+                    {
+                    case 1:
+                        $readonly = true;
+                        break;
+                    case 2:
+                        $hidden = "hidden";
+                        break;
+                    }
                 $filtername = "bb_input_" . $main->make_html_id($row_type, $key);
+                $field_id = "bb_input_" . $main->make_html_id($row_type, $key);
                 //different field types
                 //dropdown type, multiselect possible
                 if (isset($arr_dropdowns[$key]))
@@ -94,7 +105,9 @@ if (!function_exists('bb_data_table_render_form')) :
                         $dropdown = $input;
                         $disabled = "disabled";
                         }
-                    if ($main->reduce($arr_dropdowns, array($key, 'multiselect')))
+                    $multiselect = $main->reduce($arr_dropdowns, array($key));
+                    $multiselecttest = isset($multiselect['multiselect']) ? $multiselect['multiselect'] : false;
+                    if ($multiselecttest) //set and true
                         {
                         $multiple = "multiple=\"multiple\"";
                         $size = "size=4";                                                     

@@ -54,7 +54,7 @@ $array_global['bb_brimbox']['hooks']['bb_upload_data_row_input'][] = array('func
 $array_global['bb_brimbox']['hooks']['bb_input_top_level_records'][] = array('func'=>"bb_input_module_hooks::top_level_records", 'vars'=>array("main", "module", "arr_layouts", "arr_columns", "arr_state"), 'file'=>"/bb-blocks/bb_input_module_hooks.php");
 $array_global['bb_brimbox']['hooks']['bb_input_parent_record'][] = array('func'=>"bb_input_module_hooks::parent_record", 'vars'=>array("main", "arr_columns", "arr_state"), 'file'=>"/bb-blocks/bb_input_module_hooks.php");
 $array_global['bb_brimbox']['hooks']['bb_input_quick_links'][] = array('func'=>"bb_input_module_hooks::quick_links", 'vars'=>array("main", "arr_layouts", "arr_columns", "arr_state"), 'file'=>"/bb-blocks/bb_input_module_hooks.php");
-$array_global['bb_brimbox']['hooks']['bb_input_submit_buttons'][] = array('func'=>"bb_input_module_hooks::submit_buttons", 'vars'=>array("main", "arr_columns", "arr_state"), 'file'=>"/bb-blocks/bb_input_module_hooks.php");
+$array_global['bb_brimbox']['hooks']['bb_input_submit_buttons'][] = array('func'=>"bb_input_module_hooks::submit_buttons", 'vars'=>array("main", "module", "arr_columns", "arr_state"), 'file'=>"/bb-blocks/bb_input_module_hooks.php");
 $array_global['bb_brimbox']['hooks']['bb_input_textarea_load'][] = array('func'=>"bb_input_module_hooks::textarea_load", 'vars'=>array("main", "module", "arr_columns"), 'file'=>"/bb-blocks/bb_input_module_hooks.php");
 
 # STANDARD INTERFACE DEFINITION #

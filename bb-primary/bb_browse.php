@@ -135,8 +135,9 @@ $col = $main->pad("c", $col_type);
 //this is used to populate the record header link to parent record
 //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent")); 
-$arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-$leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
+if ($parent_row_type)
+    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+$leftjoin = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
 
 echo "&nbsp;&nbsp;";
 //layout types, this produces $row_type
