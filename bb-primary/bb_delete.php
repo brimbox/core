@@ -26,8 +26,8 @@ $arr_messages = array();
 //get $_POST var
 $POST = $main->retrieve($con);
 
-$post_key = isset($POST['bb_post_key']) ? $POST['bb_post_key'] : -1;
-$row_type = isset($POST['bb_row_type']) ? $POST['bb_row_type'] : -1;
+$post_key = $main->init($POST['bb_post_key'], -1);
+$row_type = $main->init($POST['bb_row_type'], -1);
 
 $delete_log = $main->on_constant('BB_DELETE_LOG');
 
@@ -92,6 +92,7 @@ else
     if ($cnt_cascade > 1)
         {
         array_push($arr_messages, "This record has " . ($cnt_cascade - 1) . " child records.");
+        array_push($arr_messages, "Caution: Clicking \"Delete Cascade\" will delete this record and all its child records. This cannot be undone.");
         }
     else
         {
@@ -102,8 +103,9 @@ else
     $arr_columns = $main->columns($con, $row_type);
     
     $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-    $leftjoin = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
+    if ($parent_row_type)
+        $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+    $leftjoin = $main->init($arr_columns_props['primary'], "c01");
 
     $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
 	     "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " .
@@ -113,7 +115,6 @@ else
     $result = $main->query($con, $query);
     
     $main->return_stats($result);
-    echo "<br>";
     $row = pg_fetch_array($result);   	
     echo "<div class =\"margin divider\">";
     //outputs the row we are working with
@@ -126,9 +127,11 @@ else
     }
 /* END RETURN RECORD */
 
-echo "<br><p class=\"spaced\">";
+$build->hook('bb_delete_messages');
+echo "<p class=\"spaced padded\">";    
 $main->echo_messages($arr_messages);
-echo "</p><br>";
+echo "</p>";
+echo "<br>";
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();

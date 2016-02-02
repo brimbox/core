@@ -25,10 +25,10 @@ if (!function_exists('bb_input_module_autofill')) :
         global $main, $con;
         
         $parent_row_type = $row['row_type'];
-        $row_type = $arr_state['row_type'];
-        $row_join = $arr_state['row_join'];
+        $row_type = $main->init($arr_state['row_type'], 0);
+        $row_join = $main->init($arr_state['row_join'], 0);
         
-        if (($row_type <> $row_join) && ($row_join == $parent_row_type))
+        if (($row_type <> $row_join) && ($row_join == $parent_row_type) && ($parent_row_type > 0))
             {
             $arr_columns = $main->columns($con, $row_type);
             $arr_columns_parent = $main->columns($con, $parent_row_type);
@@ -55,6 +55,6 @@ if (!function_exists('bb_input_module_autofill')) :
             }
 		} //end function
         
-        
-endif;       
+            
+endif;  //pluggable     
 ?>

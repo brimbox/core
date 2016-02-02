@@ -190,8 +190,10 @@ if ($main->blank($message))
         
         //get the primary column and set $row['hdr'] based on primary header      
         $parent_row_type = $arr_layouts[$row['row_type']]['parent'];
-        $leftjoin = isset($arr_columns[$parent_row_type]['primary']) ? $main->pad("c", $arr_columns[$parent_row_type]['primary']) : "c01";
-     
+        if ($parent_row_type)
+            $leftjoin = $main->init($arr_columns[$parent_row_type]['primary'], "c01");
+        
+        //seems to work, left will sometimes be set from previous row
         $row['hdr'] = $row[$leftjoin . "_left"];
         
         //echo records

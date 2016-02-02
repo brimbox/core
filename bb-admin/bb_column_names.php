@@ -61,10 +61,10 @@ $row_type = $main->post('row_type', $module, $default_row_type);
 $definition = $main->post('definition', $module, 'bb_brimbox');   
 //after posted row type
 $layout_name = $arr_layouts[$row_type]['plural'];
-//get columns from database
-$arr_core = $main->filter_keys($arr_columns_json[$row_type]);
-//get columns from database
-$arr_alternative = $main->filter_keys($arr_columns_json[$row_type]['alternative'][$definition]);
+//get columns from database, columns are not necessarily set
+$arr_core = $main->filter_keys($main->init($arr_columns_json[$row_type], array()));
+//get alternative columns from database, not necessarily set
+$arr_alternative = $main->filter_keys($main->init($arr_columns_json[$row_type]['alternative'][$definition], array()));
 
 /* END INITIALIZE */
     
@@ -108,7 +108,7 @@ if ($main->button(2))
     //get postback
     for ($i = 1; $i<=50; $i++)
         {
-        $name = $main->purge_chars($main->post('name_'. $i, $module, $arr_core[$i]['name']), true, true);
+        $name = $main->purge_chars($main->post('name_'. $i, $module, ""), true, true);
          if (!$main->blank($name)) //readonly input for not core
             {
             if ($core)
@@ -336,7 +336,8 @@ for ($m = 1; $m <= 50; $m++)
     
     //name, alternative is readonly, always use core array
     $readonly = $core ? "" : "readonly";
-    echo "<div class = \"cell middle\"><input name=\"name_" . $m . "\" class = \"spaced\" type=\"text\" value=\"" . htmlentities($arr_core[$m]['name']) . "\" size=\"25\" maxlength=\"" . $maxinput . "\" " . $readonly . "/></div>"; 	    
+    $name = $main->init($arr_core[$m]['name'], "");
+    echo "<div class = \"cell middle\"><input name=\"name_" . $m . "\" class = \"spaced\" type=\"text\" value=\"" . htmlentities($name) . "\" size=\"25\" maxlength=\"" . $maxinput . "\" " . $readonly . "/></div>"; 	    
 
     foreach ($arr_fields as $key => $value)
         {
@@ -350,6 +351,7 @@ for ($m = 1; $m <= 50; $m++)
                 {
                 case "row":
                 //row dropdown
+                    $value = $main->init($arr_columns[$m]['row'], 0);
                     echo "<div class = \"cell middle\"><select name=\"row_" . $m . "\" class = \"spaced\"/>";
                     echo "<option value = \"0\"></option>";
                         for ($i = 1; $i <= 50; $i++)
@@ -358,39 +360,43 @@ for ($m = 1; $m <= 50; $m++)
                             }
                     echo "</select></div>";
                     break;
-                case "length":  
+                case "length":
+                    $value = $main->init($arr_columns[$m]['length'], "");
                     $arr_column_css_class = array("short"=>"Short","medium"=>"Medium","long"=>"Long", "note"=>"Note");
                     echo "<div class = \"cell middle\"><select name = \"length_" . $m . "\" class = \"spaced\">";
                     foreach ($arr_column_css_class as $key => $value)
                         {
-                        echo "<option value=\"short\" " . ($key == $arr_columns[$m]['length'] ? "selected" : "") . ">" . $value . "</option>";
+                        echo "<option value=\"short\" " . ($key == $value ? "selected" : "") . ">" . $value . "</option>";
                         }
                     echo "</select></div>";
                     break;
                 case "order":
-                    //order dropdown            
+                    //order dropdown
+                    $value = $main->init($arr_columns[$m]['order'], 0);
                     echo "<div class = \"cell middle\"><select name = \"order_" . $m. "\" class = \"spaced\">";	
                     echo "<option value = \"0\"></option>";
                             for ($i = 1; $i <= 50; $i++)
                                 { 
-                                echo "<option value=\"" . $i . "\" " . ($i == $arr_columns[$m]['order'] ? "selected" : "") . ">" . $i . "&nbsp;</option>";
+                                echo "<option value=\"" . $i . "\" " . ($i == $value ? "selected" : "") . ">" . $i . "&nbsp;</option>";
                                 }
                     echo "</select></div>";
                     break;
                 case "display":
                     //display dropdown
+                    $value = $main->init($arr_columns[$m]['display'], 0);
                     echo "<div class = \"cell middle\">";
                     echo "<select name = \"display_" . $m. "\" class = \"spaced\">";
                     $arr_display = array(0=>"",1=>"Readonly",2=>"Hidden");
                     foreach ($arr_display as $key => $value)
                         {
-                        $selected = ($key == $arr_alternative[$m]['display']) ? "selected" : "";
+                        $selected = ($key == $value) ? "selected" : "";
                         echo "<option value = \"" . $key . "\" " . $selected . ">" . $value . "&nbsp;</option>";
                         }
                     echo "</select>";
                     echo "</div>";
                     break;
                 case "type":
+                    $value = $main->init($arr_columns[$m]['type'], "");
                     if (in_array($m, $arr_notes))
                         {
                         echo "<div class = \"padded cell middle center colored\">Note</div>";
@@ -409,24 +415,26 @@ for ($m = 1; $m <= 50; $m++)
                         //global $array_validation
                         foreach ($arr_validation as $key => $value)
                             {
-                            echo "<option value=\"" . $key . "\"" . ($key == $arr_columns[$m]['type'] ? "selected" : "") . " >" . $value['name'] . "</option>";
+                            echo "<option value=\"" . $key . "\"" . ($key == $value ? "selected" : "") . " >" . $value['name'] . "</option>";
                             }
                         echo "</select></div>";
                         }
                     break;
                 case "required":
                     //required checkbox
+                    $value = $main->init($arr_columns[$m]['display'], 0);
                     echo "<div class = \"padded cell center middle\">";
-                    $checked = ($arr_columns[$m]['required'] == 1) ? true : false;
+                    $checked = ($value == 1) ? true : false;
                     $main->echo_input("required_" . $m, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
                     echo "</div>";
                     break;
                 case "secure":
                     //secure checkbox
+                    $value = $main->init($arr_columns[$m]['secure'], 0);
                     if (empty($arr_column_security))
                         {
                         echo "<div class = \"padded cell center middle\">";
-                        $checked = ($arr_columns[$m]['secure'] == 1) ? true : false;
+                        $checked = ($value == 1) ? true : false;
                         $main->echo_input("secure_" . $m, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
                         echo "</div>";
                         }
@@ -435,28 +443,30 @@ for ($m = 1; $m <= 50; $m++)
                         echo "<div class = \"cell middle\"><select name=\"secure_" . $m . "\"class = \"spaced\">";
                         foreach ($arr_column_security as $key => $value)
                             {
-                            echo "<option value = \"" . $key . "\" " . ($arr_columns[$m]['secure'] == $key ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
+                            echo "<option value = \"" . $key . "\" " . ($value == $key ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
                             }
                         echo "</select></div>";
                         }
                     break;
                 case "search":
                     //search checkbox
+                    $value = $main->init($arr_columns[$m]['search'], 0);
                     echo "<div class = \"padded cell center middle\">";
-                    $checked = ($arr_columns[$m]['search'] == 1) ? true : false;
+                    $checked = ($value == 1) ? true : false;
                     $main->echo_input("search_" . $m, 1, array('type'=>'checkbox','input_class'=>'holderdown','checked'=>$checked));
                     echo "</div>";
                     break;
                 case "relate":
                     if (in_array($m, $arr_relate))
                         {
+                        $value = $main->init($arr_columns[$m]['relate'], 0);
                         echo "<div class = \"cell middle\"><select name=\"relate_" . $m . "\"class = \"spaced\">";
                         echo "<option value = \"0\"></option>";
                         foreach ($arr_layouts_reduced as $key => $value)
                             {
                             if ($value['relate'])
                                 {
-                                echo "<option value = \"" . $key . "\" " . ($arr_columns[$m]['relate'] == $key ? "selected" : "") . ">" . htmlentities(chr($key + 64) . $key) . "&nbsp;</option>";
+                                echo "<option value = \"" . $key . "\" " . ($value == $key ? "selected" : "") . ">" . htmlentities(chr($key + 64) . $key) . "&nbsp;</option>";
                                 }
                             }
                         echo "</select></div>";    
@@ -473,11 +483,11 @@ for ($m = 1; $m <= 50; $m++)
     } //for loop
 echo "</div>"; //table
 
-$params = array("class"=>"spaced","number"=>2, "passthis"=>true, "image"=>$processing_image, "label"=>"Submit Columns");
+$params = array("class"=>"spaced","number"=>2, "passthis"=>true, "label"=>"Submit Columns");
 $main->echo_button("submit_columnnames", $params);
 $params = array("class"=>"spaced","number"=>1, "passthis"=>true, "label"=>"Refresh Columns");
 $main->echo_button("refresh_columnnames", $params);
-$params = array("class"=>"spaced","number"=>3, "passthis"=>true, "image"=>$processing_image, "label"=>"Rebuild Indexes");
+$params = array("class"=>"spaced","number"=>3, "passthis"=>true, "label"=>"Rebuild Indexes");
 $main->echo_button("rebuild_indexes", $params);
 $main->echo_form_end();
 /* END FORM */

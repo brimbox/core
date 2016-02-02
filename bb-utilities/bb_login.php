@@ -27,7 +27,7 @@ If not, see http://www.gnu.org/licenses/
 #bb_table td.left { width: 40%; text-align: right; background-color: #F2EAFF;}
 #bb_table td, #bb_login input, #bb_submit { font-size: 12px; font-family: Arial, Helvetica, sans-serif; line-height: 140%; }
 #bb_login input { padding: 2px; width: 200px; border: 1px solid #A070B6; background-color: #FFFFFF; }
-#bb_message {text-align: center; font-size: 12px; font-family: Arial, Helvetica, sans-serif; line-height: 140%; }
+#bb_message {text-align: center; font-size: 12px; font-family: Arial, Helvetica, sans-serif; line-height: 140%; color: red;}
 #bb_submit { background-color: #F2EAFF; border: 1px solid #A070B6; margin: 5px; padding: 3px; border-radius: 2px; -moz-border-radius: 2px; -webkit-border-radius: 2px; -o-border-radius: 2px;}
 @media screen and (min-height: 600px) {
         #bb_index  { margin-top: -200px; }
@@ -58,7 +58,7 @@ If not, see http://www.gnu.org/licenses/
         <td class="right"><input name="password" id="password" class="long" type="password" /></td></tr>
         </table>
         <button id="bb_submit" name="bb_submit" type="submit" value="submit" />Login</button>
-        <div id="bb_message"><?php echo $message; ?></div>
+        <div id="bb_message"><?php if (isset($message)) echo $message; ?></div>
         </form>
     </div>
     </body>

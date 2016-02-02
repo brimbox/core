@@ -339,7 +339,7 @@ if (!function_exists ('bb_input_module_postback')) :
                     }
                         
                 /* EXECUTE QUERY */
-                $return_primary = isset($arr_columns[$row_type]['layout']['primary']) ? $main->pad("c", $arr_columns[$row_type]['layout']['primary']) : "c01";
+                $return_primary = isset($arr_columns[$row_type]['primary']) ? $main->pad("c", $arr_columns[$row_type]['primary']) : "c01";
                 $query = "INSERT INTO data_table (" . $insert_clause	. ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as inserted_primary;";
                 /* STEP 1 */
                 //echo "<p>" . $query . "</p>";

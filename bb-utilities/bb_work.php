@@ -78,6 +78,11 @@ class bb_work extends bb_meta {
 		return empty($var) && $var !== '0';
 		}
 		
+	function init(&$var, $default)
+		{
+		return (isset($var)) ? $var : $default;
+		}
+		
 	function hot($var)
 		{
 		global $module;

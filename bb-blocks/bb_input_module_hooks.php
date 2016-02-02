@@ -38,7 +38,9 @@ class bb_input_module_hooks {
 		//buttons an record selector		
 		$row_type = $main->state("row_type", $arr_state, 0); //should never be < 1
 		$row_join = $main->state("row_join", $arr_state, 0); //could be 0
-		$parent_row_type = $arr_layouts[$row_type]['parent'];
+		
+		//if (isset($arr_layouts[$row_type]['parent'])) echo "TERT";
+		$parent_row_type = $main->init($arr_layouts[$row_type]['parent'], 0);
 		
 		$insert_or_edit = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
 		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$insert_or_edit);
@@ -77,7 +79,7 @@ class bb_input_module_hooks {
 			//no top level records, not common
 			}
 		//autoload button, not implemented
-		if ($arr_layouts[$row_type]['autoload'])
+		if (isset($arr_layouts[$row_type]['autoload']))
 			{
 			$params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Autoload");
 			$main->echo_button("top_reset", $params);				

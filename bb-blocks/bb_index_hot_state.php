@@ -83,9 +83,10 @@ function bb_index_hot_state($con, $main, $interface, &$array_hot_state)
     // Hot state for Layout Names  
     if ($main->hot("bb_layout_names"))
         {
+        $number_layouts = $main->get_constant('BB_NUMBER_LAYOUTS', 12);
         $POST = $main->retrieve($con);
         $arr = array();
-        for ($i = 1; $i<=26; $i++)
+        for ($i = 1; $i<=$number_layouts; $i++)
             {        
             if ($main->full('singular_' . $i, 'bb_layout_names') || $main->full('plural_' . $i, 'bb_layout_names'))
                 {

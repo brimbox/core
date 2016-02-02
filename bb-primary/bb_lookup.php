@@ -302,7 +302,7 @@ $layout = $main->reduce($arr_layouts, $row_type);
 $parent_row_type = $layout['parent']; //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 if ($parent_row_type)
     $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-$leftjoin = isset($arr_columns_props['layout']['primary']) ? $main->pad("c", $arr_columns_props['layout']['primary']) : "c01";
+$leftjoin = $main->init($arr_columns_props['layout']['primary'], "c01");
 
 //return query, order by column 1 and column 2
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM (SELECT * FROM data_table WHERE " . $and_clause_4 . ") T1 " .

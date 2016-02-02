@@ -616,8 +616,15 @@ class bb_main extends bb_reports {
 			if (is_array($messages))
 				{
 				foreach ($messages as $message)
-					{ 
-					$class = (strncasecmp($message, "Error:", 6) == 0) ? "error": "message";
+					{
+                    if (preg_match("/^Error:|^Warning:|^Caution:/i", $message))
+                        {
+                        $class = "error";    
+                        }
+                    else
+                        {
+                        $class = "message";
+                        }   
 					echo "<p class=\"" . $class . "\">" . $message . "</p>";
 					}
 				}

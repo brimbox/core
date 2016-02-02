@@ -67,7 +67,7 @@ list($webpath, $slug) = preg_split("/[\/](?=[^\/]*$)/", parse_url($_SERVER['REQU
 //index is the absolute path to the root index file/controller (not including host or protocol)
 $_SESSION['webpath'] = $webpath;
 //slug is a CMS slug, not really a directory, file, or normal part of a url
-$slug = ($_SESSION['slug'] <> "") ? $slug : "";
+$_SESSION['slug'] = $slug;
 //the absolute path to the index file no trailing forward slash, used for includes
 $_SESSION['abspath'] = $abspath = dirname(__FILE__);
 //note: $index and dir do not contain trailing forward slash
@@ -168,7 +168,7 @@ else: /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */
 
 /* LOGIN SECTION */
 /* INCLUDES THE LOGIN VERIFICATION */
-/* WHICH INCLUDES THE LOGIN FORM *?
+/* WHICH INCLUDES THE LOGIN FORM */
 if (file_exists("verify.php"))
     {
     include_once("verify.php");   

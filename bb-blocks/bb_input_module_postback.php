@@ -117,7 +117,7 @@ if (!function_exists('bb_input_module_postback')) :
                 {
                 $main->set('parent_id', $arr_state, $row['id']);
                 $main->set('parent_row_type', $arr_state, $row['row_type']);
-                $col_type_primary = $main->lookup($con, 'bb_column_names', array($row['row_type'], "layout", "primary"));
+                $col_type_primary = $main->lookup($con, 'bb_column_names', array($row['row_type'], "primary"));
                 $column_primary = $main->pad("c", $col_type_primary);
                 $main->set('parent_primary', $arr_state, $row[$column_primary]);
                 }                

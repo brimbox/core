@@ -35,8 +35,8 @@ select.box
 $POST = $main->retrieve($con);
 
 //get post_key
-$post_key = isset($POST['bb_post_key']) ? $POST['bb_post_key'] : -1;
-$row_type = isset($POST['bb_row_type']) ? $POST['bb_row_type'] : -1;
+$post_key = $main->init($POST['bb_post_key'], -1);
+$row_type = $main->init($POST['bb_row_type'], -1);
 
 //get postback vars
 if ($main->button(1))
@@ -77,8 +77,9 @@ $arr_columns = $main->columns($con, $row_type);
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
 $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-$arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-$leftjoin = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
+if ($parent_row_type)
+    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+$leftjoin = $main->init($arr_columns_props['primary'], "c01");
    
 //one int and a string
 $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
@@ -87,12 +88,9 @@ $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM da
      "WHERE T1.id = " . $post_key . ";";
 $result = $main->query($con, $query);
 
-$main->return_stats($result);
-echo "<br>";
-
 //get row, set xml on row_type, echo out details
+$main->return_stats($result);
 $row = pg_fetch_array($result);
-
 echo "<div class =\"margin divider\">";
 //outputs the row we are working with
 $main->return_header($row, "bb_cascade");

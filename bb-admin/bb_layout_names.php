@@ -57,10 +57,10 @@ if ($main->button(1)) //layout_submit
     {
     //one record must be populated
     //use two arrays, 
-    for ($i = 1; $i<=26; $i++)
+    for ($i = 1; $i<=$number_layouts; $i++)
         {
-        $singular = $main->purge_chars($main->post('singular_'. $i, $module, $arr_layouts[$i]['singular']), true, true);
-        $plural = $main->purge_chars($main->post('plural_'. $i, $module, $arr_layouts[$i]['plural']), true, true);
+        $singular = $main->init($main->post('singular_'. $i, $module, "" ), "");
+        $plural = $main->init($main->post('plural_'. $i, $module, ""), "");
         
         //OR condition to save variables in state
         if (!$main->blank($singular) && !$main->blank($plural))
@@ -71,6 +71,7 @@ if ($main->button(1)) //layout_submit
                 {
                 $arr_update[$i][$key] = $main->purge_chars($main->post($key . '_'. $i, $module, $arr_layouts[$i]['singular']), true, true);    
                 }
+            $populated = $i;
             }
         }
     
@@ -81,7 +82,7 @@ if ($main->button(1)) //layout_submit
 	$arr_order = array();
     $arr_parent = array();   
 
-    for ($i=1; $i<=$number_layouts; $i++)
+    for ($i=1; $i<=$populated; $i++)
         {
         $singular = $arr_update[$i]['singular'];
         $plural = $arr_update[$i]['plural'];

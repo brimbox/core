@@ -31,8 +31,8 @@ $POST = $main->retrieve($con);
 $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_archive = $arr_header['row_archive']['value'];
 
-$post_key = isset($POST['bb_post_key']) ? $POST['bb_post_key'] : -1;
-$row_type = isset($POST['bb_row_type']) ? $POST['bb_row_type'] : -1;
+$post_key = $main->init($POST['bb_post_key'], -1);
+$row_type = $main->init($POST['bb_row_type'], -1;
 
 /* BEGIN ARCHIVE CASCADE */
 if ($main->button(1))
@@ -125,6 +125,7 @@ else //default behavior
     if ($cnt_cascade > 1)
         {
         array_push($arr_messages, "This record has " . ($cnt_cascade - 1) . " child records.");
+        array_push($arr_messages, "Clicking \"Archive Cascade\", \"Archive Retreive\", or \"Set Archive To\" will archive this record and all its child records.");
         }
     else
         {
@@ -137,8 +138,9 @@ else //default behavior
     //get column name from "primary" attribute in column array
     //this is used to populate the record header link to parent record
     $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-    $leftjoin = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
+    if ($parent_row_type)
+        $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+    $leftjoin = $main->init($arr_columns_props['primary'], "c01");
 
     $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
 	     "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " .
@@ -148,7 +150,6 @@ else //default behavior
     $result = $main->query($con, $query);
     
     $main->return_stats($result);
-    echo "<br>";
     $row = pg_fetch_array($result);
     $setbit= $row['archive'];
     echo "<div class =\"margin divider\">";
@@ -162,8 +163,10 @@ else //default behavior
     }
 /* END RETURN RECORD */
 
-echo "<br>";    
+$build->hook('bb_archive_messages');
+echo "<p class=\"spaced padded\">";    
 $main->echo_messages($arr_messages);
+echo "</p>";
 echo "<br>";
 
 /* BEGIN REQUIRED FORM */

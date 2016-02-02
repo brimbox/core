@@ -137,7 +137,7 @@ $col = $main->pad("c", $col_type);
 $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent")); 
 if ($parent_row_type)
     $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-$leftjoin = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
+$leftjoin = $main->init($arr_columns_props['primary'], "c01");
 
 echo "&nbsp;&nbsp;";
 //layout types, this produces $row_type

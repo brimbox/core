@@ -84,8 +84,9 @@ $arr_columns = $main->columns($con, $row_type);
 //get column name from "primary" attribute in column array
 //this is used to populate the record header link to parent record
 $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-$arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-$leftjoin = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
+if ($parent_row_type) //for consistancy
+    $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
+$leftjoin = $main->init($arr_columns_props['primary'], "c01");
 /*** END COLUMN AND LAYOUT INFO ***/
 
 /* BEGIN REQUIRED FORM */
