@@ -79,7 +79,8 @@ class bb_input_module_hooks {
 			//no top level records, not common
 			}
 		//autoload button, not implemented
-		if (isset($arr_layouts[$row_type]['autoload']))
+		$autoload = $main->init($arr_layouts[$row_type]['autoload'], 0);
+		if ($autoload)
 			{
 			$params = array("class"=>"spaced","number"=>4,"target"=>$module, "passthis"=>true, "label"=>"Autoload");
 			$main->echo_button("top_reset", $params);				

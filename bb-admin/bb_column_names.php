@@ -356,7 +356,7 @@ for ($m = 1; $m <= 50; $m++)
                     echo "<option value = \"0\"></option>";
                         for ($i = 1; $i <= 50; $i++)
                             { 
-                            echo "<option value=\"" . $i . "\" " . ($i == $arr_columns[$m]['row'] ? "selected" : "") . ">" . $i . "&nbsp;</option>";
+                            echo "<option value=\"" . $i . "\" " . ($i == $value ? "selected" : "") . ">" . $i . "&nbsp;</option>";
                             }
                     echo "</select></div>";
                     break;
