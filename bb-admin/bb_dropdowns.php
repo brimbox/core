@@ -43,25 +43,23 @@ $POST = $main->retrieve($con);
 $arr_state = $main->load($con, $module);
 
 //This area creates the form for choosing the lists
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);  
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
-//deal with columns
-$arr_columns = $main->get_json($con, "bb_column_names");
-$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
+$arr_layouts = $main->layouts($con); 
+$default_row_type = $main->get_default_layout($arr_layouts);
+
 //get dropdowns
-$arr_dropdowns = $main->get_json($con, "bb_dropdowns");
+$arr_dropdowns_json = $main->get_json($con, "bb_dropdowns");
 
 //get default col_type
 $row_type = $main->post('row_type', $module, $default_row_type);
-$arr_column_reduced = $main->filter_keys($arr_columns[$row_type]);
-$default_col_type = $main->get_default_column($arr_column_reduced);
+$arr_columns = $main->columns($con, $row_type);
+$default_col_type = $main->get_default_column($arr_columns);
 
 if ($main->changed('row_type', $module, $arr_state, $default_row_type))
     {
     $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
     $col_type = $main->set('col_type', $arr_state, $default_col_type);
-    $multiselect = $main->set('multiselect', $arr_state, $arr_dropdowns[$row_type][$col_type]['multiselect']);
+    $multiselect = $main->init($arr_dropdowns_json[$row_type][$col_type]['multiselect'], 0);
+    $multiselect = $main->set('multiselect', $arr_state, $multiselect);
     $all_values = $empty_value = 0;
     $dropdowns = "";
     }
@@ -70,8 +68,9 @@ else
     if ($main->changed('col_type', $module, $arr_state, $default_col_type))
         {
         $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
-        $col_type = $main->process('col_type', $module, $arr_state, $col_type);
-        $multiselect = $main->set('multiselect', $arr_state, $arr_dropdowns[$row_type][$col_type]['multiselect']);
+        $col_type = $main->process('col_type', $module, $arr_state, $default_col_type);
+        $multiselect = $main->init($arr_dropdowns_json[$row_type][$col_type]['multiselect'], 0);
+        $multiselect = $main->set('multiselect', $arr_state, $multiselect);
         $all_values = $empty_value = 0;
         $dropdowns = "";
         }    
@@ -95,8 +94,8 @@ $col_text = isset($arr_column[$col_type]['name']) ? $arr_column[$col_type]['name
 if ($main->button(1)) //populate_dropdown
 	{
     //preexisting dropdown xml
-    $dropdown_reduced = $main->filter_keys($arr_dropdowns[$row_type][$col_type]);
-
+    $arr_dropdown = $main->reduce($arr_dropdowns_json, array($row_type, $col_type), false);
+    
     //get all values in database for the selected column (and row type)
     $column = $main->pad("c",$col_type);
 	$query = "SELECT distinct " .  $column . " FROM data_table WHERE row_type = " . $row_type . " AND archive = 0 ORDER BY " . $column . " LIMIT 2000;";
@@ -105,10 +104,10 @@ if ($main->button(1)) //populate_dropdown
 	$arr_query = pg_fetch_all_columns($result, 0);
 
     //values from db and dropdown alphabetized
-	if (!empty($dropdown_reduced) && ($all_values == 0))
+	if (!empty($arr_dropdown) && ($all_values == 0))
 		{
-		$arr_populate = array_merge($arr_query, $dropdown_reduced);
-        if ($arr_dropdowns[$row_type][$col_type]['multiselect'])
+		$arr_populate = array_merge($arr_query, $arr_dropdown);
+        if ($multiselect)
             {
             $arr_delimiter =  preg_grep("/[" . preg_quote($delimiter) . "]/", $arr_populate);
             $arr_display = array();
@@ -130,9 +129,9 @@ if ($main->button(1)) //populate_dropdown
         array_push($arr_messages, "Textarea populated from both preexisting dropdown list and the database.");
 		}
     //values from dropdown not alphabetized
-    elseif (!empty($dropdown_reduced) && ($all_values == 1))
+    elseif (!empty($arr_dropdown) && ($all_values == 1))
         {
-        $arr_display = $dropdown_reduced;
+        $arr_display = $arr_dropdown;
         array_push($arr_messages, "Column " . $col_text . " has a dropdown list.");
         array_push($arr_messages, "Textarea populated from preexisting dropdown list.");
         }
@@ -174,13 +173,13 @@ if ($main->button(2)) //submit dropdown
             {
 			array_push($arr_dropwork, $value);//overload
             }
-        $arr_dropdowns[$row_type][$col_type] = $arr_dropwork;
-        if ($multiselect == 1) $arr_dropdowns[$row_type][$col_type]['multiselect'] = true;
-        $main->update_json($con, $arr_dropdowns, "bb_dropdowns");	
+        $arr_dropdowns_json[$row_type][$col_type] = $arr_dropwork;
+        if ($multiselect == 1) $arr_dropdowns_json[$row_type][$col_type]['multiselect'] = 1;
+        $main->update_json($con, $arr_dropdowns_json, "bb_dropdowns");	
         array_push($arr_messages, "Column ". $col_text . " has had its dropdown list added or updated.");
         
         $row_type = $main->set('row_type', $arr_state, $default_row_type);
-        $col_type = $main->set('col_type', $module, $arr_state, $default_col_type);
+        $col_type = $main->set('col_type', $arr_state, $default_col_type);
         $multiselect = $all_values = $empty_value = 0;
         $dropdowns = "";       
         }
@@ -189,8 +188,8 @@ if ($main->button(2)) //submit dropdown
 //this area removes the dropdown
 if ($main->button(3)) //remove_dropdown
 	{ 
-    unset($arr_dropdowns[$row_type][$col_type]);
-    $main->update_json($con, $arr_dropdowns,"bb_dropdowns");
+    unset($arr_dropdowns_json[$row_type][$col_type]);
+    $main->update_json($con, $arr_dropdowns_json,"bb_dropdowns");
 	
 	array_push($arr_messages, "Column " . $col_text . " has had its dropdown list removed if it existed.");
 	}
@@ -208,10 +207,10 @@ $main->echo_module_vars();;
 
 //row_type select tag
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "<br>"; //why not
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->column_dropdown($arr_column_reduced, "col_type", $col_type, $params);
+$main->column_dropdown($arr_columns, "col_type", $col_type, $params);
 echo "<br>";
 echo "<div class=\"spaced\">";
 echo "<span class = \"border rounded padded shaded\">";

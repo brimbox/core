@@ -37,8 +37,8 @@ $POST = $main->retrieve($con);
 $arr_state = $main->load($con, $module);
 
 //get layouts
-$arr_layout = $main->layouts($con);
-$default_row_type = $main->get_default_layout($arr_layout);
+$arr_layouts = $main->layouts($con);
+$default_row_type = $main->get_default_layout($arr_layouts);
 
 $row_type = $main->state('row_type', $arr_state, $default_row_type); 
 $data_area = $main->state('data_area', $arr_state, "");
@@ -54,7 +54,7 @@ $arr_messages_all = $main->state('arr_messages_all', $arr_state, array());
 $main->update($con, $module, $arr_state);
 
 //get column names based on row_type/record types
-$arr_layout = $arr_layouts_reduced[$row_type];
+$arr_layout = $arr_layouts[$row_type];
 
 //button 1
 //get column names for layout
@@ -106,7 +106,7 @@ $main->echo_module_vars();;
 //upload row_type calls dummy function
 echo "<div class=\"spaced border floatleft padded\">";
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->layout_dropdown($arr_layout, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>"Get Upload Header");
 $main->echo_button("get_header", $params);
 echo "</div>";

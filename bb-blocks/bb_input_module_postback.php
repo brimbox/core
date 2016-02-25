@@ -23,7 +23,7 @@ if (!function_exists('bb_input_module_postback')) :
     function bb_input_module_postback(&$arr_layouts, &$arr_columns, &$arr_dropdowns, &$arr_state, &$row)
         {
         //session or global vars, superglobals
-        global $POST, $con, $build, $main, $submit;
+        global $POST, $con, $build, $main, $module;
     
         //standard values
         $arr_relate = array(41,42,43,44,45,46);
@@ -162,13 +162,103 @@ if (!function_exists('bb_input_module_postback')) :
                     }
                 }
             }
+        /* CLEAR FORM BUTTON  */
+        elseif ($main->button(2)) //clear form
+            {		
+            //reset state
+            $arr_state = array();
+            //reset to default row_type
+            //set some state vars
+            $row_type = $main->set("row_type", $arr_state, $default_row_type);
+            $row_join = $main->set("row_join", $arr_state, 0);
+            $post_key = $main->set("post_key", $arr_state, 0);
+            
+            $arr_columns = $main->columns($con, $row_type);
+            $arr_dropdowns = $main->dropdowns($con, $row_type);
+            }
+        /* END CLEAR FORM BUTTON  */
+        
+        /* SELECT COMBO CHANGE CLEAR*/
+        // basically reset form, combo change through javascript
+        elseif ($main->button(3))
+            {
+            //get row_type from combo box
+            $arr_state = array();
+            $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
+            $row_join = $main->set('row_join', $arr_state, 0);
+            $post_key = $main->set('post_key', $arr_state, 0);
+            
+            $arr_columns = $main->columns($con, $row_type);
+            $arr_dropdowns = $main->dropdowns($con, $row_type);
+            }
+        /* END SELECT COMBO CHANGE CLEAR*/
+        
+        //$main->button(4) reserved for autoload
+        
+        /* TEXTAREA LOAD */
+        //textarea load gets the populated values only, keep values in state
+        elseif ($main->button(5))
+            {
+            $row_type = $arr_state['row_type'];
+            $row_join = $arr_state['row_join'];
+            $post_key = $arr_state['post_key'];
+            
+            $arr_columns = $main->columns($con, $row_type);
+            $arr_dropdowns = $main->dropdowns($con, $row_type);
+            $delimiter = $main->get_constant('BB_MULTISELECT_DELIMITER', ",");
+        
+            $str_textarea = $main->post('input_textarea', $module, "");
+            $arr_textarea =  preg_split("/\r\n|\n|\r/", $str_textarea);
+            
+            print_r($arr_textarea);
+            //load textarea into xml, textarea and queue field mutually exclusive
+            $i = 0;
+            
+            foreach($arr_columns as $key => $value)
+                {				
+                $col = $main->pad("c", $key);
+                $textarea = isset($arr_textarea[$i]) ? trim($arr_textarea[$i]) : "";
+                if ($textarea <> "")
+                    {
+                    if (in_array($key, $arr_notes))
+                        {
+                        $str = $main->purge_chars($textarea, false);
+                        }
+                    elseif (in_array($key, $arr_file))
+                        {
+                        //do nothing
+                        }
+                    elseif (isset($arr_dropdowns[$key]))
+                        {
+                        if ($arr_dropdowns[$key]['multiselect'])
+                            {
+                            //will be an array
+                            $str = explode($delimiter, $textarea);
+                            $str = array_map(array($main, "purge_chars"), $textarea);   
+                            }
+                        else
+                            {
+                            $str = $main->purge_chars($textarea);    
+                            }
+                        }
+                    else
+                        {
+                        $str = $main->purge_chars($textarea);
+                        }  
+                    $main->set($col, $arr_state, $str);
+                    $str = "";
+                    }		
+                $i++;
+                }
+            } 
+
         //enter the tab without link or relate
         else
             {
             //once layout is had    
-            $row_type = $main->state('row_type', $arr_state, $default_row_type);
-            $row_join = $main->state('row_join', $arr_state, 0);
-            $post_key = $main->state('post_key', $arr_state, 0);
+            $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
+            $row_join = $main->process('row_join', $module, $arr_state, 0);
+            $post_key = $main->process('post_key', $module, $arr_state, 0);
             
             //get the columns and dropdowns for given row_type
             $arr_columns = $main->columns($con, $row_type);

@@ -28,7 +28,7 @@ function bb_reload()
     {
     var frmobj = document.forms["bb_form"];
     //set a button of 4 for postback
-    bb_submit_form(3);
+    bb_submit_form([3]);
 	return false;
     }
 </script>
@@ -57,8 +57,13 @@ $main->echo_form_begin(array('type'=>"enctype=\"multipart/form-data\""));
 $main->echo_module_vars(); //global for all modules
 $main->echo_common_vars(); //common to standard interface
 
-// ENTRANCE HOOKS 
-$build->hook("bb_input_top_level_records");    
+/* DISPLAY INPUT FORM */
+// ENTRANCE HOOKS
+$build->hook("bb_input_top_level_records");
+
+//$arr_columns can be empty
+if (!empty($arr_columns)) :
+
 //this when inserting child record
 $build->hook("bb_input_parent_record");
 //this to add quick child and sibling links
@@ -77,7 +82,9 @@ $build->hook("bb_input_end_archive_secure");
 //submit button
 $build->hook("bb_input_submit_buttons");
 //textarea load
-$build->hook("bb_input_textarea_load");  
+$build->hook("bb_input_textarea_load");
+
+endif;
 
 //form end
 $main->echo_form_end();

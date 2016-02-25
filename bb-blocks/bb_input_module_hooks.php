@@ -35,8 +35,9 @@ class bb_input_module_hooks {
 	//top level record selector	
 	function top_level_records($main, $module, $arr_layouts, $arr_columns, $arr_state)
 		{
-		//buttons an record selector		
-		$row_type = $main->state("row_type", $arr_state, 0); //should never be < 1
+		//buttons an record selector
+		$default_row_type = $main->get_default_layout($arr_layouts);
+		$row_type = $main->state("row_type", $arr_state, $default_row_type); //should never be < 1
 		$row_join = $main->state("row_join", $arr_state, 0); //could be 0
 		
 		//if (isset($arr_layouts[$row_type]['parent'])) echo "TERT";
@@ -96,14 +97,12 @@ class bb_input_module_hooks {
 		$parent_id = $main->state('parent_id', $arr_state, 0);
 		$parent_row_type = $main->state('parent_row_type', $arr_state, 0);
 		$parent_primary = $main->state('parent_primary', $arr_state, "");
-		if (count($arr_columns) > 0) //checked twice
-			{
-			$edit_or_insert = ($row_type == $row_join) ? "Edit Mode" : "Insert Mode";
-	
-			//edit or Insert Record and primary parent column		
-			$parent_string = $main->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $parent_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
-			echo "<p class=\"spaced\"><span class=\"bold\">" . $edit_or_insert . "</span>" . $parent_string . "</p>";
-			}
+
+		$edit_or_insert = ($row_type == $row_join) ? "Edit Mode" : "Insert Mode";
+
+		//edit or Insert Record and primary parent column		
+		$parent_string = $main->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $parent_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
+		echo "<p class=\"spaced\"><span class=\"bold\">" . $edit_or_insert . "</span>" . $parent_string . "</p>";
 		}
 	
 	//quick child and sibling links
@@ -116,61 +115,54 @@ class bb_input_module_hooks {
 		$parent_id = $main->state('parent_id', $arr_state, 0);
 		$parent_row_type = $main->state('parent_row_type', $arr_state, 0);
 		$parent_primary = $main->state('parent_primary', $arr_state, "");
-		if (count($arr_columns) > 0) //checked twice
+
+		//add children links, empty works no zeros
+		if (!empty($inserted_id) && !empty($inserted_row_type))
 			{
-			//add children links, empty works no zeros
-			if (!empty($inserted_id) && !empty($inserted_row_type))
+			if ($main->check_child($inserted_row_type, $arr_layouts))
 				{
-				if ($main->check_child($inserted_row_type, $arr_layouts))
-					{
-					echo "<p class=\"spaced\"><span class=\"bold\">Add Child Record</span> - Parent: <span class=\"colored\">" . $inserted_primary . "</span> - ";
-					$main->drill_links($inserted_id, $inserted_row_type, $arr_layouts, "bb_input", "Add");
-					echo "</p>";
-					}
+				echo "<p class=\"spaced\"><span class=\"bold\">Add Child Record</span> - Parent: <span class=\"colored\">" . $inserted_primary . "</span> - ";
+				$main->drill_links($inserted_id, $inserted_row_type, $arr_layouts, "bb_input", "Add");
+				echo "</p>";
 				}
-			//add sibling links, empty works no zeros
-			if (!empty($inserted_id) && !empty($parent_id) && !empty($parent_row_type))
+			}
+		//add sibling links, empty works no zeros
+		if (!empty($inserted_id) && !empty($parent_id) && !empty($parent_row_type))
+			{
+			if ($main->check_child($parent_row_type, $arr_layouts))
 				{
-				if ($main->check_child($parent_row_type, $arr_layouts))
-					{
-					echo "<p class=\"spaced\"><span class=\"bold\">Add Sibling Record</span> - Parent: <span class=\"colored\">" . $parent_primary . "</span> - ";
-					$main->drill_links($parent_id, $parent_row_type, $arr_layouts, "bb_input", "Add");
-					echo "</p>";
-					}
+				echo "<p class=\"spaced\"><span class=\"bold\">Add Sibling Record</span> - Parent: <span class=\"colored\">" . $parent_primary . "</span> - ";
+				$main->drill_links($parent_id, $parent_row_type, $arr_layouts, "bb_input", "Add");
+				echo "</p>";
 				}
-			}	
+			}
 		}
 		
 	function submit_buttons($main, $module, $arr_columns, $arr_state)
 		{		
 		$row_type = $main->state('row_type', $arr_state, 0);
 		$row_join = $main->state('row_join', $arr_state, 0);
-		if (count($arr_columns) > 0) //checked twice
-            {                
-            $insert_or_edit = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
-            $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$insert_or_edit);
-            $main->echo_button("bottom_submit", $params);
-            $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
-            $main->echo_button("bottom_reset", $params);
-            }			
+             
+		$insert_or_edit = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
+		$params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>true, "label"=>$insert_or_edit);
+		$main->echo_button("bottom_submit", $params);
+		$params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Reset Form");
+		$main->echo_button("bottom_reset", $params);		
 		}
 		
 	function textarea_load($main, $module, $arr_columns)
 		{
 		//reduce columns
-		if (count($arr_columns) > 0) //checked twice
-            {
-			$textarea_rows = count($arr_columns) > 0 ? count($arr_columns) : 3;
-            echo "<div class=\"clear\"></div>";
-            echo "<br>";
-            //load textarea
-            echo "<div align=\"left\">";
-            echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . $textarea_rows ."\"></textarea>";
-            echo "<div class=\"clear\"></div>";
-            $params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
-            $main->echo_button("load_textarea", $params);
-            echo "</div>";
-            }  	
+		$textarea_rows = count($arr_columns) > 0 ? count($arr_columns) : 3;
+		echo "<div class=\"clear\"></div>";
+		echo "<br>";
+		//load textarea
+		echo "<div align=\"left\">";
+		echo "<textarea class=\"spaced\" name = \"input_textarea\" cols=\"80\" rows=\"" . $textarea_rows ."\"></textarea>";
+		echo "<div class=\"clear\"></div>";
+		$params = array("class"=>"spaced","number"=>5,"target"=>$module, "passthis"=>true, "label"=>"Load Data To Form");
+		$main->echo_button("load_textarea", $params);
+		echo "</div>";
 		}
 
 } //end class

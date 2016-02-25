@@ -133,11 +133,14 @@ if ($main->button(-1))
 //or run subquery
 else
     {
-    $fullquery = $arr_sub_queries[$button]['subquery'];    
+    if ($button > 0)
+        {
+        $fullquery = $arr_sub_queries[$button]['subquery'];
+        }
     }
 
 //display query
-if ($fullquery <> "")
+if (isset($fullquery))
     {
     if (substr(strtoupper(trim($fullquery)), 0, 6 ) == "SELECT")
         {

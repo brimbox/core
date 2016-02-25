@@ -39,20 +39,23 @@ class bb_meta extends bb_validate {
 				
 	function columns($con, $row_type, $type = false)
 		{
-		$arr_columns = static::get_json($con, "bb_column_names");
-		return static::filter_keys($arr_columns[$row_type], array(), true, $type);			
+		$arr_columns_json = static::get_json($con, "bb_column_names");
+		$arr_columns = static::init($arr_columns_json[$row_type], array());
+		return static::filter_keys($arr_columns, array(), true, $type);			
 		}
 				
 	function lists($con, $row_type, $type = false)
 		{
-		$arr_lists = static::get_json($con, "bb_create_lists");
-		return static::filter_keys($arr_lists[$row_type], array(), true, $type);			
+		$arr_lists_json = static::get_json($con, "bb_create_lists");
+		$arr_lists = static::init($arr_lists_json[$row_type], array());
+		return static::filter_keys($arr_lists, array(), true, $type);			
 		}
 				
 	function dropdowns($con, $row_type, $type = false)
 		{
-		$arr_dropdowns = static::get_json($con, "bb_dropdowns");
-		return static::filter_keys($arr_dropdowns[$row_type], array(), true, $type);			
+		$arr_dropdowns_json = static::get_json($con, "bb_dropdowns");
+		$arr_dropdowns = static::init($arr_dropdowns_json[$row_type], array());
+		return static::filter_keys($arr_dropdowns, array(), true, $type);			
 		}
 		
 	function reduce($arr, $keys = NULL, $type = NULL)
@@ -64,7 +67,15 @@ class bb_meta extends bb_validate {
 			}
 		foreach ($keys as $value)
 			{
-			$arr = $arr[$value];	
+			if (isset($arr[$value]))
+				{
+				$arr = $arr[$value];
+				}
+			else
+				{
+				$arr = array();
+				break;
+				}
 			}
 		//default NULL will not reduce to string or integer keys
 		if (is_bool($type))

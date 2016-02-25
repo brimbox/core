@@ -47,7 +47,10 @@ $arr_state = $main->load($con, $module);
 
 //columns -- need row_type
 $row_type = $main->post('row_type', $module, $default_row_type);
-$arr_columns = $main->get_json($con, "bb_column_names");
+$arr_columns = $main->columns($con, $row_type);
+
+$arr_columns_props = $main->lookup($con, array('bb_column_names', $row_type), true);
+
 $arr_column_reduced = $main->filter_keys($arr_columns['bb_brimbox'][$row_type]);
 $arr_layout = $arr_layouts_reduced[$row_type];
 $default_col_type = $main->get_default_column($arr_column_reduced);
