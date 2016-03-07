@@ -115,21 +115,21 @@ class bb_main extends bb_reports {
 				echo "<span class=\"error bold\">" . $str . "</span>";
 				}
 			}
-		 if (!static::blank($row['hdr']) && ($link == 1))
+		 if (!$this->blank($row['hdr']) && ($link == 1))
 			{
 			//calls javascript in bb_link
 			echo " <button class = \"link italic\" onclick=\"bb_links.standard(" . (int)$row['key1'] . "," . (int)$row['row_type_left'] . ", '" . $target . "'); return false;\">";
 			echo htmlentities($row['hdr']) . "</button> / ";
 			}
-        elseif (!static::blank($row['hdr']) && ($link == -1))
+        elseif (!$this->blank($row['hdr']) && ($link == -1))
             {
             //non linked row
             echo " <span class = \"colored italic\">";
 			echo htmlentities($row['hdr']) . "</span> / ";  
             }
         //else link 0 no output
-		echo " Created: " .  static::convert_date($row['create_date'], "Y-m-d h:i A") . " / ";	
-		echo "Modified: " .  static::convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
+		echo " Created: " .  $this->convert_date($row['create_date'], "Y-m-d h:i A") . " / ";	
+		echo "Modified: " .  $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
 		} //function
 		
 	//this outputs a record of data, returning the total number of rows, which is found in the cnt column 
@@ -146,7 +146,7 @@ class bb_main extends bb_reports {
 		$pop = false; //to catch empty rows, pop = true for non-empty rows
         
         ##DEPRACATED##
-        $arr_column_reduced = static::filter_keys($arr_column_reduced);
+        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
         ##DEPRACATED##
 
 		foreach($arr_column_reduced as $key => $value)
@@ -154,7 +154,7 @@ class bb_main extends bb_reports {
             if (is_integer($key)) //integer keys reserved for columns
                 {
                 $row1 = (int)$value['row']; //current row number
-                $col2 = static::pad("c", $key);
+                $col2 = $this->pad("c", $key);
                 //always skipped first time
                 if ($row2 != $row1) 
                     {
@@ -297,7 +297,7 @@ class bb_main extends bb_reports {
 		$label = isset($params['label']) ? $params['label'] : "";
         
         ##DEPRACATED##
-        $arr_column_reduced = static::filter_keys($arr_column_reduced);
+        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
         ##DEPRACATED##
         
 		if (!empty($label))
@@ -430,13 +430,13 @@ class bb_main extends bb_reports {
 		if (is_dir($directory . $d))
 			{
 			$d = $d . "/";
-			$dir_array[$d] = static::get_directory_tree($directory . $d);
+			$dir_array[$d] = $this->get_directory_tree($directory . $d);
 			}
 		else
 			{
 			$dir_array[$d] = $directory . $d;
 			}
-		return static::array_flatten($dir_array);
+		return $this->array_flatten($dir_array);
 		}		
 			
 	//flattens the array returned in $main->get_directory_tree
@@ -474,7 +474,7 @@ class bb_main extends bb_reports {
 						{
 						//not empty recurse
 						$object = $object . "/";
-						static::empty_directory($dir . $object, $root);
+						$this->empty_directory($dir . $object, $root);
 						}
 					else
 						{
@@ -503,7 +503,7 @@ class bb_main extends bb_reports {
 				  {
 				  $d = $d . "/";
 				  @mkdir( $to_directory . $d);
-				  $dir_array[$d] = static::copy_directory($from_directory . $d, $to_directory . $d);
+				  $dir_array[$d] = $this->copy_directory($from_directory . $d, $to_directory . $d);
 				  }
 			  else
 				  {
@@ -607,7 +607,7 @@ class bb_main extends bb_reports {
 	function echo_messages($messages)
 		{
         //could be string or array
-		if (!static::blank($messages))
+		if (!$this->blank($messages))
 			{
 			if (is_string($messages))
 				{
@@ -730,7 +730,7 @@ class bb_main extends bb_reports {
         if (in_array($userrole, $userlevels))
             {
             $query = "SELECT * FROM users_table WHERE '" . $userrole . "' = ANY (userroles) AND UPPER(username) = UPPER('". pg_escape_string($username) . "');";
-            $result = static::query($con, $query);
+            $result = $this->query($con, $query);
             if (pg_num_rows($result) == 1)
                 {
                 $row = pg_fetch_array($result);
@@ -747,7 +747,7 @@ class bb_main extends bb_reports {
         {
             
         $params = array("class"=>$class, "passthis"=>true, "label"=>$label, "onclick"=>"bb_logout_selector('0_bb_brimbox')");
-        static::echo_script_button("logout", $params); 
+        $this->echo_script_button("logout", $params); 
         }
         
     function archive_link($class_button = "link underline bold",  $class_span = "bold")
@@ -812,7 +812,7 @@ class bb_main extends bb_reports {
                     {
                     $bold = ($value == $userrole) ? " bold" : "";                
                     $params = array("class"=>$class_button . $bold, "label"=>$array_header[$interface]['interface_name'] . ":" . $array_header[$interface]['userroles'][$usertype], "onclick"=>"bb_logout_selector('" . $value . "')");
-                    static::echo_script_button("role" . $value, $params);
+                    $this->echo_script_button("role" . $value, $params);
                     $separator = ($i <> $cnt) ? ", " : "";
                     echo $separator;
                     }
@@ -825,14 +825,14 @@ class bb_main extends bb_reports {
 	function infolinks()
 		{
 		echo "<div class=\"floatright\">";
-		static::logout_link();
+		$this->logout_link();
 		echo "</div>";
 		
 		echo "<div class=\"floatleft\">";
-		static::database_stats();
-		static::archive_link();
-		static::replicate_link();
-		static::userrole_switch();
+		$this->database_stats();
+		$this->archive_link();
+		$this->replicate_link();
+		$this->userrole_switch();
 		echo "</div>";
 		echo "<div class=\"clear\"></div>";
 		}
@@ -843,9 +843,9 @@ class bb_main extends bb_reports {
 		global $array_guest_index;
 		
 		$arr_union_query = array();
-		$arr_layouts = static::get_json($con, "bb_layout_names");
-        $arr_layouts_reduced = static::filter_keys($arr_layouts);
-		$arr_columns = static::get_json($con, "bb_column_names");
+		$arr_layouts = $this->get_json($con, "bb_layout_names");
+        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
+		$arr_columns = $this->get_json($con, "bb_column_names");
 		
 		$arr_row_type = array();    
 		if ($row_type == 0) //all
@@ -864,11 +864,11 @@ class bb_main extends bb_reports {
 		$arr_ts_vector_ftg = array();
 		foreach ($arr_row_type as $row_type)
 			{
-			$arr_column = static::filter_keys($arr_columns[$row_type]);
+			$arr_column = $this->filter_keys($arr_columns[$row_type]);
 			//loop through searchable columns
 			foreach($arr_column as $key => $value)
 				{
-				$col = static::pad("c", $key);
+				$col = $this->pad("c", $key);
 				$search_flag = ($value['search'] == 1) ? true : false;
 				//guest flag
 				if (empty($array_guest_index))
@@ -906,7 +906,7 @@ class bb_main extends bb_reports {
 				 "FROM (" . $str_union_query . ") T1 " .
 				 "WHERE data_table.id = T1.id";
 		//echo $query . "<br><br>";
-		static::query($con, $query);    
+		$this->query($con, $query);    
 		}
 		
 	function cleanup_database_data($con)
@@ -917,7 +917,7 @@ class bb_main extends bb_reports {
 			//POSIX regex, no null because db text fields cannot have nulls
 			//change tabs, form feeds, new lines, returns and vertical tabs to space and trim
 			$query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r\\n]+', ' ', 'g' )) WHERE " . $col . " <> '';";
-			static::query($con, $query);
+			$this->query($con, $query);
 			}
 		for ($i=49; $i<=50; $i++)
 			{
@@ -926,15 +926,15 @@ class bb_main extends bb_reports {
 			//replace all tab, form feeds and return with a space and then remove all space from end of line keeping new lines
 			$query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(col, E' {0,}\\n{1} {0,}', E'\n', 'g' )) " .
 				     "FROM (SELECT id, regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r]+', ' ', 'g' ) as col FROM data_table WHERE " . $col . " <> '') T1 WHERE data_table.id = T1.id;";
-			static::query($con, $query);
+			$this->query($con, $query);
 			}
 		}
 	function cleanup_database_layouts($con)
 		{
-		$arr_layouts = static::get_json($con,"bb_layout_names");
-        $arr_layouts_reduced = static::filter_keys($arr_layouts);
-		$arr_columns = static::get_json($con,"bb_column_names");
-		$arr_dropdowns = static::get_json($con, "bb_dropdowns");
+		$arr_layouts = $this->get_json($con,"bb_layout_names");
+        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
+		$arr_columns = $this->get_json($con,"bb_column_names");
+		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
 		for ($i=1; $i<=26; $i++)
 			{
 			if (!isset($arr_layouts_reduced[$i])) //clean up rows
@@ -942,17 +942,17 @@ class bb_main extends bb_reports {
 				unset($arr_columns[$i]);
 				unset($arr_dropdowns[$i]);
 				$query = "DELETE FROM data_table WHERE row_type IN (" . $i . ");";
-				static::query($con, $query);
+				$this->query($con, $query);
 				}
 			}
-		static::update_json($con, $arr_dropdowns, "bb_dropdowns");
-		static::update_json($con, $arr_columns, "bb_column_names");
+		$this->update_json($con, $arr_dropdowns, "bb_dropdowns");
+		$this->update_json($con, $arr_columns, "bb_column_names");
 		}
 		
 	function cleanup_database_columns($con)
 		{
-		$arr_columns = static::get_json($con,"bb_column_names");
-		$arr_dropdowns = static::get_json($con, "bb_dropdowns");
+		$arr_columns = $this->get_json($con,"bb_column_names");
+		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
 		for ($i=1; $i<=26; $i++)
 			{
 			$arr_column = isset($arr_columns[$i]) ? $arr_columns[$i] : array() ;
@@ -960,10 +960,10 @@ class bb_main extends bb_reports {
 				{
 				if (!isset($arr_column[$j]))
 					{
-                    $col = static::pad("c", $j);
+                    $col = $this->pad("c", $j);
 					$set_clause = $col . " = ''";
 					$query = "UPDATE data_table SET " .  $set_clause . " WHERE row_type = " . $i . " AND " . $col . " <> '';";
-					static::query($con, $query);
+					$this->query($con, $query);
 					if (isset($arr_dropdowns[$i][$j]))
 						{
 						unset($arr_dropdowns[$i][$j]);	
@@ -971,7 +971,7 @@ class bb_main extends bb_reports {
 					}
 				}
 			}
-		static::update_json($con, $arr_dropdowns, "bb_dropdowns"); 	
+		$this->update_json($con, $arr_dropdowns, "bb_dropdowns"); 	
 		}
         
 	function log_entry($con, $message, $email = "")
@@ -983,7 +983,7 @@ class bb_main extends bb_reports {
 		$ip = $_SERVER['REMOTE_ADDR'];
 		$arr_log = array($email,$ip, $message);
 		$query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
-		static::query_params($con, $query, $arr_log);
+		$this->query_params($con, $query, $arr_log);
 		}
         
     function log($con, $message, $username = NULL, $email = NULL)
@@ -993,7 +993,7 @@ class bb_main extends bb_reports {
 		$ip = $_SERVER['REMOTE_ADDR'];
 		$arr_log = array($username, $email,$ip, $message);
 		$query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
-		static::query_params($con, $query, $arr_log);
+		$this->query_params($con, $query, $arr_log);
 		}
 		
 	function output_links($row, $layouts, $userrole)
@@ -1062,7 +1062,7 @@ class bb_main extends bb_reports {
 	function drill_links($post_key, $row_type, $layouts, $module, $text)
 		{
 		//call function add drill links in class bb_link
-		call_user_func_array("static::drill", array($post_key, $row_type, $layouts, $module, $text));
+		call_user_func_array("$this->drill", array($post_key, $row_type, $layouts, $module, $text));
 		}
 		
 	function page_selector($element, $offset, $count_rows, $return_rows, $pagination)
@@ -1128,7 +1128,7 @@ class bb_main extends bb_reports {
 		{
 		//validates a data type set in "Set Column Names"
 		//returns false on good, true or error string if bad
-        $arr_header = static::get_json($con, "bb_interface_enable");
+        $arr_header = $this->get_json($con, "bb_interface_enable");
         $arr_validation = $arr_header['validation'];
         //parse function
 
@@ -1141,7 +1141,7 @@ class bb_main extends bb_reports {
 		//Checks to see that a field has some data
 		//returns false on good, true or error string if bad
 		$field = trim($field);
-		if (!static::blank($field))
+		if (!$this->blank($field))
 			{
 			$return_value = false;
 			}
@@ -1156,8 +1156,8 @@ class bb_main extends bb_reports {
 		{
 		//validates dropdowns, primarily used in bulk loads (Upload Data)
 		//returns false on good, true or error string if bad
-        $dropdown_reduced = static::filter_keys($dropdown);
-        $delimiter = static::get_constant('BB_MULTISELECT_DELIMITER', ",");
+        $dropdown_reduced = $this->filter_keys($dropdown);
+        $delimiter = $this->get_constant('BB_MULTISELECT_DELIMITER', ",");
         if ($dropdown['multiselect'])
             {
             $arr_dropdown = explode($delimiter, $field);
@@ -1189,7 +1189,7 @@ class bb_main extends bb_reports {
             
     function document($object, $text = "", $class = "link spaced")
         {
-        if (static::blank($text))
+        if ($this->blank($text))
             {
             $text = $object;
             }
@@ -1200,7 +1200,7 @@ class bb_main extends bb_reports {
         {
         if ($col_type)
             {
-            return chr($row_type + 96) . $row_type . "_" . static::pad("c", $col_type);
+            return chr($row_type + 96) . $row_type . "_" . $this->pad("c", $col_type);
             }
         else
             {

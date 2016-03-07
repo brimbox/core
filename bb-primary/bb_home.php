@@ -21,7 +21,7 @@ If not, see http://www.gnu.org/licenses/
 //$main->check_permission("bb_brimbox", array(3,4,5));
 
 /* DATABASE STATS -- AUTOFILL HOOK */
-$build->hook("bb_home_infolinks", true);
+$main->hook("bb_home_infolinks", true);
 
 include("bb-config/bb_home_extra.php");
 

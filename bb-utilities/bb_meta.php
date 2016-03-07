@@ -33,29 +33,29 @@ class bb_meta extends bb_validate {
 		
 	function layouts($con, $type = false)
 		{
-		$arr_layouts = static::get_json($con, "bb_layout_names");
-		return static::filter_keys($arr_layouts, array(), true, $type);		
+		$arr_layouts = $this->get_json($con, "bb_layout_names");
+		return $this->filter_keys($arr_layouts, array(), true, $type);		
 		}
 				
 	function columns($con, $row_type, $type = false)
 		{
-		$arr_columns_json = static::get_json($con, "bb_column_names");
-		$arr_columns = static::init($arr_columns_json[$row_type], array());
-		return static::filter_keys($arr_columns, array(), true, $type);			
+		$arr_columns_json = $this->get_json($con, "bb_column_names");
+		$arr_columns = $this->init($arr_columns_json[$row_type], array());
+		return $this->filter_keys($arr_columns, array(), true, $type);			
 		}
 				
 	function lists($con, $row_type, $type = false)
 		{
-		$arr_lists_json = static::get_json($con, "bb_create_lists");
-		$arr_lists = static::init($arr_lists_json[$row_type], array());
-		return static::filter_keys($arr_lists, array(), true, $type);			
+		$arr_lists_json = $this->get_json($con, "bb_create_lists");
+		$arr_lists = $this->init($arr_lists_json[$row_type], array());
+		return $this->filter_keys($arr_lists, array(), true, $type);			
 		}
 				
 	function dropdowns($con, $row_type, $type = false)
 		{
-		$arr_dropdowns_json = static::get_json($con, "bb_dropdowns");
-		$arr_dropdowns = static::init($arr_dropdowns_json[$row_type], array());
-		return static::filter_keys($arr_dropdowns, array(), true, $type);			
+		$arr_dropdowns_json = $this->get_json($con, "bb_dropdowns");
+		$arr_dropdowns = $this->init($arr_dropdowns_json[$row_type], array());
+		return $this->filter_keys($arr_dropdowns, array(), true, $type);			
 		}
 		
 	function reduce($arr, $keys = NULL, $type = NULL)
@@ -81,7 +81,7 @@ class bb_meta extends bb_validate {
 		if (is_bool($type))
 			{
 			//false is int, true is string, can also do nothing with NULL
-			$arr = static::filter_keys($arr, array(), true, $type);	
+			$arr = $this->filter_keys($arr, array(), true, $type);	
 			}
 		return $arr;			
 		}
@@ -89,8 +89,8 @@ class bb_meta extends bb_validate {
 	function lookup($con, $lookup, $keys = NULL, $type = NULL)
 		{
 		//default NULL will not reduce to string or integer keys
-		$arr = static::get_json($con, $lookup);
-		return static::reduce($arr, $keys, $type);
+		$arr = $this->get_json($con, $lookup);
+		return $this->reduce($arr, $keys, $type);
 		}
 		
 	function filter_keys ($arr, $filter = array(), $mode = true, $type = false)

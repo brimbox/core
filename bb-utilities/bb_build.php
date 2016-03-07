@@ -201,18 +201,6 @@ class bb_build {
 				}
 			}
 		}
-			
-	function connect ()
-		{
-		//standard Brimbox connection
-		$con_string = "host=" . DB_HOST . " dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
-		$con = pg_connect($con_string); 
-		if (!$con)
-			{
-			die("Cannot connect to database.");   
-			}
-		return $con;
-		}
 
 		
 	function loader ($con, $interface)

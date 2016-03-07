@@ -73,19 +73,19 @@ class bb_reports extends bb_forms {
 		$maintain_state = isset($params['maintain_state']) ? $params['maintain_state'] : true;
 		
 		//get values from state
-		$report_type = static::state('report_type', $arr_state, 0);
-		$page = static::state('page', $arr_state, 0);
+		$report_type = $this->state('report_type', $arr_state, 0);
+		$page = $this->state('page', $arr_state, 0);
 		//button is global button
-		$button_state = static::state('button', $arr_state, 0);
-		$sort = static::state('sort', $arr_state, "");
-        $order = static::state('order', $arr_state, "");
+		$button_state = $this->state('button', $arr_state, 0);
+		$sort = $this->state('sort', $arr_state, "");
+        $order = $this->state('order', $arr_state, "");
 		
 		/* SORTING */	
 		//only if sort is set
         //order is taken through a waterfall
-		if (static::check('sort', $module_display) && !empty($module_display))
+		if ($this->check('sort', $module_display) && !empty($module_display))
 			{
-			$sort_post = static::post('sort', $module_display, "");
+			$sort_post = $this->post('sort', $module_display, "");
             //sort column has changed
             if ($sort_post <> $sort) 
                 {
@@ -108,22 +108,22 @@ class bb_reports extends bb_forms {
 			}
 		/* BB_PAGINATION */	
         //only if page is set   
-        if (static::check('page', $module_display) && !empty($module_display))
+        if ($this->check('page', $module_display) && !empty($module_display))
 			{
-			$page_post = static::post('page', $module_display, 0);
+			$page_post = $this->post('page', $module_display, 0);
             if ($page_post <> $page) 
                 {
-                $order =  static::post('order', $module_display, "");
+                $order =  $this->post('order', $module_display, "");
                 }
             $page = $page_post;
 			}
 		
 		/* REPORT TYPE OR BUTTON CHANGE */
 		//if report_type is set, postback	
-		if (static::check('report_type', $module_submit) && !empty($module_submit))
+		if ($this->check('report_type', $module_submit) && !empty($module_submit))
 			{
 			//postback variables used in report structure
-			$report_type_post = static::post('report_type', $module_submit, 0);
+			$report_type_post = $this->post('report_type', $module_submit, 0);
 			if ($report_type_post <> $report_type)
 				{
 				$page = 0;
@@ -140,14 +140,14 @@ class bb_reports extends bb_forms {
 		//usually will maintain state
 		if ($maintain_state)
 			{
-			static::set('report_type', $arr_state, $report_type);
-			static::set('page', $arr_state, $page);
-			static::set('sort', $arr_state, $sort);
-            static::set('order', $arr_state, $order);
+			$this->set('report_type', $arr_state, $report_type);
+			$this->set('page', $arr_state, $page);
+			$this->set('sort', $arr_state, $sort);
+            $this->set('order', $arr_state, $order);
 			//keeps current button, different than bb_button
-			static::set('button', $arr_state, $button_state);
-			static::set('module_submit', $arr_state, $module_submit);
-			static::set('module_display', $arr_state, $module_submit);
+			$this->set('button', $arr_state, $button_state);
+			$this->set('module_submit', $arr_state, $module_submit);
+			$this->set('module_display', $arr_state, $module_submit);
 			}
 			
 		//set up array
@@ -198,19 +198,19 @@ class bb_reports extends bb_forms {
 		/* PAGED REPORT */
 		if ($current['report_type'] == 1)
 			{
-			static::paged_report($result, $current, $settings[1]);
+			$this->paged_report($result, $current, $settings[1]);
 			}
 			
 		/* FULL TABLE */
 		elseif ($current['report_type'] == 2)
 			{
-			static::full_report($result, $current, $settings[2]);
+			$this->full_report($result, $current, $settings[2]);
 			}
 			
 		/* TEXTAREA */
 		elseif ($current['report_type'] == 3)
 			{
-			static::textarea_report($result, $current, $settings[3]);
+			$this->textarea_report($result, $current, $settings[3]);
 			}
 		} 
 		
@@ -313,7 +313,7 @@ class bb_reports extends bb_forms {
 		for ($j = $start_column; $j < $num_fields; $j++)
 			{
 			$field = htmlentities(ucfirst(pg_field_name($result, $j)));
-			$sort = static::pad("s",$j, 2);
+			$sort = $this->pad("s",$j, 2);
 			if 	(isset($arr[$sort]))
 				{
 				echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . $field . "</button></div>";
@@ -342,15 +342,15 @@ class bb_reports extends bb_forms {
 				echo "<div class=\"row " . $shaded . " " . $row_class . "\">";
 				for ($j = $start_column; $j < $num_fields; $j++)
 					{
-					$key = static::pad("c",$j,2);
+					$key = $this->pad("c",$j,2);
 					//cell class
 					$cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
 					//date convert
-					$key = static::pad("d",$j,2);
+					$key = $this->pad("d",$j,2);
 					if (isset($arr[$key]))
 						{
 						$format = $arr[$key]; //consistant default
-						$row[$j] = static::convert_date($row[$j], $format);
+						$row[$j] = $this->convert_date($row[$j], $format);
 						}
 					echo "<div class=\"cell " . $cell . "\">" . htmlentities($row[$j]) . "</div>";
 					}
@@ -372,24 +372,24 @@ class bb_reports extends bb_forms {
 					{
 					//get $group array from $groupby
 					//get cell class
-					$key = static::pad("c",$j,2);
+					$key = $this->pad("c",$j,2);
 					$cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
 					//move cell around within row
-					$key = static::pad("m",$j, 2);
+					$key = $this->pad("m",$j, 2);
 					if (isset($arr[$key]))
 						{
-						$m = static::rpad($arr[$key]);
+						$m = $this->rpad($arr[$key]);
 						$row[$j] = $row[$m];
 						}
 					//populate cell of group by $row with text (for labeling)
-					$key = static::pad("t",$j, 2);
+					$key = $this->pad("t",$j, 2);
 					if (isset($arr[$key])) $row[$j] = $arr[$key];
 					//convert dates
-					$key = static::pad("d",$j,2);
+					$key = $this->pad("d",$j,2);
 					if (isset($arr[$key]))
 						{
 						$format = $arr[$key]; //consistant default
-						$row[$j] = static::convert_date($row[$j], $format);
+						$row[$j] = $this->convert_date($row[$j], $format);
 						}
 					echo "<div class=\"cell " . $cell . "\">" . htmlentities($row[$j]) . "</div>";
 					}
@@ -466,7 +466,7 @@ class bb_reports extends bb_forms {
 		for ($j = $start_column; $j < $num_fields; $j++)
 			{
 			$field = htmlentities(ucfirst(pg_field_name($result, $j)));
-			$sort = static::pad("s",$j, 2);
+			$sort = $this->pad("s",$j, 2);
 			if 	(isset($arr[$sort]))
 				{
 				echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link bold\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . $field . "</button></div>";
@@ -492,14 +492,14 @@ class bb_reports extends bb_forms {
 				echo "<div class=\"row " . $shaded . " " . $row_class . "\">";
 				for ($j = $start_column; $j < $num_fields; $j++)
 					{
-					$key = static::pad("c",$j,2);
+					$key = $this->pad("c",$j,2);
 					//cell class
 					$cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
-					$key = static::pad("d",$j,2);
+					$key = $this->pad("d",$j,2);
 					if (isset($arr[$key]))
 						{
 						$format = $arr[$key]; //consistant default
-						$row[$j] = static::convert_date($row[$j], $format);
+						$row[$j] = $this->convert_date($row[$j], $format);
 						}
 					echo "<div class=\"cell " . $cell . "\">" . htmlentities($row[$j]) . "</div>";
 					}
@@ -520,24 +520,24 @@ class bb_reports extends bb_forms {
 					{
 					//get $group array from $groupby
 					//get cell class
-					$key = static::pad("c",$j,2);
+					$key = $this->pad("c",$j,2);
 					$cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
 					//move cell around within row
-					$key = static::pad("m",$j, 2);
+					$key = $this->pad("m",$j, 2);
 					if (isset($arr[$key]))
 						{
-						$m = static::rpad($arr[$key]);
+						$m = $this->rpad($arr[$key]);
 						$row[$j] = $row[$m];
 						}
 					//populate cell of group by $row with text (for labeling)
-					$key = static::pad("t",$j, 2);
+					$key = $this->pad("t",$j, 2);
 					if (isset($arr[$key])) $row[$j] = $arr[$key];
 					//deal with dates
-					$key = static::pad("d",$j, 2);
+					$key = $this->pad("d",$j, 2);
 					if (isset($arr[$key]))
 						{
 						$format = $arr[$key];
-						$row[$j] = static::convert_date($row[$j], $format);
+						$row[$j] = $this->convert_date($row[$j], $format);
 						}				
 					echo "<div class=\"cell " . $cell . "\">" . htmlentities($row[$j]) . "</div>";
 					}
@@ -599,11 +599,11 @@ class bb_reports extends bb_forms {
 					{
 					$row[$j] = str_replace($arr_purge,"",trim($row[$j]));
 					//deal with dates
-					$key = static::pad("d",$j, 2);
+					$key = $this->pad("d",$j, 2);
 					if (isset($arr[$key]))
 						{
 						$format = $arr[$key];
-						$row[$j] = static::convert_date($row[$j], $format);
+						$row[$j] = $this->convert_date($row[$j], $format);
 						}				
 					array_push($arr_data, $row[$j]);
 					}
@@ -617,21 +617,21 @@ class bb_reports extends bb_forms {
 					{
 					$row[$j] = str_replace($arr_purge,"",trim($row[$j]));
 					//move
-					$key = static::pad("m",$j, 2);
+					$key = $this->pad("m",$j, 2);
 					if (isset($arr[$key]))
 						{
-						$m = static::rpad($arr[$key]);
+						$m = $this->rpad($arr[$key]);
 						$row[$j] = $row[$m];
 						}
 					//populate cell with text (for labeling)
-					$key = static::pad("t",$j, 2);
+					$key = $this->pad("t",$j, 2);
 					if (isset($arr[$key])) $row[$j] = $arr[$key];
 					//dates
-					$key = static::pad("d",$j, 2);
+					$key = $this->pad("d",$j, 2);
 					if (isset($arr[$key]))
 						{
 						$format = $arr[$key];
-						$row[$j] = static::convert_date($row[$j], $format);
+						$row[$j] = $this->convert_date($row[$j], $format);
 						}				
 					array_push($arr_data, $row[$j]);
 					}

@@ -34,14 +34,6 @@ $array_header['bb_brimbox']['module_types'] = array(1=>"Guest",2=>"Viewer",3=>"T
 //$array_module_types -- required
 $array_header['bb_brimbox']['controller'] = "/box.php";
 
-# LANDING PAGES #
-//based on usertype, if module or slug are blank
-$array_header['bb_brimbox']['landing'] = array(1=>array("bb_guest","guest"),
-                                               2=>array("bb_viewer","viewer"),
-                                               3=>array("bb_home","home"),
-                                               4=>array("bb_home","home"),
-                                               5=>array("bb_home","home"));
-
 # DEFAULT SECURITY #
 $array_header['bb_brimbox']['row_security'] = array(); //empty array causes standard 0 & 1 checkboxes
 //row_security = array(0 => "Open", 1 => "Guarded", 2 => "Management"); //Populated example

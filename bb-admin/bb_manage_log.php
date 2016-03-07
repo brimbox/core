@@ -42,7 +42,7 @@ $main->check_permission("bb_brimbox", 5);
 <?php
 $arr_messages = array();
 $arr_options = array('1 day'=>"Preserve 1 Day", '1 week'=>"Preserve 1 Week", '1 month'=>"Preserve 1 Month");
-$arr_options = $build->filter("truncate_array", $arr_options);
+$arr_options = $main->filter("truncate_array", $arr_options);
 
 end($arr_options);
 $default_truncate_option = key($arr_options);

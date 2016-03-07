@@ -36,7 +36,7 @@ If not, see http://www.gnu.org/licenses/
 //relate_post_key
 //relate_value
 	
-class bb_database {
+class bb_database extends bb_build {
 	
 	function connect()
 		{
@@ -53,31 +53,30 @@ class bb_database {
 	function query($con, $query, $display = true)
 		{
 		//standard query will die on error
-		$result = pg_query($con, $query);
-		if (!$result)
+		@$result = pg_query($con, $query);
+		if ($result === false)
 			{
 			if ($display)
 				{
-				$string = "<p>Error: " . pg_last_error($con) . "</p><p>Query: " . $query . "</p>";
-				die($string);
+				$arr_messages = array(pg_last_error($con));
+				$this->echo_messages($arr_messages);
 				}
-			die();
 			}
 		return $result;
 		}
 		
-	function query_params($con, $query, $array, $display = false)
+	function query_params($con, $query, $array, $display = true)
 		{
-		//standard query with placeholders, will die on error
-		$result = pg_query_params($con, $query, $array);
-		if (!$result)
+		//standard query with placeholders, does not die on error
+		//if you want it to die use pg_query_params
+		@$result = pg_query_params($con, $query, $array);
+		if ($result === false)
 			{
 			if ($display)
 				{
-				$string = "<p>Error: " . pg_last_error($con) ."</p><p>Query: " . $query . "</p>";
-				die($string);
+				$arr_messages = array(pg_last_error($con));
+				$this->echo_messages($arr_messages);
 				}
-			die();  
 			}
 		return $result;    
 		}
@@ -96,7 +95,7 @@ class bb_database {
 		//gets an xml object from the xml_table
 		$query = "SELECT jsondata FROM json_table WHERE lookup IN ('" . pg_escape_string($lookup) . "');";
 	
-		$result = static::query($con, $query);
+		$result = $this->query($con, $query);
 		
 		$row = pg_fetch_array($result);
 		$json = $row['jsondata'];
@@ -109,7 +108,7 @@ class bb_database {
 		//update xml_table with a whole xml object
 		$query = "UPDATE json_table SET jsondata = '" . pg_escape_string(json_encode($arr)) . "' WHERE lookup = '" . $lookup . "';";
 	
-		static::query($con, $query);
+		$this->query($con, $query);
 		}
 		
 	function get_next_node($arr, $limit)
@@ -172,13 +171,13 @@ class bb_database {
 		if (isset($value)) //set column part
 			{
 			//proceed if not blank and relate is set
-			if (!static::blank($str) && ($value['relate'] > 0))
+			if (!$this->blank($str) && ($value['relate'] > 0))
 				{
 				//proper string, else bad
-				if (static::relate_check($str))
+				if ($this->relate_check($str))
 					{
-					$row_type_relate = static::relate_row_type($str);
-					$post_key_relate = static::relate_post_key($str);
+					$row_type_relate = $this->relate_row_type($str);
+					$post_key_relate = $this->relate_post_key($str);
 					//proper row_type, else bad
 					if ($value['relate'] == $row_type_relate) //check related
 						{
@@ -211,7 +210,7 @@ class bb_database {
 		$select_where_not = "SELECT 1 WHERE 1 = 0";
 		if ($unique_key) //no key = 0
 			{
-			$unique_column = static::pad("c", $unique_key);
+			$unique_column = $this->pad("c", $unique_key);
 			//edit
 			if ($edit_or_insert)
 				{

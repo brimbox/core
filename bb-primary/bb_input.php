@@ -44,9 +44,9 @@ $arr_state = $main->load($con, $module);
 
 //POSTBACK HOOK
 //hook to handle entrance into input module
-$build->hook("bb_input_module_postback");
+$main->hook("bb_input_module_postback");
 //hook to handle autofill on entrance
-$build->hook("bb_input_module_autofill");
+$main->hook("bb_input_module_autofill");
 
 //save state, state is passed around as value
 $main->update($con, $module, $arr_state);
@@ -59,30 +59,30 @@ $main->echo_common_vars(); //common to standard interface
 
 /* DISPLAY INPUT FORM */
 // ENTRANCE HOOKS
-$build->hook("bb_input_top_level_records");
+$main->hook("bb_input_top_level_records");
 
 //$arr_columns can be empty
 if (!empty($arr_columns)) :
 
 //this when inserting child record
-$build->hook("bb_input_parent_record");
+$main->hook("bb_input_parent_record");
 //this to add quick child and sibling links
-$build->hook("bb_input_quick_links");    
+$main->hook("bb_input_quick_links");    
  //for hooking archive or security levels
-$build->hook("bb_input_begin_archive_secure");
+$main->hook("bb_input_begin_archive_secure");
 //for setting readonly and hidden values
-$build->hook("bb_input_before_render");
+$main->hook("bb_input_before_render");
 
 //MAIN DISPLAY FORM HOOK
-$build->hook("bb_input_data_table_render_form");
+$main->hook("bb_input_data_table_render_form");
 
 //EXIT HOOKS
 //for hooking archive or security levels
-$build->hook("bb_input_end_archive_secure");
+$main->hook("bb_input_end_archive_secure");
 //submit button
-$build->hook("bb_input_submit_buttons");
+$main->hook("bb_input_submit_buttons");
 //textarea load
-$build->hook("bb_input_textarea_load");
+$main->hook("bb_input_textarea_load");
 
 endif;
 

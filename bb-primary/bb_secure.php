@@ -146,7 +146,7 @@ else
     }
 /* END RETURN RECORD */
 
-$build->hook('bb_secure_messages');
+$main->hook('bb_secure_messages');
 echo "<p class=\"spaced padded\">";    
 $main->echo_messages($arr_messages);
 echo "</p>";

@@ -176,7 +176,7 @@ if (!function_exists('bb_data_table_render_form')) :
                     $field_output .= "<label class=\"error\">" . $error . "</label></div>";
                     }                  
                 //filter to echo the field output
-                $field_output = $build->filter('bb_input_field_output', $field_output);
+                $field_output = $main->filter('bb_input_field_output', $field_output);
                 echo $field_output;
                 }
                 

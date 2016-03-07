@@ -32,7 +32,7 @@ $arr_header = $main->get_json($con, "bb_interface_enable");
 $arr_archive = $arr_header['row_archive']['value'];
 
 $post_key = $main->init($POST['bb_post_key'], -1);
-$row_type = $main->init($POST['bb_row_type'], -1;
+$row_type = $main->init($POST['bb_row_type'], -1);
 
 /* BEGIN ARCHIVE CASCADE */
 if ($main->button(1))
@@ -163,7 +163,7 @@ else //default behavior
     }
 /* END RETURN RECORD */
 
-$build->hook('bb_archive_messages');
+$main->hook('bb_archive_messages');
 echo "<p class=\"spaced padded\">";    
 $main->echo_messages($arr_messages);
 echo "</p>";

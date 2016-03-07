@@ -30,22 +30,28 @@ if (isset($_SESSION['username'])):
     //set up work from last object
     // contains bb_database class, extends bb_main
     //constants include -- some constants are used
-    include($abspath . "/bb-config/bb_constants.php");
+    include_once($abspath . "/bb-config/bb_constants.php");
     //include build class object
-    include($abspath . "/bb-utilities/bb_build.php");
-    //get build
-    $build = new bb_build();
-    
-    //get connection
-    $con = $build->connect();    
+    if (file_exists($abspath . "/bb-extend/include_main.php"))
+        {
+        include_once($abspath . "/bb-extend/include_main.php");   
+        }
+    else
+        {
+        include_once($abspath . "/bb-utilities/bb_include_main.php");
+        }
+    //main object for hooks
+    $main = new bb_main();
+    //need connection
+    $con = $main->connect();
     
     //parse global arrays  
-    $build->loader($con, $interface);
+    $main->loader($con, $interface);
      
     //include work class
-    $build->hook("bb_upload_docs_redirect_main_class");
+    $main->hook("bb_upload_docs_redirect_main_class");
     //get work instance
-    $build->hook("bb_upload_docs_redirect_return_main");
+    $main->hook("bb_upload_docs_redirect_return_main");
     
     $POST = $_POST;
     

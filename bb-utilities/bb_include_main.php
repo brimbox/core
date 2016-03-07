@@ -9,20 +9,22 @@
 //get from $_SESSION
 $abspath = $_SESSION['abspath'];
 
-include($abspath . "/bb-utilities/bb_database.php");
+include_once($abspath . "/bb-utilities/bb_build.php");
+//contains bb_build class, extend bb_database
+include_once($abspath . "/bb-utilities/bb_database.php");
 //contains bb_validation class, extend bb_links
-include($abspath . "/bb-utilities/bb_validate.php");
+include_once($abspath . "/bb-utilities/bb_validate.php");
 //contains bb_work class, extends bb_forms
-include($abspath . "/bb-utilities/bb_meta.php");		
+include_once($abspath . "/bb-utilities/bb_meta.php");		
 /* these classes only brought into both $main */
-include($abspath . "/bb-utilities/bb_work.php");		
+include_once($abspath . "/bb-utilities/bb_work.php");		
 /* these classes only brought into both $main */
-include($abspath . "/bb-utilities/bb_links.php");
+include_once($abspath . "/bb-utilities/bb_links.php");
 //contains bb_form class, extends bb_validate
-include($abspath . "/bb-utilities/bb_forms.php");
+include_once($abspath . "/bb-utilities/bb_forms.php");
 //contains bb_report class, extend bb_hooks
-include($abspath . "/bb-utilities/bb_reports.php");
+include_once($abspath . "/bb-utilities/bb_reports.php");
 //contains bb_main class
-include($abspath . "/bb-utilities/bb_main.php");
+include_once($abspath . "/bb-utilities/bb_main.php");
 
 ?>

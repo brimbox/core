@@ -108,18 +108,34 @@ if (isset($_SESSION['module']))
 /* INCLUDE CONSTANTS */    
 include_once("bb-config/bb_constants.php");
 
-/* INCLUDE BUILD OBJECT */    
-include_once("bb-utilities/bb_build.php");
-//build object for hooks
-$build = new bb_build();
+/* SET TIME ZONE */
+date_default_timezone_set(USER_TIMEZONE);
+
+/* SET UP MAIN OBJECT */
+//objects are all daisy chained together
+//set up main from last object chained
+//main object is fully static
+//variable $main appears as global
+//if you want extend main you can
+if (file_exists("bb-extend/include_main.php"))
+    {
+    include_once("bb-extend/include_main.php");   
+    }
+else
+    {
+    include_once("bb-utilities/bb_include_main.php");
+    }
+//main instance   
+$main = new bb_main();
+
 
 /* GET DATABASE CONNECTION */
 //get standard connection
-$con = $build->connect();
+$con = $main->connect();
 
 /* CHECK IF USER IS LOCKED */
 //die if locked user
-$build->locked($con, $username, $userrole);
+$main->locked($con, $username, $userrole);
 
 /* GET HEADER AND GLOBAL ARRAYS */
 /* load header array, addon functions, and global arrays */
@@ -130,31 +146,19 @@ $build->locked($con, $username, $userrole);
 //$array_common_variables
 //$array_links
 //$array_reports
-$build->loader($con, $interface);
-
-/* SET TIME ZONE */
-date_default_timezone_set(USER_TIMEZONE);
-
-/* SET UP MAIN OBJECT */
-//objects are all daisy chained together
-//set up main from last object chained
-//main object is fully static
-//variable $main appears as global
-//if you want extend main you can
-$build->hook("index_main_class"); //includes main classes
-$build->hook("index_return_main"); //creates main instance
+$main->loader($con, $interface);
 
 //this javascript necessary for the standard main class functions
 //all other javascript function included in specific modules by default
 $javascript = $webpath . "/bb-utilities/bb_scripts.js";
-$javascript = $build->filter("index_main_javascript", $javascript);
+$javascript = $main->filter("index_main_javascript", $javascript);
 echo "<script src=\"" . $javascript . "\"></script>";
 unset($javascript); //clean up
 
 /* SET UP HOT STATE */
 //hot state based in $interface
 //one hot state per user/module
-$build->hook("index_hot_state");
+$main->hook("index_hot_state");
 
 /* INCLUDE HACKS FILE LAST after all other bb-config includes */
 //hacks file useful for debugging
@@ -167,16 +171,26 @@ include_once($abspath . $array_header[$interface]['controller']);
 else: /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */
 
 /* LOGIN SECTION */
-/* INCLUDES THE LOGIN VERIFICATION */
-/* WHICH INCLUDES THE LOGIN FORM */
-if (file_exists("verify.php"))
+/* INCLUDES THE LOGIN PHP VERIFICATION */
+if (file_exists("bb-extend/verify_login.php"))
     {
-    include_once("verify.php");   
+    include_once("bb-extend/verify_login.php");   
     }
 else
     {
-    include_once("bb-utilities/bb_verify.php");
+    include_once("bb-utilities/bb_verify_login.php");
     }
+    
+/* INCLUDE LOGIN CSS AND HTML FOR THE MOST PART */    
+if (file_exists("bb-extend/login_form.php"))
+    {
+    include_once("bb-extend/login_form.php");   
+    }
+else
+    {
+    include_once("bb-utilities/bb_login_form.php");
+    }
+
 /* END LOGIN SECTION */
 
 endif; /* ENDIF, IF (controller) ELSE (login) */

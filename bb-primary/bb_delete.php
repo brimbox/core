@@ -127,7 +127,7 @@ else
     }
 /* END RETURN RECORD */
 
-$build->hook('bb_delete_messages');
+$main->hook('bb_delete_messages');
 echo "<p class=\"spaced padded\">";    
 $main->echo_messages($arr_messages);
 echo "</p>";

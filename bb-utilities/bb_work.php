@@ -56,7 +56,7 @@ class bb_work extends bb_meta {
 			{			
 			$number = array($number);	
 			}		
-		if (!static::blank($check)) //check where it was submitted from
+		if (!$this->blank($check)) //check where it was submitted from
 			{
 			return (($submit == $check) && in_array($button, $number)) ? true : false;
 			}
@@ -100,7 +100,7 @@ class bb_work extends bb_meta {
 		global $POST;
 		
 	    //checks to see if a $POST variable is set
-	    $temp = static::name($name, $module);
+	    $temp = $this->name($name, $module);
 	    if (isset($POST[$temp]))
 			{
 			return true;	
@@ -116,9 +116,9 @@ class bb_work extends bb_meta {
 		//psuedo post var
 		global $POST;
 		
-		if (static::check($name, $module))
+		if ($this->check($name, $module))
 			{
-			if (static::post($name, $module, $default) <> static::state($name, $arr_state, $default))
+			if ($this->post($name, $module, $default) <> $this->state($name, $arr_state, $default))
 				{
 				return true;	
 				}
@@ -135,8 +135,8 @@ class bb_work extends bb_meta {
 		//to check if full, opposite of empty function, returns false if empty
 	    //post var must be set or you will get a notice
 
-	    $temp = static::name($name, $module);
-	    if (!static::blank(trim($POST[$temp])))
+	    $temp = $this->name($name, $module);
+	    if (!$this->blank(trim($POST[$temp])))
 		    {
 		    return true;
 			}
@@ -152,7 +152,7 @@ class bb_work extends bb_meta {
 		global $POST;
 		
 		//gets the post value of a variable
-	    $temp = static::name($name, $module);
+	    $temp = $this->name($name, $module);
 	    if (isset($POST[$temp]))
 		    {
 		    return $POST[$temp];
@@ -184,7 +184,7 @@ class bb_work extends bb_meta {
 		
 		//fully processes $POST variable into state setting with initial value
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default;
-		$temp = static::name($name, $module);
+		$temp = $this->name($name, $module);
 
 		if (isset($POST[$temp]))
 			{
@@ -201,11 +201,11 @@ class bb_work extends bb_meta {
 		global $POST;
 			
 		//fully processes $POST variable into state setting with initial value		
-	    $arr_header = static::get_json($con, "bb_interface_enable");
+	    $arr_header = $this->get_json($con, "bb_interface_enable");
         $arr_validation = $arr_header['validation'];
 	    
 	    $var = isset($arr_state[$name]) ? $arr_state[$name] : $default; 
-	    $temp = static::name($name, $module);
+	    $temp = $this->name($name, $module);
 
 		//if variable is set use variable
 		if (isset($POST[$temp]))
@@ -247,7 +247,7 @@ class bb_work extends bb_meta {
 		
 		//get module number
 		$query = "SELECT postdata FROM state_table WHERE id = " . $keeper . ";";		
-		$result = static::query($con, $query);
+		$result = $this->query($con, $query);
 		$row = pg_fetch_array($result);
 		
 		return json_decode($row['postdata'], true);	
@@ -259,11 +259,11 @@ class bb_work extends bb_meta {
 		global $array_hot_state;
 		global $submit;
 			
-		$POST = static::keeper($con);
+		$POST = $this->keeper($con);
 	    
 		//check if module has hot state
 		if (isset($array_hot_state[$submit]))
-			static::hot_state($con);
+			$this->hot_state($con);
 		
 		return $POST;
 	    }
@@ -278,7 +278,7 @@ class bb_work extends bb_meta {
 		$query = "UPDATE state_table T1 SET statedata[T2.id] = $1 FROM modules_table T2 " .
 		         "WHERE T1.id = " . $keeper . " AND T2.module_name = '" . $module . "';";
 		$params = array($jsondata);
-		static::query_params($con, $query, $params);
+		$this->query_params($con, $query, $params);
         }
 			
 	function hot_state($con)
@@ -294,15 +294,15 @@ class bb_work extends bb_meta {
 			$arr_work = $array_hot_state[$submit][$usertype];
 			if (!empty($arr_work));
 				{
-				$arr_state = static::load($con, $submit);
+				$arr_state = $this->load($con, $submit);
 				foreach ($arr_work as $value)
 					{
-					if (static::check($value, $submit))
+					if ($this->check($value, $submit))
 						{
-						$value = static::process($value, $submit, $arr_state);
+						$value = $this->process($value, $submit, $arr_state);
 						}
 					}
-				static::update($con, $submit, $arr_state);
+				$this->update($con, $submit, $arr_state);
 				}
 			}			
 	    }
@@ -311,7 +311,7 @@ class bb_work extends bb_meta {
 	function report(&$arr_state, $module_submit, $module_display, $params = array())
 	    {
 	    //alias of report_post
-	    $current = static::report_post($arr_state, $module_submit, $module_display, $params = array());
+	    $current = $this->report_post($arr_state, $module_submit, $module_display, $params = array());
 	    return $current;
 	    }
 		
@@ -342,7 +342,7 @@ class bb_work extends bb_meta {
         //if type doesn't match return default
         if (defined($constant))
             {
-            if (static::blank(constant($constant)))
+            if ($this->blank(constant($constant)))
                 {
                 return $default;
                 }

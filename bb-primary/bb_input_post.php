@@ -43,22 +43,28 @@ if (isset($_SESSION['username'])):
         $_SESSION['userrole'] = $_POST['bb_userrole'];  //double checked when build->locked is call in index
     
     //constants include -- some constants are used
-    include($abspath . "/bb-config/bb_constants.php");
+    include_once($abspath . "/bb-config/bb_constants.php");
     //include build class object
-    include($abspath . "/bb-utilities/bb_build.php");
-    //get build
-    $build = new bb_build();
-    
-    //get connection
-    $con = $build->connect();    
+    if (file_exists($abspath . "/bb-extend/include_main.php"))
+        {
+        include_once($abspath . "/bb-extend/include_main.php");   
+        }
+    else
+        {
+        include_once($abspath . "/bb-utilities/bb_include_main.php");
+        }
+    //main object for hooks
+    $main = new bb_main();
+    //need connection
+    $con = $main->connect();
      
     //parse global arrays  
-    $build->loader($con, $interface);
+    $main->loader($con, $interface);
     
     //include main class
-    $build->hook("bb_input_redirect_main_class");
+    $main->hook("bb_input_redirect_main_class");
     //get main instance
-    $build->hook("bb_input_redirect_return_main");
+    $main->hook("bb_input_redirect_return_main");
     
     /* GET STATE AND $POST */
     $POST = $_POST;
@@ -81,16 +87,16 @@ if (isset($_SESSION['username'])):
     //include codeblock
     
     //hook to alter codeblock
-    $build->hook("bb_input_redirect_postback");
+    $main->hook("bb_input_redirect_postback");
              
     //submit to database        
     if ($main->button(1))
         {
         //hook to alter codeblock
-        $build->hook("bb_input_data_table_row_validate");
+        $main->hook("bb_input_data_table_row_validate");
         
         //hook to alter codeblock
-        $build->hook("bb_input_data_table_row_input");
+        $main->hook("bb_input_data_table_row_input");
         }
         
     /* END SUBMIT TO DATABASE */
@@ -99,7 +105,7 @@ if (isset($_SESSION['username'])):
     if ($main->button(4))
         {
         //not used by default
-        //$filepath = $build->filter("bb_db_database_autoload");
+        //$filepath = $main->filter("bb_db_database_autoload");
         include_once($filepath);    
         }        
     /* END AUTOLOAD HOOK */

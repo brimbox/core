@@ -58,7 +58,7 @@ if (!function_exists ('bb_input_module_postback')) :
             $arr_select_where = array();
             
             //additional character policy filter
-            $arr_state = $build->filter("bb_row_input_character_policy", $arr_state);
+            $arr_state = $$main->filter("bb_row_input_character_policy", $arr_state);
            
             // update preexisting row
             if ($row_type == $row_join)  

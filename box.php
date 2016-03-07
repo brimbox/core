@@ -32,10 +32,22 @@ $main->include_file($webpath . "/bb-config/bb_admin_css.css", "css");
 if (!$main->blank($image))
     {
     //seems to flush nicely without explicitly flushing the output buffer
-    echo "<div id=\"bb_processor\"><img src=\"bb-config/" . $image . "\"></div>";
+    echo "<div id=\"bb_processor\"><img src=\"" . $image . "\"></div>";
     echo "<script>window.onload = function () { document.getElementById(\"bb_processor\").style.display = \"none\"; }</script>";
     }
-    
+ 
+/* CONTROLLER IMAGE AND MESSAGE */   
+//echo tabs and links for each module
+echo "<div id=\"bb_header\">";
+//header image
+echo "<div id=\"controller_image\"></div>";
+//global message for all users
+$controller_message = $main->get_constant('BB_CONTROLLER_MESSAGE', '');
+if (!$main->blank($controller_message))
+    {
+    echo "<div id=\"controller_message\">" .  $controller_message . "</div>";    
+    }
+
 /* CONTROLLER ARRAY*/
 //query the modules table to set up the interface
 //setup initial variables from $array_interface
@@ -79,27 +91,17 @@ while($row = pg_fetch_array($result))
             if ($row['module_type'] > 0)
                 {
                 $entrance = true;
-                if ($module == "")
+                if ($main->blank($module))
                     {
                     $_SESSION['module'] = $module = $row['module_name'];
-                    }
-                if ($slug == "")
-                    {
-                    $_SESSION['slug'] = $slug = $row['module_slug'];    
+                    $_SESSION['slug'] = $slug = $row['module_slug']; 
                     }
                 }
             }
         //work with slug
-        if ($slug == $row['module_slug'])
+        if ($module == $row['module_name'])
             {
-            if ($module == $row['module_name']) //module and slug match
-                {
-                list($path, $type) = array($row['module_path'], $row['module_type']);
-                }
-            else //module and slug don't match, get module also
-                {
-                list($module, $path, $type) = array($row['module_name'], $row['module_path'], $row['module_type']);    
-                }
+            list($path, $type) = array($row['module_path'], $row['module_type']);    
             }
         //need to address controller by both module_type and module_name            
         if ($row['module_type'] > 0)
@@ -111,17 +113,7 @@ while($row = pg_fetch_array($result))
     }
 /* END CONTROLLER ARRAY */
 
-/* ECHO TABS */
-//echo tabs and links for each module
-echo "<div id=\"bb_header\">";
-//header image
-echo "<div id=\"controller_image\"></div>";
-//global message for all users
-$controller_message = $main->get_constant('BB_CONTROLLER_MESSAGE', '');
-if (!$main->blank($controller_message))
-    {
-    echo "<div id=\"controller_message\">" .  $controller_message . "</div>";    
-    }
+/* ECHO TABS */    
 //set up standard tab and auxiliary header tabs
 foreach ($arr_interface as $value)
 	{
@@ -176,8 +168,8 @@ echo "</div>"; //bb_header
 
 /* INCLUDE APPROPRIATE MODULE */
 echo "<div id=\"bb_wrapper\">";
-//Auxiliary tabs and links
-if ($interface_type == 'Auxiliary')
+//Auxiliary tabs and links, 
+if (isset($interface_type) &&  ($interface_type == 'Auxiliary'))
     {
     echo "<div id=\"bb_admin_menu\">";
     //echo auxiliary buttons on the side
@@ -202,7 +194,7 @@ if ($interface_type == 'Auxiliary')
     echo "</div>";
     echo "<div class=\"clear\"></div>";
     }
-//Standard tabs
+//Standard and Hidden tabs
 else 
     {
     //clean up before include

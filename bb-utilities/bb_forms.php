@@ -174,7 +174,7 @@ class bb_forms extends bb_links {
 		
 		$begin = "";
 		$end = "";
-		if (!static::blank($label))
+		if (!$this->blank($label))
 			{
 			if (strcasecmp($position, "end")) //0 is match
 				{

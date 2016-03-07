@@ -41,24 +41,33 @@ if (isset($_SESSION['username'])):
     $_SESSION['button'] = $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
     if (($_POST['bb_userrole'] <> "")  && in_array($_POST['bb_userrole'], explode($_SESSION['userroles'])))
         $_SESSION['userrole'] = $_POST['bb_userrole'];  //double checked when build->locked is call in index
-    
+
     //constants include -- some constants are used
-    include($abspath . "/bb-config/bb_constants.php");
+    include_once($abspath . "/bb-config/bb_constants.php");
     //include build class object
-    include($abspath . "/bb-utilities/bb_build.php");
-    //get build
-    $build = new bb_build();
-    
+    if (file_exists($abspath . "/bb-extend/include_main.php"))
+        {
+        include_once($abspath . "/bb-extend/include_main.php");   
+        }
+    else
+        {
+        include_once($abspath . "/bb-utilities/bb_include_main.php");
+        }
+    //main object for hooks
+    $main = new bb_main();
+    //need connection
+    $con = $main->connect();
+     
     //get connection
-    $con = $build->connect();    
+    $con = $main->connect();    
      
     //parse global arrays  
-    $build->loader($con, $interface);
+    $main->loader($con, $interface);
     
     //include main class
-    $build->hook("bb_manage_modules_redirect_main_class");
+    $main->hook("bb_manage_modules_redirect_main_class");
     //get main instance
-    $build->hook("bb_manage_modules_redirect_return_main");
+    $main->hook("bb_manage_modules_redirect_return_main");
     
     /* GET STATE AND $POST */
     $POST = $_POST;
