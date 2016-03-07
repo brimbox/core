@@ -63,12 +63,7 @@ if (isset($_SESSION['username'])):
      
     //parse global arrays  
     $main->loader($con, $interface);
-    
-    //include main class
-    $main->hook("bb_manage_modules_redirect_main_class");
-    //get main instance
-    $main->hook("bb_manage_modules_redirect_return_main");
-    
+        
     /* GET STATE AND $POST */
     $POST = $_POST;
    

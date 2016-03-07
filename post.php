@@ -14,7 +14,7 @@ if (isset($_SESSION['username'])):
     $keeper = $_SESSION['keeper'];
     $abspath = $_SESSION['abspath'];
 
-    //dela with module variables the post
+    //deal with module variables the post
     $_SESSION['button'] = $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
     $_SESSION['module'] = $module = $_POST['bb_module'];
     $_SESSION['slug'] = $slug = $_POST['bb_slug'];
@@ -22,21 +22,9 @@ if (isset($_SESSION['username'])):
     if (($_POST['bb_userrole'] <> "")  && in_array($_POST['bb_userrole'], explode(",", $_SESSION['userroles'])))
         $_SESSION['userrole'] = $_POST['bb_userrole'];  //double checked when build->locked is call in index
     
-    //constants include -- some constants are used
-    include_once($abspath . "/bb-config/bb_constants.php");
     //include build class object
-    if (file_exists($abspath . "/bb-extend/include_main.php"))
-        {
-        include_once($abspath . "/bb-extend/include_main.php");   
-        }
-    else
-        {
-        include_once($abspath . "/bb-utilities/bb_include_main.php");
-        }
-    //main object for hooks
-    $main = new bb_main();
-    //need connection
-    $con = $main->connect();
+	$con_string = "host=" . DB_HOST . " dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
+	$con = pg_connect($con_string); 
     
     $POST = $_POST;
     

@@ -47,11 +47,6 @@ if (isset($_SESSION['username'])):
     
     //parse global arrays  
     $main->loader($con, $interface);
-
-    //include main class
-    $main->hook("bb_upload_data_redirect_main_class");
-    //get work instance
-    $main->hook("bb_upload_data_redirect_return_main");
     
     $POST = $_POST;
     
