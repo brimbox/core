@@ -208,15 +208,4 @@ if (isset($_POST['bb_submit']))
         usleep($rnd);                
         }
 	} //end post
-
-/* INCLUDE LOGIN CSS AND HTML FOR THE MOST PART */    
-if (file_exists("login.php"))
-    {
-    include_once("login.php");   
-    }
-else
-    {
-    include_once("bb-utilities/bb_login.php");
-    }
-
 ?>

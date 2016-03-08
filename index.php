@@ -15,6 +15,8 @@ You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
 
+/* NO HTML OUTPUT */
+
 //cause no cache -- important for security
 
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
@@ -128,7 +130,6 @@ else
 //main instance   
 $main = new bb_main();
 
-
 /* GET DATABASE CONNECTION */
 //get standard connection
 $con = $main->connect();
@@ -147,6 +148,42 @@ $main->locked($con, $username, $userrole);
 //$array_links
 //$array_reports
 $main->loader($con, $interface);
+
+/* RECONCILE SLUG AND MODULE*/
+//get module types for current user and interface
+$module_types = array();
+foreach($array_interface as $key => $value)
+	{
+	if (in_array($usertype, $value['usertypes']))
+		{
+        //(int) cast for security
+		array_push($module_types, (int)$value['module_type']);
+		}
+	};
+//get modules type into string for query
+$module_types = implode(",", array_unique($module_types));
+
+//get slug and module, in order of precedence, 1 good slug and module, 2 good slug (back button), 3 empty slug (on login)
+$redirect = $slug;
+$query = "SELECT id, module_slug, module_name FROM (SELECT 1 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_slug = '" . pg_escape_string($slug) . "' AND module_name = '" . pg_escape_string($module) . "' " .
+         "UNION ALL " .
+         "SELECT 2 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_slug = '" . pg_escape_string($slug) . "' " .
+         "UNION ALL " .
+         "SELECT 3 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ")) T1 " .
+         "ORDER BY id, module_type, module_order LIMIT 1";
+$result = $main->query($con, $query);
+$row = pg_fetch_array($result);
+$module = $_SESSION['module'] = $row['module_name'];
+$slug = $_SESSION['slug'] = $row['module_slug'];
+
+/* REDIRECT WITH DEFAULT SLUG AND MODULE ON LOGIN */
+//this redirect has to happen after global array and hooks are loaded
+if ($redirect == "")
+    {
+    $index_path = "Location: " . dirname($_SERVER['PHP_SELF']) . "/" . $slug;
+	header($index_path);   
+    }
+unset($key, $value, $module_types, $redirect, $query, $result, $row, $index_path);
 
 //this javascript necessary for the standard main class functions
 //all other javascript function included in specific modules by default

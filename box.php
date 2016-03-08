@@ -64,7 +64,7 @@ foreach($array_interface as $key => $value)
 		}
 	else
 		{
-        //unset interface type
+        //unset interface type if permission invalid
 		unset($arr_interface[$key]);	
 		}
 	};
@@ -77,7 +77,6 @@ $query = "SELECT * FROM modules_table WHERE standard_module IN (0,1,2,4,6) AND i
 $result = pg_query($con, $query);
 
 //populate controller arrays
-$entrance = false;
 while($row = pg_fetch_array($result))
     {
     //get the first module
@@ -85,20 +84,7 @@ while($row = pg_fetch_array($result))
     //check that file exists
     if (file_exists($row['module_path']))
         {
-        //populate default module and slug by first row
-        if (!$entrance)
-            {
-            if ($row['module_type'] > 0)
-                {
-                $entrance = true;
-                if ($main->blank($module))
-                    {
-                    $_SESSION['module'] = $module = $row['module_name'];
-                    $_SESSION['slug'] = $slug = $row['module_slug']; 
-                    }
-                }
-            }
-        //work with slug
+        //set module_path and type for include
         if ($module == $row['module_name'])
             {
             list($path, $type) = array($row['module_path'], $row['module_type']);    
