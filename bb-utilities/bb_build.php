@@ -211,48 +211,22 @@ class bb_build {
 		
 		$abspath = $_SESSION['abspath'];
 		
-		/* INCLUDE HEADER MODULES AND FILE */
+		/* INCLUDE STANDARD ARRAYS ARRAYS AND GLOBAL FUNCTIONS */
 		//global for all interfaces
-		include($abspath . "/bb-utilities/bb_headers.php");
-		$query = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-3) ORDER BY module_order;";
+		include($abspath . "/bb-utilities/bb_arrays.php");
+        /* INCLUDE INSTALLED  */
+		$query = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
 		$result = pg_query($con, $query);
 		while($row = pg_fetch_array($result))
 			{
 			//will ignore file if missing
 			include($abspath . "/" . $row['module_path']);
 			}
-		/* ADHOC HEADERS */
-		include($abspath . "/bb-config/bb_admin_headers.php");
+		/* ADHOC ARRAYS AND GLOBAL FUNCTIONS */
+		include($abspath . "/bb-config/bb_functions.php");
 		//header stored in SESSION
 		//save for use in post side modules
-		
-		/* DO FUNCTION MODULES AND FILE*/
-		//only for interface being loaded
-		$query = "SELECT module_path FROM modules_table WHERE interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-2) ORDER BY module_order;";
-		$result = pg_query($con, $query);
-		while($row = pg_fetch_array($result))
-			{
-			//will ignore file if missing
-			include($abspath . "/" . $row['module_path']);
-			}
-		/* ADHOC FUNCTIONS */
-		//will ignore file if missing
-		include($abspath . "/bb-config/bb_admin_functions.php");
-		
-		/* DO GLOBAL MODULES AND FILE */
-		//only for interface being loaded
-		include($abspath . "/bb-utilities/bb_globals.php");
-		$query = "SELECT module_path FROM modules_table WHERE  interface IN ('" . pg_escape_string($interface) . "') AND standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
-		$result = pg_query($con, $query);
-		while($row = pg_fetch_array($result))
-			{
-			//will ignore file that does not exists so can debug by deleting file
-			include($abspath . "/" . $row['module_path']);
-			}
-		/* ADHOC GLOBALS */
-		//will ignore file if missing
-		include($abspath . "/bb-config/bb_admin_globals.php");
-		
+				
 		/* UNPACK $array_global for given interface */
 		//this creates array from the global array
 		if (isset($array_global))

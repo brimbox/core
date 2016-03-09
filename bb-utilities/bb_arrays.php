@@ -15,7 +15,48 @@ See the GNU GPL v3 for more details.
 You should have received a copy of the GNU GPL v3 along with this program.
 If not, see http://www.gnu.org/licenses/
 */
+
 /* NO HTML OUTPUT */
+
+/* VERSION INFORMATION */
+define('BRIMBOX_PROGRAM', '1.9');
+define('BRIMBOX_DATABASE', '1.27');
+define('BRIMBOX_BACKUP', '1.5');
+
+# STANDARD INTERFACE #
+//global header array includes required interface information
+$array_header['bb_brimbox']['interface_name'] = "Brimbox";
+//careful, standard install must have 0-5 populated, names may be changed, database stores the integer values
+//$array_userroles -- required
+$array_header['bb_brimbox']['userroles'] = array(0=>'Locked',1=>'Guest',2=>'Viewer',3=>'User',4=>'Superuser',5=>'Admin');
+//careful, standard install must have 0-5 populated, names may be changed, database stores the integer values
+//$array_module_types -- required
+$array_header['bb_brimbox']['module_types'] = array(1=>"Guest",2=>"Viewer",3=>"Tab",4=>"Setup",5=>"Admin");
+//$array_module_types -- required
+$array_header['bb_brimbox']['controller'] = "/box.php";
+
+# DEFAULT SECURITY #
+$array_header['bb_brimbox']['row_security'] = array(); //empty array causes standard 0 & 1 checkboxes
+//row_security = array(0 => "Open", 1 => "Guarded", 2 => "Management"); //Populated example
+$array_header['bb_brimbox']['row_archive'] = array(); //empty array causes standard 0 & 1 checkboxes
+//row_archive = array(0 => "Current", 1 => "Level 1", 2 => "Level 2"); //Populated example
+$array_header['bb_brimbox']['layout_security'] = array(); //empty array causes standard 0 & 1 checkboxes
+//layout_security = array(0 => "Open", 1 => "Guarded", 2 => "Management"); //Populated example
+$array_header['bb_brimbox']['column_security'] = array(); //empty array causes standard 0 & 1 checkboxes
+//column_security = array(0 => "Current", 1 => "Level 1", 2 => "Level 2"); //Populated example
+
+# DATA VALIDATION TYPES #
+//can be added to
+$array_header['bb_brimbox']['validation']['text'] = array('function'=>'bb_validate::validate_text','name'=>"Text",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['numeric'] = array('function'=>'bb_validate::validate_numeric','name'=>"Number",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['date'] = array('function'=>'bb_validate::validate_date','name'=>"Date",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['email']	= array('function'=>'bb_validate::validate_email','name'=>"Email",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['money']	= array('function'=>'bb_validate::validate_money','name'=>"Money",'use'=>"Required");
+$array_header['bb_brimbox']['validation']['yesno'] = array('function'=>'bb_validate::validate_yesno','name'=>"Yes/No",'use'=>"Required");
+
+# GUEST INDEX #
+//data table has one customizable full text column aside from the default column
+$array_header['bb_brimbox']['guest_index'] = array(); //will use default security = 0 and search = 1
 
 # STANDARD HOOKS #
 //use static classes or standard functions
@@ -26,16 +67,6 @@ $array_global['bb_brimbox']['hooks']['index_hot_state'][] = array('func'=>"bb_in
 $array_global['bb_brimbox']['hooks']['bb_guest_infolinks'][] = 'bb_main::infolinks';
 $array_global['bb_brimbox']['hooks']['bb_viewer_infolinks'][] = 'bb_main::infolinks';
 $array_global['bb_brimbox']['hooks']['bb_home_infolinks'][] = 'bb_main::infolinks';
-
-/* $main object being brought into a redirect module */
-$array_global['bb_brimbox']['hooks']['bb_input_redirect_main_class'][] = "/bb-blocks/bb_main_include.php";
-$array_global['bb_brimbox']['hooks']['bb_input_redirect_return_main'][] = array('func'=>"bb_main::return_main",'vars'=>array("&main"));
-$array_global['bb_brimbox']['hooks']['bb_upload_data_redirect_main_class'][] = "/bb-blocks/bb_main_include.php";
-$array_global['bb_brimbox']['hooks']['bb_upload_data_redirect_return_main'][] = array('func'=>"bb_main::return_main",'vars'=>array("&main"));
-$array_global['bb_brimbox']['hooks']['bb_upload_docs_redirect_main_class'][] = "/bb-blocks/bb_main_include.php";
-$array_global['bb_brimbox']['hooks']['bb_upload_docs_redirect_return_main'][] = array('func'=>"bb_main::return_main",'vars'=>array("&main"));
-$array_global['bb_brimbox']['hooks']['bb_manage_modules_redirect_main_class'][] = "/bb-blocks/bb_main_include.php";
-$array_global['bb_brimbox']['hooks']['bb_manage_modules_redirect_return_main'][] = array('func'=>"bb_main::return_main",'vars'=>array("&main"));
 
 /* these are the primary input and input redirect hooks */
 $array_global['bb_brimbox']['hooks']['bb_input_module_postback'][] = array('func'=>"bb_input_module_postback",'vars'=>array("&arr_layouts", "&arr_columns", "&arr_dropdowns", "&arr_state", "&row"),  'file'=>"/bb-blocks/bb_input_module_postback.php");
