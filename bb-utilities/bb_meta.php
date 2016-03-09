@@ -31,34 +31,34 @@ If not, see http://www.gnu.org/licenses/
 
 class bb_meta extends bb_validate {    
 		
-	function layouts($con, $type = false)
+	function layouts($con, $key_type = false)
 		{
 		$arr_layouts = $this->get_json($con, "bb_layout_names");
-		return $this->filter_keys($arr_layouts, array(), true, $type);		
+		return $this->filter_keys($arr_layouts, array(), true, $key_type);		
 		}
 				
-	function columns($con, $row_type, $type = false)
+	function columns($con, $row_type, $key_type = false)
 		{
 		$arr_columns_json = $this->get_json($con, "bb_column_names");
 		$arr_columns = $this->init($arr_columns_json[$row_type], array());
-		return $this->filter_keys($arr_columns, array(), true, $type);			
+		return $this->filter_keys($arr_columns, array(), true, $key_type);			
 		}
 				
-	function lists($con, $row_type, $type = false)
+	function lists($con, $row_type, $key_type = false)
 		{
 		$arr_lists_json = $this->get_json($con, "bb_create_lists");
 		$arr_lists = $this->init($arr_lists_json[$row_type], array());
-		return $this->filter_keys($arr_lists, array(), true, $type);			
+		return $this->filter_keys($arr_lists, array(), true, $key_type);			
 		}
 				
-	function dropdowns($con, $row_type, $type = false)
+	function dropdowns($con, $row_type, $key_type = false)
 		{
 		$arr_dropdowns_json = $this->get_json($con, "bb_dropdowns");
 		$arr_dropdowns = $this->init($arr_dropdowns_json[$row_type], array());
-		return $this->filter_keys($arr_dropdowns, array(), true, $type);			
+		return $this->filter_keys($arr_dropdowns, array(), true, $key_type);			
 		}
 		
-	function reduce($arr, $keys = NULL, $type = NULL)
+	function reduce($arr, $keys = NULL, $key_type = NULL)
 		{
 		//icould be strings or ints
 		if (!is_array($keys))
@@ -78,38 +78,40 @@ class bb_meta extends bb_validate {
 				}
 			}
 		//default NULL will not reduce to string or integer keys
-		if (is_bool($type))
+		if (is_bool($key_type))
 			{
 			//false is int, true is string, can also do nothing with NULL
-			$arr = $this->filter_keys($arr, array(), true, $type);	
+			$arr = $this->filter_keys($arr, array(), true, $key_type);	
 			}
 		return $arr;			
 		}
 		
-	function lookup($con, $lookup, $keys = NULL, $type = NULL)
+	function lookup($con, $lookup, $keys = NULL, $key_type = NULL)
 		{
 		//default NULL will not reduce to string or integer keys
 		$arr = $this->get_json($con, $lookup);
-		return $this->reduce($arr, $keys, $type);
+		return $this->reduce($arr, $keys, $key_type);
 		}
 		
-	function filter_keys ($arr, $filter = array(), $mode = true, $type = false)
+	function filter_keys ($arr, $filter = array(), $keep_mode = true, $key_type = false)
         //function to return array with only integer keys by default
-		//so far mostly loop on integer keys, so $type is not null by default
+		//so far mostly loop on integer keys, so $key_type is not null by default
 		//default behavior is different than functions lookup or reduce
         //will return empty array if $arr is not set for any reason
         {
         if (!empty($arr))
             {
-			if (!is_null($type))
+			if (!is_null($key_type))
 				{
-				$callback = $type ? 'is_string' : 'is_integer';
+				//true string, false integer
+				$callback = $key_type ? 'is_string' : 'is_integer';
 				$keys = array_filter(array_keys($arr), $callback);
 				$arr = array_intersect_key($arr, array_flip($keys));
 				}
+			//empty filter to skip
             if (!empty($filter))
                 {
-                if ($mode) //keep the keys in filter
+                if ($keep_mode) //keep the keys in filter
                     {
                     $arr = array_intersect_key($arr, array_flip($filter));   
                     }

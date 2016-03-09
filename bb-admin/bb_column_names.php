@@ -117,13 +117,17 @@ if ($main->button(2))
                 foreach ($arr_core_fields as $key => $value)
                     {
                     //array set for particular purposes
-                    $arr_core_work[$i][$key] = $main->post($key . '_' . $i, $module, $arr_core[$i][$key]);      
+                    //blank string defaults for JSON
+                    $default = $main->init($arr_core[$i][$key], "");
+                    $arr_core_work[$i][$key] = $main->post($key . '_' . $i, $module, $default);      
                     }
                 }
             foreach ($arr_alternative_fields as $key => $value)
                 {
                 //array set for particular purposes
-                $arr_alternative_work[$i][$key] = $main->post($key . '_' . $i, $module, $arr_alternative[$i][$key]);
+                //blank string defaults for JSON
+                $default = $main->init($arr_alternative[$i][$key], "");
+                $arr_alternative_work[$i][$key] = $main->post($key . '_' . $i, $module, $default);
                 }                
             }
         }

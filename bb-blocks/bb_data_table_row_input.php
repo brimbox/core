@@ -20,7 +20,7 @@ if (!function_exists ('bb_input_module_postback')) :
     function bb_data_table_row_input($arr_layouts, $arr_columns, $arr_dropdowns, &$arr_state, $params = array())
         {
         //session or globals
-        global $con, $build, $main, $submit, $username;
+        global $con, $main, $submit, $username;
         
         //because of hook default value must be set here
         if (!is_array($params)) $params = array();
@@ -50,7 +50,7 @@ if (!function_exists ('bb_input_module_postback')) :
         if (!$errors) //no errors
             {
             //produce empty form since we are going to load the data
-            $arr_columns_props = $main->lookup($con, 'bb_column_names', array($row_type, "layout"));
+            $arr_columns_props = $main->lookup($con, 'bb_column_names', array($row_type));
             
             $unique_key = isset($arr_columns_props['unique']) ? $arr_columns_props['unique'] : 0;        
             $arr_ts_vector_fts = array();
@@ -58,7 +58,7 @@ if (!function_exists ('bb_input_module_postback')) :
             $arr_select_where = array();
             
             //additional character policy filter
-            $arr_state = $$main->filter("bb_row_input_character_policy", $arr_state);
+            $arr_state = $main->filter("bb_row_input_character_policy", $arr_state);
            
             // update preexisting row
             if ($row_type == $row_join)  
@@ -406,7 +406,7 @@ if (!function_exists ('bb_input_module_postback')) :
                     if (pg_num_rows($result_where_not) == 1)
                         {
                         //retain state values
-                        array_push($arr_messages, "Error: Record not updated. Duplicate value in input form on column \"" . $arr_column_reduced[$unique_key]['name'] . "\".");
+                        array_push($arr_messages, "Error: Record not updated. Duplicate value in input form on column \"" . $arr_columns[$unique_key]['name'] . "\".");
                         if ($input_insert_log)
                             {
                             $message = "WHERE NOT insert error on type " . chr($row_type + 64) . " record."; 

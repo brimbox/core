@@ -23,7 +23,7 @@ if (!function_exists('bb_input_module_postback')) :
     function bb_input_module_postback(&$arr_layouts, &$arr_columns, &$arr_dropdowns, &$arr_state, &$row)
         {
         //session or global vars, superglobals
-        global $POST, $con, $build, $main, $module;
+        global $POST, $con, $main, $module;
     
         //standard values
         $arr_relate = array(41,42,43,44,45,46);

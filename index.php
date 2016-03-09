@@ -141,12 +141,6 @@ $main->locked($con, $username, $userrole);
 /* GET HEADER AND GLOBAL ARRAYS */
 /* load header array, addon functions, and global arrays */
 //returns $array_header and by default all functions declared
-/* also busts up $array_global, for current interface, by default */
-//$array_actions
-//$array_interface
-//$array_common_variables
-//$array_links
-//$array_reports
 $main->loader($con, $interface);
 
 /* RECONCILE SLUG AND MODULE*/
@@ -163,6 +157,7 @@ foreach($array_interface as $key => $value)
 //get modules type into string for query
 $module_types = implode(",", array_unique($module_types));
 
+/* GET SLUG AND MODULE USING SQL */
 //get slug and module, in order of precedence, 1 good slug and module, 2 good slug (back button), 3 empty slug (on login)
 $redirect = $slug;
 $query = "SELECT id, module_slug, module_name FROM (SELECT 1 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_slug = '" . pg_escape_string($slug) . "' AND module_name = '" . pg_escape_string($module) . "' " .
@@ -185,24 +180,13 @@ if ($redirect == "")
     }
 unset($key, $value, $module_types, $redirect, $query, $result, $row, $index_path);
 
-//this javascript necessary for the standard main class functions
-//all other javascript function included in specific modules by default
-$javascript = $webpath . "/bb-utilities/bb_scripts.js";
-$javascript = $main->filter("index_main_javascript", $javascript);
-echo "<script src=\"" . $javascript . "\"></script>";
-unset($javascript); //clean up
-
 /* SET UP HOT STATE */
 //hot state based in $interface
 //one hot state per user/module
 $main->hook("index_hot_state");
 
-/* INCLUDE HACKS FILE LAST after all other bb-config includes */
-//hacks file useful for debugging
-include_once($abspath . "/bb-config/bb_admin_hacks.php");
-
 /* CONTROLLER INCLUDE */
-//a custom controller contains several standard include files
+//a custom controller will contain several standard include files, bb_javascript, bb_css, bb_less if desired
 include_once($abspath . $array_header[$interface]['controller']);
 
 else: /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */

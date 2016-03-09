@@ -35,9 +35,9 @@ $arr_notes = array("49","50");
 $arr_messages = array();
 
 //layouts
-$arr_layouts = $main->get_json($con, "bb_layout_names");
-$arr_layouts_reduced = $main->filter_keys($arr_layouts);
-$default_row_type = $main->get_default_layout($arr_layouts_reduced);
+$arr_layouts = $main->layouts($con);
+$default_row_type = $main->get_default_layout($arr_layouts);
+$arr_columns_full = $main->get_json($con, 'bb_column_names');
 
 /* PRESERVE STATE */
 $POST = $main->retrieve($con);
@@ -49,11 +49,10 @@ $arr_state = $main->load($con, $module);
 $row_type = $main->post('row_type', $module, $default_row_type);
 $arr_columns = $main->columns($con, $row_type);
 
-$arr_columns_props = $main->lookup($con, array('bb_column_names', $row_type), true);
+$arr_columns_props = $main->lookup($con, 'bb_column_names', array($row_type), true);
 
-$arr_column_reduced = $main->filter_keys($arr_columns['bb_brimbox'][$row_type]);
-$arr_layout = $arr_layouts_reduced[$row_type];
-$default_col_type = $main->get_default_column($arr_column_reduced);
+$arr_layout = $arr_layouts[$row_type];
+$default_col_type = $main->get_default_column($arr_columns);
 
 //get col_type
 if ($main->changed('row_type', $module, $arr_state, $default_row_type))
@@ -74,18 +73,18 @@ $main->update($con, $module, $arr_state);
 //check_column    
 if ($main->button(1) || $main->button(2)) 
     {
-    $unique_key = isset($arr_columns['bb_brimbox'][$row_type]['unique']) ? $arr_columns['bb_brimbox'][$row_type]['unique'] : false;
+    $unique_key = isset($arr_columns_full[$row_type]['unique']) ? $arr_columns_full[$row_type]['unique'] : false;
 	$column = $main->pad("c", $col_type);
-	//unique key already set
+    /* CHECK IF KEY SET OR POSSIBLE */
     if ($unique_key)
         {
         if ($main->button(1))
             {
-            array_push($arr_messages, "Column \"" . $arr_columns['bb_brimbox'][$row_type][$unique_key]['name'] . "\" on layout \"" . $arr_layout['plural'] . "\" has a unique key on it.");
+            array_push($arr_messages, "Column \"" . $arr_columns[$col_type]['name'] . "\" on layout \"" . $arr_layout['plural'] . "\" has a unique key on it.");
             }
         elseif ($main->button(2))
             {
-            array_push($arr_messages, "Error: Unique Key is already set on layout \"" . $arr_layout['plural'] . "\" . Column \"" . $arr_columns['bb_brimbox'][$row_type][$unique_key]['name'] . "\" has a unique key on it.");
+            array_push($arr_messages, "Error: Unique Key is already set on layout \"" . $arr_layout['plural'] . "\" . Column \"" . $arr_columns_full[$row_type][$unique_key]['name'] . "\" has a unique key on it.");
             }
         }
 	//no key
@@ -96,7 +95,7 @@ if ($main->button(1) || $main->button(2))
         $result = $main->query($con, $query);
         if (pg_num_rows($result) > 0)
             {    
-            array_push($arr_messages, "Error: Column \"" . $arr_column_reduced[$col_type]['name'] . "\" contains duplicate values. Unique key cannot be created.");
+            array_push($arr_messages, "Error: Column \"" . $arr_columns[$col_type]['name'] . "\" contains duplicate values. Unique key cannot be created.");
             }               
 		//check if note column 
         if (in_array($column,$arr_notes))
@@ -108,38 +107,44 @@ if ($main->button(1) || $main->button(2))
         {
         array_push($arr_messages, "Error: No column available for key creation.");
         }
+    
+    /* UPDATE OR REPORT ON KEY */    
+    //if no message, inform administartor or add key, col_type > 0 so empty works
+    if (empty($arr_messages) && $col_type)
+        {
+        if ($main->button(1)) //check_column
+            {
+            array_push($arr_messages, "Unique key can be created on layout \"" . $arr_layout['plural'] . "\" column \"" . $arr_columns[$col_type]['name'] . "\".");       
+            }	
+        elseif ($main->button(2)) //add_key, $col_type <> 0
+            {
+            $arr_columns_full[$row_type]['unique'] = $col_type;
+            
+            //Update json row explicitly, check for valid key
+            $query = "UPDATE json_table SET jsondata = '" . json_encode($arr_columns_full) . "' WHERE lookup = 'bb_column_names' " .
+                     "AND NOT EXISTS (SELECT 1 FROM data_table WHERE row_type = " . $row_type . " GROUP BY " . $column . " HAVING count(" . $column . ") > 1);";
+            //echo "<p>" . $query . "</p>";
+            $result = $main->query($con, $query);
+            
+            if (pg_affected_rows($result) == 1) //key updated or set
+                {
+                array_push($arr_messages, "Unique Key has been created on layout \"" . $arr_layout['plural'] . "\", column \"" . $arr_columns[$col_type]['name'] . "\".");     
+                }
+            else //something changed
+                {
+                array_push($arr_messages, "Unique Key has not been created on layout \"" . $arr_layout['plural'] . "\", column \"" . $arr_columns[$col_type]['name'] . "\". Underlying data change.");     
+                }
+            }
+        }    
     }
-//if no message, inform administartor or add key, col_type > 0 so empty works
-if ($main->button(1) && $col_type && empty($arr_messages)) //check_column
-    {
-    array_push($arr_messages, "Unique key can be created on layout \"" . $arr_layout['plural'] . "\" column \"" . $arr_column_reduced[$col_type]['name'] . "\".");       
-    }	
-elseif ($main->button(2) && $col_type && empty($arr_messages)) //add_key, $col_type <> 0
-	{
-    $arr_columns['bb_brimbox'][$row_type]['unique'] = $col_type;
-    
-    //Update json row explicitly, check for valid key
-    $query = "UPDATE json_table SET jsondata = '" . json_encode($arr_columns) . "' WHERE lookup = 'bb_column_names' " .
-             "AND NOT EXISTS (SELECT 1 FROM data_table WHERE row_type = " . $row_type . " GROUP BY " . $column . " HAVING count(" . $column . ") > 1);";
-    //echo "<p>" . $query . "</p>";
-    $result = $main->query($con, $query);
-    
-    if (pg_affected_rows($result) == 1) //key updated or set
-        {
-        array_push($arr_messages, "Unique Key has been created on layout \"" . $arr_layout['plural'] . "\", column \"" . $arr_column_reduced[$col_type]['name'] . "\".");     
-        }
-    else //something changed
-        {
-        array_push($arr_messages, "Unique Key has not been created on layout \"" . $arr_layout['plural'] . "\", column \"" . $arr_column_reduced[$col_type]['name'] . "\". Underlying data change.");     
-        }
-	}
-	
+
+/* REMOVE KEY */	
 if ($main->button(3)) //remove_key
     {
-	if (isset($arr_columns['bb_brimbox'][$row_type]['unique']))
+	if (isset($arr_columns_full[$row_type]['unique']))
 		{
-        unset($arr_columns['bb_brimbox'][$row_type]['unique']);
-		$main->update_json($con, $arr_columns, "bb_column_names");
+        unset($arr_columns_full[$row_type]['unique']);
+		$main->update_json($con, $arr_columns_full, "bb_column_names");
 		array_push($arr_messages, "Unique Key has been removed for this layout type \"" . $arr_layout['plural'] . "\".");  
 		}
 	else
@@ -162,9 +167,9 @@ $params = array("class"=>"spaced","number"=>1,"target"=>$module, "passthis"=>tru
 $main->echo_button("check_column", $params);
 echo "<br>";
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->layout_dropdown($arr_layouts_reduced, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 $params = array("class"=>"spaced","onchange"=>"bb_reload()");
-$main->column_dropdown($arr_column_reduced, "col_type", $col_type, $params);
+$main->column_dropdown($arr_columns, "col_type", $col_type, $params);
 echo "<br>";
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Create Key");
 $main->echo_button("add_key", $params);

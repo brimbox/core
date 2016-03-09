@@ -22,7 +22,7 @@ if (!function_exists ('bb_data_table_row_validate')) :
     function bb_data_table_row_validate($arr_layouts, $arr_columns, $arr_dropdowns, &$arr_state, $params)
         {
         //session or globals
-        global $con, $build, $main, $submit;
+        global $con, $main, $submit;
         
         //because of hook default value must be set here
         if (!is_array($params)) $params = array();
@@ -52,7 +52,7 @@ if (!function_exists ('bb_data_table_row_validate')) :
             //do not process columns with dropdowns
             $col = $main->pad("c", $key);
             $field = $arr_state[$col];
-            $field = $$main->filter("bb_input_custom_char_replace", $field);
+            $field = $main->filter("bb_input_custom_char_replace", $field);
     
             //start validation
             $type = $value['type']; //validation type 
@@ -91,7 +91,7 @@ if (!function_exists ('bb_data_table_row_validate')) :
                     }
                 }
             $filtername = "bb_input_custom_validation";
-            $field = $$main->filter($filtername, $field);
+            $field = $main->filter($filtername, $field);
     
             $main->set($col, $arr_state, $field);
             }

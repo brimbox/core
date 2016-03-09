@@ -1062,7 +1062,7 @@ class bb_main extends bb_reports {
 	function drill_links($post_key, $row_type, $layouts, $module, $text)
 		{
 		//call function add drill links in class bb_link
-		call_user_func_array("$this->drill", array($post_key, $row_type, $layouts, $module, $text));
+		call_user_func_array(array($this,'drill'), array($post_key, $row_type, $layouts, $module, $text));
 		}
 		
 	function page_selector($element, $offset, $count_rows, $return_rows, $pagination)

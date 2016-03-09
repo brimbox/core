@@ -22,7 +22,7 @@ if (!function_exists('bb_input_redirect_postback')) :
     function bb_input_redirect_postback(&$arr_layouts, &$arr_columns, &$arr_dropdowns, &$arr_state)
         {
         //session or globals
-        global $POST, $con, $build, $main, $submit;
+        global $POST, $con, $main, $submit;
     
         //bring in from redirect
         //will alter arr_state, layouts, columns, dropdowns
@@ -84,7 +84,7 @@ if (!function_exists('bb_input_redirect_postback')) :
                     }
                 else
                     {
-                    if ($arr_dropdowns[$key]['multiselect'])
+                    if (isset($arr_dropdowns[$key]['multiselect']))
                         {
                         //will be an array
                         $str = $main->post($col, $submit, array());

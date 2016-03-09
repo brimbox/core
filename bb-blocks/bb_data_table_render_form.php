@@ -22,7 +22,7 @@ if (!function_exists('bb_data_table_render_form')) :
     function bb_data_table_render_form($arr_layouts, $arr_columns, $arr_dropdowns, &$arr_state, $params = array())
         {
         //session or global vars, superglobals
-        global $con, $build, $main, $submit;
+        global $con, $main, $submit;
     
         //standard values
         $arr_relate = array(41,42,43,44,45,46);
@@ -59,11 +59,11 @@ if (!function_exists('bb_data_table_render_form')) :
         $post_key = $main->state('post_key', $arr_state, 0);
         
         //get the error and regular messages, populated form redirect
-        $arr_message = $main->state('arr_message', $arr_state, array());
+        $arr_messages = $main->state('arr_messages', $arr_state, array());
         $arr_errors = $main->state('arr_errors', $arr_state, array());
                     
         echo "<div class=\"spaced\" id=\"input_message\">";
-        $main->echo_messages($arr_message);
+        $main->echo_messages($arr_messages);
         echo "</div>";
         /* END MESSAGES */
           

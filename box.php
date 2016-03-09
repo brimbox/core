@@ -5,9 +5,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php echo PAGE_TITLE; ?></title>
 <?php
-/* JAVASCRIPT AND CSS INCLUDES */
+/* STANDARD JAVASCRIPT INCLUDE */
+//this javascript necessary for the standard main class functions
+//all other javascript generally included in specific modules by default
+$javascript = $webpath . "/bb-utilities/bb_scripts.js";
+$javascript = $main->filter("index_main_javascript", $javascript);
+echo "<script src=\"" . $javascript . "\"></script>";
+unset($javascript); //clean up
+
+/* CUSTOM JAVASCRIPT INCLUDE */
 //include file deals with path
-$main->include_file($webpath . "/bb-config/bb_admin_javascript.js", "js");
+$main->include_file($webpath . "/bb-config/bb_javascript.js", "js");
 
 /* GET LESS SUBSTITUTER */
 include($abspath . "/bb-less/bb_less_substituter.php");
@@ -23,7 +31,8 @@ $main->include_file($webpath . "/bb-utilities/bb_box.css", "css");
 $less->parse_less_file($abspath . "/bb-utilities/bb_box.less");
 
 /* CUSTOM CSS */
-$main->include_file($webpath . "/bb-config/bb_admin_css.css", "css");
+$main->include_file($webpath . "/bb-config/bb_css.css", "css");
+
 ?>
 </head>
 <body id="bb_brimbox">
