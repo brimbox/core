@@ -73,21 +73,21 @@ if (count($arr_messages) > 0)
     $main->echo_messages($arr_messages);
     echo "</div>";
     }
-if ($data_stats['not_validated'])
+if (isset($data_stats['not_validated']))
     {
     echo "<div class=\"spaced\">";
     echo "<p>" . $data_stats['not_validated'] . " row(s) rejected because data validation errors.</p>";
     $main->echo_messages($arr_errors_all);
     echo "</div>";
     }
-if ($data_stats['not_inputted'])
+if (isset($data_stats['not_inputted']))
     {
     echo "<div class=\"spaced\">";
     echo "<p>" . $data_stats['not_inputted'] . " row(s) rejected by insert algorithm.</p>";
     $main->echo_messages($arr_messages_all);
     echo "</div>";
     }
-if ($data_stats['inputted'])
+if (isset($data_stats['inputted']))
     {
     echo "<div class=\"spaced\">";
     if ($edit_or_insert == 0)

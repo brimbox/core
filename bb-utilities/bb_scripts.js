@@ -113,20 +113,28 @@ function bb_logout_selector(i)
 function bb_submit_object(f,k)
     {
     var frmobj = document.forms["bb_form"];
+	var a =  frmobj.action;
     
 	frmobj.elements['bb_object'].value = k; 		
     frmobj.action = f;
 	//straight submit without bb_submit form
     frmobj.submit();
+	//set the action back
+	frmobj.action = a;
+	return false;
 	}
 	
 function bb_submit_link(f)
     {
     var frmobj = document.forms["bb_form"];
+	var a =  frmobj.action;
     
     frmobj.action = f;
 	//straight submit without bb_submit form
     frmobj.submit();
+	//set the action back
+	frmobj.action = a;
+	return false;
     }
 
 

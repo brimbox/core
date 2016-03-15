@@ -164,6 +164,8 @@ CREATE TRIGGER ts1_update_bb_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 
+
+
 $modules_before_eot = <<<EOT
 CREATE TABLE modules_table
 (
@@ -171,12 +173,13 @@ CREATE TABLE modules_table
   module_order int,
   module_path text NOT NULL DEFAULT ''::text,
   module_name text NOT NULL DEFAULT ''::text,
+  module_slug text NOT NULL DEFAULT ''::text,
   friendly_name text NOT NULL DEFAULT ''::text,
   interface text NOT NULL DEFAULT ''::text,
   module_type smallint,
   module_version text NOT NULL DEFAULT ''::text,
+  module_url text NOT NULL DEFAULT ''::text,
   standard_module smallint,
-  maintain_state smallint,
   module_files text NOT NULL DEFAULT ''::text,
   module_details text NOT NULL DEFAULT ''::text,
   change_date timestamp with time zone,
@@ -186,12 +189,11 @@ CREATE TABLE modules_table
 WITH (
   OIDS=FALSE
 );
---set up the sequence
 ALTER SEQUENCE modules_table_id_seq RESTART CYCLE;
 EOT;
 $modules_after_eot = <<<EOT
 --trigger: bb_change_date
-CREATE TRIGGER ts1_update_bb_change_date
+CREATE TRIGGER ts1_update_change_date
   BEFORE INSERT OR UPDATE
   ON modules_table
   FOR EACH ROW

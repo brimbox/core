@@ -87,6 +87,7 @@ if ($main->button(1))
 //CORE OR ALTERNATIVE
 $core = ($definition == "bb_brimbox") ? true : false;
 
+$arr_core_work = array();
 $arr_core_fields = array('row'=>array('name'=>'Row'),
                          'length'=>array('name'=>'Length'),
                          'order'=>array('name'=>'Order'),
@@ -97,6 +98,7 @@ $arr_core_fields = array('row'=>array('name'=>'Row'),
                          'search'=>array('name'=>'Search'),
                          'relate'=>array('name'=>'Relate'));
 
+$arr_alternative_work  = array();
 $arr_alternative_fields = array('row'=>array('name'=>'Row'),
                                 'length'=>array('name'=>'Length'),
                                 'order'=>array('name'=>'Order'),

@@ -74,7 +74,7 @@ while ($row = pg_fetch_array($result))
     }
 //update select dropdown
 $params = array("select_class"=>"spaced", 'usekey'=>true);
-$main->array_to_select($arr_result, "update_id", $update, $params);
+$main->array_to_select($arr_result, "update_id", $update_id, $params);
 $params = array("class"=>"spaced","number"=>2,"target"=>$module, "passthis"=>true, "label"=>"Update File");
 $main->echo_button("update_file", $params);
 //hidden input for delete

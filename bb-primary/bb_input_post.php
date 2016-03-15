@@ -24,7 +24,7 @@ include("../bb-config/bb_config.php"); // need DB_NAME
 session_name(DB_NAME);
 session_start();
 
-if (isset($_SESSION['username'])):    
+if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("3_bb_brimbox","4_bb_brimbox","5_bb_brimbox"))):    
 
     //deal with stored $_SESSION stuff
     $interface =  $_SESSION['interface'];
@@ -60,12 +60,7 @@ if (isset($_SESSION['username'])):
      
     //parse global arrays  
     $main->loader($con, $interface);
-    
-    //include main class
-    $main->hook("bb_input_redirect_main_class");
-    //get main instance
-    $main->hook("bb_input_redirect_return_main");
-    
+        
     /* GET STATE AND $POST */
     $POST = $_POST;
    

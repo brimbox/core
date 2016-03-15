@@ -7,7 +7,7 @@ include("../bb-config/bb_config.php"); // need DB_NAME
 session_name(DB_NAME);
 session_start();
 
-if (isset($_SESSION['username'])):
+if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_brimbox","5_bb_brimbox"))):    
 
     //deal with stored $_SESSION stuff
     $interface =  $_SESSION['interface'];

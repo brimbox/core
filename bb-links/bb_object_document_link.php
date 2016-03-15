@@ -18,7 +18,6 @@ If not, see http://www.gnu.org/licenses/
 
 define('BASE_CHECK', true);
 include("../bb-config/bb_config.php"); // need DB_NAME
-include("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
 
 //userrole not passed in from controller
 session_name(DB_NAME);
@@ -27,8 +26,17 @@ session_start();
 if (isset($_SESSION['username'])):
 
     /* SET UP MAIN OBJECT */    
-    include("../bb-blocks/bb_main_include.php");
+    include("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
     
+    if (file_exists("../bb-extend/include_main.php"))
+        {
+        include_once("/bb-extend/include_main.php");   
+        }
+    else
+        {
+        include_once("../bb-utilities/bb_include_main.php");
+        }
+    //main instance   
     $main = new bb_main();
     
     $userroles = $main->get_constant('BB_DOCUMENT_DOWNLOAD_PERMISSIONS', "3_bb_brimbox,4_bb_brimbox,5_bb_brimbox");

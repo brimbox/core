@@ -18,24 +18,22 @@ If not, see http://www.gnu.org/licenses/
 
 define('BASE_CHECK', true);
 include("../bb-config/bb_config.php"); // need DB_NAME
-include("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
 
 //userrole not passed in from controller
 session_name(DB_NAME);
 session_start();
 
-//contains bb_main class
-include("../bb-utilities/bb_main.php");
-include("../bb-utilities/bb_database.php");
-include("../bb-utilities/bb_links.php");
-include("../bb-utilities/bb_validate.php");
-include("../bb-utilities/bb_forms.php");
-include("../bb-utilities/bb_work.php");
-include("../bb-utilities/bb_hooks.php");
-include("../bb-utilities/bb_reports.php");
-
-/* SET UP MAIN OBJECT */
-$main = new bb_reports();
+include("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
+if (file_exists("../bb-extend/include_main.php"))
+    {
+    include_once("/bb-extend/include_main.php");   
+    }
+else
+    {
+    include_once("../bb-utilities/bb_include_main.php");
+    }
+//main instance   
+$main = new bb_main();
 
 $userroles = $main->get_constant('BB_DOCUMENT_FILE_PERMISSIONS', '3_bb_brimbox,4_bb_brimbox,5_bb_brimbox');
 $main->check_permission($userroles);
