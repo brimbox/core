@@ -18,7 +18,24 @@ If not, see http://www.gnu.org/licenses/
 ?>
 <?php
 /* BEGIN REQUIRED FORM */
-$post = $main->retrieve($con, $array_state, $userrole);
+
+echo "<br><br>";
+
+$arr_columns = $main->columns($con, 2, NULL);
+print_r($arr_columns);
+echo "<br><br>";
+
+$arr_columns = $main->alternative($con, 2, 'bb_brimbox');
+print_r($arr_columns);
+echo "<br><br>";
+
+$arr_columns = $main->alternative($con, 2, 'bb_test');
+print_r($arr_columns);
+echo "<br><br>";
+
+
+//get $POST variable
+$POST = $main->retrieve($con);
 		
 $main->echo_form_begin();
 $main->echo_module_vars();
@@ -26,6 +43,7 @@ $main->echo_module_vars();
 /* In case you need to put a quick link on the home page */
 $main->echo_common_vars();
 $main->echo_form_end();
+
 /* END FORM */
 ?>
 

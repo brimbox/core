@@ -802,7 +802,7 @@ class bb_main extends bb_reports {
         $cnt = count($arr_userroles);
         if ($cnt > 1)
             {
-            echo "<span class=\"" . $class_span . "\">Current userrole is: ";
+            echo "<span class=\"" . $class_span . "\">Current userrole is: </span>";
             $i = 1;
             foreach ($arr_userroles as $value)
                 {
@@ -818,7 +818,6 @@ class bb_main extends bb_reports {
                     }
                 $i++;
                 }
-            echo "</span>";
             }
         }
         				

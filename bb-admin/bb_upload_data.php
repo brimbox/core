@@ -31,6 +31,8 @@ function bb_reload()
 
 <?php
 /* PRESERVE STATE */
+
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get state from db

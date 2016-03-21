@@ -38,8 +38,8 @@ function bb_module_links(i,a)
 <?php
 include_once("bb-utilities/bb_version.php");
 
-//get $_POST variable
-$POST = $main->retrieve($con); //run first
+//get $POST variable
+$POST = $main->retrieve($con);
         
 //get state from db
 $arr_state = $main->load($con, $module);

@@ -31,7 +31,9 @@ function bb_set_hidden(id)
 
 <?php
 /* PRESERVE STATE */
-$POST = $main->retrieve($con);
+
+//get $POST variable
+$POST = $main->retrieve($con);;
 
 //get state from db
 $arr_state = $main->load($con, $module);

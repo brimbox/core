@@ -158,7 +158,7 @@ $userrole_constant = $main->get_constant('BB_DEFAULT_USERROLE_ASSIGN', '0_bb_bri
 $arr_error = array(); //if set there is an error in the form data, will display inline
 $arr_messages = array(); //friendly action and error message
 
-/* GET STATE AND POSTBACK */
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get state from db

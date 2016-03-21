@@ -26,9 +26,11 @@ function bb_reload()
     }
 </script>
 <?php
-
 /* PRESERVE STATE */
+
+//get $POST variable
 $POST = $main->retrieve($con);
+
 $arr_notes = array("49","50");
 
 //start code here
@@ -40,7 +42,7 @@ $default_row_type = $main->get_default_layout($arr_layouts);
 $arr_columns_full = $main->get_json($con, 'bb_column_names');
 
 /* PRESERVE STATE */
-$POST = $main->retrieve($con);
+$POST = $main->retrieve($con);;
 
 //get state from db
 $arr_state = $main->load($con, $module);
@@ -48,8 +50,6 @@ $arr_state = $main->load($con, $module);
 //columns -- need row_type
 $row_type = $main->post('row_type', $module, $default_row_type);
 $arr_columns = $main->columns($con, $row_type);
-
-$arr_columns_props = $main->lookup($con, 'bb_column_names', array($row_type), true);
 
 $arr_layout = $arr_layouts[$row_type];
 $default_col_type = $main->get_default_column($arr_columns);

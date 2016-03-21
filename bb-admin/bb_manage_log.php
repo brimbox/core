@@ -49,6 +49,7 @@ $default_truncate_option = key($arr_options);
 reset($arr_options);
 
 /* PRESERVE STATE */
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get state from db

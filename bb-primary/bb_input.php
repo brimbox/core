@@ -34,9 +34,8 @@ function bb_reload()
 </script>
 <?php
 $main->check_permission("bb_brimbox", array(3,4,5));
-?>
-<?php
-//get the $POST
+
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get $arr_state

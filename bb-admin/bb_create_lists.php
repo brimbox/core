@@ -51,7 +51,7 @@ $default_row_type = $main->get_default_layout($arr_layouts_reduced);
 
 //hot state used for state
 
-//get $POST
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get state from db

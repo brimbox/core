@@ -49,7 +49,8 @@ $fulltext_state = strtolower($main->get_constant('BB_FULLTEXT_STATE', 'word'));
 $arr_messages = array();
 
 /* BEGIN STATE AND POSTBACK PROCESS */
-//get $_POST
+
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get archive mode, default Off, show only zeros
@@ -191,7 +192,14 @@ if ($main->blank($message))
         //get the primary column and set $row['hdr'] based on primary header      
         $parent_row_type = $arr_layouts[$row['row_type']]['parent'];
         if ($parent_row_type)
-            $leftjoin = $main->init($arr_columns[$parent_row_type]['primary'], "c01");
+            {
+            $arr_columns_props = $main->properties($con, $parent_row_type);
+            $leftjoin = $main->pad("c", $arr_columns_props['primary']);
+            }
+        else
+            {
+            $leftjoin = "c01";    
+            }
         
         //seems to work, left will sometimes be set from previous row
         $row['hdr'] = $row[$leftjoin . "_left"];

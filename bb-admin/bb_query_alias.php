@@ -33,6 +33,7 @@ function bb_reload()
 /* PRESERVE STATE */
 $arr_messages = array();
 
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get state from db

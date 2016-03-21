@@ -32,7 +32,9 @@ $arr_layout_security = $arr_header['layout_security']['value'];
 $arr_messages = array();
 
 /* PRESERVE STATE */
-$POST = $main->retrieve($con);    
+
+//get $POST variable
+$POST = $main->retrieve($con);
 
 //sorting function
 function cmp( $a, $b )
@@ -65,11 +67,11 @@ if ($main->button(1)) //layout_submit
         //OR condition to save variables in state
         if (!$main->blank($singular) && !$main->blank($plural))
             {
-            $arr_update[$i]['singular'] = $main->purge_chars($main->post('singular' . '_'. $i, $module, $arr_layouts[$i]['singular']), true, true);
-            $arr_update[$i]['plural'] = $main->purge_chars($main->post('plural' . '_'. $i, $module, $arr_layouts[$i]['singular']), true, true); 
+            $arr_update[$i]['singular'] = $main->purge_chars($main->post('singular' . '_'. $i, $module, $singular) , true, true);
+            $arr_update[$i]['plural'] = $main->purge_chars($main->post('plural' . '_'. $i, $module, $plural), true, true); 
             foreach ($arr_layouts_fields as $key => $value)
                 {
-                $arr_update[$i][$key] = $main->purge_chars($main->post($key . '_'. $i, $module, $arr_layouts[$i]['singular']), true, true);    
+                $arr_update[$i][$key] = $main->purge_chars($main->post($key . '_'. $i, $module, 0), true, true);    
                 }
             $populated = $i;
             }

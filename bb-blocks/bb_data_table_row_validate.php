@@ -67,7 +67,7 @@ if (!function_exists ('bb_data_table_row_validate')) :
                 if (!is_bool($return_required)) 
                     {
                     //key is col_type
-                    $arr_error[$key] = $return_required;
+                    $arr_errors[$key] = $return_required;
                     }
                 }            
             //validate, field has data, trimmed already, will skip if blank

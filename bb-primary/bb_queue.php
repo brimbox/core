@@ -127,7 +127,8 @@ function bb_set_field(col)
 </script>
 <?php
 /* BEGIN QUEUE AND STATE POSTBACK  */
-//get $_POST
+
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get state

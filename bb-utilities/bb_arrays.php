@@ -55,8 +55,6 @@ $array_header['bb_brimbox']['guest_index'] = array(); //will use default securit
 
 # STANDARD HOOKS #
 //use static classes or standard functions
-$array_global[$interface]['hooks']['index_main_class'][] = "/bb-blocks/bb_main_include.php";
-$array_global[$interface]['hooks']['index_return_main'][] = array('func'=>"bb_main::return_main",'vars'=>array("&main"));
 $array_global['bb_brimbox']['hooks']['index_hot_state'][] = array('func'=>"bb_index_hot_state",'vars'=>array("con", "main", "interface", "&array_hot_state"), 'file'=>"/bb-blocks/bb_index_hot_state.php");
 
 $array_global['bb_brimbox']['hooks']['bb_guest_infolinks'][] = 'bb_main::infolinks';

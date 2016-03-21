@@ -79,19 +79,56 @@ $_SESSION['abspath'] = $abspath = dirname(__FILE__);
 
 /* END SESSION/CONTROLLER VARS */
 
-//logout algorithm used for interface and userrole change, userrole change and logout
-if (isset($_SESSION['module']))
+//logout algorithm used for interface and userrole change
+//verfiy user
+if (isset($_SESSION['userrole']))
 	{
+    /* INCLUDE CONSTANTS */    
+    include_once("bb-config/bb_constants.php");
+    
+    /* SET TIME ZONE */
+    date_default_timezone_set(USER_TIMEZONE);
+    
+    /* SET UP MAIN OBJECT */
+    //objects are all daisy chained together
+    //set up main from last object chained
+    //main object is fully static
+    //variable $main appears as global
+    //if you want extend main you can
+    if (file_exists("bb-extend/include_main.php"))
+        {
+        include_once("bb-extend/include_main.php");   
+        }
+    else
+        {
+        include_once("bb-utilities/bb_include_main.php");
+        }
+    //main instance   
+    $main = new bb_main();
+    
+    /* GET DATABASE CONNECTION */
+    //get standard connection
+    $con = $main->connect();
+       
+    /* CHECK IF USER IS LOCKED */
+    //die if locked user
+    $main->locked($con, $username, $userrole);
+
     //sets the module and submit
 	if ($module == "bb_logout")
 		{
+        /* GET $POST for logout conditional */
+        $POST = $main->retrieve($con); 
+ 
 		//logout and change interface/userrole could be on different or many pages
 		//check for session poisoning, userroles string should not be altered
 		//$userroles variable should be protected and not used or altered anywhere
         // non-integer or empty usertype will convert to 0
-		if (((int)$usertype <> 0) && in_array($_POST['bb_userrole'], explode(",", $_SESSION['userroles'])))
+        
+		if (((int)$usertype <> 0) && in_array($POST['bb_userrole'], explode(",", $_SESSION['userroles'])))
 			{
-			$_SESSION['userrole'] = $_POST['bb_userrole'];
+			$_SESSION['userrole'] = $POST['bb_userrole'];
+            $_SESSION['module'] = ""; //send back to default landing page
 			$index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
 			header($index_path);
 			die(); //important to stop script
@@ -107,37 +144,6 @@ if (isset($_SESSION['module']))
 		}
 	}
     
-/* INCLUDE CONSTANTS */    
-include_once("bb-config/bb_constants.php");
-
-/* SET TIME ZONE */
-date_default_timezone_set(USER_TIMEZONE);
-
-/* SET UP MAIN OBJECT */
-//objects are all daisy chained together
-//set up main from last object chained
-//main object is fully static
-//variable $main appears as global
-//if you want extend main you can
-if (file_exists("bb-extend/include_main.php"))
-    {
-    include_once("bb-extend/include_main.php");   
-    }
-else
-    {
-    include_once("bb-utilities/bb_include_main.php");
-    }
-//main instance   
-$main = new bb_main();
-
-/* GET DATABASE CONNECTION */
-//get standard connection
-$con = $main->connect();
-
-/* CHECK IF USER IS LOCKED */
-//die if locked user
-$main->locked($con, $username, $userrole);
-
 /* GET HEADER AND GLOBAL ARRAYS */
 /* load header array, addon functions, and global arrays */
 //returns $array_header and by default all functions declared

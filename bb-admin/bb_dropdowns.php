@@ -36,7 +36,7 @@ $arr_notes = array("49","50");
 
 $delimiter = $main->get_constant('BB_MULTISELECT_DELIMITER', ",");
 
-/* GET STATE */
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get state from db

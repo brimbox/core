@@ -33,15 +33,83 @@ class bb_meta extends bb_validate {
 		
 	function layouts($con, $key_type = false)
 		{
-		$arr_layouts = $this->get_json($con, "bb_layout_names");
-		return $this->filter_keys($arr_layouts, array(), true, $key_type);		
+		$arr_layouts_json = $this->get_json($con, "bb_layout_names");
+		$arr_layouts = $this->filter_keys($arr_layouts_json, array(), true, $key_type);
+		if (!$key_type)
+			{
+			uasort($arr_layouts, array($this, 'order_sort'));
+			}
+		return $arr_layouts;
 		}
 				
 	function columns($con, $row_type, $key_type = false)
 		{
 		$arr_columns_json = $this->get_json($con, "bb_column_names");
-		$arr_columns = $this->init($arr_columns_json[$row_type], array());
-		return $this->filter_keys($arr_columns, array(), true, $key_type);			
+		$arr_columns = $this->init($arr_columns_json[$row_type], array());		
+		$arr_columns = $this->filter_keys($arr_columns, array(), true, $key_type);
+		if ($key_type === false)
+			{
+			uasort($arr_columns, array($this, 'order_sort'));
+			}
+		return $arr_columns;
+		}
+		
+	function alternative($con, $row_type, $definition, $key_type = false, $sort = true)
+		{
+		//get core column info
+		$arr_columns_core = $this->columns($con, $row_type, NULL);
+		//get alternative columns
+		
+		$arr_columns_alt = $this->init($arr_columns_core['alternative'][$definition], array());
+		$arr_field_keys = array_keys($this->init($arr_columns_core['fields'], array()));		
+		$arr_properties = $this->filter_keys($arr_columns_core, array_keys($this->init($arr_columns_core['properties'], array())), true, true);
+		//loop to keep order
+		$arr_columns = array();
+		if (!empty($arr_columns_alt))
+			{
+			foreach ($arr_columns_alt as $key => $value)
+				{
+				foreach ($arr_field_keys as $field)
+					{
+					if (isset($arr_columns_alt[$key][$field]))
+						{
+						$arr_columns[$key][$field] = $arr_columns_alt[$key][$field];	
+						}
+					else
+						{
+						$arr_columns[$key][$field] = $arr_columns_core[$key][$field];
+						}
+					}
+				}
+			if (!empty($arr_properties))
+				{
+				$arr_columns = $arr_columns + $arr_properties;
+				echo "<br><br>";
+				//print_r($arr_columns_alt);
+				}			
+			}
+		$arr_columns = $this->filter_keys($arr_columns, array(), true, $key_type);
+		if ($key_type === false && $sort)
+			{
+			uasort($arr_columns, array($this, 'order_sort'));
+			}
+		return $arr_columns;			
+		}
+		
+	function properties($con, $row_type)
+		{
+		$arr_columns = $this->columns($con, $row_type, NULL);
+		return $this->filter_keys($arr_columns, array_keys($arr_columns['properties']), true, true);
+		}
+		
+	function order_sort( $a, $b )
+		{
+		//would be quicker to do this when defining
+		if ($a['order'] == $b['order'])
+			{
+			return 0;
+			} 
+		return ($a['order'] < $b['order']) ? -1 : 1;
 		}
 				
 	function lists($con, $row_type, $key_type = false)
@@ -85,14 +153,7 @@ class bb_meta extends bb_validate {
 			}
 		return $arr;			
 		}
-		
-	function lookup($con, $lookup, $keys = NULL, $key_type = NULL)
-		{
-		//default NULL will not reduce to string or integer keys
-		$arr = $this->get_json($con, $lookup);
-		return $this->reduce($arr, $keys, $key_type);
-		}
-		
+						
 	function filter_keys ($arr, $filter = array(), $keep_mode = true, $key_type = false)
         //function to return array with only integer keys by default
 		//so far mostly loop on integer keys, so $key_type is not null by default

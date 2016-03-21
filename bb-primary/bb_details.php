@@ -62,7 +62,8 @@ $arr_notes = array(49,50);
 $arr_messages = array();
 
 /* START STATE AND DETAILS POSTBACK */
-//get $_POST
+
+//get $POST variable
 $POST = $main->retrieve($con);
 
 //get archive mode
@@ -147,7 +148,7 @@ if ($post_key > 0) // a detail of a record
                 $relate['id'] = $relate_post_key;
                 $relate['row_type'] = $relate_row_type;
                 echo "<div class=\"clear\"><label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id .  "')\">" . htmlentities($value['name']) . ":</label>";
-                $main->standard($relate, $arr_layouts, "bb_cascade", $row[$col2], array('id'=>$field_id, 'class'=>"link spaced left floatleft"));
+                $main->standard($relate, $arr_layouts, "bb_cascade", "cascade", $row[$col2], array('id'=>$field_id, 'class'=>"link spaced left floatleft"));
                 echo "</div>";
                 }
             else //regular

@@ -23,7 +23,7 @@ $main->check_permission("bb_brimbox", array(3,4,5));
 /* INITIALIZE */
 $arr_messages = array();
 
-//get $_POST var
+//get $POST variable
 $POST = $main->retrieve($con);
 
 $post_key = $main->init($POST['bb_post_key'], -1);
@@ -104,8 +104,14 @@ else
     
     $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));  //will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
     if ($parent_row_type)
-        $arr_columns_props = $main->lookup($con, 'bb_column_names', $parent_row_type, true);
-    $leftjoin = $main->init($arr_columns_props['primary'], "c01");
+        {
+        $arr_columns_props = $main->properties($con, $parent_row_type);
+        $leftjoin = $main->pad("c", $arr_columns_props['primary']);
+        }
+    else
+        {
+        $leftjoin = "c01";    
+        }
 
     $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " .
 	     "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " .
