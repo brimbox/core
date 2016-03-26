@@ -1,33 +1,34 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
+
 /*
-Copyright (C) 2012 - 2015  Kermit Will Richardson, Brimbox LLC
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
-as published by the Free Software Foundation. 
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU GPL v3 for more details. 
-
-You should have received a copy of the GNU GPL v3 along with this program.
-If not, see http://www.gnu.org/licenses/
-*/
+ * Copyright (C) Brimbox LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU GPL v3 for more details.
+ *
+ * You should have received a copy of the GNU GPL v3 along with this program.
+ * If not, see http://www.gnu.org/licenses/
+ */
 ?>
 <?php
-//EOT stands for end of text
+// EOT stands for end of text
 
 /* BEFORE AND AFTER CREATE STRINGS FOR RESTORE */
 /* ORDER */
-//data_table
-//log_table
-//modules_table
-//users_table
-//json_table
+// data_table
+// log_table
+// modules_table
+// users_table
+// json_table
 
-$list_zeros = str_repeat("0", 2000);
+$list_zeros = str_repeat ( "0", 2000 );
 
 $data_before_eot = <<<EOT
 CREATE TABLE data_table
@@ -164,8 +165,6 @@ CREATE TRIGGER ts1_update_bb_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 
-
-
 $modules_before_eot = <<<EOT
 CREATE TABLE modules_table
 (
@@ -178,7 +177,6 @@ CREATE TABLE modules_table
   interface text NOT NULL DEFAULT ''::text,
   module_type smallint,
   module_version text NOT NULL DEFAULT ''::text,
-  module_url text NOT NULL DEFAULT ''::text,
   standard_module smallint,
   module_files text NOT NULL DEFAULT ''::text,
   module_details text NOT NULL DEFAULT ''::text,
