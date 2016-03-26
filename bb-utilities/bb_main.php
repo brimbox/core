@@ -1,1210 +1,1064 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
+
+
 /*
-Copyright (C) 2012 - 2015  Kermit Will Richardson, Brimbox LLC
+ * Copyright (C) Brimbox LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU GPL v3 for more details.
+ *
+ * You should have received a copy of the GNU GPL v3 along with this program.
+ * If not, see http://www.gnu.org/licenses/
+ */
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
-as published by the Free Software Foundation. 
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU GPL v3 for more details. 
-
-You should have received a copy of the GNU GPL v3 along with this program.
-If not, see http://www.gnu.org/licenses/
-*/
-  
 /* NO HTML OUTPUT */
 
 /* PHP FUNCTIONS */
 /* class bb_main() */
-//return_stats
-//return_header
-//return_rows
-//get_default_layout
-//get_default_column
-//filter_keys
-//filter_init -- deprecated
-//layout_dropdown
-//column_dropdown
-//list_dropdown
-//pad
-//rpad
-//build_name
-//convert_date
-//rconvert_date
-//get_directory_tree
-//array_flatten
-//empty_directory
-//copy_directory
-//replace_root
-//array_iunique
-//custom_trim_string
-//purge_chars
-//echo_messages
-//has_error_messages
-//check_permission
-//validate_password
-//build_indexes
-//cleanup_database_data
-//cleanup_database_layouts
-//cleanup_database_columns
-//log_entry
-//output_links
-//check_child
-//drill_links
-//page_selector
-//validate_logic
-//validate_required
-//validate_dropdown
-//logout_link
-//archive_link
-//database_stats
-//replicate_link
-//userrole_switch
-//on_constant
-//set_constant
-//make_html_id
-
+// return_stats
+// return_header
+// return_rows
+// get_default_layout
+// get_default_column
+// filter_keys
+// filter_init -- deprecated
+// layout_dropdown
+// column_dropdown
+// list_dropdown
+// pad
+// rpad
+// build_name
+// convert_date
+// rconvert_date
+// get_directory_tree
+// array_flatten
+// empty_directory
+// copy_directory
+// replace_root
+// array_iunique
+// custom_trim_string
+// purge_chars
+// echo_messages
+// has_error_messages
+// check_permission
+// validate_password
+// build_indexes
+// cleanup_database_data
+// cleanup_database_layouts
+// cleanup_database_columns
+// log_entry
+// output_links
+// check_child
+// drill_links
+// page_selector
+// validate_logic
+// validate_required
+// validate_dropdown
+// logout_link
+// archive_link
+// database_stats
+// replicate_link
+// userrole_switch
+// on_constant
+// set_constant
+// make_html_id
 class bb_main extends bb_reports {
-    
-    function return_main($main)
-		{
-		$main = new bb_main();
-		}
+
+	function return_main($main) {
+
+		$main = new bb_main ();
+	}
 	
-	//this quickly returns the query header stats including count and current time...
-	function return_stats($result)
-		{
-		//count of rows is held in query, must have a "count(*) OVER () as cnt" column in query
-		//in the standard modules $cntrows['cnt'] or $cntrows[0] will work
-		//cannot use pg_num_rows because that returns the count according to OFFSET, as defined by $return_rows
-		$cntrows = pg_fetch_array($result);
-		if ($cntrows['cnt'] > 0)
-			{
-			date_default_timezone_set(USER_TIMEZONE);
-			echo  "<div class = \"spaced left\">Rows: " . $cntrows['cnt'] . " Date: " . date('Y-m-d h:i A', time()) . "</div>";
-			}
-		//reset back to zero
-		pg_result_seek($result,0);
+	// this quickly returns the query header stats including count and current time...
+	function return_stats($result) {
+		// count of rows is held in query, must have a "count(*) OVER () as cnt" column in query
+		// in the standard modules $cntrows['cnt'] or $cntrows[0] will work
+		// cannot use pg_num_rows because that returns the count according to OFFSET, as defined by $return_rows
+		$cntrows = pg_fetch_array ( $result );
+		if ($cntrows ['cnt'] > 0) {
+			date_default_timezone_set ( USER_TIMEZONE );
+			echo "<div class = \"spaced left\">Rows: " . $cntrows ['cnt'] . " Date: " . date ( 'Y-m-d h:i A', time () ) . "</div>";
+		}
+		// reset back to zero
+		pg_result_seek ( $result, 0 );
 		
 		return $cntrows;
-		}
+	}
 	
 	// this function returns a record header with a view_details link for each record returned
-	function return_header($row, $target, $link = 1, $mark = true)
-		 {    
-		 echo "<div class = \"left italic nowrap\">";
-		 $row_type = $row['row_type'];
-		 $row_type_left = $row['row_type_left'];
-		 //do not return link, (ie cascade)
-		 echo "<span class=\"bold colored\">" . chr($row_type + 64) . $row['id'] . "</span>";
-		 //archive or secure > 0
-		 if ($mark)
-			{
-			if ($row['archive'] > 0)
-				{
-				$str = str_repeat('*', $row['archive']);
-				echo "<span class=\"error bold\">" . $str . "</span>";
-				}
-			if ($row['secure'] > 0)
-				{
-				$str = str_repeat('+', $row['secure']);
-				echo "<span class=\"error bold\">" . $str . "</span>";
-				}
-			}
-		 if (!$this->blank($row['hdr']) && ($link == 1))
-			{
-			//calls javascript in bb_link
-			echo " <button class = \"link italic\" onclick=\"bb_links.standard(" . (int)$row['key1'] . "," . (int)$row['row_type_left'] . ", '" . $target . "'); return false;\">";
-			echo htmlentities($row['hdr']) . "</button> / ";
-			}
-        elseif (!$this->blank($row['hdr']) && ($link == -1))
-            {
-            //non linked row
-            echo " <span class = \"colored italic\">";
-			echo htmlentities($row['hdr']) . "</span> / ";  
-            }
-        //else link 0 no output
-		echo " Created: " .  $this->convert_date($row['create_date'], "Y-m-d h:i A") . " / ";	
-		echo "Modified: " .  $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
-		} //function
-		
-	//this outputs a record of data, returning the total number of rows, which is found in the cnt column 
-	//$row1 is the row number, and $row2 is the catch to see when the row changes
-	//$col2 is the actual name of the columns from the xml, $row[$col2] is  $row['c03']
-	//$child is the visable name of the column the user name of the column
-	
-	function return_rows($row, $arr_column_reduced, $check = 0)
-		{
-		//you could always feed this function only non-secured columns
-		$row2 = 1;  //to catch row number change
-		$row3 = ""; //string with row data in it
-		$secure = false; //must be check = true and secure = 1 to secure column
-		$pop = false; //to catch empty rows, pop = true for non-empty rows
-        
-        ##DEPRACATED##
-        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
-        ##DEPRACATED##
+	function return_header($row, $target, $link = 1, $mark = true) {
 
-		foreach($arr_column_reduced as $key => $value)
-			{
-            if (is_integer($key)) //integer keys reserved for columns
-                {
-                $row1 = (int)$value['row']; //current row number
-                $col2 = $this->pad("c", $key);
-                //always skipped first time
-                if ($row2 != $row1) 
-                    {
-                    if ($pop)
-                        {
-                        echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";                
-                        }
-                    $row3 = ""; //reset row data
-                    $pop = false; //start row again with pop  = false
-                    }
-                //not secure is $value['secure'] < $check OR $check = 0 (default no check)
-				$secure = ($check && ($value['secure'] >= $check)) ? true : false;
-                //check secure == 0
-                if (!$secure)
-                    {
-                    if (!empty($row[$col2]))
-                        {
-                        $pop = true; //field has data, so row will too
-                        }
-                    //prepare row, if row has data also echo the empty cell spots
-                    $row3 .= "<div class = \"overflow " . $value['length'] . "\">" . htmlentities($row[$col2]) . "</div>";
-                    }
-                $row2 = $row1;
-                }
-            }
-            //echo the last row if populated
-        if ($pop)
-            {
-            echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";                
-            }
-
-		return $row['cnt'];
+		echo "<div class = \"left italic nowrap\">";
+		$row_type = $row ['row_type'];
+		$row_type_left = $row ['row_type_left'];
+		// do not return link, (ie cascade)
+		echo "<span class=\"bold colored\">" . chr ( $row_type + 64 ) . $row ['id'] . "</span>";
+		// archive or secure > 0
+		if ($mark) {
+			if ($row ['archive'] > 0) {
+				$str = str_repeat ( '*', $row ['archive'] );
+				echo "<span class=\"error bold\">" . $str . "</span>";
+			}
+			if ($row ['secure'] > 0) {
+				$str = str_repeat ( '+', $row ['secure'] );
+				echo "<span class=\"error bold\">" . $str . "</span>";
+			}
 		}
-		      
-    function get_default_layout($layouts, $check = 0)
-		{
-        //layouts are in order, will return first array if $check is false
-        //if check is true, $available array of secure values will be considered
-        //$available is an array of available securities to allow
-        //loop through $arr_layouts
-        
-        foreach ($layouts as $key => $value)
-            {
-            //not secure is $value['secure'] < $check OR $check = 0 (default no check)
-			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
-            if (!$secure) //check is true
-                {
-                return $key;
-                }
-            }
-        return 1;
-	    }
-        
-    function get_default_column($arr_columns, $check = 0)
-		{
-        //columns are in order, will return first array if $check is false
-        //if check is true, $available array of secure values will be considered
-        //$available is an array of available securities to allow
-        //loop through $arr_columns
-
-
-        foreach ($arr_columns as $key => $value)
-            {
-            //not secure is $value['secure'] < $check OR $check = 0 (default no check)
-			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
-            if (!$secure) //check is true
-                {
-                return $key;
-                }
-            }
-        return 1;
-	    }
-        
-    function get_default_list($lists, $archive = 1)
-		{
-        //default only ones that are not archived
-        //columns are in order, will return first array if $check is false
-        //if check is true, $available array of secure values will be considered
-        //$available is an array of available securities to allow
-        //loop through $arr_list
-        foreach ($lists as $key => $value)
-            {
-            //not secure is $value['secure'] < $check OR $check = 0 (default no check)
-			$default = ($archive && ($value['archive'] >= $archive)) ? true : false;
-            if (!$default) //check is true
-                {
-                return $key;
-                }
-            }
-        return 1;
-	    }
-       			
-	//this returns a standard header combo for selecting record type
-	//for this function the javascript function reload_on_layout() is uniquely tailored to the calling module    
-        
-    function layout_dropdown($arr_layouts_reduced, $name, $row_type, $params = array())
-		{
-		$class = isset($params['class']) ? $params['class'] : "";
-		$onchange = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$check = isset($params['check']) ? $params['check'] : 0;
-		$empty = isset($params['empty']) ? $params['empty'] : false;
-		$all = isset($params['all']) ? $params['all'] : false;
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
-        		
-		if (!empty($label))
-			{
-			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
+		if (! $this->blank ( $row ['hdr'] ) && ($link == 1)) {
+			// calls javascript in bb_link
+			echo " <button class = \"link italic\" onclick=\"bb_links.standard(" . ( int ) $row ['key1'] . "," . ( int ) $row ['row_type_left'] . ", '" . $target . "'); return false;\">";
+			echo htmlentities ( $row ['hdr'] ) . "</button> / ";
+		} elseif (! $this->blank ( $row ['hdr'] ) && ($link == - 1)) {
+			// non linked row
+			echo " <span class = \"colored italic\">";
+			echo htmlentities ( $row ['hdr'] ) . "</span> / ";
+		}
+		// else link 0 no output
+		echo " Created: " . $this->convert_date ( $row ['create_date'], "Y-m-d h:i A" ) . " / ";
+		echo "Modified: " . $this->convert_date ( $row ['modify_date'], "Y-m-d h:i A" ) . "</div>";
+	}
+	// function
+	
+	// this outputs a record of data, returning the total number of rows, which is found in the cnt column
+	// $row1 is the row number, and $row2 is the catch to see when the row changes
+	// $col2 is the actual name of the columns from the xml, $row[$col2] is $row['c03']
+	// $child is the visable name of the column the user name of the column
+	function return_rows($row, $arr_column_reduced, $check = 0) {
+		// you could always feed this function only non-secured columns
+		$row2 = 1; // to catch row number change
+		$row3 = ""; // string with row data in it
+		$secure = false; // must be check = true and secure = 1 to secure column
+		$pop = false; // to catch empty rows, pop = true for non-empty rows
+		              
+		// #DEPRACATED##
+		$arr_column_reduced = $this->filter_keys ( $arr_column_reduced );
+		// #DEPRACATED##
+		
+		foreach ( $arr_column_reduced as $key => $value ) {
+			if (is_integer ( $key )) // integer keys reserved for columns
+{
+				$row1 = ( int ) $value ['row']; // current row number
+				$col2 = $this->pad ( "c", $key );
+				// always skipped first time
+				if ($row2 != $row1) {
+					if ($pop) {
+						echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";
+					}
+					$row3 = ""; // reset row data
+					$pop = false; // start row again with pop = false
+				}
+				// not secure is $value['secure'] < $check OR $check = 0 (default no check)
+				$secure = ($check && ($value ['secure'] >= $check)) ? true : false;
+				// check secure == 0
+				if (! $secure) {
+					if (! empty ( $row [$col2] )) {
+						$pop = true; // field has data, so row will too
+					}
+					// prepare row, if row has data also echo the empty cell spots
+					$row3 .= "<div class = \"overflow " . $value ['length'] . "\">" . htmlentities ( $row [$col2] ) . "</div>";
+				}
+				$row2 = $row1;
 			}
-			
-		echo "<select name = \"" . $name . "\" class = \"" . $class . "\" onchange=\"" . $onchange  . "\">";
-		if ($empty)
-			{
-			echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
+		}
+		// echo the last row if populated
+		if ($pop) {
+			echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";
+		}
+		
+		return $row ['cnt'];
+	}
+
+	function get_default_layout($layouts, $check = 0) {
+		// layouts are in order, will return first array if $check is false
+		// if check is true, $available array of secure values will be considered
+		// $available is an array of available securities to allow
+		// loop through $arr_layouts
+		foreach ( $layouts as $key => $value ) {
+			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$secure = ($check && ($value ['secure'] >= $check)) ? true : false;
+			if (! $secure) // check is true
+{
+				return $key;
 			}
-		if ($all)
-			{
+		}
+		return 1;
+	}
+
+	function get_default_column($arr_columns, $check = 0) {
+		// columns are in order, will return first array if $check is false
+		// if check is true, $available array of secure values will be considered
+		// $available is an array of available securities to allow
+		// loop through $arr_columns
+		foreach ( $arr_columns as $key => $value ) {
+			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$secure = ($check && ($value ['secure'] >= $check)) ? true : false;
+			if (! $secure) // check is true
+{
+				return $key;
+			}
+		}
+		return 1;
+	}
+
+	function get_default_list($lists, $archive = 1) {
+		// default only ones that are not archived
+		// columns are in order, will return first array if $check is false
+		// if check is true, $available array of secure values will be considered
+		// $available is an array of available securities to allow
+		// loop through $arr_list
+		foreach ( $lists as $key => $value ) {
+			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$default = ($archive && ($value ['archive'] >= $archive)) ? true : false;
+			if (! $default) // check is true
+{
+				return $key;
+			}
+		}
+		return 1;
+	}
+	
+	// this returns a standard header combo for selecting record type
+	// for this function the javascript function reload_on_layout() is uniquely tailored to the calling module
+	function layout_dropdown($arr_layouts, $name, $row_type, $params = array()) {
+
+		$params = array (
+				'name' => $name 
+		) + $params;
+		
+		$check = isset ( $params ['check'] ) ? $params ['check'] : 0;
+		$empty = isset ( $params ['empty'] ) ? $params ['empty'] : false;
+		$all = isset ( $params ['all'] ) ? $params ['all'] : false;
+		unset ( $params ['check'], $params ['empty'], $params ['all'] );
+		
+		$attributes = $this->attributes ( $params );
+		
+		echo "<select " . $attributes . ">";
+		if ($empty) {
+			echo "<option value=\"-1\" " . (- 1 == $row_type ? "selected" : "") . "></option>";
+		}
+		if ($all) {
 			echo "<option value=\"0\" " . (0 == $row_type ? "selected" : "") . ">All&nbsp;</option>";
-			}
-		 foreach ($arr_layouts_reduced as $key => $value)
-				{
-                //not secure is $value['secure'] < $check OR $check = 0 (default no check)
-				$secure = ($check && ($value['secure'] >= $check)) ? true : false;
-				if (!$secure)
-					{
-					echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . htmlentities($value['plural']) . "&nbsp;</option>";
-					}
-				}
-		echo "</select>";
 		}
-        
-    function column_dropdown($arr_column_reduced, $name, $col_type, $params = array())
-		{
-		$class = isset($params['class']) ? $params['class'] : "";
-		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$check = isset($params['check']) ? $params['check'] : false;
-		$empty = isset($params['empty']) ? $params['empty'] : false;
-		$all = isset($params['all']) ? $params['all'] : false;
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
-        
-        ##DEPRACATED##
-        $arr_column_reduced = $this->filter_keys($arr_column_reduced);
-        ##DEPRACATED##
-        
-		if (!empty($label))
-			{
-			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
+		foreach ( $arr_layouts as $key => $value ) {
+			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$secure = ($check && ($value ['secure'] >= $check)) ? true : false;
+			if (! $secure) {
+				echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . htmlentities ( $value ['plural'] ) . "&nbsp;</option>";
 			}
+		}
+		echo "</select>";
+	}
 
-		//Security there should be no way to get column with secured row_type
-		echo "<select name=\"". $name . "\" class=\"". $class . "\" onchange=\"" . $onchange  . "\">";
-		//build field options for column names
-		if ($empty)
-			{
-			echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
-			}
-		if ($all)
-			{
+	function column_dropdown($arr_column, $name, $col_type, $params = array()) {
+
+		$params = array (
+				'name' => $name 
+		) + $params;
+		
+		$check = isset ( $params ['check'] ) ? $params ['check'] : false;
+		$empty = isset ( $params ['empty'] ) ? $params ['empty'] : false;
+		$all = isset ( $params ['all'] ) ? $params ['all'] : false;
+		unset ( $params ['check'], $params ['empty'], $params ['all'] );
+		
+		$attributes = $this->attributes ( $params );
+		
+		// Security there should be no way to get column with secured row_type
+		echo "<select " . $attributes . ">";
+		// build field options for column names
+		if ($empty) {
+			echo "<option value=\"-1\" " . (- 1 == $row_type ? "selected" : "") . "></option>";
+		}
+		if ($all) {
 			echo "<option value=\"0\" " . (0 == $col_type ? "selected" : "") . ">All&nbsp;</option>";
+		}
+		foreach ( $arr_column as $key => $value ) {
+			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
+			$secure = ($check && ($value ['secure'] >= $check)) ? true : false;
+			if (! $secure) {
+				echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . htmlentities ( $value ['name'] ) . "&nbsp;</option>";
 			}
-		foreach($arr_column_reduced as $key => $value)
-			{
-            //not secure is $value['secure'] < $check OR $check = 0 (default no check)
-			$secure = ($check && ($value['secure'] >= $check)) ? true : false;
-            if (!$secure)
-                {
-                echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
-                }
-			}
+		}
 		echo "</select>";
-		}
-        
-    function list_dropdown($arr_list_reduced, $name, $list_number, $params = array())
-		{
-		//Security there should be no way to get column with secured row_type
-		$class = isset($params['class']) ? $params['class'] : "";
-		$onchange  = isset($params['onchange']) ? $params['onchange'] . "; return false;" : "";
-		$check = isset($params['check']) ? $params['check'] : 1; //default checks
-		$empty = isset($params['empty']) ? $params['empty'] : false;
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
-		
-		if (!empty($label))
-			{
-			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
-			}
-		echo "<select name = \"" . $name . "\" class=\"" . $class . "\" onchange=\"" . $onchange  . "\">";
-		//list combo
-		if ($empty)
-			{
-			echo "<option value=\"-1\" " . (-1 == $list_number ? "selected" : "") . "></option>";
-			}
-		foreach($arr_list_reduced as $key => $value)
-			{
-			//either 1 or 0 for archive
-            $archive = ($check && ($value['archive'] >= $check)) ? true : false;
-			if (!$archive)
-				{
-				$archive_flag = ($value['archive']) ? str_repeat('*', $value['archive']) : "";
-				echo "<option value=\"" . $key. "\"" . ($key == $list_number   ? " selected " : "") . ">" . htmlentities($value['name']) . $archive_flag . "&nbsp;</option>";
-				}
-			}
-		echo "</select>";
-        }
-	
-	//pad a number to a column name	
-	function pad($char, $number, $padlen = 2)
-		{
-		return $char . str_pad($number, $padlen,"0",STR_PAD_LEFT);
-		}
-		
-	//get a number from a column name	
-	function rpad($padded)
-		{
-		return (int)substr($padded,1);	
-		}
-		
-	//Function to turn firstname (fname), middle initial(minit) and lastname (into string)
-	function build_name($row)
-		{
-		$arr_name = array();
-		$arr_row = array("fname","minit","lname");
-		foreach ($arr_row as $value)
-			{
-			 if (trim($row[$value]) <> "")
-				{
-				array_push($arr_name,trim($row[$value]));
-				}
-			}
-		$str = implode(" ", $arr_name);
-		return $str;
-		}
-	
-	//function to convert dates to proper time zone and format
-	//convert from program time to user time
-	function convert_date($date, $format = "Y-m-d")
-		{
-		$date = new DateTime($date, new DateTimeZone(DB_TIMEZONE));
-		$date->setTimezone(new DateTimeZone(USER_TIMEZONE));
-		return $date->format($format);
-		}
-        
-	//convert from user time to program time	
-	function rconvert_date($date, $format = "Y-m-d")
-		{
-		$date = new DateTime($date, new DateTimeZone(USER_TIMEZONE));
-		$date->setTimezone(new DateTimeZone(DB_TIMEZONE));
-		return $date->format($format);
-		}
-                
-    function include_file($filepath, $type)
-        {
-        //assumes index file root
-        if ($type == "css")
-            {
-            echo "<link rel=StyleSheet href=\"" . $filepath . "\" type=\"text/css\" media=screen>";    
-            }
-        elseif ($type == "js")
-            {
-            echo "<script type=\"text/javascript\" src=\"" . $filepath . "\"></script>";   
-            }     
-        }
-	
-	//function to get all paths in a directory
-	//directory recursion function
-	function get_directory_tree($directory)
-		{
-		$filter = array(".","..","Thumbs.db",".svn");
-		$dirs = array_diff(scandir($directory),$filter);
-		$dir_array = Array();
-		foreach($dirs as $d)
-		if (is_dir($directory . $d))
-			{
-			$d = $d . "/";
-			$dir_array[$d] = $this->get_directory_tree($directory . $d);
-			}
-		else
-			{
-			$dir_array[$d] = $directory . $d;
-			}
-		return $this->array_flatten($dir_array);
-		}		
-			
-	//flattens the array returned in $main->get_directory_tree
-	function array_flatten($a)
-		{
-		foreach($a as $k=>$v)
-			  {
-			  if (!empty($v))
-				   {
-				   $a[$k]=(array)$v;
-				   }
-			  }
-		 if (!empty($a))
-			  {
-			  return call_user_func_array('array_merge',$a);
-			  }
-		 else
-			  {
-			  return array();    
-			  }
-		}
-			
-	function empty_directory($dir, $root = "")
-		{
-		 //true means to keep directory
-		 //false means to delete directory
-		if (is_dir($dir))
-			{
-			$objects = scandir($dir);
-			foreach ($objects as $object)
-				{
-				if (!in_array($object, array(".","..")))
-					{                    
-					if (is_dir($dir . $object))
-						{
-						//not empty recurse
-						$object = $object . "/";
-						$this->empty_directory($dir . $object, $root);
-						}
-					else
-						{
-						//remove file
-						@unlink($dir . $object);
-						}
-					}
-				}
-			reset($objects);
-			}
-		$rmdir_bool = ($dir == $root) ? false : true;
-		if ($rmdir_bool)
-			{
-			@rmdir(trim($dir,"/"));
-			}
-		}
-			  
-	function copy_directory($from_directory, $to_directory)
-		 {
-		 $filter = array(".","..","Thumbs.db");
-		 $dirs = array_diff(scandir($from_directory),$filter);
-		 $dir_array = Array();
-		 foreach($dirs as $d)
-			  {         
-			  if (is_dir($from_directory . $d))
-				  {
-				  $d = $d . "/";
-				  @mkdir( $to_directory . $d);
-				  $dir_array[$d] = $this->copy_directory($from_directory . $d, $to_directory . $d);
-				  }
-			  else
-				  {
-				  @copy($from_directory . $d, $to_directory . $d);
-				  }
-			   }
-		 }
-		 
-	function replace_root($dir, $search, $replace)
-		{
-		return $replace . substr($dir, strlen($search));
-		}
-                
-    function check_syntax($filepath)
-        {
-        //return true is bad, false in good - false is no syntax errors
-        //parameters set up for controller
-        if (file_exists($filepath))
-            {
-            $fileesc = escapeshellarg($filepath);
-            $output = shell_exec("php-cli -l " .  $fileesc);
-            if (preg_match("/^No syntax errors/", trim($output)))
-                {
-                //will exit here on good check
-                return false;            
-                }            
-            return "Error: Syntax error in file " . $filepath . ".";
-            }
-        else
-            {
-            return "Error: File " . $filepath . " missing.";
-            }
-        }
-	
-	//array_unique not case sensitive for testing
-	function array_iunique($array)
-		{
-		return array_unique(array_map('strtolower',$array));
-		}
-			
-	//function to strip tabs and new lines from string
-	function custom_trim_string($str, $length, $eol = true, $quotes = false)
-		{
-		if ($eol)
-			{
-			//changes a bunch of control chars to single spaces
-			$pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
-			$str = preg_replace($pattern, " ", $str);
-			//purge new line with nothing, default purge
-			}
-		else
-			{
-			//changes a bunch of control chars to single spaces except for new lines
-			$pattern = "/[\\t\\0\\x0B\\x0C\\r]+/";
-			$str = trim(preg_replace($pattern, " ", $str)); //trim this one three times
-			$pattern = "/ {0,}(\\n{1}) {0,}/";
-			$str = preg_replace($pattern, "\n", $str);
-			}
-		if ($quotes)
-			{
-			//purge double quotes
-			$str = str_replace('"', "", $str);	
-			}
-		//trim and truncate
-		$str = substr(trim($str), 0, $length);
-		//trim again because truncate could leave ending space, then try to encode
-		$str = utf8_encode(trim($str));
-		return $str;
-		}
-        
-    function purge_chars($str, $eol = true, $quotes = false)
-		{
-		if ($eol)
-			{
-			//changes a bunch of control chars to single spaces
-			$pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
-			$str = preg_replace($pattern, " ", $str);
-			//purge new line with nothing, default purge
-			}
-		else
-			{
-			//changes a bunch of control chars to single spaces except for new lines
-			$pattern = "/[\\t\\0\\x0B\\x0C\\r]+/";
-			$str = trim(preg_replace($pattern, " ", $str));
-            //trim around eols
-			$pattern = "/ {0,}(\\n{1}) {0,}/";
-			$str = preg_replace($pattern, "\n", $str);
-			}
-		if ($quotes)
-			{
-			//purge double quotes
-			$str = str_replace('"', "", $str);	
-			}
-		//trim again because truncate could leave ending space, then try to encode
-		$str = utf8_encode(trim($str));
-		return $str;
-		}
+	}
 
-			
-	//$input can be either array or string   
-	function echo_messages($messages)
-		{
-        //could be string or array
-		if (!$this->blank($messages))
-			{
-			if (is_string($messages))
-				{
-				$messages = array($messages);
-				}
-			if (is_array($messages))
-				{
-				foreach ($messages as $message)
-					{
-                    if (preg_match("/^Error:|^Warning:|^Caution:/i", $message))
-                        {
-                        $class = "error";    
-                        }
-                    else
-                        {
-                        $class = "message";
-                        }   
-					echo "<p class=\"" . $class . "\">" . $message . "</p>";
+	function list_dropdown($arr_lists, $name, $list_number, $params = array()) {
+		// Security there should be no way to get secured column or row
+		$params = array (
+				'name' => $name 
+		) + $params;
+		
+		$check = isset ( $params ['check'] ) ? $params ['check'] : 1; // default checks
+		$empty = isset ( $params ['empty'] ) ? $params ['empty'] : false;
+		unset ( $params ['check'], $params ['empty'] );
+		
+		$attributes = $this->attributes ( $params );
+		
+		echo "<select " . $attributes . ">";
+		// list combo
+		if ($empty) {
+			echo "<option value=\"-1\" " . (- 1 == $list_number ? "selected" : "") . "></option>";
+		}
+		foreach ( $arr_lists as $key => $value ) {
+			// either 1 or 0 for archive
+			$archive = ($check && ($value ['archive'] >= $check)) ? true : false;
+			if (! $archive) {
+				$archive_flag = ($value ['archive']) ? str_repeat ( '*', $value ['archive'] ) : "";
+				echo "<option value=\"" . $key . "\"" . ($key == $list_number ? " selected " : "") . ">" . htmlentities ( $value ['name'] ) . $archive_flag . "&nbsp;</option>";
+			}
+		}
+		echo "</select>";
+	}
+	
+	// pad a number to a column name
+	function pad($char, $number, $padlen = 2) {
+
+		return $char . str_pad ( $number, $padlen, "0", STR_PAD_LEFT );
+	}
+	
+	// get a number from a column name
+	function rpad($padded) {
+
+		return ( int ) substr ( $padded, 1 );
+	}
+	
+	// Function to turn firstname (fname), middle initial(minit) and lastname (into string)
+	function build_name($row) {
+
+		$arr_name = array ();
+		$arr_row = array (
+				"fname",
+				"minit",
+				"lname" 
+		);
+		foreach ( $arr_row as $value ) {
+			if (trim ( $row [$value] ) != "") {
+				array_push ( $arr_name, trim ( $row [$value] ) );
+			}
+		}
+		$str = implode ( " ", $arr_name );
+		return $str;
+	}
+	
+	// function to convert dates to proper time zone and format
+	// convert from program time to user time
+	function convert_date($date, $format = "Y-m-d") {
+
+		$date = new DateTime ( $date, new DateTimeZone ( DB_TIMEZONE ) );
+		$date->setTimezone ( new DateTimeZone ( USER_TIMEZONE ) );
+		return $date->format ( $format );
+	}
+	
+	// convert from user time to program time
+	function rconvert_date($date, $format = "Y-m-d") {
+
+		$date = new DateTime ( $date, new DateTimeZone ( USER_TIMEZONE ) );
+		$date->setTimezone ( new DateTimeZone ( DB_TIMEZONE ) );
+		return $date->format ( $format );
+	}
+
+	function include_file($filepath, $type) {
+		// assumes index file root
+		if ($type == "css") {
+			echo "<link rel=StyleSheet href=\"" . $filepath . "\" type=\"text/css\" media=screen>";
+		} elseif ($type == "js") {
+			echo "<script type=\"text/javascript\" src=\"" . $filepath . "\"></script>";
+		}
+	}
+	
+	// function to get all paths in a directory
+	// directory recursion function
+	function get_directory_tree($directory) {
+
+		$filter = array (
+				".",
+				"..",
+				"Thumbs.db",
+				".svn" 
+		);
+		$dirs = array_diff ( scandir ( $directory ), $filter );
+		$dir_array = Array ();
+		foreach ( $dirs as $d )
+			if (is_dir ( $directory . $d )) {
+				$d = $d . "/";
+				$dir_array [$d] = $this->get_directory_tree ( $directory . $d );
+			} else {
+				$dir_array [$d] = $directory . $d;
+			}
+		return $this->array_flatten ( $dir_array );
+	}
+	
+	// flattens the array returned in $main->get_directory_tree
+	function array_flatten($a) {
+
+		foreach ( $a as $k => $v ) {
+			if (! empty ( $v )) {
+				$a [$k] = ( array ) $v;
+			}
+		}
+		if (! empty ( $a )) {
+			return call_user_func_array ( 'array_merge', $a );
+		} else {
+			return array ();
+		}
+	}
+
+	function empty_directory($dir, $root = "") {
+		// true means to keep directory
+		// false means to delete directory
+		if (is_dir ( $dir )) {
+			$objects = scandir ( $dir );
+			foreach ( $objects as $object ) {
+				if (! in_array ( $object, array (
+						".",
+						".." 
+				) )) {
+					if (is_dir ( $dir . $object )) {
+						// not empty recurse
+						$object = $object . "/";
+						$this->empty_directory ( $dir . $object, $root );
+					} else {
+						// remove file
+						@unlink ( $dir . $object );
 					}
 				}
-			}  
-		}
-        
-    function has_error_messages($messages)
-		{
-        //could be string or array
-		if (is_string($messages))
-			{
-            $messages = array($messages);
 			}
-        if (is_array($messages))
-            {
-            $arr = preg_grep("/^Error:/i", $messages);
-            if (empty($arr))
-                {
-                return false;    
-                }
-            return true;
-			}  
-		}        
-	
-	function check_permission($optional, $usertypes = NULL)
-		{
-        /* IMPORTANT FUNCTION SHOULD BE CALLED AT TOP OF EVERY MODULE */
-        //dies on everything except good permission
-        //should be invoked at the top of every module
-		//waterfall function for single user and admin mode
-		//this check that session is set
-        //$usertypes can be int, array of int, or null if optional is string of userroles
-        //$optional can be interface or string of userroles
-        if (isset($_SESSION['username'])) 
-            {
-            if (is_null($usertypes))
-                {
-                $arr_userroles = explode(",", $optional);
-                if (!in_array($_SESSION['userrole'], $arr_userroles))
-                    {
-                    echo "Insufficient Permission.";
-                    session_destroy();
-                    die();
-                    }
-                }
-            else
-                {
-                list($userwork, $interwork) = explode("_", $_SESSION['userrole'], 2);
-                if (is_int($usertypes)) //either int or string input
-                    {
-                    $usertypes = array($usertypes);    
-                    }            
-                if (!in_array($userwork, $usertypes) || (strcasecmp($interwork, $optional) <> 0))
-                    {
-                    echo "Insufficient Permission.";
-                    session_destroy();
-                    die();
-                    }
-                }
-            
-            //single user takes precedence over admin only
-            //this for when administrators lock the db down
-            if (!strcasecmp(ADMIN_ONLY, "YES") && SINGLE_USER_ONLY == '')
-                {
-                $arr_userroles = explode(",", $_SESSION['userroles']);           
-                if (!in_array("5_bb_brimbox", $arr_userroles))
-                    {
-                    echo "Program switched to Admin Only mode.";
-                    session_destroy();
-                    die();    
-                    }
-                }
-            elseif (SINGLE_USER_ONLY <> '')
-                {
-                if (strcasecmp($_SESSION['username'], SINGLE_USER_ONLY))
-                    {
-                    echo "Program switched to Single User mode.";
-                    session_destroy();
-                    die();
-                    }
-                }
-            //end up here valid permission
-            }
-        else
-            {
-            //empty die, no 404 in case there is html output before check permission
-            session_destroy();
-            die();    
-            }
+			reset ( $objects );
 		}
-	
-	function validate_password($con, $passwd, $userlevels)
-		{
-		//waterfall
-		//this will also check that session is set
-        $userrole = $_SESSION['userrole'];
-        $username = $_SESSION['username'];
-		if (!is_array($userlevels))
-			{
-			$userlevels = array($userlevels);	
+		$rmdir_bool = ($dir == $root) ? false : true;
+		if ($rmdir_bool) {
+			@rmdir ( trim ( $dir, "/" ) );
+		}
+	}
+
+	function copy_directory($from_directory, $to_directory) {
+
+		$filter = array (
+				".",
+				"..",
+				"Thumbs.db" 
+		);
+		$dirs = array_diff ( scandir ( $from_directory ), $filter );
+		$dir_array = Array ();
+		foreach ( $dirs as $d ) {
+			if (is_dir ( $from_directory . $d )) {
+				$d = $d . "/";
+				@mkdir ( $to_directory . $d );
+				$dir_array [$d] = $this->copy_directory ( $from_directory . $d, $to_directory . $d );
+			} else {
+				@copy ( $from_directory . $d, $to_directory . $d );
 			}
-        //waterfall
-        if (in_array($userrole, $userlevels))
-            {
-            $query = "SELECT * FROM users_table WHERE '" . $userrole . "' = ANY (userroles) AND UPPER(username) = UPPER('". pg_escape_string($username) . "');";
-            $result = $this->query($con, $query);
-            if (pg_num_rows($result) == 1)
-                {
-                $row = pg_fetch_array($result);
-                if (hash('sha512', $passwd . $row['salt']) == $row['hash'])
-                    {
-                    return true;
-                    }
-                }
-			}		
-		return false; 
 		}
-        
-    function logout_link($class = "bold link underline", $label = "Logout")
-        {
-            
-        $params = array("class"=>$class, "passthis"=>true, "label"=>$label, "onclick"=>"bb_logout_selector('0_bb_brimbox')");
-        $this->echo_script_button("logout", $params); 
-        }
-        
-    function archive_link($class_button = "link underline bold",  $class_span = "bold")
-        {
-        //careful not to use -1 on on pages with archive link
-        global $button;
-        global $module;
-        //on postback toggle
-        if (bb_work::button(-1))
-            {
-            if ($_SESSION['archive'] == 0)
-                {
-                $_SESSION['archive'] = 1;
-                }
-            else
-                {
-                $_SESSION['archive'] = 0;           
-                }
-            }
-            
-        $label = ($_SESSION['archive'] == 0) ? "On" : "Off";
-        
-        echo "<span class=\"" . $class_span . "\">Archive mode is: ";
-        $params = array("class"=>$class_button,"number"=>-1,"target"=>$module, "passthis"=>true, "label"=>$label);
-        bb_forms::echo_button("archive", $params);
-        echo "</span>";
-        }
-        
-    function database_stats($class_div = "bold", $class_span = "colored")
-        {
-        echo "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['username'] . "</span></div>";	
-        echo "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
-        }
-        
-    function replicate_link($class_div = "bold",  $class_link = "colored")
-        {        
-        echo "<div class=\"" . $class_div . "\">To open in new window: ";
-        echo "<a class=\"" . $class_link . "\" href=\"" . dirname($_SERVER['PHP_SELF']) . "\" target=\"_blank\">Click here</a>";
-        echo "</div>";
-        }
-        
-    function userrole_switch($class_span = "bold", $class_button = "link underline")
-        {
-        global $array_header;        
-        global $userroles;
-        global $userrole;
-        
-        $arr_userroles = explode(",", $userroles);
-        $cnt = count($arr_userroles);
-        if ($cnt > 1)
-            {
-            echo "<span class=\"" . $class_span . "\">Current userrole is: </span>";
-            $i = 1;
-            foreach ($arr_userroles as $value)
-                {
-                //careful with the globals
-                list($usertype, $interface) = explode("_", $value, 2);
-                if (isset($array_header[$interface]['interface_name']) && isset($array_header[$interface]['userroles'][$usertype]))
-                    {
-                    $bold = ($value == $userrole) ? " bold" : "";                
-                    $params = array("class"=>$class_button . $bold, "label"=>$array_header[$interface]['interface_name'] . ":" . $array_header[$interface]['userroles'][$usertype], "onclick"=>"bb_logout_selector('" . $value . "')");
-                    $this->echo_script_button("role" . $value, $params);
-                    $separator = ($i <> $cnt) ? ", " : "";
-                    echo $separator;
-                    }
-                $i++;
-                }
-            }
-        }
-        				
-	function infolinks()
-		{
+	}
+
+	function replace_root($dir, $search, $replace) {
+
+		return $replace . substr ( $dir, strlen ( $search ) );
+	}
+
+	function check_syntax($filepath) {
+		// return true is bad, false in good - false is no syntax errors
+		// parameters set up for controller
+		if (file_exists ( $filepath )) {
+			$fileesc = escapeshellarg ( $filepath );
+			$output = shell_exec ( "php-cli -l " . $fileesc );
+			if (preg_match ( "/^No syntax errors/", trim ( $output ) )) {
+				// will exit here on good check
+				return false;
+			}
+			return "Error: Syntax error in file " . $filepath . ".";
+		} else {
+			return "Error: File " . $filepath . " missing.";
+		}
+	}
+	
+	// array_unique not case sensitive for testing
+	function array_iunique($array) {
+
+		return array_unique ( array_map ( 'strtolower', $array ) );
+	}
+	
+	// function to strip tabs and new lines from string
+	function custom_trim_string($str, $length, $eol = true, $quotes = false) {
+
+		if ($eol) {
+			// changes a bunch of control chars to single spaces
+			$pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
+			$str = preg_replace ( $pattern, " ", $str );
+			// purge new line with nothing, default purge
+		} else {
+			// changes a bunch of control chars to single spaces except for new lines
+			$pattern = "/[\\t\\0\\x0B\\x0C\\r]+/";
+			$str = trim ( preg_replace ( $pattern, " ", $str ) ); // trim this one three times
+			$pattern = "/ {0,}(\\n{1}) {0,}/";
+			$str = preg_replace ( $pattern, "\n", $str );
+		}
+		if ($quotes) {
+			// purge double quotes
+			$str = str_replace ( '"', "", $str );
+		}
+		// trim and truncate
+		$str = substr ( trim ( $str ), 0, $length );
+		// trim again because truncate could leave ending space, then try to encode
+		$str = utf8_encode ( trim ( $str ) );
+		return $str;
+	}
+
+	function purge_chars($str, $eol = true, $quotes = false) {
+
+		if ($eol) {
+			// changes a bunch of control chars to single spaces
+			$pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
+			$str = preg_replace ( $pattern, " ", $str );
+			// purge new line with nothing, default purge
+		} else {
+			// changes a bunch of control chars to single spaces except for new lines
+			$pattern = "/[\\t\\0\\x0B\\x0C\\r]+/";
+			$str = trim ( preg_replace ( $pattern, " ", $str ) );
+			// trim around eols
+			$pattern = "/ {0,}(\\n{1}) {0,}/";
+			$str = preg_replace ( $pattern, "\n", $str );
+		}
+		if ($quotes) {
+			// purge double quotes
+			$str = str_replace ( '"', "", $str );
+		}
+		// trim again because truncate could leave ending space, then try to encode
+		$str = utf8_encode ( trim ( $str ) );
+		return $str;
+	}
+	
+	// $input can be either array or string
+	function echo_messages($messages) {
+		// could be string or array
+		if (! $this->blank ( $messages )) {
+			if (is_string ( $messages )) {
+				$messages = array (
+						$messages 
+				);
+			}
+			if (is_array ( $messages )) {
+				foreach ( $messages as $message ) {
+					if (preg_match ( "/^Error:|^Warning:|^Caution:/i", $message )) {
+						$class = "error";
+					} else {
+						$class = "message";
+					}
+					echo "<p class=\"" . $class . "\">" . $message . "</p>";
+				}
+			}
+		}
+	}
+
+	function has_error_messages($messages) {
+		// could be string or array
+		if (is_string ( $messages )) {
+			$messages = array (
+					$messages 
+			);
+		}
+		if (is_array ( $messages )) {
+			$arr = preg_grep ( "/^Error:/i", $messages );
+			if (empty ( $arr )) {
+				return false;
+			}
+			return true;
+		}
+	}
+
+	function check_permission($optional, $usertypes = NULL) {
+
+		/* IMPORTANT FUNCTION SHOULD BE CALLED AT TOP OF EVERY MODULE */
+		// dies on everything except good permission
+		// should be invoked at the top of every module
+		// waterfall function for single user and admin mode
+		// this check that session is set
+		// $usertypes can be int, array of int, or null if optional is string of userroles
+		// $optional can be interface or string of userroles
+		if (isset ( $_SESSION ['username'] )) {
+			if (is_null ( $usertypes )) {
+				$arr_userroles = explode ( ",", $optional );
+				if (! in_array ( $_SESSION ['userrole'], $arr_userroles )) {
+					echo "Insufficient Permission.";
+					session_destroy ();
+					die ();
+				}
+			} else {
+				list ( $userwork, $interwork ) = explode ( "_", $_SESSION ['userrole'], 2 );
+				if (is_int ( $usertypes )) // either int or string input
+{
+					$usertypes = array (
+							$usertypes 
+					);
+				}
+				if (! in_array ( $userwork, $usertypes ) || (strcasecmp ( $interwork, $optional ) != 0)) {
+					echo "Insufficient Permission.";
+					session_destroy ();
+					die ();
+				}
+			}
+			
+			// single user takes precedence over admin only
+			// this for when administrators lock the db down
+			if (! strcasecmp ( ADMIN_ONLY, "YES" ) && SINGLE_USER_ONLY == '') {
+				$arr_userroles = explode ( ",", $_SESSION ['userroles'] );
+				if (! in_array ( "5_bb_brimbox", $arr_userroles )) {
+					echo "Program switched to Admin Only mode.";
+					session_destroy ();
+					die ();
+				}
+			} elseif (SINGLE_USER_ONLY != '') {
+				if (strcasecmp ( $_SESSION ['username'], SINGLE_USER_ONLY )) {
+					echo "Program switched to Single User mode.";
+					session_destroy ();
+					die ();
+				}
+			}
+			// end up here valid permission
+		} else {
+			// empty die, no 404 in case there is html output before check permission
+			session_destroy ();
+			die ();
+		}
+	}
+
+	function validate_password($con, $passwd, $userlevels) {
+		// waterfall
+		// this will also check that session is set
+		$userrole = $_SESSION ['userrole'];
+		$username = $_SESSION ['username'];
+		if (! is_array ( $userlevels )) {
+			$userlevels = array (
+					$userlevels 
+			);
+		}
+		// waterfall
+		if (in_array ( $userrole, $userlevels )) {
+			$query = "SELECT * FROM users_table WHERE '" . $userrole . "' = ANY (userroles) AND UPPER(username) = UPPER('" . pg_escape_string ( $username ) . "');";
+			$result = $this->query ( $con, $query );
+			if (pg_num_rows ( $result ) == 1) {
+				$row = pg_fetch_array ( $result );
+				if (hash ( 'sha512', $passwd . $row ['salt'] ) == $row ['hash']) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	function logout_link($class = "bold link underline", $label = "Logout") {
+
+		$params = array (
+				"class" => $class,
+				"passthis" => true,
+				"label" => $label,
+				"onclick" => "bb_logout_selector('0_bb_brimbox')" 
+		);
+		$this->echo_script_button ( "logout", $params );
+	}
+
+	function archive_link($class_button = "link underline bold", $class_span = "bold") {
+		// careful not to use -1 on on pages with archive link
+		global $button;
+		global $module;
+		// on postback toggle
+		if (bb_work::button ( - 1 )) {
+			if ($_SESSION ['archive'] == 0) {
+				$_SESSION ['archive'] = 1;
+			} else {
+				$_SESSION ['archive'] = 0;
+			}
+		}
+		
+		$label = ($_SESSION ['archive'] == 0) ? "On" : "Off";
+		
+		echo "<span class=\"" . $class_span . "\">Archive mode is: ";
+		$params = array (
+				"class" => $class_button,
+				"number" => - 1,
+				"target" => $module,
+				"passthis" => true,
+				"label" => $label 
+		);
+		bb_forms::echo_button ( "archive", $params );
+		echo "</span>";
+	}
+
+	function database_stats($class_div = "bold", $class_span = "colored") {
+
+		echo "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION ['name'] . "</span></div>";
+		echo "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION ['username'] . "</span></div>";
+		echo "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
+		echo "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
+		echo "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
+	}
+
+	function replicate_link($class_div = "bold", $class_link = "colored") {
+
+		echo "<div class=\"" . $class_div . "\">To open in new window: ";
+		echo "<a class=\"" . $class_link . "\" href=\"" . dirname ( $_SERVER ['PHP_SELF'] ) . "\" target=\"_blank\">Click here</a>";
+		echo "</div>";
+	}
+
+	function userrole_switch($class_span = "bold", $class_button = "link underline") {
+
+		global $array_header;
+		global $userroles;
+		global $userrole;
+		
+		$arr_userroles = explode ( ",", $userroles );
+		$cnt = count ( $arr_userroles );
+		if ($cnt > 1) {
+			echo "<span class=\"" . $class_span . "\">Current userrole is: </span>";
+			$i = 1;
+			foreach ( $arr_userroles as $value ) {
+				// careful with the globals
+				list ( $usertype, $interface ) = explode ( "_", $value, 2 );
+				if (isset ( $array_header [$interface] ['interface_name'] ) && isset ( $array_header [$interface] ['userroles'] [$usertype] )) {
+					$bold = ($value == $userrole) ? " bold" : "";
+					$params = array (
+							"class" => $class_button . $bold,
+							"label" => $array_header [$interface] ['interface_name'] . ":" . $array_header [$interface] ['userroles'] [$usertype],
+							"onclick" => "bb_logout_selector('" . $value . "')" 
+					);
+					$this->echo_script_button ( "role" . $value, $params );
+					$separator = ($i != $cnt) ? ", " : "";
+					echo $separator;
+				}
+				$i ++;
+			}
+		}
+	}
+
+	function infolinks() {
+
 		echo "<div class=\"floatright\">";
-		$this->logout_link();
+		$this->logout_link ();
 		echo "</div>";
 		
 		echo "<div class=\"floatleft\">";
-		$this->database_stats();
-		$this->archive_link();
-		$this->replicate_link();
-		$this->userrole_switch();
+		$this->database_stats ();
+		$this->archive_link ();
+		$this->replicate_link ();
+		$this->userrole_switch ();
 		echo "</div>";
 		echo "<div class=\"clear\"></div>";
-		}
-        
-	function build_indexes($con, $row_type = 0)
-		{
-		//reduce xml_layout to include only 1 row_type for column update, all for rebuild indexes
+	}
+
+	function build_indexes($con, $row_type = 0) {
+		// reduce xml_layout to include only 1 row_type for column update, all for rebuild indexes
 		global $array_guest_index;
 		
-		$arr_union_query = array();
-		$arr_layouts = $this->get_json($con, "bb_layout_names");
-        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
-		$arr_columns = $this->get_json($con, "bb_column_names");
+		$arr_union_query = array ();
+		$arr_layouts = $this->get_json ( $con, "bb_layout_names" );
+		$arr_layouts_reduced = $this->filter_keys ( $arr_layouts );
+		$arr_columns = $this->get_json ( $con, "bb_column_names" );
 		
-		$arr_row_type = array();    
-		if ($row_type == 0) //all
-			{
-			foreach ($arr_layouts_reduced  as $key => $value) 
-				{
-				array_push($arr_row_type, $key);
+		$arr_row_type = array ();
+		if ($row_type == 0) // all
+{
+			foreach ( $arr_layouts_reduced as $key => $value ) {
+				array_push ( $arr_row_type, $key );
+			}
+		} else {
+			array_push ( $arr_row_type, $row_type );
+		}
+		
+		$arr_ts_vector_fts = array ();
+		$arr_ts_vector_ftg = array ();
+		foreach ( $arr_row_type as $row_type ) {
+			$arr_column = $this->filter_keys ( $arr_columns [$row_type] );
+			// loop through searchable columns
+			foreach ( $arr_column as $key => $value ) {
+				$col = $this->pad ( "c", $key );
+				$search_flag = ($value ['search'] == 1) ? true : false;
+				// guest flag
+				if (empty ( $array_guest_index )) {
+					$guest_flag = (($value ['search'] == 1) && ($value ['secure'] == 0)) ? true : false;
+				} else {
+					$guest_flag = (($value ['search'] == 1) && in_array ( ( int ) $value ['secure'], $array_guest_index )) ? true : false;
 				}
-			}
-		else
-			{
-			array_push($arr_row_type, $row_type);   
-			}
+				// build fts SQL code
+				if ($search_flag) {
+					array_push ( $arr_ts_vector_fts, $col . " || ' ' || regexp_replace(" . $col . ", E'(\\\\W)+', ' ', 'g')" );
+				}
+				if ($guest_flag) {
+					array_push ( $arr_ts_vector_ftg, $col . " || ' ' || regexp_replace(" . $col . ", E'(\\\\W)+', ' ', 'g')" );
+				}
+			} // $xml_column
+			  // implode arrays with guest column full text query definitions
+			$str_ts_vector_fts = ! empty ( $arr_ts_vector_fts ) ? implode ( " || ' ' || ", $arr_ts_vector_fts ) : "''";
+			$str_ts_vector_ftg = ! empty ( $arr_ts_vector_ftg ) ? implode ( " || ' ' || ", $arr_ts_vector_ftg ) : "''";
 			
-		$arr_ts_vector_fts = array();
-		$arr_ts_vector_ftg = array();
-		foreach ($arr_row_type as $row_type)
-			{
-			$arr_column = $this->filter_keys($arr_columns[$row_type]);
-			//loop through searchable columns
-			foreach($arr_column as $key => $value)
-				{
-				$col = $this->pad("c", $key);
-				$search_flag = ($value['search'] == 1) ? true : false;
-				//guest flag
-				if (empty($array_guest_index))
-					{
-					$guest_flag = (($value['search'] == 1) && ($value['secure'] == 0)) ? true : false;
-					}
-				else
-					{
-					$guest_flag = (($value['search'] == 1) && in_array((int)$value['secure'], $array_guest_index)) ? true : false;						
-					}
-				//build fts SQL code
-				if ($search_flag)
-					{
-					array_push($arr_ts_vector_fts,  $col . " || ' ' || regexp_replace(" . $col . ", E'(\\\\W)+', ' ', 'g')");
-					}
-				if ($guest_flag)
-					{
-					array_push($arr_ts_vector_ftg,  $col . " || ' ' || regexp_replace(" . $col . ", E'(\\\\W)+', ' ', 'g')");
-					}                
-				} //$xml_column
-			//implode arrays with guest column full text query definitions
-			$str_ts_vector_fts = !empty($arr_ts_vector_fts) ? implode(" || ' ' || ", $arr_ts_vector_fts) : "''";
-			$str_ts_vector_ftg = !empty($arr_ts_vector_ftg) ? implode(" || ' ' || ", $arr_ts_vector_ftg) : "''";
-				
-			//build the union query array
-			$union_query = "SELECT id, to_tsvector(" . $str_ts_vector_fts . ") as fts, to_tsvector(" . $str_ts_vector_ftg . ") as ftg FROM data_table WHERE row_type = " . $row_type;  
-			array_push($arr_union_query, $union_query);            
-			}
-					
-		//implode the union query   
-		$str_union_query = implode(" UNION ALL ",$arr_union_query);
-		
-		//update joined with union on id
-		$query = "UPDATE data_table SET fts = T1.fts, ftg = T1.ftg " .
-				 "FROM (" . $str_union_query . ") T1 " .
-				 "WHERE data_table.id = T1.id";
-		//echo $query . "<br><br>";
-		$this->query($con, $query);    
+			// build the union query array
+			$union_query = "SELECT id, to_tsvector(" . $str_ts_vector_fts . ") as fts, to_tsvector(" . $str_ts_vector_ftg . ") as ftg FROM data_table WHERE row_type = " . $row_type;
+			array_push ( $arr_union_query, $union_query );
 		}
 		
-	function cleanup_database_data($con)
-		{
-		for ($i=1; $i<=48; $i++)
-			{
-			$col= "c" . str_pad($i,2,"0",STR_PAD_LEFT);
-			//POSIX regex, no null because db text fields cannot have nulls
-			//change tabs, form feeds, new lines, returns and vertical tabs to space and trim
+		// implode the union query
+		$str_union_query = implode ( " UNION ALL ", $arr_union_query );
+		
+		// update joined with union on id
+		$query = "UPDATE data_table SET fts = T1.fts, ftg = T1.ftg " . "FROM (" . $str_union_query . ") T1 " . "WHERE data_table.id = T1.id";
+		// echo $query . "<br><br>";
+		$this->query ( $con, $query );
+	}
+
+	function cleanup_database_data($con) {
+
+		for($i = 1; $i <= 48; $i ++) {
+			$col = "c" . str_pad ( $i, 2, "0", STR_PAD_LEFT );
+			// POSIX regex, no null because db text fields cannot have nulls
+			// change tabs, form feeds, new lines, returns and vertical tabs to space and trim
 			$query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r\\n]+', ' ', 'g' )) WHERE " . $col . " <> '';";
-			$this->query($con, $query);
-			}
-		for ($i=49; $i<=50; $i++)
-			{
-			$col= "c" . str_pad($i,2,"0",STR_PAD_LEFT);
-			//POSIX regex, no null because db text fields cannot have nulls
-			//replace all tab, form feeds and return with a space and then remove all space from end of line keeping new lines
-			$query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(col, E' {0,}\\n{1} {0,}', E'\n', 'g' )) " .
-				     "FROM (SELECT id, regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r]+', ' ', 'g' ) as col FROM data_table WHERE " . $col . " <> '') T1 WHERE data_table.id = T1.id;";
-			$this->query($con, $query);
-			}
+			$this->query ( $con, $query );
 		}
-	function cleanup_database_layouts($con)
-		{
-		$arr_layouts = $this->get_json($con,"bb_layout_names");
-        $arr_layouts_reduced = $this->filter_keys($arr_layouts);
-		$arr_columns = $this->get_json($con,"bb_column_names");
-		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
-		for ($i=1; $i<=26; $i++)
-			{
-			if (!isset($arr_layouts_reduced[$i])) //clean up rows
-				{
-				unset($arr_columns[$i]);
-				unset($arr_dropdowns[$i]);
+		for($i = 49; $i <= 50; $i ++) {
+			$col = "c" . str_pad ( $i, 2, "0", STR_PAD_LEFT );
+			// POSIX regex, no null because db text fields cannot have nulls
+			// replace all tab, form feeds and return with a space and then remove all space from end of line keeping new lines
+			$query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(col, E' {0,}\\n{1} {0,}', E'\n', 'g' )) " . "FROM (SELECT id, regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r]+', ' ', 'g' ) as col FROM data_table WHERE " . $col . " <> '') T1 WHERE data_table.id = T1.id;";
+			$this->query ( $con, $query );
+		}
+	}
+
+	function cleanup_database_layouts($con) {
+
+		$arr_layouts = $this->get_json ( $con, "bb_layout_names" );
+		$arr_layouts_reduced = $this->filter_keys ( $arr_layouts );
+		$arr_columns = $this->get_json ( $con, "bb_column_names" );
+		$arr_dropdowns = $this->get_json ( $con, "bb_dropdowns" );
+		for($i = 1; $i <= 26; $i ++) {
+			if (! isset ( $arr_layouts_reduced [$i] )) // clean up rows
+{
+				unset ( $arr_columns [$i] );
+				unset ( $arr_dropdowns [$i] );
 				$query = "DELETE FROM data_table WHERE row_type IN (" . $i . ");";
-				$this->query($con, $query);
-				}
+				$this->query ( $con, $query );
 			}
-		$this->update_json($con, $arr_dropdowns, "bb_dropdowns");
-		$this->update_json($con, $arr_columns, "bb_column_names");
 		}
-		
-	function cleanup_database_columns($con)
-		{
-		$arr_columns = $this->get_json($con,"bb_column_names");
-		$arr_dropdowns = $this->get_json($con, "bb_dropdowns");
-		for ($i=1; $i<=26; $i++)
-			{
-			$arr_column = isset($arr_columns[$i]) ? $arr_columns[$i] : array() ;
-			for ($j=1; $j<=50; $j++)
-				{
-				if (!isset($arr_column[$j]))
-					{
-                    $col = $this->pad("c", $j);
+		$this->update_json ( $con, $arr_dropdowns, "bb_dropdowns" );
+		$this->update_json ( $con, $arr_columns, "bb_column_names" );
+	}
+
+	function cleanup_database_columns($con) {
+
+		$arr_columns = $this->get_json ( $con, "bb_column_names" );
+		$arr_dropdowns = $this->get_json ( $con, "bb_dropdowns" );
+		for($i = 1; $i <= 26; $i ++) {
+			$arr_column = isset ( $arr_columns [$i] ) ? $arr_columns [$i] : array ();
+			for($j = 1; $j <= 50; $j ++) {
+				if (! isset ( $arr_column [$j] )) {
+					$col = $this->pad ( "c", $j );
 					$set_clause = $col . " = ''";
-					$query = "UPDATE data_table SET " .  $set_clause . " WHERE row_type = " . $i . " AND " . $col . " <> '';";
-					$this->query($con, $query);
-					if (isset($arr_dropdowns[$i][$j]))
-						{
-						unset($arr_dropdowns[$i][$j]);	
-						}
+					$query = "UPDATE data_table SET " . $set_clause . " WHERE row_type = " . $i . " AND " . $col . " <> '';";
+					$this->query ( $con, $query );
+					if (isset ( $arr_dropdowns [$i] [$j] )) {
+						unset ( $arr_dropdowns [$i] [$j] );
 					}
 				}
 			}
-		$this->update_json($con, $arr_dropdowns, "bb_dropdowns"); 	
 		}
-        
-	function log_entry($con, $message, $email = "")
-		{
-		if (isset($_SESSION['username']))
-			{
-			$email = $_SESSION['username'];    
-			}
-		$ip = $_SERVER['REMOTE_ADDR'];
-		$arr_log = array($email,$ip, $message);
+		$this->update_json ( $con, $arr_dropdowns, "bb_dropdowns" );
+	}
+
+	function log_entry($con, $message, $email = "") {
+
+		if (isset ( $_SESSION ['username'] )) {
+			$email = $_SESSION ['username'];
+		}
+		$ip = $_SERVER ['REMOTE_ADDR'];
+		$arr_log = array (
+				$email,
+				$ip,
+				$message 
+		);
 		$query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
-		$this->query_params($con, $query, $arr_log);
-		}
-        
-    function log($con, $message, $username = NULL, $email = NULL)
-		{
-        if (is_null($username)) $username = $_SESSION['username'];
-        if (is_null($email)) $email = $_SESSION['email'];
-		$ip = $_SERVER['REMOTE_ADDR'];
-		$arr_log = array($username, $email,$ip, $message);
+		$this->query_params ( $con, $query, $arr_log );
+	}
+
+	function log($con, $message, $username = NULL, $email = NULL) {
+
+		if (is_null ( $username ))
+			$username = $_SESSION ['username'];
+		if (is_null ( $email ))
+			$email = $_SESSION ['email'];
+		$ip = $_SERVER ['REMOTE_ADDR'];
+		$arr_log = array (
+				$username,
+				$email,
+				$ip,
+				$message 
+		);
 		$query = "INSERT INTO log_table (username, email, ip_address, action) VALUES ($1,$2,$3,$4)";
-		$this->query_params($con, $query, $arr_log);
-		}
-		
-	function output_links($row, $layouts, $userrole)
-		{
-        //for standard interface
+		$this->query_params ( $con, $query, $arr_log );
+	}
+
+	function output_links($row, $layouts, $userrole) {
+		// for standard interface
 		global $array_links;
 		
-        list($usertype, $interface) = explode("_", $userrole, 2); 
-		$arr_work = array();
-		switch ($usertype)
-            {
-            case 1: //guest
-			if (isset($array_links[1]))
-				{
-				$arr_work = $array_links[1];
-				}
-            break;
-            case 2: //viewer
-			if (isset($array_links[2]))
-				{
-				$arr_work = $array_links[2];
-				}	
-            break;
-            case 3: //user
-            if (isset($array_links[3]))
-				{
-				$arr_work = $array_links[3];
-				}
-            break;               
-            case 4: //user, setup
-			if (isset($array_links[4]))
-				{
-				$arr_work = $array_links[4];
-				}
-            break;
-            case 5: //user, setup, admin
-            if (isset($array_links[5]))
-				{
-				$arr_work = $array_links[5];
-				}
-            break;
-            }
-		
-		foreach ($arr_work as $arr)
-			{
-			array_unshift($arr[1], $layouts);	
-			array_unshift($arr[1], $row);
-			call_user_func_array($arr[0], $arr[1]);
-			}
+		foreach ( $array_links as $arr ) {
+			array_unshift ( $arr [1], $layouts );
+			array_unshift ( $arr [1], $row );
+			call_user_func_array ( $arr [0], $arr [1] );
 		}
-		
-	function check_child($row_type, $layouts)
-		{
-		//checks for child records or record
-		foreach($layouts as $key => $value)
-			{
-			if ($row_type == $value['parent'])
-				{
+	}
+
+	function check_child($row_type, $layouts) {
+		// checks for child records or record
+		foreach ( $layouts as $key => $value ) {
+			if ($row_type == $value ['parent']) {
 				return true;
 				break;
-				}
 			}
+		}
 		return false;
-		}
-		
-	function drill_links($post_key, $row_type, $layouts, $module, $text)
-		{
-		//call function add drill links in class bb_link
-		call_user_func_array(array($this,'drill'), array($post_key, $row_type, $layouts, $module, $text));
-		}
-		
-	function page_selector($element, $offset, $count_rows, $return_rows, $pagination)
-		{
-		$half = floor($pagination/2);
-		$max_return = floor(($count_rows - 1)/$return_rows) + 1;
-		//set top and bottom
+	}
+
+	function drill_links($post_key, $row_type, $layouts, $module, $text) {
+		// call function add drill links in class bb_link
+		call_user_func_array ( array (
+				$this,
+				'drill' 
+		), array (
+				$post_key,
+				$row_type,
+				$layouts,
+				$module,
+				$text 
+		) );
+	}
+
+	function page_selector($element, $offset, $count_rows, $return_rows, $pagination) {
+
+		$half = floor ( $pagination / 2 );
+		$max_return = floor ( ($count_rows - 1) / $return_rows ) + 1;
+		// set top and bottom
 		$bottom = $offset - $half;
 		$top = $offset + $half;
-		//adjust if $bottom less than zero
-		while ($bottom < 1)
-			{
-			$bottom++;
-			if ($top < $max_return)
-				{
-				$top++;
-				}
+		// adjust if $bottom less than zero
+		while ( $bottom < 1 ) {
+			$bottom ++;
+			if ($top < $max_return) {
+				$top ++;
 			}
-		//adjust if top greater then max
-		while ($top > $max_return)
-			{
-			$top--;
-			if ($bottom > 1)
-				{
-				$bottom--;
-				}
+		}
+		// adjust if top greater then max
+		while ( $top > $max_return ) {
+			$top --;
+			if ($bottom > 1) {
+				$bottom --;
 			}
-			
+		}
+		
 		echo "<br>";
 		echo "<div class=\"center\">";
-		if ($top > $bottom) //skip only one page
-			{
-			//echo page selector out...
-			echo "<button class=\"link none\" onclick=\"bb_page_selector('". $element ."','1')\">First</button>&nbsp;&nbsp;&nbsp;";
-			if ($offset > 1)
-				{
-				echo "<button class=\"link none\" onclick=\"bb_page_selector('". $element ."','" . ($offset- 1) . "')\">Prev</button>&nbsp;&nbsp;&nbsp;";  
-				}	
-			for ($i=$bottom; $i<=$top; $i++)
-				{
-				if ($i==$offset) 
-					{
+		if ($top > $bottom) // skip only one page
+{
+			// echo page selector out...
+			echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','1')\">First</button>&nbsp;&nbsp;&nbsp;";
+			if ($offset > 1) {
+				echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . ($offset - 1) . "')\">Prev</button>&nbsp;&nbsp;&nbsp;";
+			}
+			for($i = $bottom; $i <= $top; $i ++) {
+				if ($i == $offset) {
 					$class = "class=\"link bold underline\"";
-					}
-				else
-					{
-					$class = "class=\"link none\"";	
-					}
-				echo "<button " . $class . " onclick=\"bb_page_selector('". $element ."','" . $i . "')\">";
-				echo $i . "</button>&nbsp;&nbsp;&nbsp;";
-				}	
-			if ($offset < $max_return)
-				{
-				echo "<button class=\"link none\" onclick=\"bb_page_selector('". $element ."','" . ($offset + 1) . "')\">Next</button>&nbsp;&nbsp;&nbsp;";
+				} else {
+					$class = "class=\"link none\"";
 				}
-			echo "<button class=\"link none\" onclick=\"bb_page_selector('". $element ."','" . $max_return . "')\">Last</button>";  	
+				echo "<button " . $class . " onclick=\"bb_page_selector('" . $element . "','" . $i . "')\">";
+				echo $i . "</button>&nbsp;&nbsp;&nbsp;";
 			}
-		echo "</div>"; 
+			if ($offset < $max_return) {
+				echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . ($offset + 1) . "')\">Next</button>&nbsp;&nbsp;&nbsp;";
+			}
+			echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . $max_return . "')\">Last</button>";
+		}
+		echo "</div>";
 		echo "<br>";
-		}
-		
-	function validate_logic($con, $type, &$field, $error = false)
-		{
-		//validates a data type set in "Set Column Names"
-		//returns false on good, true or error string if bad
-        $arr_header = $this->get_json($con, "bb_interface_enable");
-        $arr_validation = $arr_header['validation'];
-        //parse function
+	}
 
-		$return_value = call_user_func_array($arr_validation[$type]['function'], array(&$field, $error));	
-		return $return_value;
-		}
+	function validate_logic($con, $type, &$field, $error = false) {
+		// validates a data type set in "Set Column Names"
+		// returns false on good, true or error string if bad
+		$arr_header = $this->get_json ( $con, "bb_interface_enable" );
+		$arr_validation = $arr_header ['validation'];
+		// parse function
 		
-	function validate_required(&$field, $error = false)
-		{
-		//Checks to see that a field has some data
-		//returns false on good, true or error string if bad
-		$field = trim($field);
-		if (!$this->blank($field))
-			{
-			$return_value = false;
-			}
-		else
-			{
-			$return_value = $error ? "Error: This value is required." : true;   
-			}
+		$return_value = call_user_func_array ( array (
+				$this,
+				'validate_text' 
+		), array (
+				$field,
+				$error 
+		) );
 		return $return_value;
+	}
+
+	function validate_required(&$field, $error = false) {
+		// Checks to see that a field has some data
+		// returns false on good, true or error string if bad
+		$field = trim ( $field );
+		if (! $this->blank ( $field )) {
+			$return_value = false;
+		} else {
+			$return_value = $error ? "Error: This value is required." : true;
 		}
-				
-	function validate_dropdown(&$field, $dropdown, $error = false)
-		{
-		//validates dropdowns, primarily used in bulk loads (Upload Data)
-		//returns false on good, true or error string if bad
-        $dropdown_reduced = $this->filter_keys($dropdown);
-        $delimiter = $this->get_constant('BB_MULTISELECT_DELIMITER', ",");
-        if ($dropdown['multiselect'])
-            {
-            $arr_dropdown = explode($delimiter, $field);
-            }
-        else
-            {
-            $arr_dropdown = array($field); 
-            }
-        //field built from dropdown for return values   
-        $arr_field = array();
-        foreach ($arr_dropdown as $value)
-            {
-            $key = array_search(strtolower($value), array_map('strtolower', $dropdown_reduced));
-            if ($key === false)
-                {
-                $return = $error ? "Error: Value not found in dropdown list." : true;
-                return $return;
-                }
-            else
-                {
-                array_push($arr_field, $dropdown_reduced[$key]);
-                }
-            }
-        //passed as value
-        $field = implode($delimiter, $arr_field);
-        //false is no error
+		return $return_value;
+	}
+
+	function validate_dropdown(&$field, $arr_dropdown, $error = false) {
+		// validates dropdowns, primarily used in bulk loads (Upload Data)
+		// returns false on good, true or error string if bad
+		$arr_dropdown = $this->filter_keys ( $arr_dropdown );
+		$multiselect = $this->init ( $arr_dropdown ['multiselect'], 0 );
+		$delimiter = $this->get_constant ( 'BB_MULTISELECT_DELIMITER', "," );
+		if ($multiselect) {
+			$arr_values = explode ( $delimiter, $field );
+		} else {
+			$arr_values = array (
+					$field 
+			);
+		}
+		// field built from dropdown for return values
+		$arr_formatted = array ();
+		foreach ( $arr_values as $value ) {
+			$key = array_search ( strtolower ( $value ), array_map ( 'strtolower', $arr_dropdown ) );
+			if ($key === false) {
+				$return = $error ? "Error: Value not found in dropdown list." : true;
+				return $return;
+			} else {
+				array_push ( $arr_formatted, $arr_dropdown [$key] );
+			}
+		}
+		// passed as value
+		$field = implode ( $delimiter, $arr_formatted );
+		// false is no error
 		return false;
+	}
+
+	function document($object, $text = "", $class = "link spaced") {
+
+		if ($this->blank ( $text )) {
+			$text = $object;
 		}
-            
-    function document($object, $text = "", $class = "link spaced")
-        {
-        if ($this->blank($text))
-            {
-            $text = $object;
-            }
-        echo "<button class=\"" . $class . "\" onclick=\"bb_submit_object('bb-links/bb_object_document_link.php', '" . $object . "'); return false;\">" . $text . "</button>";  
-        }
-        
-    function make_html_id($row_type, $col_type = 0)
-        {
-        if ($col_type)
-            {
-            return chr($row_type + 96) . $row_type . "_" . $this->pad("c", $col_type);
-            }
-        else
-            {
-            return chr($row_type + 96) . $row_type;   
-            }
-        }
-} //end class
+		echo "<button class=\"" . $class . "\" onclick=\"bb_submit_object('bb-links/bb_object_document_link.php', '" . $object . "'); return false;\">" . $text . "</button>";
+	}
+
+	function make_html_id($row_type, $col_type = 0) {
+
+		if ($col_type) {
+			return chr ( $row_type + 96 ) . $row_type . "_" . $this->pad ( "c", $col_type );
+		} else {
+			return chr ( $row_type + 96 ) . $row_type;
+		}
+	}
+} // end class
 ?>

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2012 - 2015  Kermit Will Richardson, Brimbox LLC
+Copyright (C) Brimbox LLC
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
@@ -15,94 +15,318 @@ If not, see http://www.gnu.org/licenses/
 */
 
 /* RESET */
-* { border: 0; margin: 0; outline: 0; padding: 0; font-size: 100%; font: inherit; vertical-align: baseline; }
+* {
+	border: 0;
+	margin: 0;
+	outline: 0;
+	padding: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
 
 /* GLOBAL STYLES */
 /* FONT */
-body, td, input, select, button, textarea { font-size: 12px; font-family: Arial, Helvetica, sans-serif; color: #202020; line-height: 140%; }
+body, td, input, select, button, textarea {
+	font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #202020;
+	line-height: 140%;
+}
 /* FORM OBJECTS */
 /* standard form objects, including HTML5 inputs */
-button, input, select, textarea { padding: 1px; border: 1px solid; }
+button, input, select, textarea {
+	padding: 1px;
+	border: 1px solid;
+}
 /* immediately change radio, checkbox and image to no border */
-input[type="radio"], input[type="checkbox"], input[type="image"] { border: none; }
+input[type="radio"], input[type="checkbox"], input[type="image"] {
+	border: none;
+}
 /* background of type = file */
-input[type="file"] {background: white;}
-/* rounded objects */	
-button, input, select { border-radius: 2px; -moz-border-radius: 2px; -webkit-border-radius: 2px; -o-border-radius: 2px; }
+input[type="file"] {
+	background: white;
+}
+/* rounded objects */
+button, input, select {
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-o-border-radius: 2px;
+}
 /* link style button css */
-button.link { background:none; border:0; padding: 0; cursor:pointer }
-button.link:hover { text-decoration:underline; }
-button.link::-moz-focus-inner { padding: 0; border: 0 }
-	
+button.link {
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer
+}
+
+button.link:hover {
+	text-decoration: underline;
+}
+
+button.link::-moz-focus-inner {
+	padding: 0;
+	border: 0
+}
+
 /* CLEAR  */
-div.clear { clear:both; }
+div.clear {
+	clear: both;
+}
 
 /* STANDARD CSS DECLARATIONS*/
 
 /* border colors in LESS */
-.border { border-style: solid; border-width: 1px; }
-.bordertop { border-top-style: solid; border-top-width: 1px; }
-.borderright { border-right-style: solid; border-right-width: 1px; }
-.borderbottom { border-bottom-style: solid; border-bottom-width: 1px; }
-.borderleft { border-left-style: solid; border-left-width: 1px; }
+.border {
+	border-style: solid;
+	border-width: 1px;
+}
+
+.bordertop {
+	border-top-style: solid;
+	border-top-width: 1px;
+}
+
+.borderright {
+	border-right-style: solid;
+	border-right-width: 1px;
+}
+
+.borderbottom {
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+}
+
+.borderleft {
+	border-left-style: solid;
+	border-left-width: 1px;
+}
 /* divider colors in LESS */
-.divider { border-top: 1px solid; padding:3px 0px 3px 0; }    
-.darkline { border-top: 1px solid; padding:3px 0px 3px 0;}
-.noborder{border: 0;}
+.divider {
+	border-top: 1px solid;
+	padding: 3px 0px 3px 0;
+}
+
+.darkline {
+	border-top: 1px solid;
+	padding: 3px 0px 3px 0;
+}
+
+.noborder {
+	border: 0;
+}
 /* alignment */
-.center{text-align:center;}
-.left{text-align:left;}
-.right{text-align:right;}    
-.floatleft{float:left;}	
-.floatright{float:right;}
+.center {
+	text-align: center;
+}
+
+.left {
+	text-align: left;
+}
+
+.right {
+	text-align: right;
+}
+
+.floatleft {
+	float: left;
+}
+
+.floatright {
+	float: right;
+}
 /* font classes */
-.bold { font-weight:bold; }
-.italic { font-style:italic; }
-.none { text-decoration: none;}
-.underline {text-decoration: underline;}
-.larger { font-size:13px;letter-spacing: 0.3px; } 
- /* rounding */  
-.rounded {border-radius: 2px; -moz-border-radius: 2px; -webkit-border-radius: 2px; -o-border-radius: 2px;}
- /* spacing */  
-.margin { margin:1px 2px 1px 2px; }
-.rightmargin { margin-right:7px; }
-.spaced { margin:2px;		 }
-.padded { padding:2px;}
-.holderup {  margin:2px 2px 5px 2px; }
-.holderdown { margin:5px 2px 2px 2px; }
-.twice { padding:4px;}
-.extra { padding: 2px 6px; }
+.bold {
+	font-weight: bold;
+}
+
+.italic {
+	font-style: italic;
+}
+
+.none {
+	text-decoration: none;
+}
+
+.underline {
+	text-decoration: underline;
+}
+
+.larger {
+	font-size: 13px;
+	letter-spacing: 0.3px;
+}
+/* rounding */
+.rounded {
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-o-border-radius: 2px;
+}
+/* spacing */
+.margin {
+	margin: 1px 2px 1px 2px;
+}
+
+.rightmargin {
+	margin-right: 7px;
+}
+
+.spaced {
+	margin: 2px;
+}
+
+.padded {
+	padding: 2px;
+}
+
+.holderup {
+	margin: 2px 2px 5px 2px;
+}
+
+.holderdown {
+	margin: 5px 2px 2px 2px;
+}
+
+.twice {
+	padding: 4px;
+}
+
+.extra {
+	padding: 2px 6px;
+}
 /* display */
-.inline {display:inline;}
-.block{display:block;}
-.overflow{white-space: nowrap;overflow: hidden;float:left;}
-.auto{overflow: auto; }
-.shorter{ min-height:1px; width:50px; }
-.short{ min-height:1px ;width:100px;}
-.minshort{ min-height:1px; min-width:100px;}
-.medium { min-height:1px; width:150px; }
-.minmedium { min-height:1px; min-width:150px; }
-.long { min-height:1px; width:200px; }
-.minlong { min-height:1px; min-width:200px; }
-.half { min-height:1px; width:50%; }
-.note { min-height:1px; width:90%; }
-.notearea { height:200px; width:600px;}
-.thinarea { height:400px; width:800px; }
-.widearea {height:600px; width:1000px; }
-.textbox { width:300px; }
-.emheight { min-height: 1em; }
-.nobullets { list-style-type: none; }
-.noindent { margin: 0; padding: 0; }
-.table { display:table; border-collapse: collapse}
-.row { display: table-row; }
-.cell { display: table-cell; }
-.nowrap { white-space: nowrap; }
-.hidden { display:none;	}
-.top { vertical-align: top; }
-.middle {vertical-align: middle; }
-.bottom { vertical-align: bottom;  }
+.inline {
+	display: inline;
+}
 
-		
+.block {
+	display: block;
+}
 
+.overflow {
+	white-space: nowrap;
+	overflow: hidden;
+	float: left;
+}
 
-		
+.auto {
+	overflow: auto;
+}
+
+.shorter {
+	min-height: 1px;
+	width: 50px;
+}
+
+.short {
+	min-height: 1px;
+	width: 100px;
+}
+
+.minshort {
+	min-height: 1px;
+	min-width: 100px;
+}
+
+.medium {
+	min-height: 1px;
+	width: 150px;
+}
+
+.minmedium {
+	min-height: 1px;
+	min-width: 150px;
+}
+
+.long {
+	min-height: 1px;
+	width: 200px;
+}
+
+.minlong {
+	min-height: 1px;
+	min-width: 200px;
+}
+
+.half {
+	min-height: 1px;
+	width: 50%;
+}
+
+.note {
+	min-height: 1px;
+	width: 90%;
+}
+
+.fill {
+	min-height: 1px;
+	width: 100%;
+}
+
+.notearea {
+	height: 200px;
+	width: 600px;
+}
+
+.thinarea {
+	height: 400px;
+	width: 800px;
+}
+
+.widearea {
+	height: 600px;
+	width: 1000px;
+}
+
+.textbox {
+	width: 300px;
+}
+
+.emheight {
+	min-height: 1em;
+}
+
+.nobullets {
+	list-style-type: none;
+}
+
+.noindent {
+	margin: 0;
+	padding: 0;
+}
+
+.table {
+	display: table;
+	border-collapse: collapse
+}
+
+.row {
+	display: table-row;
+}
+
+.cell {
+	display: table-cell;
+}
+
+.nowrap {
+	white-space: nowrap;
+}
+
+.hidden {
+	display: none;
+}
+
+.top {
+	vertical-align: top;
+}
+
+.middle {
+	vertical-align: middle;
+}
+
+.bottom {
+	vertical-align: bottom;
+}

@@ -1,220 +1,214 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
+
+
 /*
-Copyright (C) 2012 - 2015  Kermit Will Richardson, Brimbox LLC
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
-as published by the Free Software Foundation. 
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU GPL v3 for more details. 
-
-You should have received a copy of the GNU GPL v3 along with this program.
-If not, see http://www.gnu.org/licenses/
-*/
+ * Copyright (C) Brimbox LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU GPL v3 for more details.
+ *
+ * You should have received a copy of the GNU GPL v3 along with this program.
+ * If not, see http://www.gnu.org/licenses/
+ */
 
 /* NO HTML OUTPUT */
 
 /* JAVASCRIPT FUNCTIONS */
-//related bb_submit_form
+// related bb_submit_form
 
 /* PHP FUNCTIONS */
 /* class bb_form() */
-//echo_form_begin
-//echo_module_vars
-//echo_common_vars
-//echo_button
-//echo_script_button
-//echo_input
-//echo_textarea
-//echo_form_end
+// echo_form_begin
+// echo_module_vars
+// echo_common_vars
+// echo_button
+// echo_script_button
+// echo_input
+// echo_textarea
+// echo_form_end
 //
-
 class bb_forms extends bb_links {
-	
-	function echo_form_begin($params = array())
-		{
+
+	function echo_form_begin($params = array()) {
+
 		global $module;
 		global $path;
 		
-		$name = isset($params['name']) ? $params['name'] : "bb_form";
-		$type = isset($params['type']) ? $params['type'] : "";
-		$autocomplete = isset($params['autocomplete']) ? "autocomplete=\"On\"" : "autocomplete=\"Off\"";
+		$params ['name'] = isset ( $params ['name'] ) ? $params ['name'] : "bb_form";
+		$params ['method'] = isset ( $params ['method'] ) ? $params ['method'] : "post";
 		
-		//can do a custom post page
-		if (isset($params['action']))
-			{
-			$action = $params['action'];
+		// can do a custom post page
+		if (! isset ( $params ['action'] )) {
+			if (file_exists ( dirname ( $path ) . "/" . $module . "_post.php" )) {
+				$params ['action'] = dirname ( $path ) . "/" . $module . "_post.php";
+			} else {
+				$params ['action'] = "post.php";
 			}
-		elseif (file_exists(dirname($path) . "/" . $module . "_post.php"))
-			{
-			$action = dirname($path) . "/" . $module . "_post.php";	
-			}
-		else
-			{
-			$action = "post.php";	
-			}
-			
-		echo "<form name=\"" . $name . "\" action=\"" . $action . "\" method=\"post\" " . $type . " " . $autocomplete . ">";	
 		}
 		
-	function echo_module_vars()
-		{
-		//global make the most sense since these are global variables
+		$attributes = $this->attributes ( $params );
+		
+		echo "<form " . $attributes . ">";
+	}
+
+	function echo_module_vars() {
+		// global make the most sense since these are global variables
 		global $module, $slug;
-		/* These variables support javascript function bb_submit_form() */
-		//starts with current module and changes to target, where you're going
-		echo "<input rel=\"ignore\" name=\"bb_module\" type=\"hidden\" value=\"" . $module . "\" />";
-		//starts empty and changes to current module, where you're coming from, $module become $submit
-		echo "<input rel=\"ignore\" name=\"bb_submit\" type=\"hidden\" value=\"\" />";
-		//slug corresponds to next module being displayed
-		echo "<input rel=\"ignore\" name=\"bb_slug\" type=\"hidden\" value=\"" . $slug . "\" />";
-		//working Brimbox button submitted processed in the controller, always set w/ javascript
-		echo "<input rel=\"ignore\" name=\"bb_button\" type=\"hidden\" value=\"\" />";
-		//used when logging out or changing state
-		echo "<input rel=\"ignore\" name=\"bb_userrole\" type=\"hidden\" value=\"\" />";
-		//used for processing image
-		echo "<input rel=\"ignore\" name=\"bb_image\" type=\"hidden\" value=\"\" />";
-		//the object needed when using file or document downloads
-		echo "<input rel=\"ignore\" name=\"bb_object\" type=\"hidden\" value = \"\">";
-		}
-				
-	function echo_common_vars()
-		{
-		//echos common variables to support links
-		//bb_post_key is the record id or drill down record key (two uses)
-		//bb_row_type is the type of the primary record, or the parent record
-		//bb_row_join is tthe type of the child record
-		//bb_relate is the related record key
 		
+		// should not be alter, how the controller works
+		$arr_module_variables = array (
+				'bb_module' => $module,
+				'bb_submit' => "",
+				'bb_slug' => $slug,
+				'bb_button' => "",
+				'bb_userrole' => "",
+				'bb_object' => "" 
+		);
+		
+		foreach ( $arr_module_variables as $name => $value ) {
+			$params = array (
+					'rel' => "ignore",
+					'type' => "hidden" 
+			);
+			$this->echo_input ( $name, $value, $params );
+		}
+	}
+
+	function echo_common_vars() {
+		// echos common variables to support links
+		// bb_post_key is the record id or drill down record key (two uses)
+		// bb_row_type is the type of the primary record, or the parent record
+		// bb_row_join is tthe type of the child record
+		// bb_relate is the related record key
 		global $array_common_variables;
-
-		foreach ($array_common_variables as $value)
-			{
-			echo "<input rel=\"ignore\" type=\"hidden\"  name=\"" . $value . "\" value = \"\">";	
-			}
-		}
 		
-	function echo_object_vars()
-		{
-		//deprcated, barely implemented
-		//do nothing
-		//object variable (bb_object) no included with module_vars
+		foreach ( $array_common_variables as $value ) {
+			$params = array (
+					'rel' => "ignore",
+					'type' => "hidden" 
+			);
+			$this->echo_input ( $value, "", $params );
 		}
-	
-	/*	DEPRACATED */
-	function echo_state($array_state)
-        {
-		//deprecated
-		//this echos the state into the form for posting
-        foreach ($array_state as $key => $value)
-            {
-            echo "<input rel=\"ignore\" type = \"hidden\"  name = \"" . $key . "\" value = \"" . base64_encode($value) . "\">";
-            }
-        }
-	
-	function echo_button($name, $params = array())
-		{
+	}
+
+	function echo_button($name, $params = array()) {
+
 		/* function to output button */
-		//class and label
+		$params = array (
+				'name' => $name 
+		) + $params;
 		
-		$class = isset($params['class']) ? $params['class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";		
-		//javascript parameters
-		$number = isset($params['number']) ? $params['number'] : 0;
-		$target = isset($params['target']) ?  "'" . $params['target'] . "'" : "undefined";
-		$slug = isset($params['slug']) ? "'" . $params['slug']  . "'" : "undefined";
-		$passthis = isset($params['passthis']) ? "this" : "undefined";
-		//allows boolean true for default proicessing image
+		// javascript parameters
+		$number = isset ( $params ['number'] ) ? $params ['number'] : 0;
+		// no target attribute for button
+		$target = isset ( $params ['target'] ) ? "'" . $params ['target'] . "'" : "undefined";
+		$slug = isset ( $params ['slug'] ) ? "'" . $params ['slug'] . "'" : "undefined";
+		$passthis = isset ( $params ['passthis'] ) ? "this" : "undefined";
+		$javascript_params = "[$number, $target, $slug, $passthis]";
+		unset ( $params ['number'], $params ['target'], $params ['slug'], $params ['passthis'] );
 		
-		//DEPRACATED */
-		//image now done with hook
+		// onclick very specific with this item
+		$params ['onclick'] = "bb_submit_form(" . $javascript_params . "); return false;";
 		
-		//implode parameters with comma
-		$submit_form_params = "[$number, $target, $slug, this]";
-		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" onclick=\"bb_submit_form(" . $submit_form_params . "); return false;\">" . $label . "</button>"; 
-		}
+		// label is special
+		$label = isset ( $params ['label'] ) ? $params ['label'] : "";
+		unset ( $params ['label'] );
 		
-	function echo_script_button($name, $params = array())
-		{
-		//function to output button
-		//make sure button name is different than function name
-		$class = isset($params['class']) ? $params['class'] : "";
-		$label = isset($params['label']) ? $params['label'] : "";
-		//return false included
-		$onclick = isset($params['onclick']) ? "onclick=\"" . $params['onclick'] . "; return false;\"" : "";
+		// implode attributes
+		$attributes = $this->attributes ( $params );
 		
-		echo "<button class=\"" . $class . "\" name=\"" . $name . "\" " . $onclick . ">" . $label . "</button>"; 
-		}
-		
-    function echo_input($name, $value = "", $params = array())
-		{
-		//function to output input html object
-		
-		//string params
-		$type = isset($params['type']) ? $params['type'] : "text";
-		$input_class = isset($params['input_class']) ? $params['input_class'] : "";
-		//return false not included
-		$onclick = isset($params['onclick']) ? "onClick=\"" . $params['onclick'] . ";\"" : "";
-		$handler = isset($params['handler']) ? $params['handler'] . ";\"" : "";
-		
-		//true or false params
-		$checked = !empty($params['checked']) ? "checked" : "";
-		$readonly = !empty($params['readonly']) ? "readonly" : "";
-		
-		//integer, 0 will be empty
-		$maxlength = !empty($params['maxlength']) ? "maxlength=\"" . $params['maxlength'] . "\"" : "";
-		
-		$label = isset($params['label']) ? $params['label'] : "";
-		$label_class = isset($params['label_class']) ? $params['label_class'] : "";
-		$position = isset($params['position']) ? $params['position'] : "";
-		
-		$begin = "";
-		$end = "";
-		if (!$this->blank($label))
-			{
-			if (strcasecmp($position, "end")) //0 is match
-				{
-				$begin = "<label  class=\"" . $label_class . "\">" . $label;
-				$end = "</label>";
-				}
-			else
-				{
-				$begin = "<label  class=\"" . $label_class . "\">";
-				$end =  $label . "</label>";					
-				}
-			}
-		//zend hack -- give empty checkbox a zero value with a hidden input of same name
-		if ($type == "checkbox")
-			{
-		    echo $begin . "<input type=\"hidden\" name=\"" . $name . "\" value=\"0\"><input type=\"" . $type . "\" class=\"" . $input_class . "\" name=\"" . $name . "\" value=\"" . $value . "\" " . $onclick . " " . $handler . " " . $readonly . " " . $checked . "/>" . $end; 
-			}
-		else
-			{
-		    echo $begin . "<input type=\"" . $type . "\" class=\"" . $input_class . "\" name=\"" . $name . "\" value=\"" . $value . "\" " . $maxlength . " " . $onclick . " " . $handler . " "  . $readonly . "/>" . $end; 
-			}
-		}
-		
-	function echo_textarea($name, $value = "", $params = array())
-		{
-		//function to output button
-		$class = isset($params['class']) ? $params['class'] : "";
-		$readonly = isset($params['readonly']) ? "readonly" : "";
-		$onclick = isset($params['onclick']) ? " onclick=\"" . $params['onclick'] . "; return false;\" " : "";
-		$rows = isset($params['rows']) ? $params['rows'] : "";
-		$cols = isset($params['cols']) ? $params['cols'] : "";		
-		
-		echo "<textarea class=\"" . $class . "\" name=\"" . $name . "\" value=\"" . $value . "\" rows=\"" . $rows . "\" cols=\"" . $cols . "\" " . $onclick . " " . $readonly . ">" . $value . "</textarea>"; 
-		}
+		echo "<button " . $attributes . ">" . $label . "</button>";
+	}
 
+	function echo_script_button($name, $params = array()) {
+		// function to output button
+		$params = array (
+				'name' => $name 
+		) + $params;
+		$label = $params ['label'];
+		unset ( $params ['label'] );
 		
-	function echo_form_end()
-		{
-		//end form tag, why not
-		echo "</form>";	
+		$attributes = $this->attributes ( $params );
+		
+		echo "<button " . $attributes . ">" . $label . "</button>";
+	}
+
+	function echo_input($name, $value = "", $params = array()) {
+		// function to output input html object
+		
+		// string params
+		$params = array (
+				'name' => $name 
+		) + $params + array (
+				'value' => $value 
+		);
+		
+		// true or false params
+		if (isset ( $params ['checked'] ) && $params ['checked'])
+			$attr_item = " checked";
+		elseif (isset ( $params ['readonly'] ) && $params ['readonly'])
+			$attr_item = " readonly";
+		else
+			$attr_item = "";
+		unset ( $params ['checked'], $params ['readonly'] );
+		
+		$attributes_input = $this->attributes ( $params );
+		
+		// zend hack -- give empty checkbox a zero value with a hidden input of same name
+		if ($params ['type'] == "checkbox") {
+			$params ['type'] = "hidden";
+			$params ['value'] = 0;
+			$attributes_hidden = $this->attributes ( $params );
+			echo "<input " . $attributes_hidden . "/>";
 		}
-	} //end class
+		echo "<input " . $attributes_input . $attr_item . "/>";
+	}
+
+	function echo_textarea($name, $value = "", $params = array()) {
+		// function to output button
+		$params = array (
+				'name' => $name 
+		) + $params;
+		
+		// readonly is special
+		$readonly = isset ( $params ['readonly'] ) ? " readonly" : "";
+		unset ( $params ['readonly'] );
+		
+		$attributes = $this->attributes ( $params );
+		
+		echo "<textarea " . $attributes . $readonly . ">" . $value . "</textarea>";
+	}
+
+	function attributes($params) {
+
+		$arr_implode = array ();
+		foreach ( $params as $key => $value ) {
+			$arr_implode [] = $key . "=\"" . $value . "\"";
+		}
+		return implode ( " ", $arr_implode );
+	}
+
+	function echo_clear() {
+
+		echo "<div class=\"clear\"></div>";
+	}
+
+	function echo_tag($tag, $content = "", $params = array()) {
+
+		$attributes = $this->attributes ( $params );
+		echo "<" . $tag . " " . $attributes . ">" . $content . "</" . $tag . ">";
+	}
+
+	function echo_form_end() {
+		// end form tag, why not
+		echo "</form>";
+	}
+} // end class
 ?>

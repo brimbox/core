@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2012 - 2015  Kermit Will Richardson, Brimbox LLC
+Copyright (C) Brimbox LLC
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
@@ -15,63 +15,60 @@ If not, see http://www.gnu.org/licenses/
 */
 
 /* RESET */
-*	 {
-	 border: 0;
-	 margin: 0;
-	 outline: 0;
-	 padding: 0;
-	 vertical-align: baseline;
-	 }
-     
+* {
+	border: 0;
+	margin: 0;
+	outline: 0;
+	padding: 0;
+	vertical-align: baseline;
+}
+
 /*****************CONTROLLER AREA******************/
 
 /* controller styles */
 /* body -- define margins, draw left border, and set min height */
-#bb_controller
-	 {
-	 margin: 0 6px 0 6px;
-	 
-	 border-left-width: 1px;
-	 border-left-style: solid;
-	 min-height:1000px;
-	 height: auto !important;
-	 height:1000px;
-	 }
- 
-/* processing image */    
-#bb_processor
-     {
-     display: block;
-     position: absolute;
-     left: 0px;
-     top: 0px;
-     width:100%;
-     height:100%;
-     text-align:center;
-     z-index: 1000;
-     }
-     
+#bb_controller {
+	margin: 0 6px 0 6px;
+	border-left-width: 1px;
+	border-left-style: solid;
+	min-height: 1000px;
+	height: auto !important;
+	height: 1000px;
+}
+
+/* processing image */
+#bb_processor {
+	display: block;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	z-index: 1000;
+}
+
 #bb_processor img {
-     margin: 200px auto;
-     }     
+	margin: 200px auto;
+}
 
 /******************/
 /* module wrapper */
 /* This is the relative content wrapper set to page width by percentage */
-#bb_wrapper {	 
-    clear:both;
-	position:relative;
-	width: 99%;	
-    }
+#bb_wrapper {
+	clear: both;
+	position: relative;
+	width: 99%;
+}
 
-/* This is the content wrapper for normal tabs, positioned absolutely to bb_wrapper*/	
-#bb_content 	 
-	 {
-	 position: absolute;
-	 width:inherit; /* default inherit, could be larger if normal tabs have wide layout */
-	 left:12px;
-	 top:12px;
-	 }
+/* This is the content wrapper for normal tabs, positioned absolutely to bb_wrapper*/
+#bb_content {
+	position: absolute;
+	width: inherit;
+	/* default inherit, could be larger if normal tabs have wide layout */
+	left: 12px;
+	top: 12px;
+}
 
 /***********************/
 /* controller top line */
@@ -79,78 +76,69 @@ If not, see http://www.gnu.org/licenses/
 /* line moves under button tab, button tabs are padded 1px more when chosen */
 /* this is a Firefox hack, Firefox will not move a button over a div line */
 /* this is how the contoller image is displayed */
-#bb_header #controller_image
-	 {
-	 /* image path related to css file */
-	 background-image: url("../bb-config/controller_image.gif");
-	 background-repeat:no-repeat;
-	 background-position:left; 
-	 }
-     
-#bb_header #controller_message
-	 {
-	 /* image path related to css file */
-     font-weight: bold;
-     padding: 4px;
-	 }
+#bb_header #controller_image {
+	/* image path related to css file */
+	background-image: url("../bb-config/controller_image.gif");
+	background-repeat: no-repeat;
+	background-position: left;
+}
 
+#bb_header #controller_message {
+	/* image path related to css file */
+	font-weight: bold;
+	padding: 4px;
+}
 
-#bb_header div.line
-	 {
-	 /* can be changed for wide layout */
-	 top: 0px;
-	 position: relative;
-	 width: 1500px; 
-	 z-index:-1;
-	 border-top-style: solid;
-	 border-top-width: 1px;
-	 }
-/* This is the line when a tab is selected, normal modules */	 
-#bb_header div.under
-	 {
-	 /* can be changed for wide layout */
-	 top: -1px;
-	 position: relative;
-	 width: 1500px; 
-	 z-index:-1;
-	 border-top-style: solid;
-	 border-top-width: 1px;
-	 }
+#bb_header div.line {
+	/* can be changed for wide layout */
+	top: 0px;
+	position: relative;
+	width: 1500px;
+	z-index: -1;
+	border-top-style: solid;
+	border-top-width: 1px;
+}
+/* This is the line when a tab is selected, normal modules */
+#bb_header div.under {
+	/* can be changed for wide layout */
+	top: -1px;
+	position: relative;
+	width: 1500px;
+	z-index: -1;
+	border-top-style: solid;
+	border-top-width: 1px;
+}
 
 /* CONTROLLER TABS */
 /* simple button tab styles */
 /* using buttons as tabs is little different than using unordered list */
-#bb_header .tabs
-    {
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+#bb_header .tabs {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
 	border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    }	
+	border-bottom-right-radius: 0px;
+}
 
 /* html5 nav tag */
-#bb_header nav
-	{
-	width:1500px; /* can be changed for wide layout */
-	}
-	
-/* button tab */   	
-#bb_header button
-	{
- 	font-size: 13px;
-	letter-spacing:0.3px;
-    padding: 3px 6px 2px 6px;
+#bb_header nav {
+	width: 1500px; /* can be changed for wide layout */
+}
+
+/* button tab */
+#bb_header button {
+	font-size: 13px;
+	letter-spacing: 0.3px;
+	padding: 3px 6px 2px 6px;
 	cursor: pointer;
-    border-style: solid;
+	border-style: solid;
 	border-width: 1px;
 	border-bottom-width: 0;
 	margin: 0px 0px 0 -1px;
 	font-weight: bold;
-	}
-	
-/* chosen button tab, 1px more bottom padding */	
-#bb_header button.chosen
-	{
+}
+
+/* chosen button tab, 1px more bottom padding */
+#bb_header button.chosen {
 	/* change background */
 	/* background: @bb_even_color;	*/
 	/* redo padding to align text */
@@ -158,43 +146,33 @@ If not, see http://www.gnu.org/licenses/
 	/* font formatting */
 	font-weight: bold;
 	color: black;
-	}
+}
 
-/* admin stuff */    
+/* admin stuff */
 /* This is the wrapper for setup and admin menu, position absolutely to bb_wrapper */
-#bb_admin_menu
-	 {
-	 position: absolute;
-	 left:12px;
-	 top:12px;
-	 }
+#bb_admin_menu {
+	position: absolute;
+	left: 12px;
+	top: 12px;
+}
 
-/* This is the button style for the admin and setup button that align along left side */	 
-#bb_admin_menu button.menu
-	 {
-	 display:block;
-	 border-radius: 0px;
- 	 -moz-border-radius: 0px; 
-	 width:150px;
-	 margin-bottom: -1px;
-     }
+/* This is the button style for the admin and setup button that align along left side */
+#bb_admin_menu button.menu {
+	display: block;
+	border-radius: 0px;
+	-moz-border-radius: 0px;
+	width: 150px;
+	margin-bottom: -1px;
+}
 
-	 
 /* This is the wrapper for setup and admin content, position absolutely to bb_wrapper  */
-#bb_admin_content
-	 {
-	 position: absolute;
-	 padding-left:8px;
-	 left:175px;
-	 top:12px;
-	 }
+#bb_admin_content {
+	position: absolute;
+	padding-left: 8px;
+	left: 175px;
+	top: 12px;
+}
 
 /* END CONTROLLER TABS */
 
 /***************END CONTROLLER AREA****************/
-
-
-		
-
-
-		
