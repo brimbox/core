@@ -22,6 +22,8 @@ include ("../bb-utilities/bb_version.php");
 
 session_name ( DB_NAME );
 session_start ();
+session_regenerate_id ();
+
 // extendable include
 if (file_exists ( "../bb-extend/include_main.php" )) {
 	include_once ("/bb-extend/include_main.php");

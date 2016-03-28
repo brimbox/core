@@ -21,6 +21,7 @@ include ("../bb-config/bb_config.php"); // need DB_NAME
 // userrole not passed in from controller
 session_name ( DB_NAME );
 session_start ();
+session_regenerate_id ();
 
 include ("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
 if (file_exists ( "../bb-extend/include_main.php" )) {

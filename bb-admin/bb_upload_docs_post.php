@@ -23,6 +23,7 @@ include ("../bb-config/bb_config.php"); // need DB_NAME
 
 session_name ( DB_NAME );
 session_start ();
+session_regenerate_id ();
 
 if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array (
 		"4_bb_brimbox",
@@ -52,22 +53,21 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		// constants include -- some constants are used
 	include_once ($abspath . "/bb-config/bb_constants.php");
 	// include build class object
-	if (file_exists ( $abspath . "/bb-extend/include_main.php" )) {
-		include_once ($abspath . "/bb-extend/include_main.php");
-	} else {
-		include_once ($abspath . "/bb-utilities/bb_include_main.php");
-	}
+    if (file_exists ( $abspath .  "bb-extend/include_main_class.php" ))
+        include_once ($abspath . "bb-extend/include_main_class.php");
+    else
+        include_once ($abspath . "bb-blocks/bb_include_main_class.php");
+        
 	// main object for hooks
 	$main = new bb_main ();
 	// need connection
 	$con = $main->connect ();
 	
 	// load global arrays
-	if (file_exists ( $abspath . "/bb-extend/bb_include_globals.php" )) {
-		include_once ($abspath . "/bb-extend/bb_include_globals.php");
-	} else {
-		include_once ($abspath . "/bb-utilities/bb_include_globals.php");
-	}
+	if (file_exists ( $abspath . "/bb-extend/parse_globals.php" )) 
+		include_once ($abspath . "/bb-extend/parse_globals.php");
+	else 
+		include_once ($abspath . "/bb-blocks/bb_parse_globals.php");
 	
 	$POST = $_POST;
 	
