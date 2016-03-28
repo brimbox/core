@@ -92,8 +92,8 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 		// main object is fully static
 		// variable $main appears as global
 		// if you want extend main you can
-		if (file_exists ( "bb-extend/include_main_class.php" ))
-			include_once ("bb-extend/include_main_class.php");
+		if (file_exists ( "bb-extend/bb_include_main_class.php" ))
+			include_once ("bb-extend/bb_include_main_class.php");
 		else
 			include_once ("bb-blocks/bb_include_main_class.php");
 			
@@ -138,8 +138,8 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	/* GET HEADER AND GLOBAL ARRAYS */
 	/* UNPAK ARRAY INTO SEPARATE UNIT */
 	
-	if (file_exists ("bb-extend/parse_globals.php" )) 
-		include_once ("bb-extend/parse_globals.php");
+	if (file_exists ("bb-extend/bb_parse_globals.php" )) 
+		include_once ("bb-extend/bb_parse_globals.php");
 	else 
 		include_once ("bb-blocks/bb_parse_globals.php");
 		
@@ -189,16 +189,16 @@ else : /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */
 	
 	/* LOGIN SECTION */
 	/* INCLUDES THE LOGIN PHP VERIFICATION */
-	if (file_exists ( "bb-extend/verify_login.php" )) 
-		include_once ("bb-extend/verify_login.php");
+	if (file_exists ( "bb-extend/bb_verify_login.php" )) 
+		include_once ("bb-extend/bb_verify_login.php");
 	else 
 		include_once ("bb-blocks/bb_verify_login.php");	
 	
 	/* INCLUDE LOGIN CSS AND HTML FOR THE MOST PART */
-	if (file_exists ( "bb-extend/login_form.php" )) 
+	if (file_exists ( "bb-extend/bb_login_form.php" )) 
 		include_once ("bb-extend/bb_login_form.php");
 	else
-		include_once ("bb-blocks/login_form.php");
+		include_once ("bb-blocks/bb_login_form.php");
 	
 
 
