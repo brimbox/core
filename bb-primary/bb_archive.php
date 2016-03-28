@@ -35,8 +35,7 @@ $archive_log = $main->on_constant ( 'BB_ARCHIVE_LOG' );
 // get $POST variable
 $POST = $main->retrieve ( $con );
 
-$arr_header = $main->get_json ( $con, "bb_interface_enable" );
-$arr_archive = $array_header ['row_archive'];
+$arr_archive = $array_security ['row_archive'];
 
 $post_key = $main->init ( $POST ['bb_post_key'], - 1 );
 $row_type = $main->init ( $POST ['bb_row_type'], - 1 );
@@ -50,16 +49,7 @@ if ($main->button ( 1 )) {
 	// needs to updated when postgres 9.* is standard
 	// cannot use DELETE in CTE in postgres 8.4, so it is done in 2 steps
 	// second step double checks for changes before execution, however one step would be better
-	$query = "WITH RECURSIVE t(id) AS (" . "SELECT id FROM data_table WHERE id = " . $post_key . " " . "UNION ALL " . "SELECT T1.id FROM data_table T1, t " . "WHERE t.id = T1.key1)" . "SELECT id FROM t;";
-	$result = $main->query ( $con, $query );
-	$cnt_cascade = pg_num_rows ( $result );
-	$arr_ids = pg_fetch_all_columns ( $result, 0 );
-	$ids_archive = implode ( ",", $arr_ids );
-	$union_archive = "SELECT " . implode ( " as id UNION SELECT ", $arr_ids ) . " as id";
-	
-	// Update with join and double check nothing has changed
-	$query = "UPDATE data_table SET archive = " . $setbit . " " . "FROM (" . $union_archive . ") T1 " . "WHERE data_table.id = T1.id AND EXISTS (SELECT 1 " . "WHERE (SELECT count(T1.id) FROM data_table T1 INNER JOIN (" . $union_archive . ") T2 " . "ON T1.id = T2.id) = " . $cnt_cascade . ");";
-	
+	$query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) UPDATE data_table SET archive = " . $setbit . " WHERE id IN (SELECT id FROM t);";
 	$result = $main->query ( $con, $query );
 	$cnt_affected = pg_affected_rows ( $result );
 	if ($cnt_affected > 0) {
@@ -102,9 +92,9 @@ else // default behavior
 	
 	if ($cnt_cascade > 1) {
 		array_push ( $arr_messages, "This record has " . ($cnt_cascade - 1) . " child records." );
-		array_push ( $arr_messages, "Clicking \"Archive Cascade\", \"Archive Retreive\", or \"Set Archive To\" will archive this record and all its child records." );
+		array_push ( $arr_messages, "<br>Clicking \"Archive Cascade\", \"Archive Retreive\", or \"Set Archive To\" will archive this record and all its child records." );
 	} else {
-		array_push ( $arr_messages, "This record does not have child records." );
+		array_push ( $arr_messages, "<br>This record does not have child records." );
 	}
 	
 	$arr_layouts = $main->layouts ( $con );
@@ -123,7 +113,7 @@ else // default behavior
 		$leftjoin = "c01";
 	}
 	
-	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " . "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " . "ON T1.key1 = T2.id " . "WHERE T1.id = " . $post_key . ";";
+	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 ON T1.key1 = T2.id WHERE T1.id = " . $post_key . ";";
 	
 	$result = $main->query ( $con, $query );
 	

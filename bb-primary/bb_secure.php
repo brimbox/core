@@ -35,7 +35,7 @@ $arr_messages = array ();
 // get $POST variable
 $POST = $main->retrieve ( $con );
 
-$arr_security = $array_header ['row_security'];
+$arr_security = $array_security ['row_security'];
 
 $post_key = $main->init ( $POST ['bb_post_key'], - 1 );
 $row_type = $main->init ( $POST ['bb_row_type'], - 1 );
@@ -50,16 +50,7 @@ if ($main->button ( 1 )) {
 	// recursive query for cascading action
 	// needs to be updated when postgres 9.* is standard
 	// second step double checks for changes before execution, however one step would be better
-	$query = "WITH RECURSIVE t(id) AS (" . "SELECT id FROM data_table WHERE id = " . $post_key . " " . "UNION ALL " . "SELECT T1.id FROM data_table T1, t " . "WHERE t.id = T1.key1)" . "SELECT id FROM t;";
-	$result = $main->query ( $con, $query );
-	$cnt_cascade = pg_num_rows ( $result );
-	$arr_ids = pg_fetch_all_columns ( $result, 0 );
-	$ids_archive = implode ( ",", $arr_ids );
-	$union_archive = "SELECT " . implode ( " as id UNION SELECT ", $arr_ids ) . " as id";
-	
-	// Update with join and double check nothing has changed
-	$query = "UPDATE data_table SET secure = " . $setbit . " " . "FROM (" . $union_archive . ") T1 " . "WHERE data_table.id = T1.id AND EXISTS (SELECT 1 " . "WHERE (SELECT count(T1.id) FROM data_table T1 INNER JOIN (" . $union_archive . ") T2 " . "ON T1.id = T2.id) = " . $cnt_cascade . ");";
-	
+	$query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) UPDATE data_table SET secure = " . $setbit . " WHERE id IN (SELECT id FROM t);";
 	$result = $main->query ( $con, $query );
 	$cnt_affected = pg_affected_rows ( $result );
 	if ($cnt_affected > 0) {
@@ -80,15 +71,15 @@ if ($main->button ( 1 )) {
 /* RETURN RECORD */
 else {
 	// get count of records to secure
-	$query = "WITH RECURSIVE t(id) AS (" . "SELECT id FROM data_table WHERE id = " . $post_key . " " . "UNION ALL " . "SELECT T1.id FROM data_table T1, t " . "WHERE t.id = T1.key1)" . "SELECT id FROM t;";
+	$query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) SELECT id FROM t;";
 	$result = $main->query ( $con, $query );
 	$cnt_cascade = pg_num_rows ( $result );
 	
 	if ($cnt_cascade > 1) {
 		array_push ( $arr_messages, "This record has " . ($cnt_cascade - 1) . " child records." );
-		array_push ( $arr_messages, "Clicking \"Secure Cascade\", \"Unsecure Cascade\", or \"Set Security To\" will secure this record and all its child records." );
+		array_push ( $arr_messages, "<br>Clicking \"Secure Cascade\", \"Unsecure Cascade\", or \"Set Security To\" will secure this record and all its child records." );
 	} else {
-		array_push ( $arr_messages, "This record does not have child records." );
+		array_push ( $arr_messages, "<br>This record does not have child records." );
 	}
 	
 	$arr_layouts = $main->layouts ( $con );
@@ -108,7 +99,7 @@ else {
 	}
 	
 	// return record
-	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " . "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " . "ON T1.key1 = T2.id " . "WHERE T1.id = " . $post_key . ";";
+	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 ON T1.key1 = T2.id WHERE T1.id = " . $post_key . ";";
 	
 	$result = $main->query ( $con, $query );
 	

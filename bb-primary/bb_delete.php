@@ -47,17 +47,8 @@ if ($main->button ( 1 )) {
 	// needs to updated when postgres 9.* is standard
 	// cannot use DELETE in CTE in postgres 8.4, so it is done in 2 steps
 	// second step double checks for changes before execution, however one step would be better
-	$query = "WITH RECURSIVE t(id) AS (" . "SELECT id FROM data_table WHERE id = " . $post_key . " " . "UNION ALL " . "SELECT T1.id FROM data_table T1, t " . "WHERE t.id = T1.key1)" . "SELECT id FROM t;";
+	$query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) DELETE FROM data_table WHERE id IN (SELECT id FROM t);";
 	$result = $main->query ( $con, $query );
-	$cnt_cascade = pg_num_rows ( $result );
-	$arr_ids = pg_fetch_all_columns ( $result, 0 );
-	$ids_delete = implode ( ",", $arr_ids );
-	$union_delete = "SELECT " . implode ( " as id UNION SELECT ", $arr_ids ) . " as id";
-	
-	// double checks to make sure nothing changed
-	$query = "DELETE FROM data_table WHERE id IN (" . $ids_delete . ") " . "AND EXISTS (SELECT 1 " . "WHERE (SELECT count(T1.id) FROM data_table T1 INNER JOIN (" . $union_delete . ") T2 ON T1.id = T2.id) = " . $cnt_cascade . ");";
-	$result = $main->query ( $con, $query );
-	// echo $query;
 	$cnt_affected = pg_affected_rows ( $result );
 	if ($cnt_affected > 0) {
 		array_push ( $arr_messages, "This Cascade Delete deleted " . $cnt_affected . " rows." );
@@ -72,13 +63,13 @@ if ($main->button ( 1 )) {
 
 /* RETURN RECORD */
 else {
-	$query = "WITH RECURSIVE t(id) AS (" . "SELECT id FROM data_table WHERE id = " . $post_key . " " . "UNION ALL " . "SELECT T1.id FROM data_table T1, t " . "WHERE t.id = T1.key1)" . "SELECT id FROM t;";
+	$query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) SELECT id FROM t;";
 	$result = $main->query ( $con, $query );
 	$cnt_cascade = pg_num_rows ( $result );
 	
 	if ($cnt_cascade > 1) {
 		array_push ( $arr_messages, "This record has " . ($cnt_cascade - 1) . " child records." );
-		array_push ( $arr_messages, "Caution: Clicking \"Delete Cascade\" will delete this record and all its child records. This cannot be undone." );
+		array_push ( $arr_messages, "<br>Caution: Clicking \"Delete Cascade\" will delete this record and all its child records. This cannot be undone." );
 	} else {
 		array_push ( $arr_messages, "This record does not have child records." );
 	}
@@ -97,7 +88,7 @@ else {
 		$leftjoin = "c01";
 	}
 	
-	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " . "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " . "ON T1.key1 = T2.id " . "WHERE T1.id = " . $post_key . ";";
+	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 ON T1.key1 = T2.id WHERE T1.id = " . $post_key . ";";
 	
 	$result = $main->query ( $con, $query );
 	

@@ -32,7 +32,6 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	
 	// deal with stored $_SESSION stuff
 	$interface = $_SESSION ['interface'];
-	$usertype = $_SESSION ['usertype'];
 	$abspath = $_SESSION ['abspath'];
 	$webpath = $_SESSION ['webpath'];
 	$keeper = $_SESSION ['keeper'];

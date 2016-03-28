@@ -28,7 +28,8 @@ $number_layouts = $main->get_constant ( 'BB_NUMBER_LAYOUTS', 12 );
 
 // start of code
 $arr_layouts = $main->get_json ( $con, "bb_layout_names" ); // do not reduce
-$arr_layout_security = $array_header ['layout_security'];
+//security
+$arr_layout_security = $array_security ['layout_security'];
 
 $arr_messages = array ();
 
