@@ -19,7 +19,7 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", 5 );
+$main->check_permission ( "5_bb_brimbox" );
 ?>
 <script type="text/javascript">
 //this is the submit javascript for standard modules
@@ -53,7 +53,7 @@ unset ( $arr_state ['arr_details'] );
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin ( array (
-		"type" => "enctype=\"multipart/form-data\"" 
+		"enctype" => "multipart/form-data" 
 ) );
 $main->echo_module_vars ();
 ;
@@ -67,14 +67,14 @@ if (! empty ( $arr_details )) :
 		if ($key != "description") {
 			echo "<label class=\"margin padded right overflow floatleft medium shaded\">" . htmlentities ( $name ) . ":</label>";
 			echo "<label class=\"margin padded left floatleft\">" . htmlentities ( $value ) . "</label>";
-			$main->echo_clear();
+			$main->echo_clear ();
 		}
 	}
 	if (isset ( $arr_details ['description'] )) {
 		echo "<label class = \"margin padded left floatleft overflow medium shaded\">" . htmlentities ( $name ) . ":</label>";
-		$main->echo_clear();
+		$main->echo_clear ();
 		echo "<textarea class=\"margin\" cols=\"80\" rows=\"6\" readonly=\"readonly\">" . htmlentities ( $value ) . "</textarea>";
-		$main->echo_clear();
+		$main->echo_clear ();
 	}
 	echo "</div>";
  
@@ -97,7 +97,7 @@ else :
 	echo "<label class=\"spaced\">Program Version: " . BRIMBOX_PROGRAM . "</label>";
 	echo "<label class=\"spaced\"> -- Database Version: " . BRIMBOX_DATABASE . "</label>";
 	echo "</div>";
-	$main->echo_clear();
+	$main->echo_clear ();
 	// update brimbox
 	echo "<input class=\"spaced\" type=\"file\" name=\"update_file\" id=\"file\" />";
 	$params = array (
@@ -108,14 +108,14 @@ else :
 			"label" => "Update Brimbox / Root Access" 
 	);
 	$main->echo_button ( "submit_update", $params );
-	$main->echo_clear();
+	$main->echo_clear ();
 	echo "<div class=\"spaced padded floatleft\">";
 	echo "<div class=\"spaced floatleft\">Admin Password: ";
 	echo "<input class=\"spaced\" type=\"password\" name=\"install_passwd\"/></div>";
 	echo "</div>";
-	$main->echo_clear();
+	$main->echo_clear ();
 	echo "</div>";
-	$main->echo_clear();
+	$main->echo_clear ();
 	
 	echo "<div class=\"cell spaced bottom border padded floatleft\">";
 	// install module
@@ -139,7 +139,7 @@ else :
 	echo "</span>";
 	echo "</div>";
 	
-	$main->echo_clear();
+	$main->echo_clear ();
 	
 	// submit order button
 	echo "<div class=\"spaced border padded floatleft\">";
@@ -154,7 +154,7 @@ else :
 	$main->echo_button ( "set_module_order", $params );
 	echo "</div>";
 	echo "</div>";
-	$main->echo_clear();
+	$main->echo_clear ();
 	
 	/* hidden vars for javascript button link submits */
 	echo "<input type=\"hidden\"  name=\"module_id\" value = \"0\">";

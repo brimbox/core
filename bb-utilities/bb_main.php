@@ -572,7 +572,7 @@ class bb_main extends bb_reports {
 		}
 	}
 
-	function check_permission($optional, $usertypes = NULL) {
+	function check_permission($userroles) {
 
 		/* IMPORTANT FUNCTION SHOULD BE CALLED AT TOP OF EVERY MODULE */
 		// dies on everything except good permission
@@ -582,28 +582,14 @@ class bb_main extends bb_reports {
 		// $usertypes can be int, array of int, or null if optional is string of userroles
 		// $optional can be interface or string of userroles
 		if (isset ( $_SESSION ['username'] )) {
-			if (is_null ( $usertypes )) {
-				$arr_userroles = explode ( ",", $optional );
-				if (! in_array ( $_SESSION ['userrole'], $arr_userroles )) {
-					echo "Insufficient Permission.";
-					session_destroy ();
-					die ();
-				}
-			} else {
-				list ( $userwork, $interwork ) = explode ( "_", $_SESSION ['userrole'], 2 );
-				if (is_int ( $usertypes )) // either int or string input
-{
-					$usertypes = array (
-							$usertypes 
-					);
-				}
-				if (! in_array ( $userwork, $usertypes ) || (strcasecmp ( $interwork, $optional ) != 0)) {
-					echo "Insufficient Permission.";
-					session_destroy ();
-					die ();
-				}
+			$arr_userroles = is_array ( $userroles ) ? $userroles : array (
+					$userroles 
+			);
+			if (! in_array ( $_SESSION ['userrole'], $arr_userroles )) {
+				echo "Insufficient Permission.";
+				session_destroy ();
+				die ();
 			}
-			
 			// single user takes precedence over admin only
 			// this for when administrators lock the db down
 			if (! strcasecmp ( ADMIN_ONLY, "YES" ) && SINGLE_USER_ONLY == '') {
@@ -719,18 +705,15 @@ class bb_main extends bb_reports {
 			$i = 1;
 			foreach ( $arr_userroles as $value ) {
 				// careful with the globals
-				list ( $usertype, $interface ) = explode ( "_", $value, 2 );
-				if (isset ( $array_header [$interface] ['interface_name'] ) && isset ( $array_header [$interface] ['userroles'] [$usertype] )) {
-					$bold = ($value == $userrole) ? " bold" : "";
-					$params = array (
-							"class" => $class_button . $bold,
-							"label" => $array_header [$interface] ['interface_name'] . ":" . $array_header [$interface] ['userroles'] [$usertype],
-							"onclick" => "bb_logout_selector('" . $value . "')" 
-					);
-					$this->echo_script_button ( "role" . $value, $params );
-					$separator = ($i != $cnt) ? ", " : "";
-					echo $separator;
-				}
+				$bold = ($value == $userrole) ? " bold" : "";
+				$params = array (
+						"class" => $class_button . $bold,
+						"label" => $array_header ['userroles'] [$value],
+						"onclick" => "bb_logout_selector('" . $value . "'); return false;" 
+				);
+				$this->echo_script_button ( "role" . $value, $params );
+				$separator = ($i != $cnt) ? ", " : "";
+				echo $separator;
 				$i ++;
 			}
 		}

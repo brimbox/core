@@ -77,21 +77,23 @@ if (! $main->blank ( $controller_message )) {
 // query the modules table to set up the interface
 // setup initial variables from $array_interface
 $arr_interface = $array_interface;
+
 // module type 0 for hidden modules
 $module_types = array (
 		0 
 );
+
 // get the module types for current interface
 foreach ( $array_interface as $key => $value ) {
 	// display appropriate modules, usertypes is array of numeric part of userroles
-	if (in_array ( $usertype, $value ['usertypes'] )) {
+	if (in_array ( $userrole, $value ['userroles'] )) {
 		array_push ( $module_types, $value ['module_type'] );
 	} else {
 		// unset interface type if permission invalid
 		unset ( $arr_interface [$key] );
 	}
 }
-;
+
 // get modules type into string for query
 $module_types = implode ( ",", array_unique ( $module_types ) );
 // query modules table
@@ -107,10 +109,8 @@ while ( $row = pg_fetch_array ( $result ) ) {
 	if (file_exists ( $row ['module_path'] )) {
 		// set module_path and type for include
 		if ($module == $row ['module_name']) {
-			list ( $path, $type ) = array (
-					$row ['module_path'],
-					$row ['module_type'] 
-			);
+			$path = $row ['module_path'];
+			$type = $row ['module_type'];
 		}
 		// need to address controller by both module_type and module_name
 		if ($row ['module_type'] > 0) {
@@ -135,14 +135,13 @@ foreach ( $arr_interface as $value ) {
 	}
 	// layout standard tabs
 	if ($value ['interface_type'] == 'Standard') {
-		foreach ( $arr_controller [$value ['module_type']] as $module_work => $value ) {
+		foreach ( $arr_controller [$value ['module_type']] as $module_work => $value_work ) {
 			$selected = ($module == $module_work) ? "chosen" : "";
-			$slug_work = $value ['module_slug'];
+			$slug_work = $value_work ['module_slug'];
 			$submit_form_params = "[0,'$module_work','$slug_work', this]";
-			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['friendly_name'] . "</button>";
+			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value_work ['friendly_name'] . "</button>";
 		}
-	} // layout auxiliary header tab
-elseif ($value ['interface_type'] == 'Auxiliary') {
+	} elseif ($value ['interface_type'] == 'Auxiliary') {
 		// this section
 		if (array_key_exists ( $value ['module_type'], $arr_controller )) {
 			if (array_key_exists ( $module, $arr_controller [$value ['module_type']] )) {
@@ -155,7 +154,7 @@ elseif ($value ['interface_type'] == 'Auxiliary') {
 				$slug_work = $arr_controller [$value ['module_type']] [$module_work] ['module_slug'];
 				$submit_form_params = "[0,'$module_work','$slug_work', this]";
 			}
-			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['friendly_name'] . "</button>";
+			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['module_type_name'] . "</button>";
 		}
 	}
 }

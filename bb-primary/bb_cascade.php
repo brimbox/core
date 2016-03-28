@@ -19,11 +19,12 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", array (
-		3,
-		4,
-		5 
+$main->check_permission ( array (
+		"3_bb_brimbox",
+		"4_bb_brimbox",
+		"5_bb_brimbox" 
 ) );
+
 ?>
 
 <?php

@@ -33,7 +33,7 @@ if (file_exists ( "../bb-extend/include_main.php" )) {
 $main = new bb_main ();
 
 // will check SESSION
-$main->check_permission ( "bb_brimbox", 5 );
+$main->check_permission ( "5_bb_brimbox" );
 
 /* INITIALIZE */
 // version 2014.1.4 added ips

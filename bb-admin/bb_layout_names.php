@@ -19,7 +19,7 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", 5 );
+$main->check_permission ( "5_bb_brimbox" );
 
 // input form textarea max length
 $maxinput = $main->get_constant ( 'BB_STANDARD_LENGTH', 255 );

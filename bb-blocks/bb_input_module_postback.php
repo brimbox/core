@@ -67,6 +67,7 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 			// get the columns and dropdowns for given row_type
 			$arr_columns = $main->columns ( $con, $row_type );
 			$arr_dropdowns = $main->dropdowns ( $con, $row_type );
+			$arr_props = $main->properties ( $con, $row_type );
 			
 			// get the record, either for edit or parent record info
 			// first result
@@ -102,26 +103,22 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 				$result = $main->query ( $con, $query );
 				$row = pg_fetch_array ( $result );
 				// second result for parent of edit record
-				if (pg_num_rows ( $result ) == 1) // parent
-{
+				// parent
+				if (pg_num_rows ( $result ) == 1) {
 					$main->set ( 'parent_id', $arr_state, $row ['id'] );
 					$main->set ( 'parent_row_type', $arr_state, $row ['row_type'] );
-					$col_type_primary = $main->lookup ( $con, 'bb_column_names', array (
-							$row_type,
-							"layout",
-							"primary" 
-					) );
+					$col_type_primary = $arr_props ['primary'];
 					$column_primary = $main->pad ( "c", $col_type_primary );
 					$main->set ( 'parent_primary', $arr_state, $row [$column_primary] );
-				} else // no parent
-{
+					// no parent
+				} else {
 					$parent_id = $main->set ( 'parent_id', $arr_state, 0 );
 					$parent_row_type = $main->set ( 'parent_row_type', $arr_state, 0 );
 					$main->set ( 'parent_primary', $arr_state, "" );
 				}
 			} // first result for parent when adding a child record
-elseif (pg_num_rows ( $result ) == 1) // insert
-{
+			  // insert
+			elseif (pg_num_rows ( $result ) == 1) {
 				$main->set ( 'parent_id', $arr_state, $row ['id'] );
 				$main->set ( 'parent_row_type', $arr_state, $row ['row_type'] );
 				$arr_props = $main->properties ( $con, $row ['row_type'] );
@@ -253,6 +250,8 @@ elseif ($main->button ( 2 )) // clear form
 			$arr_dropdowns = $main->dropdowns ( $con, $row_type );
 		}
 	}
+
+
 
      
         

@@ -22,7 +22,8 @@
 // HOT TAB SWITCH PRESERVE STATE #
 // array that updates state when tabs are switched without postback
 function bb_index_hot_state($con, $main, $interface, &$array_hot_state) {
-	// Hot State for Deta ils
+	
+	// Hot State for Details
 	if ($main->check ( "link_values", "bb_details" )) {
 		$array_hot_state ['5_bb_brimbox'] ['bb_details'] = $array_hot_state ['4_bb_brimbox'] ['bb_details'] = $array_hot_state ['3_bb_brimbox'] ['bb_details'] = array (
 				"link_values" 
@@ -57,20 +58,6 @@ function bb_index_hot_state($con, $main, $interface, &$array_hot_state) {
 		// unset any variable used in global, unset $POST for organization
 	}
 	
-	// Hot state for Dropdowns
-	if ($main->hot ( "bb_dropdowns" )) {
-		$arr = array (
-				"row_type",
-				"col_type",
-				"multiselect",
-				"dropdown",
-				"all_values",
-				"empty_value" 
-		); // work array
-		$array_hot_state ['bb_dropdowns'] [5] = $array ['bb_dropdowns'] [4] = $arr;
-		// unset any variable used in global, unset $POST for organization
-	}
-	
 	// Hot state for Manage Users
 	if ($main->hot ( "bb_manage_users" )) {
 		$arr = array (
@@ -90,18 +77,6 @@ function bb_index_hot_state($con, $main, $interface, &$array_hot_state) {
 		// work array
 		$array_hot_state ['bb_manage_users'] [5] = $arr;
 		// unset any variable used in global, unset $POST for organization
-	}
-	// Hot state for Layout Names
-	if ($main->hot ( "bb_layout_names" )) {
-		$number_layouts = $main->get_constant ( 'BB_NUMBER_LAYOUTS', 12 );
-		$POST = $main->retrieve ( $con );
-		$arr = array ();
-		for($i = 1; $i <= $number_layouts; $i ++) {
-			if ($main->full ( 'singular_' . $i, 'bb_layout_names' ) || $main->full ( 'plural_' . $i, 'bb_layout_names' )) {
-				array_push ( $arr, 'singular_' . $i, 'plural_' . $i, 'parent_' . $i, 'order_' . $i, 'secure_' . $i, 'autoload_' . $i, 'relate_' . $i );
-			}
-		}
-		$array_hot_state ['bb_layout_names'] [5] = $arr;
 	}
 }
 ?>

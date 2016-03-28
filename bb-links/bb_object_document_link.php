@@ -36,7 +36,7 @@ if (isset ( $_SESSION ['username'] )) :
 	$main = new bb_main ();
 	
 	$userroles = $main->get_constant ( 'BB_DOCUMENT_DOWNLOAD_PERMISSIONS', "3_bb_brimbox,4_bb_brimbox,5_bb_brimbox" );
-	$main->check_permission ( $userroles );
+	$main->check_permission ( explode ( ",", $userroles ) );
 	
 	set_time_limit ( 0 );
 	$con = $main->connect ();
@@ -66,6 +66,7 @@ if (isset ( $_SESSION ['username'] )) :
 	flush ();
 	
 	echo $document;
+
 
 
 

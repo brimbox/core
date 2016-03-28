@@ -17,9 +17,9 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", array (
-		4,
-		5 
+$main->check_permission ( array (
+		"4_bb_brimbox",
+		"5_bb_brimbox" 
 ) );
 ?>
 <script type="text/javascript">     
@@ -60,7 +60,7 @@ echo "</div>";
 
 /* START REQUIRED FORM */
 $main->echo_form_begin ( array (
-		"type" => "enctype=\"multipart/form-data\"" 
+		"enctype" => "multipart/form-data" 
 ) );
 $main->echo_module_vars ();
 // upload row_type calls dummy function
@@ -141,14 +141,14 @@ while ( $row = pg_fetch_array ( $result ) ) {
 	$date = $main->convert_date ( $row ['change_date'], "Y-m-d h:i:s" );
 	echo "<div class=\"padded cell medium middle\">" . $date . "</div>";
 	echo "<div class=\"padded cell long middle\">";
-	$onclick = "bb_set_hidden(" . $row ['id'] . ") return false;";
+	$onclick = "bb_set_hidden(" . $row ['id'] . "); return false;";
 	$main->echo_script_button ( "delete_" . $row ['id'], array (
 			'class' => "link spaced",
 			"onclick" => $onclick,
 			'label' => "Delete" 
 	) );
 	echo " - ";
-	$onclick = "bb_submit_object('bb-links/bb_object_document_link.php', " . $row ['id'] . ") return false;";
+	$onclick = "bb_submit_object('bb-links/bb_object_document_link.php', " . $row ['id'] . "); return false;";
 	$main->echo_script_button ( "download_" . $row ['id'], array (
 			'class' => "link spaced",
 			"onclick" => $onclick,

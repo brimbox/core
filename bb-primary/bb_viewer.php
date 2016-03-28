@@ -20,7 +20,7 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", 2 );
+$main->check_permission ( "2_bb_brimbox" );
 
 /* DATABASE STATS -- AUTOFILL HOOK */
 $main->hook ( "bb_viewer_infolinks" );

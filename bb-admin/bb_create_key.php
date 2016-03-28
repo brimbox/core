@@ -19,7 +19,7 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", 5 );
+$main->check_permission ( "5_bb_brimbox" );
 ?>
 <script type="text/javascript">
 function bb_reload()

@@ -21,23 +21,6 @@
 
 /* BEGIN REQUIRED FORM */
 
-echo "<br><br>";
-
-$arr_columns = $main->columns ( $con, 2, NULL );
-print_r ( $arr_columns );
-echo "<br><br>";
-
-$arr_columns = $main->alternative ( $con, 2, 'bb_brimbox' );
-print_r ( $arr_columns );
-echo "<br><br>";
-
-$arr_columns = $main->alternative ( $con, 2, 'bb_test' );
-print_r ( $arr_columns );
-echo "<br><br>";
-
-// get $POST variable
-$POST = $main->retrieve ( $con );
-
 $main->echo_form_begin ();
 $main->echo_module_vars ();
 

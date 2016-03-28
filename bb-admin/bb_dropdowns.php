@@ -19,10 +19,11 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", array (
-		4,
-		5 
+$main->check_permission ( array (
+		"4_bb_brimbox",
+		"5_bb_brimbox" 
 ) );
+
 ?>
 <script type="text/javascript">
 //reload on layout change

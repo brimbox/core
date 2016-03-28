@@ -19,7 +19,7 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", 5 );
+$main->check_permission ( "5_bb_brimbox" );
 ?>
 <script type="text/javascript">
 //reload for change of row_type
@@ -88,7 +88,7 @@ set_time_limit ( 0 );
 // find default row_type, $arr_layouts must have one layout set
 $arr_layouts_json = $main->get_json ( $con, "bb_layout_names" );
 $arr_columns_json = $main->get_json ( $con, "bb_column_names" );
-//get hear
+// get hear
 $arr_interface = $main->get_json ( $con, "bb_interface_enable" );
 
 $arr_layouts = $main->filter_keys ( $arr_layouts_json );
@@ -158,34 +158,34 @@ if ($main->button ( 1 )) {
 if ($main->button ( 2 )) {
 	
 	/* COLUMN DATA POSTBACK */
-    if ($core) {
-        $arr_columns = $arr_alternative = array();
-        for($i = 1; $i <= 50; $i ++) {
-            $name = $main->purge_chars ( $main->post ( 'name_' . $i, $module, "" ), true, true );
-            if (! $main->blank($name)) {
-                $arr_columns [$i] ['name'] = $name;
-                foreach ( $arr_fields as $key => $value ) {
-                    // array set for particular purposes
-                    $arr_columns [$i] [$key] = $main->post ( $key . '_' . $i, $module, "" );
-                    if (isset ( $value ['alternative'] ) && $value ['alternative']) {
-                        $arr_alternative [$i] [$key] = $main->post ( $key . '_' . $i, $module, "" );
-                    }
-                }
-            }
+	if ($core) {
+		$arr_columns = $arr_alternative = array ();
+		for($i = 1; $i <= 50; $i ++) {
+			$name = $main->purge_chars ( $main->post ( 'name_' . $i, $module, "" ), true, true );
+			if (! $main->blank ( $name )) {
+				$arr_columns [$i] ['name'] = $name;
+				foreach ( $arr_fields as $key => $value ) {
+					// array set for particular purposes
+					$arr_columns [$i] [$key] = $main->post ( $key . '_' . $i, $module, "" );
+					if (isset ( $value ['alternative'] ) && $value ['alternative']) {
+						$arr_alternative [$i] [$key] = $main->post ( $key . '_' . $i, $module, "" );
+					}
+				}
+			}
 		}
 	} else {
-        $arr_alternative = array();
-        for($i = 1; $i <= 50; $i ++) {
-            $name = $main->purge_chars ( $main->post ( 'name_' . $i, $module, "" ), true, true );
-            if (! $main->blank($name)) {
-                foreach ( $arr_fields as $key => $value ) {
-                    if (isset ( $value ['alternative'] ) && $value ['alternative']) {
-                        $arr_alternative [$i] [$key] = $main->post ( $key . '_' . $i, $module, "" );
-                    }
-                }
-            }
+		$arr_alternative = array ();
+		for($i = 1; $i <= 50; $i ++) {
+			$name = $main->purge_chars ( $main->post ( 'name_' . $i, $module, "" ), true, true );
+			if (! $main->blank ( $name )) {
+				foreach ( $arr_fields as $key => $value ) {
+					if (isset ( $value ['alternative'] ) && $value ['alternative']) {
+						$arr_alternative [$i] [$key] = $main->post ( $key . '_' . $i, $module, "" );
+					}
+				}
+			}
 		}
-    }
+	}
 	
 	/* END COLUMN DATA POSTBACK */
 	
@@ -209,8 +209,8 @@ if ($main->button ( 2 )) {
 			5 => "Error: Can only relate a table to a table once.",
 			6 => "Error: Cannot relate a table to itself." 
 	);
-    
-    //FILTER
+	
+	// FILTER
 	
 	for($i = 1; $i <= 50; $i ++) {
 		// check rows and order for integrity
@@ -248,12 +248,11 @@ if ($main->button ( 2 )) {
 				}
 			}
 		} // end col_value if
-        
-        //HOOK
-        
+			  
+		// HOOK
 	} // end for loop
-    
-    // check on core only
+	  
+	// check on core only
 	if ($core) {
 		// column names must be unique
 		$cnt_names = count ( $arr_names );
@@ -273,12 +272,12 @@ if ($main->button ( 2 )) {
 		if ($error_relate_to_itself) {
 			array_push ( $arr_messages, $arr_errors [6] );
 		}
-        
-        //HOOK
+		
+		// HOOK
 	}
-	  
+	
 	// check on core and alternative
-	  // rows strictly ascending starting at 1
+	// rows strictly ascending starting at 1
 	$arr_rows = array_unique ( $arr_rows );
 	asort ( $arr_rows );
 	$arr_rows = array_merge ( $arr_rows );
@@ -288,7 +287,7 @@ if ($main->button ( 2 )) {
 			array_push ( $arr_messages, $arr_errors [2] );
 		}
 	}
-    
+	
 	// strictly ascending and unique starting at 1
 	$arr_temp = array_unique ( $arr_order );
 	$cnt_order = count ( $arr_temp ); // holds count of unique
@@ -300,8 +299,8 @@ if ($main->button ( 2 )) {
 			array_push ( $arr_messages, $arr_errors [3] );
 		}
 	}
-    
-    //HOOK
+	
+	// HOOK
 	
 	// cleanup $arr_error before testing
 	$arr_messages = array_unique ( $arr_messages );
@@ -311,7 +310,7 @@ if ($main->button ( 2 )) {
 	
 	/* READY VALUES */
 	
-	// display working values if error	
+	// display working values if error
 	$arr_properties_work = $arr_properties;
 	foreach ( $arr_properties_work as $key => $value ) {
 		switch ($key) {
@@ -334,9 +333,8 @@ if ($main->button ( 2 )) {
 				}
 				break;
 		}
-        
-        //HOOK
-        
+		
+		// HOOK
 	}
 	
 	/* END READY VALUES */
@@ -400,33 +398,35 @@ $params = array (
 );
 $main->layout_dropdown ( $arr_layouts, "row_type", $row_type, $params );
 
-$arr_definitions = array();
+$arr_definitions = array ();
 
-$arr_definitions = $main->filter("bb_column_names_definitions", $arr_definitions);
+$arr_definitions = $main->filter ( "bb_column_names_definitions", $arr_definitions );
 
 $params = array (
 		"class" => "spaced",
 		"onchange" => "bb_reload()",
 		"usekey" => true 
 );
-$main->array_to_select ( $arr_definitions, "definition", $definition, $prepend = array('bb_brimbox'=>"Brimbox"), $params );
+$main->array_to_select ( $arr_definitions, "definition", $definition, $prepend = array (
+		'bb_brimbox' => "Brimbox" 
+), $params );
 
 /* END DROPDOWN - ALTERNATIVE DEFINTIONS */
 
 /* READY DATA FOR OUTPUT */
 
 // produces $arr_fields and $arr_columns for alternative def
-if (!$core) {
-    foreach ($arr_columns as $key => $value) {
-        $arr_alternative[$key]['name'] = $value['name'];
-    }
-    $arr_columns = $arr_alternative;
-    $arr_fields_temp = $arr_fields;
-    $arr_fields = array();
+if (! $core) {
+	foreach ( $arr_columns as $key => $value ) {
+		$arr_alternative [$key] ['name'] = $value ['name'];
+	}
+	$arr_columns = $arr_alternative;
+	$arr_fields_temp = $arr_fields;
+	$arr_fields = array ();
 	foreach ( $arr_fields_temp as $key => $value ) {
 		if (isset ( $value ['alternative'] ) && $value ['alternative']) {
 			$arr_fields [$key] = $value;
-        }
+		}
 	}
 }
 

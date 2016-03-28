@@ -49,9 +49,8 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	$archive = $_SESSION ['archive']; // archive state
 	$keeper = $_SESSION ['keeper']; // state_table id
 	                                // unpack usertype and interface
-	list ( $usertype, $interface ) = explode ( "_", $_SESSION ['userrole'], 2 );
+	list ( , $interface ) = explode ( "_", $_SESSION ['userrole'], 2 );
 	$_SESSION ['interface'] = $interface;
-	$_SESSION ['usertype'] = $usertype;
 	
 	// set by post.php
 	// the current module
@@ -147,7 +146,7 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 		// get module types for current user and interface
 	$module_types = array ();
 	foreach ( $array_interface as $key => $value ) {
-		if (in_array ( $usertype, $value ['usertypes'] )) {
+		if (in_array ( $userrole, $value ['userroles'] )) {
 			// (int) cast for security
 			array_push ( $module_types, ( int ) $value ['module_type'] );
 		}

@@ -17,9 +17,9 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", array (
-		4,
-		5 
+$main->check_permission ( array (
+		"4_bb_brimbox",
+		"5_bb_brimbox" 
 ) );
 ?>
 <script type="text/javascript">     
@@ -104,7 +104,7 @@ if (isset ( $data_stats ['inputted'] )) {
 
 /* START REQUIRED FORM */
 $main->echo_form_begin ( array (
-		"type" => "enctype=\"multipart/form-data\"" 
+		"enctype" => "multipart/form-data" 
 ) );
 $main->echo_module_vars ();
 ;
@@ -125,7 +125,7 @@ $params = array (
 );
 $main->echo_button ( "get_header", $params );
 echo "</div>";
-$main->echo_clear();
+$main->echo_clear ();
 echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input type=\"text\" name=\"data_file\" value=\"" . $data_file . "\" class=\"spaced\">";
@@ -137,7 +137,7 @@ $params = array (
 );
 $main->echo_script_button ( "dump_button", $params );
 echo "</div>";
-$main->echo_clear();
+$main->echo_clear ();
 echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_file\" id=\"file\" />";
@@ -168,7 +168,7 @@ $main->array_to_select ( $arr_select, "edit_or_insert", $edit_or_insert, array (
 		'select_class' => "spaced" 
 ) );
 echo "</div>";
-$main->echo_clear();
+$main->echo_clear ();
 echo "<textarea class=\"spaced\" name=\"data_area\" cols=\"160\" rows=\"25\" wrap=\"off\">" . $data_area . "</textarea>";
 $main->echo_form_end ();
 /* END FORM */

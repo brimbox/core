@@ -2,7 +2,7 @@
 <?php
 
 /*
- * Copyright (C) Brimbox LLC 
+ * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
@@ -19,7 +19,7 @@
 ?>
 <?php
 
-$main->check_permission ( "bb_brimbox", 5 );
+$main->check_permission ( "5_bb_brimbox" );
 ?>
 <?php
 

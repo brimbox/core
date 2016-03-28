@@ -29,9 +29,9 @@ $main = new bb_main ();
 // userrole not passed in from controller
 session_name ( DB_NAME );
 session_start ();
-$main->check_permission ( "bb_brimbox", array (
-		4,
-		5 
+$main->check_permission ( array (
+		"4_bb_brimbox",
+		"5_bb_brimbox" 
 ) );
 ?>
 <?php

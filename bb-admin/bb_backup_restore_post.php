@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) Brimbox LLC 
+ * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
@@ -62,10 +62,10 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$con = $main->connect ();
 	
 	// load global arrays
-	if (file_exists ( "bb-extend/bb_include_globals.php" )) {
-		include_once ("bb-extend/bb_include_globals.php");
+	if (file_exists ( $abspath . "/bb-extend/bb_include_globals.php" )) {
+		include_once ($abspath . "/bb-extend/bb_include_globals.php");
 	} else {
-		include_once ("bb-utilities/bb_include_globals.php");
+		include_once ($abspath . "/bb-utilities/bb_include_globals.php");
 	}
 	
 	$POST = $_POST;
@@ -271,7 +271,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 							for($i = 0; $i < $cnt; $i ++) {
 								$str = rtrim ( fgets ( $handle ) );
 								$row = explode ( "\t", decrypt_line ( $str, $passwd, $iv, $type ) );
-								$query = "INSERT INTO modules_table (module_order, module_path, module_name, module_slug, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details, change_date) " . "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13);";
+								$query = "INSERT INTO modules_table (module_order, module_path, module_name, module_slug, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details, change_date) " . "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);";
 								// echo "<p>" . htmlentities($query) . "</p><br>";
 								// use query params because not updating or inserting full text columns
 								$main->query_params ( $con, $query, $row );
@@ -508,6 +508,7 @@ else // no file at all
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
 
 
 

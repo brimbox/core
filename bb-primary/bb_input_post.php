@@ -61,10 +61,10 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$con = $main->connect ();
 	
 	// load global arrays
-	if (file_exists ( "bb-extend/bb_include_globals.php" )) {
-		include_once ("bb-extend/bb_include_globals.php");
+	if (file_exists ( $abspath . "/bb-extend/bb_include_globals.php" )) {
+		include_once ($abspath . "/bb-extend/bb_include_globals.php");
 	} else {
-		include_once ("bb-utilities/bb_include_globals.php");
+		include_once ($abspath . "/bb-utilities/bb_include_globals.php");
 	}
 	
 	/* GET STATE AND $POST */
@@ -128,6 +128,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
 
 
     

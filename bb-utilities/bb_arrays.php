@@ -19,34 +19,27 @@
 
 /* NO HTML OUTPUT */
 
-// STANDARD INTERFACE #
+// STANDARD INTERFACE
 
-if ($interface == "bb_brimbox") {
-	$main->add_value ( 'header', "Brimbox" . 'interface_name' );
-	$main->add_value ( 'header', array (
-			'1_bb_brimbox' => 'Guest',
-			'2_bb_brimbox' => 'Viewer',
-			'3_bb_brimbox' => 'User',
-			'4_bb_brimbox' => 'Superuser',
-			'5_bb_brimbox' => 'Admin' 
-	), 'userroles' );
-	$main->add_value ( 'header', array (
-			1 => "Guest",
-			2 => "Viewer",
-			3 => "Tab",
-			4 => "Setup",
-			5 => "Admin" 
-	), 'module_types' );
-	$main->add_value ( 'header', "/box.php", 'controller' );
-}
+// USERROLES HEADER ARRAYS
 
-// TYPICALLY GLOBAL #
+$main->add_value ( 'header', array (
+		'1_bb_brimbox' => 'Guest',
+		'2_bb_brimbox' => 'Viewer',
+		'3_bb_brimbox' => 'User',
+		'4_bb_brimbox' => 'Superuser',
+		'5_bb_brimbox' => 'Admin' 
+), 'userroles' );
+
+// SECURITY HEADER ARRAYS
 
 $main->add_value ( 'header', array (), 'row_archive' );
 $main->add_value ( 'header', array (), 'row_security' );
 $main->add_value ( 'header', array (), 'layout_security' );
 $main->add_value ( 'header', array (), 'column_security' );
 $main->add_value ( 'header', array (), 'guest_index' );
+
+// VALIDATION HEADER ARRAY
 
 $main->add_value ( 'validation', array (
 		'func' => array (
@@ -97,10 +90,39 @@ $main->add_value ( 'validation', array (
 		'use' => "Required" 
 ), "bb_brimbox_yesno" );
 
-if ($interface == "bb_brimbox") {
+// CURRENT REPORT TYPES ARRAY
+$main->add_value ( 'reports', array (
+		0 => "" 
+), 10 );
+$main->add_value ( 'reports', array (
+		1 => "Paginated" 
+), 20 );
+$main->add_value ( 'reports', array (
+		2 => "Full" 
+), 30 );
+$main->add_value ( 'reports', array (
+		3 => "Textarea" 
+), 40 );
+
+// BRIMBOX INTERFACE SPECIFIC
+
+if ($interface == "bb_brimbox") :
+	
+	$main->add_value ( 'header', "Brimbox", 'interface_name' );
+	$main->add_value ( 'header', "/box.php", 'controller' );
+	
 	// STANDARD HOOKS #
 	// use static classes or standard functions
-	// $main->add_action('hooks'] = array('hook'=>"index_hot_state",'func'=>"bb_index_hot_state",'vars'=>array("con", "main", "interface", "&array_hot_state"), 'file'=>"/bb-blocks/bb_index_hot_state.php");
+	$main->add_action ( 'hooks', 'index_hot_state', array (
+			'func' => "bb_index_hot_state",
+			'vars' => array (
+					"con",
+					"main",
+					"interface",
+					"&array_hot_state" 
+			),
+			'file' => "/bb-blocks/bb_index_hot_state.php" 
+	) );
 	
 	$main->add_action ( 'hooks', "bb_guest_infolinks", array (
 			'func' => 'bb_main::infolinks' 
@@ -234,43 +256,46 @@ if ($interface == "bb_brimbox") {
 	// STANDARD INTERFACE DEFINITION #
 	$main->add_value ( 'interface', array (
 			'interface_type' => 'Standard',
-			'usertypes' => array (
-					1 
+			'userroles' => array (
+					'1_bb_brimbox' 
 			),
-			'module_type' => 1 
+			'module_type' => 1,
+			'module_type_name' => 'Guest' 
 	) );
 	$main->add_value ( 'interface', array (
 			'interface_type' => 'Standard',
-			'usertypes' => array (
-					2 
+			'userroles' => array (
+					'2_bb_brimbox' 
 			),
-			'module_type' => 2 
+			'module_type' => 2,
+			'module_type_name' => 'Viewer' 
 	) );
 	$main->add_value ( 'interface', array (
 			'interface_type' => 'Standard',
-			'usertypes' => array (
-					3,
-					4,
-					5 
+			'userroles' => array (
+					'3_bb_brimbox',
+					'4_bb_brimbox',
+					'5_bb_brimbox' 
 			),
-			'module_type' => 3 
+			'module_type' => 3,
+			'module_type_name' => 'User' 
 	) );
 	$main->add_value ( 'interface', array (
 			'interface_type' => 'Auxiliary',
-			'usertypes' => array (
-					4,
-					5 
+			'userroles' => array (
+					'4_bb_brimbox',
+					'5_bb_brimbox' 
 			),
 			'module_type' => 4,
-			'friendly_name' => 'Setup' 
+			'module_type_name' => 'Setup' 
 	) );
 	$main->add_value ( 'interface', array (
 			'interface_type' => 'Auxiliary',
-			'usertypes' => array (
-					5 
+			'userroles' => array (
+					'5_bb_brimbox' 
 			),
 			'module_type' => 5,
-			'friendly_name' => 'Admin' 
+			'module_type_name' => 'Admin' 
 	) );
 	
 	// COMMON VARS SHARED WITH OTHER TABS #
@@ -369,20 +394,8 @@ if ($interface == "bb_brimbox") {
 				) 
 		), 90 );
 	}
-}
 
-// CURRENT REPORT TYPES USUALLY GLOBAL
-$main->add_value ( 'reports', array (
-		0 => "" 
-), 10 );
-$main->add_value ( 'reports', array (
-		1 => "Paginated" 
-), 20 );
-$main->add_value ( 'reports', array (
-		2 => "Full" 
-), 30 );
-$main->add_value ( 'reports', array (
-		3 => "Textarea" 
-), 40 );
+
+endif; // interface bb_brimbox
 
 ?>

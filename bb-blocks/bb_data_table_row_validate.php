@@ -25,6 +25,8 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 		// session or globals
 		global $con, $main, $submit;
 		
+		$error = true;
+		
 		$arr_layouts = $main->layouts ( $con );
 		$default_row_type = $main->get_default_layout ( $arr_layouts );
 		
@@ -34,22 +36,6 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 		
 		$arr_columns = $main->columns ( $con, $row_type );
 		$arr_dropdowns = $main->dropdowns ( $con, $row_type );
-		
-		// because of hook default value must be set here
-		if (! is_array ( $params ))
-			$params = array ();
-			// unpack params into variables
-		foreach ( $params as $key => $value ) {
-			${$key} = $value;
-		}
-		// default use string errors
-		$error = isset ( $error ) ? $error : true;
-		// filter default empty array
-		$filter = isset ( $filter ) ? $filter : array ();
-		// mode default is true, keep cols not in filter
-		$mode = isset ( $mode ) ? $mode : true;
-		// assume these are going to be used in postback or redirect, so use submit
-		$prefix = isset ( $prefix ) ? $prefix : $submit;
 		
 		// count of arr_errors will indicate validation
 		$arr_errors = array (); // empty array
@@ -102,6 +88,8 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 		}
 		$main->set ( 'arr_errors', $arr_state, $arr_errors );
 	}
+
+
 
 
         

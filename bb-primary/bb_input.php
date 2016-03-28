@@ -34,10 +34,10 @@ function bb_reload()
     }
 </script>
 <?php
-$main->check_permission ( "bb_brimbox", array (
-		3,
-		4,
-		5 
+$main->check_permission ( array (
+		"3_bb_brimbox",
+		"4_bb_brimbox",
+		"5_bb_brimbox" 
 ) );
 
 // get $POST variable
@@ -91,6 +91,7 @@ if (! empty ( $arr_columns )) :
 	$main->hook ( "bb_input_submit_buttons" );
 	// textarea load
 	$main->hook ( "bb_input_textarea_load" );
+
 
 
 

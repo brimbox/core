@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) Brimbox LLC 
+ * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
@@ -37,6 +37,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$webpath = $_SESSION ['webpath'];
 	$keeper = $_SESSION ['keeper'];
 	$username = $_SESSION ['username'];
+	$userrole = $_SESSION ['userrole'];
 	
 	// standard $_SESSION post stuff
 	$_SESSION ['module'] = $module = $_POST ['bb_module'];
@@ -64,10 +65,10 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$con = $main->connect ();
 	
 	// load global arrays
-	if (file_exists ( "bb-extend/bb_include_globals.php" )) {
-		include_once ("bb-extend/bb_include_globals.php");
+	if (file_exists ( $abspath . "/bb-extend/bb_include_globals.php" )) {
+		include_once ($abspath . "/bb-extend/bb_include_globals.php");
 	} else {
-		include_once ("bb-utilities/bb_include_globals.php");
+		include_once ($abspath . "/bb-utilities/bb_include_globals.php");
 	}
 	
 	$POST = $_POST;
@@ -333,6 +334,7 @@ else // $edit_or_insert = 1 or 2
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
 
 
 
