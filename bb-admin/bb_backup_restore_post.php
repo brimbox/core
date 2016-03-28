@@ -52,10 +52,10 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		// constants include -- some constants are used
 	include_once ($abspath . "/bb-config/bb_constants.php");
 	// include build class object
-    if (file_exists ( $abspath .  "bb-extend/include_main_class.php" ))
-        include_once ($abspath . "bb-extend/include_main_class.php");
+    if (file_exists ( $abspath .  "/bb-extend/bb_include_main_class.php" ))
+        include_once ($abspath . "/bb-extend/bb_include_main_class.php");
     else
-        include_once ($abspath . "bb-blocks/bb_include_main_class.php");
+        include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
         
 	// main object for hooks
 	$main = new bb_main ();
@@ -63,8 +63,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$con = $main->connect ();
 	
 	// load global arrays
-	if (file_exists ( $abspath . "/bb-extend/parse_globals.php" )) 
-		include_once ($abspath . "/bb-extend/parse_globals.php");
+	if (file_exists ( $abspath . "/bb-extend/bb_parse_globals.php" )) 
+		include_once ($abspath . "/bb-extend/bb_parse_globals.php");
 	else 
 		include_once ($abspath . "/bb-blocks/bb_parse_globals.php");
 	
