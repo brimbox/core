@@ -76,7 +76,7 @@ if (! $main->blank ( $controller_message )) {
 /* CONTROLLER ARRAY */
 // query the modules table to set up the interface
 // setup initial variables from $array_interface
-$arr_interface = $array_interface;
+$arr_interface = $array_interface[$interface];
 
 // module type 0 for hidden modules
 $module_types = array (
@@ -84,10 +84,10 @@ $module_types = array (
 );
 
 // get the module types for current interface
-foreach ( $array_interface as $key => $value ) {
+foreach ( $arr_interface as $key => $value ) {
 	// display appropriate modules, usertypes is array of numeric part of userroles
 	if (in_array ( $userrole, $value ['userroles'] )) {
-		array_push ( $module_types, $value ['module_type'] );
+		array_push ( $module_types, $key );
 	} else {
 		// unset interface type if permission invalid
 		unset ( $arr_interface [$key] );
@@ -127,15 +127,15 @@ while ( $row = pg_fetch_array ( $result ) ) {
 
 /* ECHO TABS */
 // set up standard tab and auxiliary header tabs
-foreach ( $arr_interface as $value ) {
+foreach ( $arr_interface as $key => $value ) {
 	$selected = ""; // reset selected
 	                // active module type
-	if ($value ['module_type'] == $type) {
+	if ($key == $type) {
 		$interface_type = $value ['interface_type'];
 	}
 	// layout standard tabs
 	if ($value ['interface_type'] == 'Standard') {
-		foreach ( $arr_controller [$value ['module_type']] as $module_work => $value_work ) {
+		foreach ( $arr_controller [$key] as $module_work => $value_work ) {
 			$selected = ($module == $module_work) ? "chosen" : "";
 			$slug_work = $value_work ['module_slug'];
 			$submit_form_params = "[0,'$module_work','$slug_work', this]";
@@ -143,15 +143,15 @@ foreach ( $arr_interface as $value ) {
 		}
 	} elseif ($value ['interface_type'] == 'Auxiliary') {
 		// this section
-		if (array_key_exists ( $value ['module_type'], $arr_controller )) {
-			if (array_key_exists ( $module, $arr_controller [$value ['module_type']] )) {
+		if (array_key_exists ( $key, $arr_controller )) {
+			if (array_key_exists ( $module, $arr_controller [$key] )) {
 				$selected = "chosen";
 				$module_work = $module;
-				$slug_work = $arr_controller [$value ['module_type']] [$module_work] ['module_slug'];
+				$slug_work = $arr_controller [$key] [$module_work] ['module_slug'];
 				$submit_form_params = "[0,'$module_work','$slug_work', this]";
 			} else {
-				$module_work = key ( $arr_controller [$value ['module_type']] );
-				$slug_work = $arr_controller [$value ['module_type']] [$module_work] ['module_slug'];
+				$module_work = key ( $arr_controller [$key] );
+				$slug_work = $arr_controller [$key] [$module_work] ['module_slug'];
 				$submit_form_params = "[0,'$module_work','$slug_work', this]";
 			}
 			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['module_type_name'] . "</button>";

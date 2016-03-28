@@ -173,7 +173,6 @@ else :
 	echo "<div class=\"padded bold cell middle\">Friendly Name</div>";
 	echo "<div class=\"padded bold cell middle\">Interface: Type</div>";
 	echo "<div class=\"padded bold cell middle\">Version</div>";
-	echo "<div class=\"padded bold cell middle\">Maintain State</div>";
 	echo "<div class=\"padded bold cell middle\">Order</div>";
 	echo "<div class=\"padded bold cell middle\">Action</div>";
 	echo "<div class=\"padded bold cell middle\">Delete</div>";
@@ -189,18 +188,12 @@ else :
 				$module_type = "Hidden";
 				break;
 			case - 1 :
-				$module_type = "Global";
-				break;
-			case - 2 :
-				$module_type = "Function";
-				break;
-			case - 3 :
-				$module_type = "Header";
+				$module_type = "Functions";
 				break;
 			default :
 				// user defined
 				// account for possibility of unknown or undefined
-				$module_type = isset ( $array_header [$row ['interface']] ['module_types'] [$row ['module_type']] ) ? $array_header [$row ['interface']] ['module_types'] [$row ['module_type']] : "Unknown";
+				$module_type = isset ( $array_interface [$row ['interface']] [$row ['module_type']]['module_type_name'] ) ? $array_interface[$row ['interface']] [$row ['module_type']]['module_type_name'] : "Unknown";
 				break;
 		}
 		// row shading
@@ -211,18 +204,17 @@ else :
 		echo "<div class=\"twice cell medium middle\">" . $row ['module_slug'] . "</div>";
 		echo "<div class=\"twice cell long middle\">" . $row ['friendly_name'] . "</div>";
 		// combine interface and module type, account for possibility of unknown or undefined
-		$interface_name = isset ( $array_header [$row ['interface']] ['interface_name'] ) ? $array_header [$row ['interface']] ['interface_name'] : "Unknown";
+		$interface_name = isset ( $array_header [$row ['interface']] ['name'] ) ? $array_header [$row ['interface']] ['name'] : "Unknown";
 		echo "<div class=\"twice cell long middle\">" . $interface_name . ": " . $module_type . "</div>";
 		echo "<div class=\"twice cell short middle\">" . $row ['module_version'] . "</div>";
-		echo "<div class=\"twice cell short middle\">" . $row ['module_url'] . "</div>";
 		// form elements
 		echo "<input type=\"hidden\"  name=\"module_type_" . $row ['id'] . "\" value = \"" . $row ['module_type'] . "-" . $row ['interface'] . "\">";
 		echo "<div class=\"cell short middle\">";
-		if ($row ['module_type'] != 0) // not hidden, globals and functions have an order
-{
+        // not hidden, globals and functions have an order
+		if ($row ['module_type'] != 0) {
 			echo "<select name=\"order_" . $row ['id'] . "\">";
-			for($j = 1; $j <= $row ['cnt']; $j ++) // reuse j
-{
+            // reuse j
+			for($j = 1; $j <= $row ['cnt']; $j ++) {
 				echo "<option value=\"" . $j . "\" " . (($j == $row ['module_order']) ? "selected" : "") . " >" . $j . "&nbsp;</option>";
 			}
 			echo "</select>";

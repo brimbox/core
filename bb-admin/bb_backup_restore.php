@@ -46,7 +46,7 @@ $main->echo_form_begin ( array (
 		'enctype' => "multipart/form-data" 
 ) );
 $main->echo_module_vars ();
-;
+
 
 /* BACKUP AREA */
 echo "<p class=\"spaced bold larger\">Backup Database</p>";

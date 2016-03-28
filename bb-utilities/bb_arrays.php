@@ -19,28 +19,39 @@
 
 /* NO HTML OUTPUT */
 
-// STANDARD INTERFACE
+/* PRODUCES */
+
+// $array_header
+// $array_userroles
+// $array_security
+// $array_validation
+// $array_interface
+// $array_reports
+
+
+// STANDARD HEADER
+//key is interface
+$main->add_value ( 'header', array('name' => "Brimbox", 'controller' => "/box.php"), 'bb_brimbox' );
+
 
 // USERROLES HEADER ARRAYS
-
-$main->add_value ( 'header', array (
-		'1_bb_brimbox' => 'Guest',
-		'2_bb_brimbox' => 'Viewer',
-		'3_bb_brimbox' => 'User',
-		'4_bb_brimbox' => 'Superuser',
-		'5_bb_brimbox' => 'Admin' 
-), 'userroles' );
+//key is userrole
+$main->add_value ( 'userroles', array('name'=>'Guest'), '1_bb_brimbox' );
+$main->add_value ( 'userroles', array('name'=>'Viewer'), '2_bb_brimbox' );
+$main->add_value ( 'userroles', array('name'=>'User'), '3_bb_brimbox' );
+$main->add_value ( 'userroles', array('name'=>'Superuser'), '4_bb_brimbox' );
+$main->add_value ( 'userroles', array('name'=>'Admin'), '5_bb_brimbox' );
 
 // SECURITY HEADER ARRAYS
-
-$main->add_value ( 'header', array (), 'row_archive' );
-$main->add_value ( 'header', array (), 'row_security' );
-$main->add_value ( 'header', array (), 'layout_security' );
-$main->add_value ( 'header', array (), 'column_security' );
-$main->add_value ( 'header', array (), 'guest_index' );
+//key is security type
+$main->add_value ( 'security', array (), 'row_archive' );
+$main->add_value ( 'security', array (), 'row_security' );
+$main->add_value ( 'security', array (), 'layout_security' );
+$main->add_value ( 'security', array (), 'column_security' );
+$main->add_value ( 'security', array (), 'guest_index' );
 
 // VALIDATION HEADER ARRAY
-
+//key is validation key
 $main->add_value ( 'validation', array (
 		'func' => array (
 				$main,
@@ -90,27 +101,80 @@ $main->add_value ( 'validation', array (
 		'use' => "Required" 
 ), "bb_brimbox_yesno" );
 
+// STANDARD INTERFACE DEFINITION #
+//key is module type
+//add_action sets up a array $array_interface[$interface][$module_type]
+$main->add_action ( 'interface', 'bb_brimbox', array (
+        'interface_type' => 'Standard',
+        'userroles' => array (
+                '1_bb_brimbox' 
+        ),
+        'module_type_name' => 'Guest' 
+), 1 );
+$main->add_action ( 'interface', 'bb_brimbox', array (
+        'interface_type' => 'Standard',
+        'userroles' => array (
+                '2_bb_brimbox' 
+        ),
+        'module_type_name' => 'Viewer' 
+), 2 );
+$main->add_action ( 'interface', 'bb_brimbox', array (
+        'interface_type' => 'Standard',
+        'userroles' => array (
+                '3_bb_brimbox',
+                '4_bb_brimbox',
+                '5_bb_brimbox' 
+        ),
+        'module_type_name' => 'User' 
+), 3 );
+$main->add_action ( 'interface', 'bb_brimbox', array (
+        'interface_type' => 'Auxiliary',
+        'userroles' => array (
+                '4_bb_brimbox',
+                '5_bb_brimbox' 
+        ),
+        'module_type_name' => 'Setup' 
+), 4 );
+$main->add_action ( 'interface', 'bb_brimbox', array (
+        'interface_type' => 'Auxiliary',
+        'userroles' => array (
+                '5_bb_brimbox' 
+        ),
+        'module_type_name' => 'Admin' 
+), 5 );
+
+
 // CURRENT REPORT TYPES ARRAY
+//key is a priority
 $main->add_value ( 'reports', array (
-		0 => "" 
+		'type' => 0,
+        'name' => ""
 ), 10 );
 $main->add_value ( 'reports', array (
-		1 => "Paginated" 
+    	'type' => 1,
+        'name' => "Paginated"
 ), 20 );
 $main->add_value ( 'reports', array (
-		2 => "Full" 
+		'type' => 2,
+        'name' => "Fulle" 
 ), 30 );
 $main->add_value ( 'reports', array (
-		3 => "Textarea" 
+		'type' => 3,
+        'name' => "Textarea" 
 ), 40 );
 
 // BRIMBOX INTERFACE SPECIFIC
 
 if ($interface == "bb_brimbox") :
-	
-	$main->add_value ( 'header', "Brimbox", 'interface_name' );
-	$main->add_value ( 'header', "/box.php", 'controller' );
-	
+
+/* PRODUCES */
+
+    // $array_hooks
+    // $array_filters
+    // $array_common_variables
+    // $array_links
+
+		
 	// STANDARD HOOKS #
 	// use static classes or standard functions
 	$main->add_action ( 'hooks', 'index_hot_state', array (
@@ -252,52 +316,7 @@ if ($interface == "bb_brimbox") :
 	$main->add_action ( 'filters', "bb_column_names_definitions", array (
 			'func' => 'test_definitions' 
 	), 50 );
-	
-	// STANDARD INTERFACE DEFINITION #
-	$main->add_value ( 'interface', array (
-			'interface_type' => 'Standard',
-			'userroles' => array (
-					'1_bb_brimbox' 
-			),
-			'module_type' => 1,
-			'module_type_name' => 'Guest' 
-	) );
-	$main->add_value ( 'interface', array (
-			'interface_type' => 'Standard',
-			'userroles' => array (
-					'2_bb_brimbox' 
-			),
-			'module_type' => 2,
-			'module_type_name' => 'Viewer' 
-	) );
-	$main->add_value ( 'interface', array (
-			'interface_type' => 'Standard',
-			'userroles' => array (
-					'3_bb_brimbox',
-					'4_bb_brimbox',
-					'5_bb_brimbox' 
-			),
-			'module_type' => 3,
-			'module_type_name' => 'User' 
-	) );
-	$main->add_value ( 'interface', array (
-			'interface_type' => 'Auxiliary',
-			'userroles' => array (
-					'4_bb_brimbox',
-					'5_bb_brimbox' 
-			),
-			'module_type' => 4,
-			'module_type_name' => 'Setup' 
-	) );
-	$main->add_value ( 'interface', array (
-			'interface_type' => 'Auxiliary',
-			'userroles' => array (
-					'5_bb_brimbox' 
-			),
-			'module_type' => 5,
-			'module_type_name' => 'Admin' 
-	) );
-	
+		
 	// COMMON VARS SHARED WITH OTHER TABS #
 	// will not be processed through the form posting engine
 	$main->add_value ( 'common_variables', "bb_row_type" );
@@ -316,81 +335,105 @@ if ($interface == "bb_brimbox") :
 		;
 	{
 		$main->add_value ( 'links', array (
-				array (
+				'func' => array (
 						$main,
 						'standard' 
 				),
-				array (
-						"bb_details",
-						"details",
-						"Details" 
+				'params' => array (
+						'target' => "bb_details",
+						'slug' => "details",
+						'text' => "Details" 
 				) 
 		), 10 );
 		$main->add_value ( 'links', array (
-				'bb_main::standard',
-				array (
-						"bb_cascade",
-						"cascade",
-						"Cascade" 
+				'func' => array (
+						$main,
+						'standard' 
+				),
+				'params' => array (
+						'target' => "bb_cascade",
+						'slug' => "cascade",
+						'text' => "Cascade" 
 				) 
 		), 20 );
 		$main->add_value ( 'links', array (
-				'bb_main::edit',
-				array (
-						"bb_input",
-						"input",
-						"Edit" 
+				'func' => array (
+						$main,
+						'edit' 
+				),
+				'params' => array (
+						'target' => "bb_input",
+						'slug' => "input",
+						'text' => "Edit" 
 				) 
 		), 30 );
 		$main->add_value ( 'links', array (
-				'bb_main::relate',
-				array (
-						"bb_input",
-						"input",
-						"Relate" 
+				'func' => array (
+						$main,
+						'relate' 
+				),
+				'params' => array (
+						'target' => "bb_input",
+						'slug' => "input",
+						'text' => "Relate" 
 				) 
 		), 40 );
 		$main->add_value ( 'links', array (
-				'bb_main::standard',
-				array (
-						"bb_listchoose",
-						"listchoose",
-						"List" 
+				'func' => array (
+						$main,
+						'standard' 
+				),
+				'params' => array (
+						'target' => "bb_listchoose",
+						'slug' => "listchoose",
+						'text' => "List" 
 				) 
 		), 50 );
 		$main->add_value ( 'links', array (
-				'bb_main::standard',
-				array (
-						"bb_archive",
-						"archive",
-						"Archive" 
+				'func' => array (
+						$main,
+						'standard' 
+				),
+				'params' => array (
+						'target' => "bb_archive",
+						'slug' => "archive",
+						'text' => "Archive" 
 				) 
 		), 60 );
 		$main->add_value ( 'links', array (
-				'bb_main::standard',
-				array (
-						"bb_delete",
-						"delete",
-						"Delete" 
+				'func' => array (
+						$main,
+						'standard' 
+				),
+				'params' => array (
+						'target' => "bb_delete",
+						'slug' => "delete",
+						'text' => "Delete" 
 				) 
 		), 70 );
 		$main->add_value ( 'links', array (
-				'bb_main::standard',
-				array (
-						"bb_secure",
-						"secure",
-						"Secure" 
+				'func' => array (
+						$main,
+						'standard' 
+				),
+				'params' => array (
+						'target' => "bb_secure",
+						'slug' => "secure",
+						'text' => "Secure" 
 				) 
 		), 80 );
 		$main->add_value ( 'links', array (
-				'bb_main::children',
-				array (
-						"bb_input",
-						"input",
-						"Add",
-						"bb_view",
-						"view",
-						"View" 
+				'func' => array (
+						$main,
+						'children' 
+				),
+				'params' => array (
+						'target_add' => "bb_input",
+						'slug_add' => "input",
+						'text_add' => "Add",
+						'target_view' => "bb_view",
+						'slug_view' => "view",
+						'text_view' => "View" 
 				) 
 		), 90 );
 	}

@@ -234,8 +234,8 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 					// can add a recursive query to update child record when secure is altered
 					// should do a recursive update cascade
 					// end good edit
-				}  // bad edit
-else {
+				} else {
+                    // bad edit
 					$result_where_not = $main->query ( $con, $select_where_not );
 					$result_where = $main->query ( $con, $select_where );
 					if (pg_num_rows ( $result_where_not ) == 1) {
@@ -263,9 +263,10 @@ else {
 					}
 					// add message
 				}
-			}  // insert new row
-else // $row_type <> $row_join
-{
+			} 
+            else {
+            // insert new row
+            // $row_type <> $row_join
 				$insert_clause = "row_type, key1, owner_name, updater_name";
 				$select_clause = $row_type . " as row_type, " . $post_key . " as key1, '" . $username . "' as owner_name, '" . $username . "' as updater_name";
 				foreach ( $arr_columns as $key => $value ) {
@@ -392,8 +393,8 @@ else // $row_type <> $row_join
 					$main->set ( 'parent_row_type', $arr_state, $parent_row_type );
 					$parent_primary = isset ( $row ['parent'] ) ? $row ['parent'] : "";
 					$main->set ( 'parent_primary', $arr_state, $parent_primary );
-				}  // bad insert
-else {
+				}  else {
+                    // bad insert
 					// check for key problem
 					$result_where_not = $main->query ( $con, $select_where_not );
 					$result_where = $main->query ( $con, $select_where );
@@ -416,7 +417,7 @@ else {
 						array_push ( $arr_messages, "Error: Record not inserted. Parent record archived or underlying data change possible." );
 						if ($input_insert_log) {
 							$message = "Insert error entering type " . chr ( $row_type + 64 ) . " record.";
-							$main->log ( $con, $message, $username );
+							$main->log ( $con, $message );
 						}
 					}
 					// add message

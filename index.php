@@ -117,7 +117,8 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 			// check for session poisoning, userroles string should not be altered
 			// $userroles variable should be protected and not used or altered anywhere
 			// non-integer or empty usertype will convert to 0
-			
+            // any userrole starting with 0 logout
+			list($usertype, ) = explode("_", $userrole, 2);
 			if ((( int ) $usertype != 0) && in_array ( $POST ['bb_userrole'], explode ( ",", $_SESSION ['userroles'] ) )) {
 				$_SESSION ['userrole'] = $POST ['bb_userrole'];
 				$_SESSION ['module'] = ""; // send back to default landing page
@@ -145,10 +146,10 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 		/* RECONCILE SLUG AND MODULE */
 		// get module types for current user and interface
 	$module_types = array ();
-	foreach ( $array_interface as $key => $value ) {
+	foreach ( $array_interface[$interface] as $key => $value ) {
 		if (in_array ( $userrole, $value ['userroles'] )) {
 			// (int) cast for security
-			array_push ( $module_types, ( int ) $value ['module_type'] );
+			array_push ( $module_types, $key );
 		}
 	}
 	;
@@ -181,7 +182,7 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	
 	/* CONTROLLER INCLUDE */
 	// a custom controller will contain several standard include files, bb_javascript, bb_css, bb_less if desired
-	include_once ($abspath . $array_header ['controller']);
+	include_once ($abspath . $array_header[$interface] ['controller']);
  
 
 else : /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */

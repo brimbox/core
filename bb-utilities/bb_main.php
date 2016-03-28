@@ -694,7 +694,7 @@ class bb_main extends bb_reports {
 
 	function userrole_switch($class_span = "bold", $class_button = "link underline") {
 
-		global $array_header;
+		global $array_userroles;
 		global $userroles;
 		global $userrole;
 		
@@ -708,7 +708,7 @@ class bb_main extends bb_reports {
 				$bold = ($value == $userrole) ? " bold" : "";
 				$params = array (
 						"class" => $class_button . $bold,
-						"label" => $array_header ['userroles'] [$value],
+						"label" => $array_userroles [$value] ['name'],
 						"onclick" => "bb_logout_selector('" . $value . "'); return false;" 
 				);
 				$this->echo_script_button ( "role" . $value, $params );
@@ -888,9 +888,9 @@ class bb_main extends bb_reports {
 		global $array_links;
 		
 		foreach ( $array_links as $arr ) {
-			array_unshift ( $arr [1], $layouts );
-			array_unshift ( $arr [1], $row );
-			call_user_func_array ( $arr [0], $arr [1] );
+			array_unshift ( $arr ['params'], $layouts );
+			array_unshift ( $arr ['params'], $row );
+			call_user_func_array ( $arr ['func'], $arr ['params'] );
 		}
 	}
 

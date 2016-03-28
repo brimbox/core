@@ -88,15 +88,13 @@ set_time_limit ( 0 );
 // find default row_type, $arr_layouts must have one layout set
 $arr_layouts_json = $main->get_json ( $con, "bb_layout_names" );
 $arr_columns_json = $main->get_json ( $con, "bb_column_names" );
-// get hear
-$arr_interface = $main->get_json ( $con, "bb_interface_enable" );
 
 $arr_layouts = $main->filter_keys ( $arr_layouts_json );
 $default_row_type = $main->get_default_layout ( $arr_layouts );
 
 // get validation and security info
-$arr_validation = $arr_interface ['validation'];
-$arr_column_security = $arr_interface ['column_security'] ['value'];
+$arr_validation = $array_validation;
+$arr_column_security = $array_security ['column_security'];
 
 $arr_relate = array (
 		41,

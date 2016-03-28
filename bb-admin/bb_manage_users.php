@@ -196,19 +196,6 @@ if ($main->button ( - 1 )) // reset button = -1
 $main->update ( $con, $module, $arr_state );
 /* END POSTBACK */
 
-/* INITIAL VALUES */
-// module uses global $array_userroles
-// $userrole is a global var, so the userrole to be assigned is $userroles_work
-// userroles is userroles in database
-// $email is a global var, so the email that is assigned is $email_work
-// email is email in database
-
-// initialize for add new user
-// $email_work called $email_work because of global $email
-// hack for original constants file
-$userrole_constant = $main->get_constant ( 'BB_DEFAULT_USERROLE_ASSIGN', '0_bb_brimbox' );
-/* END INITIAL VALUES */
-
 /* POSTBACK FOR NEW USER AND UPDATE USER */
 // note that navigation uses both bb_button (for postback) and assign (for display)
 // add new user or edit user
@@ -418,10 +405,10 @@ if (in_array ( $action, array (
 		4 
 ) )) {
 	$arr_userroles_loop = array ();
-	foreach ( $array_header ['userroles'] as $key => $value ) {
+	foreach ( $array_userroles as $key => $value ) {
 		// interface info
 		$arr_userroles_loop [] = array (
-				'userrole_name' => $value,
+				'userrole_name' => $value['name'],
 				'userrole_value' => $key 
 		);
 	}
@@ -526,7 +513,7 @@ if ($action == 0) {
 			if ($value == "0_bb_brimbox")
 				array_push ( $arr_display, "Locked" );
 			else
-				array_push ( $arr_display, $array_header ['userroles'] [$value] );
+				array_push ( $arr_display, $array_userroles [$value]['name'] );
 		}
 		echo implode ( ", ", $arr_display );
 		echo "</td>";
@@ -743,7 +730,7 @@ if (in_array ( $action, array (
 		
 		foreach ( $userroles_work as $value ) {
 			$selected = ($value == $userroles_work [0]) ? "selected" : "";
-			echo "<option value=\"" . $value . "\" " . $selected . ">" . $array_header ['userroles'] [$value] . "&nbsp;</option>";
+			echo "<option value=\"" . $value . "\" " . $selected . ">" . $array_userroles [$value]['name'] . "&nbsp;</option>";
 		}
 		
 		echo "</select></div>";
