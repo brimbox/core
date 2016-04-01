@@ -130,18 +130,14 @@ class bb_main extends bb_reports {
 	// $row1 is the row number, and $row2 is the catch to see when the row changes
 	// $col2 is the actual name of the columns from the xml, $row[$col2] is $row['c03']
 	// $child is the visable name of the column the user name of the column
-	function return_rows($row, $arr_column_reduced, $check = 0) {
+	function return_rows($row, $arr_columns, $check = 0) {
 		// you could always feed this function only non-secured columns
 		$row2 = 1; // to catch row number change
 		$row3 = ""; // string with row data in it
 		$secure = false; // must be check = true and secure = 1 to secure column
 		$pop = false; // to catch empty rows, pop = true for non-empty rows
-		              
-		// #DEPRACATED##
-		$arr_column_reduced = $this->filter_keys ( $arr_column_reduced );
-		// #DEPRACATED##
-		
-		foreach ( $arr_column_reduced as $key => $value ) {
+		              		
+		foreach ( $arr_columns as $key => $value ) {
 			if (is_integer ( $key )) // integer keys reserved for columns
 {
 				$row1 = ( int ) $value ['row']; // current row number
@@ -149,7 +145,7 @@ class bb_main extends bb_reports {
 				// always skipped first time
 				if ($row2 != $row1) {
 					if ($pop) {
-						echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";
+						echo "<div class = \"left\">" . $row3 . "</div><div class = \"clear\"></div>";
 					}
 					$row3 = ""; // reset row data
 					$pop = false; // start row again with pop = false
@@ -169,18 +165,18 @@ class bb_main extends bb_reports {
 		}
 		// echo the last row if populated
 		if ($pop) {
-			echo "<div class = \"nowrap left\">" . $row3 . "</div><div class = \"clear\"></div>";
+			echo "<div class = \"left\">" . $row3 . "</div><div class = \"clear\"></div>";
 		}
 		
 		return $row ['cnt'];
 	}
 
-	function get_default_layout($layouts, $check = 0) {
+	function get_default_layout($arr_layouts, $check = 0) {
 		// layouts are in order, will return first array if $check is false
 		// if check is true, $available array of secure values will be considered
 		// $available is an array of available securities to allow
 		// loop through $arr_layouts
-		foreach ( $layouts as $key => $value ) {
+		foreach ( $arr_layouts as $key => $value ) {
 			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$secure = ($check && ($value ['secure'] >= $check)) ? true : false;
 			if (! $secure) // check is true
@@ -207,13 +203,13 @@ class bb_main extends bb_reports {
 		return 1;
 	}
 
-	function get_default_list($lists, $archive = 1) {
+	function get_default_list($arr_lists, $archive = 1) {
 		// default only ones that are not archived
 		// columns are in order, will return first array if $check is false
 		// if check is true, $available array of secure values will be considered
 		// $available is an array of available securities to allow
 		// loop through $arr_list
-		foreach ( $lists as $key => $value ) {
+		foreach ( $arr_lists as $key => $value ) {
 			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$default = ($archive && ($value ['archive'] >= $archive)) ? true : false;
 			if (! $default) // check is true
@@ -971,17 +967,21 @@ class bb_main extends bb_reports {
 	function validate_logic($con, $type, &$field, $error = false) {
 		// validates a data type set in "Set Column Names"
 		// returns false on good, true or error string if bad
-		$arr_header = $this->get_json ( $con, "bb_interface_enable" );
-		$arr_validation = $arr_header ['validation'];
+		global $array_validation;
+    
 		// parse function
-		
-		$return_value = call_user_func_array ( array (
-				$this,
-				'validate_text' 
-		), array (
-				$field,
-				$error 
-		) );
+        // if not set call default text
+        if (isset($array_validation[$type]['func']) && is_callable($array_validation[$type]['func'])) {
+            $return_value = call_user_func_array ( $array_validation[$type]['func'] , array (
+                    $field,
+                    $error 
+            ) );
+        } else {
+            $return_value = call_user_func_array ( array($this, 'validate_text') , array (
+                    $field,
+                    $error ) );
+
+        }
 		return $return_value;
 	}
 
@@ -1000,6 +1000,7 @@ class bb_main extends bb_reports {
 	function validate_dropdown(&$field, $arr_dropdown, $error = false) {
 		// validates dropdowns, primarily used in bulk loads (Upload Data)
 		// returns false on good, true or error string if bad
+        
 		$arr_dropdown = $this->filter_keys ( $arr_dropdown );
 		$multiselect = $this->init ( $arr_dropdown ['multiselect'], 0 );
 		$delimiter = $this->get_constant ( 'BB_MULTISELECT_DELIMITER', "," );
@@ -1015,8 +1016,8 @@ class bb_main extends bb_reports {
 		foreach ( $arr_values as $value ) {
 			$key = array_search ( strtolower ( $value ), array_map ( 'strtolower', $arr_dropdown ) );
 			if ($key === false) {
-				$return = $error ? "Error: Value not found in dropdown list." : true;
-				return $return;
+				$return_value = $error ? "Error: Value not found in dropdown list." : true;
+				return $return_value;
 			} else {
 				array_push ( $arr_formatted, $arr_dropdown [$key] );
 			}

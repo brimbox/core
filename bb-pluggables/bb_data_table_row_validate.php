@@ -42,7 +42,6 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 		                        
 		// reduce columns if desired
 		/* WARNING -- filtering required columns can result in blank required values on INSERT */
-		$arr_columns = $main->filter_keys ( $arr_columns, $filter, $mode );
 		
 		foreach ( $arr_columns as $key => $value ) {
 			// do not process columns with dropdowns
@@ -57,8 +56,9 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 			// all validated
 			$return_required = $return_validate = false;
 			// required field
-			if ($required_flag) // false = not required, true = required
-{
+			if ($required_flag) 
+				{
+				// false = not required, true = required
 				$return_required = $main->validate_required ( $field, $error );
 				if (! is_bool ( $return_required )) {
 					// key is col_type
@@ -67,18 +67,20 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 			}
 			// validate, field has data, trimmed already, will skip if blank
 			if (! $main->blank ( $field )) {
-				// value is passed a reference and may change in function if formatted
-				$return_validate = $main->validate_logic ( $con, $type, $field, $error );
-				if (! is_bool ( $return_validate )) {
-					// key is col_type
-					$arr_errors [$key] = $return_validate;
-				}
 				if (isset ( $arr_dropdowns [$key] )) {
-					$dropdown = $arr_dropdowns [$key];
-					$return_validate = $main->validate_dropdown ( $field, $dropdown, $error );
+					$arr_dropdown = $arr_dropdowns [$key];
+					$return_validate = $main->validate_dropdown ( $field, $arr_dropdown, $error );
 					if (! is_bool ( $return_validate )) {
 						$arr_errors [$key] = $return_validate;
 					}
+				}
+				else {
+					// value is passed a reference and may change in function if formatted
+					$return_validate = $main->validate_logic ( $con, $type, $field, $error );
+					if (! is_bool ( $return_validate )) {
+						// key is col_type
+						$arr_errors [$key] = $return_validate;
+					}				
 				}
 			}
 			$filtername = "bb_input_custom_validation";
@@ -88,10 +90,8 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 		}
 		$main->set ( 'arr_errors', $arr_state, $arr_errors );
 	}
-
-
-
-
+	
+	
         
 endif; // pluggable
 ?>

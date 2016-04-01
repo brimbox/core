@@ -77,7 +77,7 @@ if ($main->changed ( 'row_type', $module, $arr_state, $default_row_type )) {
 		$multiselect = $main->init ( $arr_dropdowns_json [$row_type] [$col_type] ['multiselect'], 0 );
 		$multiselect = $main->set ( 'multiselect', $arr_state, $multiselect );
 		$all_values = $empty_value = 0;
-		$dropdowns = "";
+		$dropdowns = "";        
 	} else {
 		$row_type = $main->process ( 'row_type', $module, $arr_state, $default_row_type );
 		$col_type = $main->process ( 'col_type', $module, $arr_state, $default_col_type );
@@ -87,6 +87,8 @@ if ($main->changed ( 'row_type', $module, $arr_state, $default_row_type )) {
 		$dropdowns = $main->process ( 'dropdowns', $module, $arr_state, "" );
 	}
 }
+
+$arr_columns = $main->columns ( $con, $row_type );
 
 // update state, back to db
 $main->update ( $con, $module, $arr_state );
@@ -173,6 +175,7 @@ if ($main->button ( 2 )) // submit dropdown
 		
 		$row_type = $main->set ( 'row_type', $arr_state, $default_row_type );
 		$col_type = $main->set ( 'col_type', $arr_state, $default_col_type );
+        $arr_columns = $main->columns ( $con, $row_type );
 		$multiselect = $all_values = $empty_value = 0;
 		$dropdowns = "";
 	}

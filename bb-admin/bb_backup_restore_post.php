@@ -30,20 +30,19 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		"5_bb_brimbox" 
 ) )) :
 	
-	/* STANDARD POST MODULE STUFF */
-	$interface = $_SESSION ['interface'];
-	$abspath = $_SESSION ['abspath'];
-	$webpath = $_SESSION ['webpath'];
-	$keeper = $_SESSION ['keeper'];
-	$username = $_SESSION ['username'];
-	
-	// standard $_SESSION post stuff
-	$_SESSION ['module'] = $module = $_POST ['bb_module'];
-	$_SESSION ['slug'] = $slug = $_POST ['bb_slug'];
-	$_SESSION ['submit'] = $submit = $_POST ['bb_submit'];
-	$_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
-	if (($_POST ['bb_userrole'] != "") && in_array ( $_POST ['bb_userrole'], explode ( $_SESSION ['userroles'] ) ))
-		$_SESSION ['userrole'] = $_POST ['bb_userrole']; // double checked when build->locked is call in index
+    // set by controller (index.php)
+    $interface = $_SESSION ['interface'];
+    $username = $_SESSION ['username'];
+    $userrole = $_SESSION ['userrole'];
+    $webpath = $_SESSION ['webpath'];
+    $keeper = $_SESSION ['keeper'];
+    $abspath = $_SESSION ['abspath'];
+    
+    // set by javascript submit form (bb_submit_form())
+    $_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
+    $_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
+    $_SESSION ['slug'] = $slug = isset ( $_POST ['bb_slug'] ) ? $_POST ['bb_slug'] : "";
+    $_SESSION ['submit'] = $submit = isset ( $_POST ['bb_submit'] ) ? $_POST ['bb_submit'] : "";
 		
 	/* SET UP WORK OBJECT AND POST STUFF */
 		// objects are all daisy chained together

@@ -48,8 +48,8 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 		$arr_columns = $main->columns ( $con, $row_type );
 		$arr_dropdowns = $main->dropdowns ( $con, $row_type );
 		
-		if (! $errors) // no errors
-{
+		if (! $errors) {
+			// no errors
 			// produce empty form since we are going to load the data
 			$arr_columns_props = $main->properties ( $con, $row_type );
 			
@@ -265,6 +265,7 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				}
 			} 
             else {
+				echo "UIUIU";
             // insert new row
             // $row_type <> $row_join
 				$insert_clause = "row_type, key1, owner_name, updater_name";
@@ -429,9 +430,6 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 		  // will be empty array if no messages
 		$main->set ( 'arr_messages', $arr_state, $arr_messages );
 	}
-
-
-
 
         
 endif; // pluggable

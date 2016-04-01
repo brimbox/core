@@ -48,7 +48,8 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	$userroles = $_SESSION ['userroles']; // comma separated string careful with userroles session, used to check for valid userrole
 	$archive = $_SESSION ['archive']; // archive state
 	$keeper = $_SESSION ['keeper']; // state_table id
-	                                // unpack usertype and interface
+    
+	// get interface from userrole
 	list ( , $interface ) = explode ( "_", $_SESSION ['userrole'], 2 );
 	$_SESSION ['interface'] = $interface;
 	
@@ -118,8 +119,7 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 			// $userroles variable should be protected and not used or altered anywhere
 			// non-integer or empty usertype will convert to 0
             // any userrole starting with 0 logout
-			list($usertype, ) = explode("_", $userrole, 2);
-			if ((( int ) $usertype != 0) && in_array ( $POST ['bb_userrole'], explode ( ",", $_SESSION ['userroles'] ) )) {
+			if ((( int ) explode("_", $userrole, 2)) && in_array ( $POST ['bb_userrole'], explode ( ",", $_SESSION ['userroles'] ) )) {
 				$_SESSION ['userrole'] = $POST ['bb_userrole'];
 				$_SESSION ['module'] = ""; // send back to default landing page
 				$index_path = "Location: " . dirname ( $_SERVER ['PHP_SELF'] );
@@ -158,7 +158,6 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	
 	/* GET SLUG AND MODULE USING SQL */
 	// get slug and module, in order of precedence, 1 good slug and module, 2 good slug (back button), 3 empty slug (on login)
-	$redirect = $slug;
 	$query = "SELECT id, module_slug, module_name FROM (SELECT 1 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_slug = '" . pg_escape_string ( $slug ) . "' AND module_name = '" . pg_escape_string ( $module ) . "' " . "UNION ALL " . "SELECT 2 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_slug = '" . pg_escape_string ( $slug ) . "' " . "UNION ALL " . "SELECT 3 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ")) T1 " . "ORDER BY id, module_type, module_order LIMIT 1";
 	$result = $main->query ( $con, $query );
 	$row = pg_fetch_array ( $result );
@@ -167,13 +166,13 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	
 	/* REDIRECT WITH DEFAULT SLUG AND MODULE ON LOGIN */
 	// this redirect has to happen after global array and hooks are loaded
-	if ($redirect == "") {
+	if ($row['id'] == 3) {
 		$index_path = "Location: " . dirname ( $_SERVER ['PHP_SELF'] ) . "/" . $slug;
 		header ( $index_path );
 	}
 	
 	// cleanup
-	unset ( $key, $value, $module_types, $redirect, $query, $result, $row, $index_path );
+	unset ( $key, $value, $module_types, $query, $result, $row, $index_path );
 	
 	/* SET UP HOT STATE */
 	// hot state based in $interface

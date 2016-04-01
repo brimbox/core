@@ -32,24 +32,23 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		"5_bb_brimbox" 
 ) )) :
 	
-	// deal with stored $_SESSION stuff
-	$interface = $_SESSION ['interface'];
-	$usertype = $_SESSION ['usertype'];
-	$abspath = $_SESSION ['abspath'];
-	$webpath = $_SESSION ['webpath'];
-	$keeper = $_SESSION ['keeper'];
-	$username = $_SESSION ['username'];
-	
-	// standard $_SESSION post stuff
-	$_SESSION ['module'] = $module = $_POST ['bb_module'];
-	$_SESSION ['slug'] = $slug = $_POST ['bb_slug'];
-	$_SESSION ['submit'] = $submit = $_POST ['bb_submit'];
-	$_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
-	if (($_POST ['bb_userrole'] != "") && in_array ( $_POST ['bb_userrole'], explode ( $_SESSION ['userroles'] ) ))
-		$_SESSION ['userrole'] = $_POST ['bb_userrole']; // double checked when build->locked is call in index
+    // set by controller (index.php)
+    $interface = $_SESSION ['interface'];
+    $username = $_SESSION ['username'];
+    $userrole = $_SESSION ['userrole'];
+    $webpath = $_SESSION ['webpath'];
+    $keeper = $_SESSION ['keeper'];
+    $abspath = $_SESSION ['abspath'];
+    
+    // set by javascript submit form (bb_submit_form())
+    $_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
+    $_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
+    $_SESSION ['slug'] = $slug = isset ( $_POST ['bb_slug'] ) ? $_POST ['bb_slug'] : "";
+    $_SESSION ['submit'] = $submit = isset ( $_POST ['bb_submit'] ) ? $_POST ['bb_submit'] : "";
 			                                                 
 	// constants include -- some constants are used
 	include_once ($abspath . "/bb-config/bb_constants.php");
+    
 	// include build class object
     if (file_exists ( $abspath .  "/bb-extend/bb_include_main_class.php" ))
         include_once ($abspath . "/bb-extend/bb_include_main_class.php");

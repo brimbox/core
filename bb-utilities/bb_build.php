@@ -100,9 +100,10 @@ class bb_build {
 					if (file_exists ( $abspath . $arr_hook ))
 						// include file
 						include_once ($abspath . $arr_hook);
-				}  // process with parameters etc
-else {
-					// array, most likely has variables
+				}  
+                else {
+					// process with parameters etc
+                    // array, most likely has variables
 					// not callable function array
 					if (is_array ( $arr_hook )) {
 						$args_hook = array ();

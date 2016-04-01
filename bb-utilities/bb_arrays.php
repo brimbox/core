@@ -185,7 +185,7 @@ if ($interface == "bb_brimbox") :
 					"interface",
 					"&array_hot_state" 
 			),
-			'file' => "/bb-blocks/bb_index_hot_state.php" 
+			'file' => "/bb-pluggables/bb_index_hot_state.php" 
 	) );
 	
 	$main->add_action ( 'hooks', "bb_guest_infolinks", array (
@@ -207,7 +207,7 @@ if ($interface == "bb_brimbox") :
 					"&row",
 					"params" 
 			),
-			'file' => "/bb-blocks/bb_input_module_postback.php" 
+			'file' => "/bb-pluggables/bb_input_module_postback.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_module_autofill", array (
 			'func' => "bb_input_module_autofill",
@@ -216,7 +216,7 @@ if ($interface == "bb_brimbox") :
 					"row",
 					"params" 
 			),
-			'file' => "/bb-blocks/bb_input_module_autofill.php" 
+			'file' => "/bb-pluggables/bb_input_module_autofill.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_render_form", array (
 			'func' => "bb_data_table_render_form",
@@ -224,7 +224,7 @@ if ($interface == "bb_brimbox") :
 					"&arr_state",
 					"params" 
 			),
-			'file' => "/bb-blocks/bb_data_table_render_form.php" 
+			'file' => "/bb-pluggables/bb_data_table_render_form.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_redirect_postback", array (
 			'func' => "bb_input_redirect_postback",
@@ -232,7 +232,7 @@ if ($interface == "bb_brimbox") :
 					"&arr_state",
 					"params" 
 			),
-			'file' => "/bb-blocks/bb_input_redirect_postback.php" 
+			'file' => "/bb-pluggables/bb_input_redirect_postback.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_row_validate", array (
 			'func' => "bb_data_table_row_validate",
@@ -240,7 +240,7 @@ if ($interface == "bb_brimbox") :
 					"&arr_state",
 					"params" 
 			),
-			'file' => "/bb-blocks/bb_data_table_row_validate.php" 
+			'file' => "/bb-pluggables/bb_data_table_row_validate.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_row_input", array (
 			'func' => "bb_data_table_row_input",
@@ -248,7 +248,7 @@ if ($interface == "bb_brimbox") :
 					"&arr_state",
 					"params" 
 			),
-			'file' => "/bb-blocks/bb_data_table_row_input.php" 
+			'file' => "/bb-pluggables/bb_data_table_row_input.php" 
 	), 50 );
 	
 	/* these are the upload data hooks */
@@ -261,7 +261,7 @@ if ($interface == "bb_brimbox") :
 					"&arr_pass",
 					"params" 
 			),
-			'file' => "/bb-blocks/bb_data_table_row_validate.php" 
+			'file' => "/bb-pluggables/bb_data_table_row_validate.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_upload_data_row_input", array (
 			'func' => "bb_data_table_row_input",
@@ -272,7 +272,7 @@ if ($interface == "bb_brimbox") :
 					"&arr_pass",
 					"params" 
 			),
-			'file' => "/bb-blocks/bb_data_table_row_input.php" 
+			'file' => "/bb-pluggables/bb_data_table_row_input.php" 
 	), 50 );
 	
 	/* these are the input hook the are buried in the render form input function */
@@ -282,35 +282,35 @@ if ($interface == "bb_brimbox") :
 			'vars' => array (
 					"arr_state" 
 			),
-			'file' => "/bb-blocks/bb_input_module_hooks.php" 
+			'file' => "/bb-pluggables/bb_input_module_hooks.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_parent_record", array (
 			'func' => "bb_input_module_hooks::parent_record",
 			'vars' => array (
 					"arr_state" 
 			),
-			'file' => "/bb-blocks/bb_input_module_hooks.php" 
+			'file' => "/bb-pluggables/bb_input_module_hooks.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_quick_links", array (
 			'func' => "bb_input_module_hooks::quick_links",
 			'vars' => array (
 					"arr_state" 
 			),
-			'file' => "/bb-blocks/bb_input_module_hooks.php" 
+			'file' => "/bb-pluggables/bb_input_module_hooks.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_submit_buttons", array (
 			'func' => "bb_input_module_hooks::submit_buttons",
 			'vars' => array (
 					"arr_state" 
 			),
-			'file' => "/bb-blocks/bb_input_module_hooks.php" 
+			'file' => "/bb-pluggables/bb_input_module_hooks.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_textarea_load", array (
 			'func' => "bb_input_module_hooks::textarea_load",
 			'vars' => array (
 					"arr_state" 
 			),
-			'file' => "/bb-blocks/bb_input_module_hooks.php" 
+			'file' => "/bb-pluggables/bb_input_module_hooks.php" 
 	), 50 );
 	
 	$main->add_action ( 'filters', "bb_column_names_definitions", array (
