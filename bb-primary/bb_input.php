@@ -70,6 +70,11 @@ $main->echo_common_vars (); // common to standard interface
 // $arr_columns passed by reference
 $main->hook ( "bb_input_top_level_records" );
 
+/* need array columns for test */
+$row_type = $main->init($arr_state['row_type'], 0);
+$arr_columns = $main->columns ( $con, $arr_state['row_type'] );
+
+//render form
 if (! empty ( $arr_columns )) :
 	
 	// this when inserting child record
@@ -91,9 +96,6 @@ if (! empty ( $arr_columns )) :
 	$main->hook ( "bb_input_submit_buttons" );
 	// textarea load
 	$main->hook ( "bb_input_textarea_load" );
-
-
-
 
 endif;
 

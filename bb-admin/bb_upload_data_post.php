@@ -32,41 +32,46 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		"5_bb_brimbox" 
 ) )) :
 	
-    // set by controller (index.php)
-    $interface = $_SESSION ['interface'];
-    $username = $_SESSION ['username'];
-    $userrole = $_SESSION ['userrole'];
-    $webpath = $_SESSION ['webpath'];
-    $keeper = $_SESSION ['keeper'];
-    $abspath = $_SESSION ['abspath'];
-    
-    // set by javascript submit form (bb_submit_form())
-    $_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
-    $_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
-    $_SESSION ['slug'] = $slug = isset ( $_POST ['bb_slug'] ) ? $_POST ['bb_slug'] : "";
-    $_SESSION ['submit'] = $submit = isset ( $_POST ['bb_submit'] ) ? $_POST ['bb_submit'] : "";
-		
+	// set by controller (index.php)
+	$interface = $_SESSION ['interface'];
+	$username = $_SESSION ['username'];
+	$userrole = $_SESSION ['userrole'];
+	$webpath = $_SESSION ['webpath'];
+	$keeper = $_SESSION ['keeper'];
+	$abspath = $_SESSION ['abspath'];
+	
+	// set by javascript submit form (bb_submit_form())
+	$_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
+	$_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
+    if ($_SESSION['pretty_slugs'] == 1) {
+        list ( , $slug) = explode("_", $module, 2);
+        $_SESSION ['slug']  = str_replace("_", "-", $slug);
+    } else {
+        $_SESSION ['slug'] = $slug = $module;
+    }
+	$_SESSION ['submit'] = $submit = isset ( $_POST ['bb_submit'] ) ? $_POST ['bb_submit'] : "";
+	
 	/* SET UP WORK OBJECT AND POST STUFF */
-		// objects are all daisy chained together
-		// set up work from last object
-		// contains bb_database class, extends bb_main
-		// constants include -- some constants are used
+	// objects are all daisy chained together
+	// set up work from last object
+	// contains bb_database class, extends bb_main
+	// constants include -- some constants are used
 	include_once ($abspath . "/bb-config/bb_constants.php");
 	// include build class object
-    if (file_exists ( $abspath .  "/bb-extend/bb_include_main_class.php" ))
-        include_once ($abspath . "/bb-extend/bb_include_main_class.php");
-    else
-        include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
-        
-	// main object for hooks
+	if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
+		include_once ($abspath . "/bb-extend/bb_include_main_class.php");
+	else
+		include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
+		
+		// main object for hooks
 	$main = new bb_main ();
 	// need connection
 	$con = $main->connect ();
 	
 	// load global arrays
-	if (file_exists ( $abspath . "/bb-extend/bb_parse_globals.php" )) 
+	if (file_exists ( $abspath . "/bb-extend/bb_parse_globals.php" ))
 		include_once ($abspath . "/bb-extend/bb_parse_globals.php");
-	else 
+	else
 		include_once ($abspath . "/bb-blocks/bb_parse_globals.php");
 	
 	$POST = $_POST;
@@ -332,6 +337,7 @@ else // $edit_or_insert = 1 or 2
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
 
 
 

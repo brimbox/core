@@ -66,7 +66,6 @@ class bb_forms extends bb_links {
 		$arr_module_variables = array (
 				'bb_module' => $module,
 				'bb_submit' => "",
-				'bb_slug' => $slug,
 				'bb_button' => "",
 				'bb_userrole' => "",
 				'bb_object' => "" 
@@ -111,8 +110,8 @@ class bb_forms extends bb_links {
 		$target = isset ( $params ['target'] ) ? "'" . $params ['target'] . "'" : "undefined";
 		$slug = isset ( $params ['slug'] ) ? "'" . $params ['slug'] . "'" : "undefined";
 		$passthis = isset ( $params ['passthis'] ) ? "this" : "undefined";
-		$javascript_params = "[$number, $target, $slug, $passthis]";
-		unset ( $params ['number'], $params ['target'], $params ['slug'], $params ['passthis'] );
+		$javascript_params = "[$number, $target, $passthis]";
+		unset ( $params ['number'], $params ['target'], $params ['passthis'] );
 		
 		// onclick very specific with this item
 		$params ['onclick'] = "bb_submit_form(" . $javascript_params . "); return false;";

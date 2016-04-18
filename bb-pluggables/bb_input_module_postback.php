@@ -22,9 +22,9 @@
 /* Postback when entering the input module */
 if (! function_exists ( 'bb_input_module_postback' )) :
 
-	function bb_input_module_postback(&$arr_state, &$arr_columns, &$row, $params = array()) {
+	function bb_input_module_postback(&$arr_state) {
 		// session or global vars, superglobals
-		global $POST, $con, $main, $module;
+		global $POST, $con, $main, $module, $submit, $button;
 		
 		// standard values
 		$arr_relate = array (
@@ -67,7 +67,7 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 			// get the columns and dropdowns for given row_type
 			$arr_columns = $main->columns ( $con, $row_type );
 			$arr_dropdowns = $main->dropdowns ( $con, $row_type );
-			$arr_props = $main->properties ( $con, $row_type );
+			$arr_props = $main->column_properties ( $con, $row_type );
 			
 			// get the record, either for edit or parent record info
 			// first result
@@ -77,8 +77,7 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 			$row = pg_fetch_array ( $result );
 			
 			// populate from database if edit
-			if ($row_type == $row_join) // edit
-{
+			if ($row_type == $row_join) {
 				// loop through columns
 				foreach ( $arr_columns as $key => $value ) {
 					$col = $main->pad ( "c", $key );
@@ -101,10 +100,10 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 				// see if there is a parent record
 				$query = "SELECT * FROM data_table WHERE id IN (SELECT key1 FROM data_table WHERE id = " . $post_key . ");";
 				$result = $main->query ( $con, $query );
-				$row = pg_fetch_array ( $result );
 				// second result for parent of edit record
 				// parent
 				if (pg_num_rows ( $result ) == 1) {
+					$row = pg_fetch_array ( $result );
 					$main->set ( 'parent_id', $arr_state, $row ['id'] );
 					$main->set ( 'parent_row_type', $arr_state, $row ['row_type'] );
 					$col_type_primary = $arr_props ['primary'];
@@ -121,7 +120,7 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 			elseif (pg_num_rows ( $result ) == 1) {
 				$main->set ( 'parent_id', $arr_state, $row ['id'] );
 				$main->set ( 'parent_row_type', $arr_state, $row ['row_type'] );
-				$arr_props = $main->properties ( $con, $row ['row_type'] );
+				$arr_props = $main->column_properties ( $con, $row ['row_type'] );
 				$col_type_primary = $arr_props ['primary'];
 				$column_primary = $main->pad ( "c", $col_type_primary );
 				$main->set ( 'parent_primary', $arr_state, $row [$column_primary] );
@@ -129,6 +128,8 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 			// get archive and secure
 			$main->set ( 'secure', $arr_state, $row ['secure'] );
 			$main->set ( 'archive', $arr_state, $row ['archive'] );
+			$main->set ( 'row', $arr_state, $row );
+			
 		}		
 
 		// if relating a record when there is a relate field
@@ -161,20 +162,55 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 					}
 				}
 			}
-		} /* CLEAR FORM BUTTON */
-elseif ($main->button ( 2 )) // clear form
-{
-			// reset state
-			$arr_state = array ();
-			// reset to default row_type
-			// set some state vars
-			$row_type = $main->set ( "row_type", $arr_state, $default_row_type );
-			$row_join = $main->set ( "row_join", $arr_state, 0 );
-			$post_key = $main->set ( "post_key", $arr_state, 0 );
+		} elseif ($main->button ( 2, "bb_queue" )) {
+			$row_type = $arr_state ['row_type'];
+			$row_join = $arr_state ['row_join'];
+			$post_key = $arr_state ['post_key'];
 			
 			$arr_columns = $main->columns ( $con, $row_type );
 			$arr_dropdowns = $main->dropdowns ( $con, $row_type );
-		} /* END CLEAR FORM BUTTON */
+			$delimiter = $main->get_constant ( 'BB_MULTISELECT_DELIMITER', "," );			
+			
+			foreach ( $arr_columns as $key => $value ) {
+				$col = $main->pad ( "c", $key );
+				if ($main->full($col, $submit)) {
+					$str = $main->post($col, $submit, "");
+					if (in_array ( $key, $arr_notes )) {
+						$str = $main->purge_chars ( $str, false );
+					} elseif (in_array ( $key, $arr_file )) {
+						// do nothing
+					} elseif (isset ( $arr_dropdowns [$key] )) {
+						if ($arr_dropdowns [$key] ['multiselect']) {
+							// will be an array
+							$str = explode ( $delimiter, $str );
+							$str = array_map ( array (
+									$main,
+									"purge_chars" 
+							), $textarea );
+						} else {
+							$str = $main->purge_chars ( $str );
+						}
+					} else {
+						$str = $main->purge_chars ( $str );
+					}
+					$main->set ( $col, $arr_state, $str );
+				}
+			}
+			
+		} elseif ($main->button ( 2 )) {
+				// clear form
+				// reset state
+				$arr_state = array ();
+				// reset to default row_type
+				// set some state vars
+				$row_type = $main->set ( "row_type", $arr_state, $default_row_type );
+				$row_join = $main->set ( "row_join", $arr_state, 0 );
+				$post_key = $main->set ( "post_key", $arr_state, 0 );
+				
+				$arr_columns = $main->columns ( $con, $row_type );
+				$arr_dropdowns = $main->dropdowns ( $con, $row_type );
+				/* END CLEAR FORM BUTTON */
+		}
 		
 		/* SELECT COMBO CHANGE CLEAR */
 		// basically reset form, combo change through javascript
@@ -188,9 +224,8 @@ elseif ($main->button ( 2 )) // clear form
 			$arr_columns = $main->columns ( $con, $row_type );
 			$arr_dropdowns = $main->dropdowns ( $con, $row_type );
 		} /* END SELECT COMBO CHANGE CLEAR */
-		
-		// $main->button(4) reserved for autoload
-		
+				
+		// $main->button(4) reserved for autoload		
 		/* TEXTAREA LOAD */
 		// textarea load gets the populated values only, keep values in state
 		elseif ($main->button ( 5 )) {
@@ -205,7 +240,6 @@ elseif ($main->button ( 2 )) // clear form
 			$str_textarea = $main->post ( 'input_textarea', $module, "" );
 			$arr_textarea = preg_split ( "/\r\n|\n|\r/", $str_textarea );
 			
-			print_r ( $arr_textarea );
 			// load textarea into xml, textarea and queue field mutually exclusive
 			$i = 0;
 			

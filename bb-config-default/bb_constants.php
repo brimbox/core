@@ -18,7 +18,9 @@
 /* NO HTML OUTPUT */
 
 /* STANDARD LAYOUT OPTIONS */
-// Standard number of rows to return
+// Whether to use reduced or pretty slugs
+define ( 'BB_PRETTY_SLUGS', 1 );
+// Default userrole on the manage users page
 define ( 'BB_RETURN_ROWS', 4 );
 // Standard number pages in the page selector
 define ( 'BB_PAGINATION', 5 );
@@ -33,12 +35,14 @@ define ( 'BB_ARCHIVE_INTERWORKING', 'OFF' );
 // Default userrole on the manage users page
 // example and default '0_bb_brimbox'
 define ( 'BB_DEFAULT_USERROLE_ASSIGN', '' );
-// multiselect delimiter for dropdown columns
+// Use processing image in standard modules (ON/OFF)
 define ( 'BB_MULTISELECT_DELIMITER', ',' );
 // Turn on log for insert (ON/OFF)
 define ( 'BB_INPUT_INSERT_LOG', 'OFF' );
 // Turn on log for update (ON/OFF)
-define ( 'BB_INPUT_INSERT_LOG', 'OFF' );
+define ( 'BB_INPUT_UPDATE_LOG', 'OFF' );
+// turn on log for delete (ON/OFF)
+define ( 'BB_DELETE_LOG', 'OFF' );
 // turn on log for update (ON/OFF)
 define ( 'BB_ARCHIVE_LOG', 'OFF' );
 // turn on post override for archive when inputting (ON/OFF)
@@ -52,5 +56,5 @@ define ( 'BB_FILE_DOWNLOAD_PERMISSIONS', '' );
 // example and default '3_bb_brimbox,4_bb_brimbox,5_bb_brimbox'
 define ( 'BB_DOCUMENT_DOWNLOAD_PERMISSIONS', '' );
 // "word" to search by whole word is default, "begin" to search by beginning of all tokens searched for
-define ( 'BB_FULLTEXT_STATE', '' );
+define ( 'BB_FULLTEXT_STATE', 'begin' );
 ?>

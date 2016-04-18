@@ -26,22 +26,25 @@ session_name ( DB_NAME );
 session_start ();
 
 if (isset ( $_SESSION ['username'] )) :
-
-    /* keep as lightweight as possible */
+	
+	/* keep as lightweight as possible */
 	
 	// set by controller (index.php)
 	$keeper = $_SESSION ['keeper'];
-    $webpath = $_SESSION ['webpath'];
-    
-    // set by javascript submit form (bb_submit_form())
-    $_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
-    $_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
-    $_SESSION ['slug'] = $slug = isset ( $_POST ['bb_slug'] ) ? $_POST ['bb_slug'] : "";
-    $_SESSION ['submit'] = $submit = isset ( $_POST ['bb_submit'] ) ? $_POST ['bb_submit'] : "";
+	$webpath = $_SESSION ['webpath'];
 	
 	// set by javascript submit form (bb_submit_form())
-	$_SESSION ['slug'] = $slug = isset ( $_POST ['bb_slug'] ) ? $_POST ['bb_slug'] : "";
-    
+	$_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
+	$_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
+
+    if ($_SESSION['pretty_slugs'] == 1) {
+        list ( , $slug) = explode("_", $module, 2);
+        $_SESSION ['slug']  = str_replace("_", "-", $slug);
+    } else {
+        $_SESSION ['slug'] = $slug = $module;
+    }
+	$_SESSION ['submit'] = $submit = isset ( $_POST ['bb_submit'] ) ? $_POST ['bb_submit'] : "";
+
 	// include build class object
 	$con_string = "host=" . DB_HOST . " dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
 	$con = pg_connect ( $con_string );
@@ -60,6 +63,7 @@ if (isset ( $_SESSION ['username'] )) :
 	header ( "Location: " . $webpath . "/" . $slug );
 	
 	die ();
+
     
 endif;
 ?>

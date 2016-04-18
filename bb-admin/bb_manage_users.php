@@ -408,7 +408,7 @@ if (in_array ( $action, array (
 	foreach ( $array_userroles as $key => $value ) {
 		// interface info
 		$arr_userroles_loop [] = array (
-				'userrole_name' => $value['name'],
+				'userrole_name' => $value ['name'],
 				'userrole_value' => $key 
 		);
 	}
@@ -513,7 +513,7 @@ if ($action == 0) {
 			if ($value == "0_bb_brimbox")
 				array_push ( $arr_display, "Locked" );
 			else
-				array_push ( $arr_display, $array_userroles [$value]['name'] );
+				array_push ( $arr_display, $array_userroles [$value] ['name'] );
 		}
 		echo implode ( ", ", $arr_display );
 		echo "</td>";
@@ -730,7 +730,7 @@ if (in_array ( $action, array (
 		
 		foreach ( $userroles_work as $value ) {
 			$selected = ($value == $userroles_work [0]) ? "selected" : "";
-			echo "<option value=\"" . $value . "\" " . $selected . ">" . $array_userroles [$value]['name'] . "&nbsp;</option>";
+			echo "<option value=\"" . $value . "\" " . $selected . ">" . $array_userroles [$value] ['name'] . "&nbsp;</option>";
 		}
 		
 		echo "</select></div>";
@@ -861,6 +861,7 @@ if (in_array ( $action, array (
 		);
 		$main->echo_button ( "clear_form", $params );
 	}
+
 
 
 

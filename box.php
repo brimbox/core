@@ -76,7 +76,7 @@ if (! $main->blank ( $controller_message )) {
 /* CONTROLLER ARRAY */
 // query the modules table to set up the interface
 // setup initial variables from $array_interface
-$arr_interface = $array_interface[$interface];
+$arr_interface = $array_interface [$interface];
 
 // module type 0 for hidden modules
 $module_types = array (
@@ -117,8 +117,7 @@ while ( $row = pg_fetch_array ( $result ) ) {
 			// $array[key][key] is easiest
 			$arr_controller [$row ['module_type']] [$row ['module_name']] = array (
 					'friendly_name' => $row ['friendly_name'],
-					'module_path' => $row ['module_path'],
-					'module_slug' => $row ['module_slug'] 
+					'module_path' => $row ['module_path'] 
 			);
 		}
 	}
@@ -136,9 +135,8 @@ foreach ( $arr_interface as $key => $value ) {
 	// layout standard tabs
 	if ($value ['interface_type'] == 'Standard') {
 		foreach ( $arr_controller [$key] as $module_work => $value_work ) {
-			$selected = ($module == $module_work) ? "chosen" : "";
-			$slug_work = $value_work ['module_slug'];
-			$submit_form_params = "[0,'$module_work','$slug_work', this]";
+			$selected = ($module == $module_work) ? "chosen" : "";;
+			$submit_form_params = "[0,'$module_work', this]";
 			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value_work ['friendly_name'] . "</button>";
 		}
 	} elseif ($value ['interface_type'] == 'Auxiliary') {
@@ -147,12 +145,10 @@ foreach ( $arr_interface as $key => $value ) {
 			if (array_key_exists ( $module, $arr_controller [$key] )) {
 				$selected = "chosen";
 				$module_work = $module;
-				$slug_work = $arr_controller [$key] [$module_work] ['module_slug'];
-				$submit_form_params = "[0,'$module_work','$slug_work', this]";
+				$submit_form_params = "[0,'$module_work', this]";
 			} else {
 				$module_work = key ( $arr_controller [$key] );
-				$slug_work = $arr_controller [$key] [$module_work] ['module_slug'];
-				$submit_form_params = "[0,'$module_work','$slug_work', this]";
+				$submit_form_params = "[0,'$module_work', this]";
 			}
 			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['module_type_name'] . "</button>";
 		}
@@ -174,8 +170,7 @@ if (isset ( $interface_type ) && ($interface_type == 'Auxiliary')) {
 	echo "<div id=\"bb_admin_menu\">";
 	// echo auxiliary buttons on the side
 	foreach ( $arr_controller [$type] as $module_work => $value ) {
-		$slug_work = $value ['module_slug'];
-		$submit_form_params = "[0,'$module_work','$slug_work', this]";
+		$submit_form_params = "[0,'$module_work', this]";
 		echo "<button class=\"menu\" name=\"" . $module_work . "_name\" value=\"" . $module_work . "_value\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['friendly_name'] . "</button>";
 	}
 	echo "</div>";

@@ -21,7 +21,7 @@
 
 if (! function_exists ( 'bb_data_table_row_validate' )) :
 
-	function bb_data_table_row_validate(&$arr_state, $params = array()) {
+	function bb_data_table_row_validate(&$arr_state) {
 		// session or globals
 		global $con, $main, $submit;
 		

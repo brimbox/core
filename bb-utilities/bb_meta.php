@@ -95,11 +95,11 @@ class bb_meta extends bb_validate {
 		return $arr_columns;
 	}
 
-	function properties($con, $row_type) {
+	function column_properties($con, $row_type) {
 
-		$arr_columns = $this->columns ( $con, $row_type, NULL );
-		$arr_props_keys = $this->init ( $arr_columns ['properties'], array () );
-		return $this->filter_keys ( $arr_columns, array_keys ( $arr_props_keys ), true, true );
+		$arr_columns_json = $this->get_json ( $con, "bb_column_names" );
+		$arr_props_keys = array_keys ( $arr_columns_json ['properties'] );
+		return $this->filter_keys ( $this->init($arr_columns_json [$row_type], array()), $arr_props_keys, true, true );
 	}
 
 	function lists($con, $row_type, $key_type = false, $sort = true) {
@@ -121,6 +121,14 @@ class bb_meta extends bb_validate {
 		$arr_dropdowns_json = $this->get_json ( $con, "bb_dropdowns" );
 		$arr_dropdowns = $this->init ( $arr_dropdowns_json [$row_type], array () );
 		return $this->filter_keys ( $arr_dropdowns, array (), true, $key_type );
+	}
+
+	function dropdown_properties($con, $row_type, $col_type) {
+
+		$arr_dropdowns_json = $this->get_json ( $con, "bb_dropdowns" );
+		$arr_props_keys = array_keys ( $arr_dropdowns_json ['properties'] );
+		$arr_reduced = $this->init ( $arr_dropdowns_json [$row_type] [$col_type], array () );
+		return $this->filter_keys ( $arr_reduced, $arr_props_keys, true, true );
 	}
 
 	function order_sort($a, $b) {

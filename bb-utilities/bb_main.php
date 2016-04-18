@@ -136,7 +136,7 @@ class bb_main extends bb_reports {
 		$row3 = ""; // string with row data in it
 		$secure = false; // must be check = true and secure = 1 to secure column
 		$pop = false; // to catch empty rows, pop = true for non-empty rows
-		              		
+		
 		foreach ( $arr_columns as $key => $value ) {
 			if (is_integer ( $key )) // integer keys reserved for columns
 {
@@ -968,49 +968,45 @@ class bb_main extends bb_reports {
 		// validates a data type set in "Set Column Names"
 		// returns false on good, true or error string if bad
 		global $array_validation;
-    
+		
 		// parse function
-        // if not set call default text
-        if (isset($array_validation[$type]['func']) && is_callable($array_validation[$type]['func'])) {
-            $return_value = call_user_func_array ( $array_validation[$type]['func'] , array (
-                    $field,
-                    $error 
-            ) );
-        } else {
-            $return_value = call_user_func_array ( array($this, 'validate_text') , array (
-                    $field,
-                    $error ) );
-
-        }
+		// if not set call default text
+		if (isset ( $array_validation [$type] ['func'] ) && is_callable ( $array_validation [$type] ['func'] )) {
+			$return_value = call_user_func_array ( $array_validation [$type] ['func'], array (
+					$field,
+					$error 
+			) );
+		} else {
+			$return_value = call_user_func_array ( array (
+					$this,
+					'validate_text' 
+			), array (
+					$field,
+					$error 
+			) );
+		}
 		return $return_value;
 	}
 
 	function validate_required(&$field, $error = false) {
 		// Checks to see that a field has some data
 		// returns false on good, true or error string if bad
-		$field = trim ( $field );
-		if (! $this->blank ( $field )) {
-			$return_value = false;
+		if (is_string($field)  && ! $this->blank ( trim($field) ) ) {
+			return false;
+        } elseif (is_array($field)  && ! empty($field) ) {
+            return false;
 		} else {
 			$return_value = $error ? "Error: This value is required." : true;
-		}
-		return $return_value;
+            return $return_value;
+		}		
 	}
 
 	function validate_dropdown(&$field, $arr_dropdown, $error = false) {
 		// validates dropdowns, primarily used in bulk loads (Upload Data)
 		// returns false on good, true or error string if bad
-        
-		$arr_dropdown = $this->filter_keys ( $arr_dropdown );
-		$multiselect = $this->init ( $arr_dropdown ['multiselect'], 0 );
-		$delimiter = $this->get_constant ( 'BB_MULTISELECT_DELIMITER', "," );
-		if ($multiselect) {
-			$arr_values = explode ( $delimiter, $field );
-		} else {
-			$arr_values = array (
-					$field 
-			);
-		}
+        $multiselect = $this->init ( $arr_dropdown ['multiselect'], 0 );
+		$arr_dropdown = $this->filter_keys ( $arr_dropdown );		
+		$arr_values = (!$multiselect) ? array ($field ) : $field;
 		// field built from dropdown for return values
 		$arr_formatted = array ();
 		foreach ( $arr_values as $value ) {
@@ -1022,9 +1018,9 @@ class bb_main extends bb_reports {
 				array_push ( $arr_formatted, $arr_dropdown [$key] );
 			}
 		}
-		// passed as value
-		$field = implode ( $delimiter, $arr_formatted );
-		// false is no error
+		// field formatted with actual dropdown values
+        $field = (!$multiselect) ? implode( $arr_formatted ) : $arr_formatted;
+        // false is no error
 		return false;
 	}
 

@@ -45,6 +45,12 @@ $arr_notes = array (
 
 $delimiter = $main->get_constant ( 'BB_MULTISELECT_DELIMITER', "," );
 
+$arr_properties = array (
+		'multiselect' => array (
+				'name' => 'Multiselect' 
+		) 
+);
+
 // get $POST variable
 $POST = $main->retrieve ( $con );
 
@@ -58,36 +64,37 @@ $default_row_type = $main->get_default_layout ( $arr_layouts );
 // get dropdowns
 $arr_dropdowns_json = $main->get_json ( $con, "bb_dropdowns" );
 
-// get default col_type
+// get row_type from post
 $row_type = $main->post ( 'row_type', $module, $default_row_type );
+
+// get default col_type
 $arr_columns = $main->columns ( $con, $row_type );
 $default_col_type = $main->get_default_column ( $arr_columns );
 
+// process multiselect
+$multiselect = $main->process ( 'multiselect', $module, $arr_state, 0 );
+// process dropdown
+$dropdown = $main->process ( 'dropdown', $module, $arr_state, "" );
+
+// if row_type changed and postback (post is different than state) use default column type
 if ($main->changed ( 'row_type', $module, $arr_state, $default_row_type )) {
-	$row_type = $main->process ( 'row_type', $module, $arr_state, $default_row_type );
 	$col_type = $main->set ( 'col_type', $arr_state, $default_col_type );
-	$multiselect = $main->init ( $arr_dropdowns_json [$row_type] [$col_type] ['multiselect'], 0 );
-	$multiselect = $main->set ( 'multiselect', $arr_state, $multiselect );
-	$all_values = $empty_value = 0;
-	$dropdowns = "";
+	$all_values = $empty_value = $multiselect = 0;
+	$dropdown = "";
 } else {
 	if ($main->changed ( 'col_type', $module, $arr_state, $default_col_type )) {
-		$row_type = $main->process ( 'row_type', $module, $arr_state, $default_row_type );
-		$col_type = $main->process ( 'col_type', $module, $arr_state, $default_col_type );
-		$multiselect = $main->init ( $arr_dropdowns_json [$row_type] [$col_type] ['multiselect'], 0 );
-		$multiselect = $main->set ( 'multiselect', $arr_state, $multiselect );
-		$all_values = $empty_value = 0;
-		$dropdowns = "";        
+		$all_values = $empty_value = $multiselect = 0;
+		$dropdown = "";
 	} else {
-		$row_type = $main->process ( 'row_type', $module, $arr_state, $default_row_type );
-		$col_type = $main->process ( 'col_type', $module, $arr_state, $default_col_type );
-		$multiselect = $main->process ( 'multiselect', $module, $arr_state, 0 );
 		$all_values = $main->process ( 'all_values', $module, $arr_state, 0 );
 		$empty_value = $main->process ( 'empty_value', $module, $arr_state, 0 );
-		$dropdowns = $main->process ( 'dropdowns', $module, $arr_state, "" );
 	}
+	$col_type = $main->process ( 'col_type', $module, $arr_state, $default_col_type );
 }
 
+// process row_type
+$row_type = $main->process ( 'row_type', $module, $arr_state, $default_row_type );
+// reprocess columns + multiselect
 $arr_columns = $main->columns ( $con, $row_type );
 
 // update state, back to db
@@ -111,6 +118,9 @@ if ($main->button ( 1 )) // populate_dropdown
 	
 	$arr_query = pg_fetch_all_columns ( $result, 0 );
 	
+	$arr_props = $main->dropdown_properties ( $con, $row_type, $col_type );
+	$multiselect = $main->init ( $arr_props ['multiselect'], 0 );
+	
 	// values from db and dropdown alphabetized
 	if (! empty ( $arr_dropdown ) && ($all_values == 0)) {
 		$arr_populate = array_merge ( $arr_query, $arr_dropdown );
@@ -130,16 +140,17 @@ if ($main->button ( 1 )) // populate_dropdown
 		sort ( $arr_display ); // sort
 		array_push ( $arr_messages, "Column " . $col_text . " has a dropdown list." );
 		array_push ( $arr_messages, "Textarea populated from both preexisting dropdown list and the database." );
-	} // values from dropdown not alphabetized
-elseif (! empty ( $arr_dropdown ) && ($all_values == 1)) {
+	} elseif (! empty ( $arr_dropdown ) && ($all_values == 1)) {
+		// values from dropdown not alphabetized
 		$arr_display = $arr_dropdown;
 		array_push ( $arr_messages, "Column " . $col_text . " has a dropdown list." );
 		array_push ( $arr_messages, "Textarea populated from preexisting dropdown list." );
-	}  // values from db alphabetized
-else {
+	} else {
+		// values from db alphabetized
 		array_push ( $arr_messages, "Column " . $col_text . " does not have a preexisting dropdown list." );
 		$arr_display = array_filter ( $arr_query );
 	}
+	$dropdown = implode ( "\r\n", $arr_display );
 }
 
 // this area updates the drop down if set
@@ -157,8 +168,8 @@ if ($main->button ( 2 )) // submit dropdown
 		array_push ( $arr_messages, "Error: Cannot populate an empty dropdown." );
 	} elseif (preg_grep ( "/[" . preg_quote ( $delimiter ) . "]/", $arr_txt ) && $multiselect) {
 		array_push ( $arr_messages, "Error: Cannot populate an multiselect dropdown containing the delimiter (" . $delimiter . ")." );
-	} else // populate dropdown
-{
+	} else {
+		// populate dropdown
 		$arr_dropwork = array ();
 		// add empty or null value
 		if ($main->post ( 'empty_value', $module ) == 1) {
@@ -167,17 +178,29 @@ if ($main->button ( 2 )) // submit dropdown
 		foreach ( $arr_txt as $value ) {
 			array_push ( $arr_dropwork, $value ); // overload
 		}
-		$arr_dropdowns_json [$row_type] [$col_type] = $arr_dropwork;
-		if ($multiselect == 1)
-			$arr_dropdowns_json [$row_type] [$col_type] ['multiselect'] = 1;
+		
+		// display working values if error
+		foreach ( $arr_properties as $key => $value ) {
+			switch ($key) {
+				case "multiselect" :
+					// row dropdown
+					$arr_props ['multiselect'] = $multiselect;
+					break;
+			}
+			
+			// HOOK
+		}
+		
+		$arr_dropdowns_json [$row_type] [$col_type] = $arr_dropwork + $arr_props;
+		$arr_dropdowns_json ['properties'] = $arr_properties;
 		$main->update_json ( $con, $arr_dropdowns_json, "bb_dropdowns" );
 		array_push ( $arr_messages, "Column " . $col_text . " has had its dropdown list added or updated." );
 		
 		$row_type = $main->set ( 'row_type', $arr_state, $default_row_type );
 		$col_type = $main->set ( 'col_type', $arr_state, $default_col_type );
-        $arr_columns = $main->columns ( $con, $row_type );
+		$arr_columns = $main->columns ( $con, $row_type );
 		$multiselect = $all_values = $empty_value = 0;
-		$dropdowns = "";
+		$dropdown = "";
 	}
 }
 
@@ -226,13 +249,12 @@ $main->echo_input ( "multiselect", 1, array (
 echo "</span>";
 echo "</div>";
 // populate text area
-echo "<textarea class=\"spaced\" name=\"dropdown\" cols=\"40\" rows=\"10\" wrap=\"off\">";
-if (isset ( $arr_display )) {
-	foreach ( $arr_display as $value ) {
-		echo $value . "\r\n";
-	}
-}
-echo "</textarea>";
+$main->echo_textarea ( "dropdown", $dropdown, array (
+		'class' => "spaced",
+		'cols' => 60,
+		'rows' => 15,
+		'wrap' => "off" 
+) );
 
 $main->echo_clear ();
 

@@ -303,7 +303,7 @@ if ($valid_id) // record_id
 $layout = $main->reduce ( $arr_layouts, $row_type );
 $parent_row_type = $layout ['parent']; // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 if ($parent_row_type) {
-	$arr_columns_props = $main->properties ( $con, $parent_row_type );
+	$arr_columns_props = $main->column_properties ( $con, $parent_row_type );
 	$leftjoin = $main->pad ( "c", $arr_columns_props ['primary'] );
 } else {
 	$leftjoin = "c01";

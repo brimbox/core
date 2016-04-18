@@ -18,7 +18,9 @@
 /* NO HTML OUTPUT */
 
 /* STANDARD LAYOUT OPTIONS */
-// Standard number of rows to return
+// Whether to use reduced or pretty slugs
+define ( 'BB_PRETTY_SLUGS', 1 );
+// Default userrole on the manage users page
 define ( 'BB_RETURN_ROWS', 4 );
 // Standard number pages in the page selector
 define ( 'BB_PAGINATION', 5 );

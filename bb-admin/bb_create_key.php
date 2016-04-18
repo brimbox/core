@@ -44,7 +44,7 @@ $arr_messages = array ();
 // layouts
 $arr_layouts = $main->layouts ( $con );
 $default_row_type = $main->get_default_layout ( $arr_layouts );
-$arr_columns_full = $main->get_json ( $con, 'bb_column_names' );
+$arr_columns_json = $main->get_json ( $con, 'bb_column_names' );
 
 /* PRESERVE STATE */
 $POST = $main->retrieve ( $con );
@@ -75,14 +75,14 @@ $main->update ( $con, $module, $arr_state );
 
 // check_column
 if ($main->button ( 1 ) || $main->button ( 2 )) {
-	$unique_key = isset ( $arr_columns_full [$row_type] ['unique'] ) ? $arr_columns_full [$row_type] ['unique'] : false;
+	$unique_key = isset ( $arr_columns_json [$row_type] ['unique'] ) ? $arr_columns_json [$row_type] ['unique'] : false;
 	$column = $main->pad ( "c", $col_type );
 	/* CHECK IF KEY SET OR POSSIBLE */
 	if ($unique_key) {
 		if ($main->button ( 1 )) {
 			array_push ( $arr_messages, "Column \"" . $arr_columns [$col_type] ['name'] . "\" on layout \"" . $arr_layout ['plural'] . "\" has a unique key on it." );
 		} elseif ($main->button ( 2 )) {
-			array_push ( $arr_messages, "Error: Unique Key is already set on layout \"" . $arr_layout ['plural'] . "\" . Column \"" . $arr_columns_full [$row_type] [$unique_key] ['name'] . "\" has a unique key on it." );
+			array_push ( $arr_messages, "Error: Unique Key is already set on layout \"" . $arr_layout ['plural'] . "\" . Column \"" . $arr_columns_json [$row_type] [$unique_key] ['name'] . "\" has a unique key on it." );
 		}
 	} // no key
 elseif ($col_type) {
@@ -108,10 +108,10 @@ elseif ($col_type) {
 			array_push ( $arr_messages, "Unique key can be created on layout \"" . $arr_layout ['plural'] . "\" column \"" . $arr_columns [$col_type] ['name'] . "\"." );
 		} elseif ($main->button ( 2 )) // add_key, $col_type <> 0
 {
-			$arr_columns_full [$row_type] ['unique'] = $col_type;
+			$arr_columns_json [$row_type] ['unique'] = $col_type;
 			
 			// Update json row explicitly, check for valid key
-			$query = "UPDATE json_table SET jsondata = '" . json_encode ( $arr_columns_full ) . "' WHERE lookup = 'bb_column_names' " . "AND NOT EXISTS (SELECT 1 FROM data_table WHERE row_type = " . $row_type . " GROUP BY " . $column . " HAVING count(" . $column . ") > 1);";
+			$query = "UPDATE json_table SET jsondata = '" . json_encode ( $arr_columns_json ) . "' WHERE lookup = 'bb_column_names' " . "AND NOT EXISTS (SELECT 1 FROM data_table WHERE row_type = " . $row_type . " GROUP BY " . $column . " HAVING count(" . $column . ") > 1);";
 			// echo "<p>" . $query . "</p>";
 			$result = $main->query ( $con, $query );
 			
@@ -129,13 +129,12 @@ elseif ($col_type) {
 /* REMOVE KEY */
 if ($main->button ( 3 )) // remove_key
 {
-	if (isset ( $arr_columns_full [$row_type] ['unique'] )) {
-		unset ( $arr_columns_full [$row_type] ['unique'] );
-		$main->update_json ( $con, $arr_columns_full, "bb_column_names" );
-		array_push ( $arr_messages, "Unique Key has been removed for this layout type \"" . $arr_layout ['plural'] . "\"." );
-	} else {
-		array_push ( $arr_messages, "There is currently no key on layout type \"" . $arr_layout ['plural'] . "\"." );
+	unset ( $arr_columns_json [$row_type] ['unique'] );
+	foreach ( $arr_columns_json [$row_type] ['alternative'] as $key => $value ) {
+		unset ( $value ['unique'] );
 	}
+	$main->update_json ( $con, $arr_columns_json, "bb_column_names" );
+	array_push ( $arr_messages, "Unique Key has been removed for this layout type \"" . $arr_layout ['plural'] . "\"." );
 }
 /* BEGIN REQUIRED FORM */
 echo "<p class=\"spaced bold larger\">Create Key</p>";

@@ -144,7 +144,7 @@ $parent_row_type = $main->reduce ( $arr_layouts, array (
 		"parent" 
 ) );
 if ($parent_row_type) {
-	$arr_columns_props = $main->properties ( $con, $parent_row_type );
+	$arr_columns_props = $main->column_properties ( $con, $parent_row_type );
 	$leftjoin = $main->pad ( "c", $arr_columns_props ['primary'] );
 } else {
 	$leftjoin = "c01";

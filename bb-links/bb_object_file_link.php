@@ -23,13 +23,20 @@ session_name ( DB_NAME );
 session_start ();
 session_regenerate_id ();
 
-include ("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
-if (file_exists ( "../bb-extend/include_main.php" )) {
-	include_once ("/bb-extend/include_main.php");
-} else {
-	include_once ("../bb-utilities/bb_include_main.php");
-}
-// main instance
+/* SET UP WORK OBJECT AND POST STUFF */
+// objects are all daisy chained together
+// set up work from last object
+// contains bb_database class, extends bb_main
+// constants include -- some constants are used
+$abspath = $_SESSION['abspath'];
+include_once ($abspath . "/bb-config/bb_constants.php");
+// include build class object
+if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
+    include_once ($abspath . "/bb-extend/bb_include_main_class.php");
+else
+    include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
+    
+// main object for hooks
 $main = new bb_main ();
 
 $userroles = $main->get_constant ( 'BB_DOCUMENT_FILE_PERMISSIONS', '3_bb_brimbox,4_bb_brimbox,5_bb_brimbox' );
@@ -56,6 +63,8 @@ header ( "Content-disposition: attachment; filename=\"$filename\"" );
 header ( "Content-Transfer-Encoding: binary" );
 ob_clean ();
 flush ();
+
+if (function_exists('pg_lo_open')) echo "HUYTY";
 
 pg_query ( $con, "BEGIN" );
 $handle = pg_lo_open ( $con, $post_key, "r" ) or die ( "File Error" );

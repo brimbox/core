@@ -47,7 +47,6 @@ $main->echo_form_begin ( array (
 ) );
 $main->echo_module_vars ();
 
-
 /* BACKUP AREA */
 echo "<p class=\"spaced bold larger\">Backup Database</p>";
 echo "<div class=\"spaced border floatleft padded\">";

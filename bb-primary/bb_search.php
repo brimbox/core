@@ -90,7 +90,7 @@ $message = $boolean_parse->parse_boolean_string ( $search_parsed );
 array_push ( $arr_messages, $message );
 
 /* GET LAYOUT */
-$all_columns = $main->get_json ( $con, "bb_column_names" );
+$arr_columns_json = $main->get_json ( $con, "bb_column_names" );
 
 /* BEGIN REQUIRED FORM */
 // search form
@@ -164,8 +164,8 @@ if ($main->blank ( $message )) {
 		if ($value ['parent'] > 0) // indicator set to zero when xml made into array
 {
 			$parent_row_type = $value ['parent']; // parent row type will be zero if not set
-			if (isset ( $all_columns [$parent_row_type] ['primary'] )) {
-				$column = $main->pad ( "c", $all_columns [$parent_row_type] ['primary'] );
+			if (isset ( $arr_columns_json [$parent_row_type] ['primary'] )) {
+				$column = $main->pad ( "c", $arr_columns_json [$parent_row_type] ['primary'] );
 				array_push ( $arr_parent_columns, $column ); // push on stack
 			}
 		}
@@ -195,12 +195,12 @@ if ($main->blank ( $message )) {
 		// this sets the correct column xml -- each iteration requires new columns
 		// $xml is global so there is only one round trip to the db per page load
 		// get row type from returned rows
-		$arr_columns = $main->reduce ( $all_columns, $row ['row_type'], false );
+		$arr_columns = $main->columns ( $con, $row ['row_type']);
 		
 		// get the primary column and set $row['hdr'] based on primary header
 		$parent_row_type = $arr_layouts [$row ['row_type']] ['parent'];
 		if ($parent_row_type) {
-			$arr_columns_props = $main->properties ( $con, $parent_row_type );
+			$arr_columns_props = $main->column_properties ( $con, $parent_row_type );
 			$leftjoin = $main->pad ( "c", $arr_columns_props ['primary'] );
 		} else {
 			$leftjoin = "c01";

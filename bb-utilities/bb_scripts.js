@@ -23,7 +23,7 @@ function bb_submit_form(params) {
 	// disable submit button asap
 	// button, target, and passthis are optional
 	// can only be this or undefined
-	var passthis = params[3];
+	var passthis = params[2];
 	// temporarily disable the calling object to prevent double submits
 	// to use this you have to pass "this" refering to the button element
 	if (passthis != undefined) {
@@ -34,7 +34,6 @@ function bb_submit_form(params) {
 	var button = params[0];
 	// undefined target and slug will result in postback
 	var target = params[1];
-	var slug = params[2];
 	// all three parameters are optional, this nasty little piece of javascript
 	// works in all
 	// current major browsers, it is a very important piece of code
@@ -59,13 +58,18 @@ function bb_submit_form(params) {
 		// update bb_module with module going to
 		// set bb_module as target module
 		frmobj['bb_module'].value = target;
-	}
+	}	
+	
+	/*
+	var slug = target.substr(target.indexOf('_')+1);
+	slug = slug.replace('_', '-');
 	if (slug != undefined) {
 		// update bb_slug with slug going to
 		// set bb_slug as target slug
 		// slug coming from not preserved
 		frmobj['bb_slug'].value = slug;
 	}
+	*/
 
 	for (var i = 0; i < frmobj.length; i++) {
 		// rel attribute from form element tag

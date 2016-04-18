@@ -21,7 +21,7 @@
 
 if (! function_exists ( 'bb_input_redirect_postback' )) :
 
-	function bb_input_redirect_postback(&$arr_state, $params = array()) {
+	function bb_input_redirect_postback(&$arr_state) {
 		// session or globals
 		global $POST, $con, $main, $submit;
 		
@@ -85,7 +85,7 @@ if (! function_exists ( 'bb_input_redirect_postback' )) :
 					$main->set ( "lo", $arr_state, $str );
 					$main->set ( $col, $arr_state, $str );
 				} else {
-					if (isset ( $arr_dropdowns [$key] ['multiselect'] )) {
+					if (isset ( $arr_dropdowns [$key] ['multiselect'] ) && $arr_dropdowns [$key] ['multiselect']) {
 						// will be an array
 						$str = $main->post ( $col, $submit, array () );
 						$str = array_map ( array (

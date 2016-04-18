@@ -18,7 +18,7 @@
  */
 if (! function_exists ( 'bb_data_table_row_input' )) :
 
-	function bb_data_table_row_input(&$arr_state, $params = array()) {
+	function bb_data_table_row_input(&$arr_state) {
 		// session or globals
 		global $con, $main, $submit, $username;
 		
@@ -30,6 +30,8 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 		
 		$maxinput = $main->get_constant ( 'BB_STANDARD_LENGTH', 255 );
 		$maxnote = $main->get_constant ( 'BB_NOTE_LENGTH', 65536 );
+		
+		$delimiter = $main->get_constant ( 'BB_MULTISELECT_DELIMITER', "," );
 		
 		$arr_layouts = $main->layouts ( $con );
 		$default_row_type = $main->get_default_layout ( $arr_layouts );
@@ -51,7 +53,7 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 		if (! $errors) {
 			// no errors
 			// produce empty form since we are going to load the data
-			$arr_columns_props = $main->properties ( $con, $row_type );
+			$arr_columns_props = $main->column_properties ( $con, $row_type );
 			
 			$unique_key = isset ( $arr_columns_props ['unique'] ) ? $arr_columns_props ['unique'] : 0;
 			$arr_ts_vector_fts = array ();
@@ -102,12 +104,12 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				// will detect secure and archive form values
 				// secure can be updated if there is a form value being posted and constant is set
 				if ($input_secure_post)
-					$secure_clause = $main->check ( 'secure', $module ) ? ", secure = " . $secure . " " : "";
+					$secure_clause = $main->check ( 'secure', $submit ) ? ", secure = " . $secure . " " : "";
 				else
 					$secure_clause = "";
 					// archive is wired in for update, not generally used for standard interface
 				if ($input_archive_post)
-					$archive_clause = $main->check ( 'archive', $module ) ? ", archive = " . $archive . " " : "";
+					$archive_clause = $main->check ( 'archive', $submit ) ? ", archive = " . $archive . " " : "";
 				else
 					$archive_clause = "";
 					
@@ -134,7 +136,7 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 					$row = pg_fetch_array ( $result );
 					// process large object
 					if (isset ( $arr_columns [47] )) {
-						if (is_uploaded_file ( $_FILES [$main->name ( 'c47', $module )] ["tmp_name"] ) && ! $main->blank ( $_FILES [$main->name ( 'c47', $module )] ["name"] )) {
+						if (is_uploaded_file ( $_FILES [$main->name ( 'c47', $submit )] ["tmp_name"] ) && ! $main->blank ( $_FILES [$main->name ( 'c47', $submit )] ["name"] )) {
 							pg_query ( $con, "BEGIN" );
 							/* IMPORTANT */
 							// if there's a better way I'd do it, superusers control large objects since 9.0
@@ -146,7 +148,7 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 							@pg_lo_unlink ( $con, $row ['id'] );
 							pg_query ( $con, "END" );
 							pg_query ( $con, "BEGIN" );
-							pg_lo_import ( $con, $_FILES [$main->name ( 'c47', $module )] ["tmp_name"], $row ['id'] );
+							pg_lo_import ( $con, $_FILES [$main->name ( 'c47', $submit )] ["tmp_name"], $row ['id'] );
 							pg_query ( $con, "END" );
 						}
 						// Remove existing large object
@@ -213,7 +215,7 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 					// parent and inserted information
 					$parent_row_type = $arr_layouts [$row_type] ['parent'];
 					// have to look it up
-					$arr_columns_props_parent = $main->properties ( $con, $parent_row_type );
+					$arr_columns_props_parent = $main->column_properties ( $con, $parent_row_type );
 					$parent = isset ( $arr_columns_props_parent ['primary'] ) ? $main->pad ( "c", $arr_columns_props_parent ['primary'] ) : "c01";
 					$child = isset ( $arr_columns_props ['primary'] ) ? $main->pad ( "c", $arr_columns_props ['primary'] ) : "c01";
 					// query to find relationships
@@ -265,7 +267,6 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				}
 			} 
             else {
-				echo "UIUIU";
             // insert new row
             // $row_type <> $row_join
 				$insert_clause = "row_type, key1, owner_name, updater_name";
@@ -313,12 +314,12 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				// secure can be inserted if there is a form value being posted
 				
 				if ($input_secure_post)
-					$secure_clause = $main->check ( 'secure', $module ) ? " " . $secure . " as secure, " : "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
+					$secure_clause = $main->check ( 'secure', $submit ) ? " " . $secure . " as secure, " : "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
 				else
 					$secure_clause = "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
 					// archive is wired in for insert, not generally used for standard interface
 				if ($input_archive_post)
-					$archive_clause = $main->check ( 'archive', $module ) ? " " . $archive . " as archive " : "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
+					$archive_clause = $main->check ( 'archive', $submit ) ? " " . $archive . " as archive " : "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
 				else
 					$archive_clause = "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
 					
@@ -352,11 +353,11 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 					$row = pg_fetch_array ( $result );
 					// process large object
 					if (isset ( $arr_columns [47] )) {
-						if (is_uploaded_file ( $_FILES [$main->name ( 'c47', $module )] ["tmp_name"] ) && ! $main->blank ( $_FILES [$main->name ( 'c47', $module )] ["name"] )) {
+						if (is_uploaded_file ( $_FILES [$main->name ( 'c47', $submit )] ["tmp_name"] ) && ! $main->blank ( $_FILES [$main->name ( 'c47', $submit )] ["name"] )) {
 							/* STEP 2 */
 							// see important notes on large objects in update area
 							pg_query ( $con, "BEGIN" );
-							pg_lo_import ( $con, $_FILES [$main->name ( 'c47', $module )] ["tmp_name"], $row ['id'] );
+							pg_lo_import ( $con, $_FILES [$main->name ( 'c47', $submit )] ["tmp_name"], $row ['id'] );
 							pg_query ( $con, "END" );
 						}
 					}
@@ -384,7 +385,7 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 					// second query
 					$parent_row_type = $arr_layouts [$row_type] ['parent'];
 					// have to look it up
-					$arr_columns_props_parent = $main->properties ( $con, $parent_row_type );
+					$arr_columns_props_parent = $main->column_properties ( $con, $parent_row_type );
 					$parent = isset ( $arr_columns_props_parent ['primary'] ) ? $main->pad ( "c", $arr_columns_props_parent ['primary'] ) : "c01";
 					$query = "SELECT *, " . $parent . " as parent FROM data_table WHERE id = " . $post_key . ";";
 					$result = $main->query ( $con, $query );

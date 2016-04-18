@@ -139,7 +139,7 @@ $arr_alternative = $main->filter_keys ( $main->init ( $arr_columns_json [$row_ty
 // save all the alternatives for updating the JSON
 $arr_alternative_full = $main->init ( $arr_columns_json [$row_type] ['alternative'], array () );
 // properties or string values
-$arr_props = $main->properties ( $con, $row_type );
+$arr_props = $main->column_properties ( $con, $row_type );
 
 /* END INITIALIZE */
 
@@ -309,25 +309,24 @@ if ($main->button ( 2 )) {
 	/* READY VALUES */
 	
 	// display working values if error
-	$arr_properties_work = $arr_properties;
-	foreach ( $arr_properties_work as $key => $value ) {
+	foreach ( $arr_properties as $key => $value ) {
 		switch ($key) {
 			case "primary" :
 				// row dropdown
-				$arr_properties ['primary'] = key ( $arr_columns );
+				$arr_props ['primary'] = key ( $arr_columns );
 				foreach ( $arr_columns as $key => $value ) {
 					if ($value ['order'] == 1) {
-						$arr_properties_work ['primary'] = $key;
+						$arr_props ['primary'] = $key;
 						break;
 					}
 				}
 				break;
 			case "count" :
-				$arr_properties ['count'] = count ( $arr_columns );
+				$arr_props ['count'] = count ( $arr_columns );
 				break;
 			case "unique" :
 				if (isset ( $arr_props ['unique'] )) {
-					$arr_properties ['unique'] = $arr_props ['unique'];
+					$arr_props ['unique'] = $arr_props ['unique'];
 				}
 				break;
 		}
@@ -338,22 +337,21 @@ if ($main->button ( 2 )) {
 	/* END READY VALUES */
 	
 	/* UPDATE DATABASE */
-	
 	if (! $main->has_error_messages ( $arr_messages )) {
 		// commit JSON to database
-		// fully rewrites array
-		$arr_alternative_full [$definition] = $arr_alternative;
+		// fully rewrites array include $arr_props
+		$arr_alternative_full [$definition] = $arr_alternative + $arr_props;
 		if ($core) {
-			$arr_columns_json [$row_type] = $arr_columns;
-			$arr_columns_json [$row_type] ['fields'] = $arr_fields;
-			$arr_columns_json [$row_type] ['properties'] = $arr_properties;
+			$arr_columns_json [$row_type] = $arr_columns + $arr_props;
 			$arr_columns_json [$row_type] ['alternative'] = $arr_alternative_full;
-			$arr_columns_json [$row_type] = $arr_columns_json [$row_type] + $arr_properties;
+			// properties and field at root level for reference
+			$arr_columns_json ['fields'] = $arr_fields;
+			$arr_columns_json ['properties'] = $arr_properties;
 		} else {
 			$arr_columns_json [$row_type] ['alternative'] = $arr_alternative_full;
 		}
 		// do non core for everything including core
-		$main->update_json ( $con, $arr_columns_json, "bb_column_names" ); // submit xml
+		$main->update_json ( $con, $arr_columns_json, "bb_column_names" ); // submit json
 		                                                                   // update full text indexes for that column $row_type > 0;
 		$main->build_indexes ( $con, $row_type );
 		array_push ( $arr_messages, "Columns have been updated and search index has been rebuilt for this layout." );
@@ -578,7 +576,7 @@ for($m = 1; $m <= 50; $m ++) {
 					echo "<option value = \"0\"></option>";
 					foreach ( $arr_layouts as $key2 => $value2 ) {
 						$selected = ($key2 == $formvalue) ? "selected" : "";
-						if ($value ['relate']) {
+						if ($value2 ['relate']) {
 							echo "<option value = \"" . $key2 . "\" " . $selected . ">" . htmlentities ( chr ( $key2 + 64 ) . $key2 ) . "&nbsp;</option>";
 						}
 					}

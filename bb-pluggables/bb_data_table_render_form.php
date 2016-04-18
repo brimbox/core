@@ -21,7 +21,7 @@
 
 if (! function_exists ( 'bb_data_table_render_form' )) :
 
-	function bb_data_table_render_form(&$arr_state, $params = array()) {
+	function bb_data_table_render_form(&$arr_state) {
 		// session or global vars, superglobals
 		global $con, $main, $submit;
 		
@@ -49,25 +49,8 @@ if (! function_exists ( 'bb_data_table_render_form' )) :
 		$maxinput = $main->get_constant ( 'BB_STANDARD_LENGTH', 255 );
 		$maxnote = $main->get_constant ( 'BB_NOTE_LENGTH', 65536 );
 		
-		// because of hook default value must be set here
-		if (! is_array ( $params ))
-			$params = array ();
-			// unpack params into variables
-		foreach ( $params as $key => $value ) {
-			${$key} = $value;
-		}
-		// readonly at the form level
-		$arr_readonly = isset ( $arr_readonly ) ? $arr_readonly : array ();
-		// hidden at the form level, WILL BE PRESENT in source code
-		$arr_hidden = isset ( $arr_hidden ) ? $arr_hidden : array ();
-		
-		// set readonly and hidden flags
-		foreach ( $arr_readonly as $value )
-			$arr_columns [$value] ['readonly'] = true;
-		foreach ( $arr_hidden as $value )
-			$arr_columns [$value] ['hidden'] = true;
 			
-			// $ayouts must have one layout set
+		// $ayouts must have one layout set
 		$arr_layouts = $main->layouts ( $con );
 		$default_row_type = $main->get_default_layout ( $arr_layouts );
 		
@@ -95,96 +78,213 @@ if (! function_exists ( 'bb_data_table_render_form' )) :
 		foreach ( $arr_columns as $key => $value ) {
 			// key is col_type, $value is array
 			$col = $main->pad ( "c", $key );
+			
 			$input = (isset ( $arr_state [$col] )) ? $arr_state [$col] : "";
 			$error = (isset ( $arr_errors [$key] )) ? $arr_errors [$key] : "";
-			$readonly = $hidden = false;
+			//display 0 normal, 1 readonly, 2 hidden
 			$display = isset ( $arr_columns [$key] ['display'] ) ? $arr_columns [$key] ['display'] : 0;
-			switch ($display) {
-				case 1 :
-					$readonly = true;
-					break;
-				case 2 :
-					$hidden = true;
-					break;
-			}
+			
+			//filters
 			$filtername = "bb_input_" . $main->make_html_id ( $row_type, $key );
 			$field_id = "bb_input_" . $main->make_html_id ( $row_type, $key );
-			// different field types
-			// dropdown type, multiselect possible
-			if (isset ( $arr_dropdowns [$key] )) {
-				$arr_dropdown = $arr_dropdowns [$key];
-				$multiselect = $main->init ( $arr_dropdown ['multiselect'], false );
-				$dropdown = $main->filter_keys ( $arr_dropdown );
-				$input = is_array ( $input ) ? $input : array (
-						$input 
-				); // convert to array
-				$size = $multiple = $disabled = "";
-				if ($readonly) {
-					$dropdown = $input;
-					$disabled = "disabled";
+			
+			switch ($display) {
+				
+				case 0:					
+					// different field types
+					// dropdown type, multiselect possible
+					if (isset ( $arr_dropdowns [$key] )) {
+						$arr_dropdown = $arr_dropdowns [$key];
+						$multiselect = $main->init ( $arr_dropdown ['multiselect'], 0 );
+						$dropdown = $main->filter_keys ( $arr_dropdown );
+						$input = is_array ( $input ) ? $input : array (
+								$input 
+						); // convert to array
+						$field_output = "<div class=\"clear\">";
+						$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+						if ($multiselect) {
+							$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced short\" name = \"" . $col . "[]\" size=\"5\" multiple onFocus=\"bb_remove_message(); return false;\">";
+							foreach ( $dropdown as $value ) {
+								$selected = is_int ( array_search ( strtolower ( $value ), array_map ( 'strtolower', $input ) ) ) ? "selected" : "";
+								$field_output .= "<option value=\"" . htmlentities ( $value ) . "\" " . $selected . ">" . htmlentities ( $value ) . "&nbsp;</option>";
+							}
+							$field_output .= "</select><label class=\"error\">" . $error . "</label></div>";
+						} else {
+							$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
+							foreach ( $dropdown as $value ) {							
+								$selected = is_int ( array_search ( strtolower ( $value ), array_map ( 'strtolower', $input ) ) ) ? "selected" : "";
+								$field_output .= "<option value=\"" . htmlentities ( $value ) . "\" " . $selected . ">" . htmlentities ( $value ) . "&nbsp;</option>";
+							}
+							$field_output .= "</select><label class=\"error\">" . $error . "</label></div>";
+						}
+					} 
+					elseif (in_array ( $key, $arr_relate )) {
+						// possible related record type, could be straight text
+						$field_output = "<div class = \"clear\">";
+						$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+						$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . htmlentities ( $input ) . "\" onFocus=\"bb_remove_message(); return false;\" />";
+						$field_output .= "<label class=\"error\">" . $error . "</label></div>";
+					} 
+					elseif (in_array ( $key, $arr_file )) {
+						// file type
+						$lo = isset ( $arr_state ['lo'] ) ? $arr_state ['lo'] : "";
+						$field_output = "<div class = \"clear\">";
+						$field_output .= "<label class = \"spaced padded floatleft left overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+						$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \"" . htmlentities ( $lo ) . "\" readonly/><label class=\"error\">" . $error . "</label>";
+						$field_output .= "</div>";
+						$field_output .= "<div class = \"clear\">";
+						$field_output .= "<input id=\"" . $field_id . "\" class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\"/>";
+						if (! $value ['required']) {
+							$field_output .= "<span class = \"spaced border rounded padded shaded\">";
+							$field_output .= "<label class=\"padded\">Remove: </label>";
+							$field_output .= "<input type=\"checkbox\" name=\"remove\" class=\"middle holderup\" />";
+							$field_output .= "</span>";
+						}
+						$field_output .= "</div>";
+					} 
+				elseif (in_array ( $key, $arr_notes )) {
+					// note type, will be textarea
+						$field_output = "<div class = \"clear\">";
+						$field_output .= "<label class = \"spaced padded floatleft left overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
+						$field_output .= "<div class=\"clear\"></div>";
+						$field_output .= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";
+					} else {
+						// standard input/textbox
+						$field_output = "<div class=\"clear\">";
+						$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+						$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . htmlentities ( $input ) . "\" onFocus=\"bb_remove_message(); return false;\" />";
+						$field_output .= "<label class=\"error\">" . $error . "</label></div>";
+					}
+
+				break;
+			
+			case 1:
+				
+				if (isset ( $arr_dropdowns [$key] )) {
+					$arr_dropdown = $arr_dropdowns [$key];
+					$multiselect = $main->init ( $arr_dropdown ['multiselect'], 0 );
+					$dropdown = $main->filter_keys ( $arr_dropdown );
+					$input = is_array ( $input ) ? $input : array (
+							$input 
+					); // convert to array
+					$field_output = "<div class=\"clear\">";
+					$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+					if ($multiselect) {
+						foreach ( $input as $value ) {
+							$field_output .= "<input type=\"hidden\" name=\"" . $col . "[]\" value=\"" . htmlentities ( $value ) . "\" />";
+						}
+						$field_output .= "<textarea class=\"spaced\" readonly>" . implode("\r\n", $input) . "</textarea>"; 
+						$field_output .= "<label class=\"error\">" . $error . "</label></div>";
+					} else {
+						$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
+						foreach ( $input as $value ) {
+							$field_output .= "<option value=\"" . htmlentities ( $value ) . "\" " . $selected . ">" . htmlentities ( $value ) . "&nbsp;</option>";
+						}
+						$field_output .= "</select><label class=\"error\">" . $error . "</label></div>";
+					}
+				} elseif (in_array ( $key, $arr_relate )) {
+					// possible related record type, could be straight text
+					$field_output = "<div class = \"clear\">";
+					$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+					$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . htmlentities ( $input ) . "\" readonly onFocus=\"bb_remove_message(); return false;\" />";
+					$field_output .= "<label class=\"error\">" . $error . "</label></div>";
+				} elseif (in_array ( $key, $arr_file )) {
+					// file type
+					$lo = isset ( $arr_state ['lo'] ) ? $arr_state ['lo'] : "";
+					$field_output = "<div class = \"clear\">";
+					$field_output .= "<label class = \"spaced padded floatleft left overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+					$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \"" . htmlentities ( $lo ) . "\" readonly/><label class=\"error\">" . $error . "</label>";
+					$field_output .= "</div>";
+					$field_output .= "<div class = \"clear\">";
+					$field_output .= "<input id=\"" . $field_id . "\" class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\" disabled/>";
+					if (! $value ['required']) {
+						$field_output .= "<span class = \"spaced border rounded padded shaded\">";
+						$field_output .= "<label class=\"padded\">Remove: </label>";
+						$field_output .= "<input type=\"checkbox\" name=\"remove\" class=\"middle holderup\" />";
+						$field_output .= "</span>";
+					}
+					$field_output .= "</div>";
+				} elseif (in_array ( $key, $arr_notes )) {
+				// note type, will be textarea
+					$field_output = "<div class = \"clear " . $hide . "\">";
+					$field_output .= "<label class = \"spaced padded floatleft left overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
+					$field_output .= "<div class=\"clear " . $hide . "\"></div>";
+					$field_output .= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" readonly onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";
+				} else {
+					// standard input/textbox
+					$field_output = "<div class=\"clear\">";
+					$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+					$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . htmlentities ( $input ) . "\" readonly onFocus=\"bb_remove_message(); return false;\" />";
+					$field_output .= "<label class=\"error\">" . $error . "</label></div>";
 				}
-				$hide = ($hidden) ? "hidden" : ""; // hidden class
-				                                   // mutliselect
-				if ($multiselect) // set and true
-{
-					$multiple = "multiple=\"multiple\"";
-					$size = "size=4";
-					$col = $col . "[]";
+
+				break;				
+				
+			case 2:				
+				// different field types
+				// dropdown type, multiselect possible
+				if (isset ( $arr_dropdowns [$key] )) {
+					$arr_dropdown = $arr_dropdowns [$key];
+					$multiselect = $main->init ( $arr_dropdown ['multiselect'], 0 );
+					$dropdown = $main->filter_keys ( $arr_dropdown );
+					$input = is_array ( $input ) ? $input : array (
+							$input 
+					); // convert to array
+					$field_output = "<div class=\"clear hidden\">";
+					$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded hidden\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+					//normal
+					if (!$multiselect) {
+						$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
+						foreach ( $input as $value ) {
+							$field_output .= "<option value=\"" . htmlentities ( $value ) . "\">" . htmlentities ( $value ) . "&nbsp;</option>";							
+						}
+						$field_output .= "</select><label class=\"error\">" . $error . "</label></div>";
+					}
+					else {
+						foreach ( $input as $value ) {
+							$field_output .= "<input type=\"hidden\" name = \"" . $col . "[]\" value=\"" . htmlentities ( $value ). "\"/>";
+						}
+						$field_output .= "<textarea class = \"spaced short\" rows=\"4\" readonly>" . implode("\r\n", $input) . "</textarea>";
+					}
+					$field_output .= "</div>";
+				} 
+				elseif (in_array ( $key, $arr_relate )) {
+					// possible related record type, could be straight text
+					$field_output = "<div class = \"clear hidden\">";
+					$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded hidden\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+					$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . htmlentities ( $input ) . "\" onFocus=\"bb_remove_message(); return false;\" />";
+					$field_output .= "<label class=\"error\">" . $error . "</label></div>";
+				} 
+				elseif (in_array ( $key, $arr_file )) {
+					// file type
+					$lo = isset ( $arr_state ['lo'] ) ? $arr_state ['lo'] : "";
+					$field_output = "<div class = \"clear hidden\">";
+					$field_output .= "<label class = \"spaced padded floatleft left overflow medium shaded hidden\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+					$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \"" . htmlentities ( $lo ) . "\" readonly/><label class=\"error\">" . $error . "</label>";
+					$field_output .= "</div>";
+					$field_output .= "<div class = \"clear hidden\">";
+					$field_output .= "<input id=\"" . $field_id . "\" class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\"/>";
+					if (! $value ['required']) {
+						$field_output .= "<span class = \"spaced border rounded padded shaded\">";
+						$field_output .= "<label class=\"padded\">Remove: </label>";
+						$field_output .= "<input type=\"checkbox\" name=\"remove\" class=\"middle holderup\" />";
+						$field_output .= "</span>";
+					}
+					$field_output .= "</div>";
+				} elseif (in_array ( $key, $arr_notes )) {
+				// note type, will be textarea
+					$field_output = "<div class = \"clear hidden\">";
+					$field_output .= "<label class = \"spaced padded floatleft left overflow medium shaded hidden\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
+					$field_output .= "<div class=\"clear hidden\"></div>";
+					$field_output .= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";
+				} else {
+					// standard input/textbox
+					$field_output = "<div class=\"clear hidden\">";
+					$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
+					$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . htmlentities ( $input ) . "\" onFocus=\"bb_remove_message(); return false;\" />";
+					$field_output .= "<label class=\"error\">" . $error . "</label></div>";
 				}
-				$field_output = "<div class=\"clear " . $hide . "\">";
-				$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded " . $hidden . "\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
-				$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced\" name = \"" . $col . "\" " . $size . " " . $multiple . " onFocus=\"bb_remove_message(); return false;\">";
-				foreach ( $dropdown as $value ) {
-					$selected = is_int ( array_search ( strtolower ( $value ), array_map ( 'strtolower', $input ) ) ) ? "selected" : "";
-					$field_output .= "<option value=\"" . htmlentities ( $value ) . "\" " . $selected . " " . $disabled . ">" . htmlentities ( $value ) . "&nbsp;</option>";
-				}
-				$field_output .= "</select><label class=\"error\">" . $error . "</label></div>";
-			} // possible related record type, could be straight text
-elseif (in_array ( $key, $arr_relate )) {
-				$attribute = $readonly ? "readonly" : ""; // readonly attribute
-				$hide = ($hidden) ? "hidden" : ""; // hidden class
-				$field_output = "<div class = \"clear " . $hide . "\">";
-				$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded " . $hide . "\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
-				$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . htmlentities ( $input ) . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
-				$field_output .= "<label class=\"error\">" . $error . "</label></div>";
-			} // file type
-elseif (in_array ( $key, $arr_file )) {
-				$attribute = $readonly ? "readonly" : "";
-				$hide = ($hidden) ? "hidden" : ""; // hidden class
-				$lo = isset ( $arr_state ['lo'] ) ? $arr_state ['lo'] : "";
-				$field_output = "<div class = \"clear " . $hide . "\">";
-				$field_output .= "<label class = \"spaced padded floatleft left overflow medium shaded " . $hide . "\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
-				$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \"" . htmlentities ( $lo ) . "\" readonly/><label class=\"error\">" . $error . "</label>";
-				$field_output .= "</div>";
-				$field_output .= "<div class = \"clear " . $hide . "\">";
-				$field_output .= "<input id=\"" . $field_id . "\" class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\" id=\"file\"/>";
-				if (! $value ['required']) {
-					$field_output .= "<span class = \"spaced border rounded padded shaded\">";
-					$field_output .= "<label class=\"padded\">Remove: </label>";
-					$main->echo_input ( "remove", 1, array (
-							'type' => 'checkbox',
-							'input_class' => 'middle holderup' 
-					) );
-					$field_output .= "</span>";
-				}
-				$field_output .= "</div>";
-			} // note type, will be textarea
-elseif (in_array ( $key, $arr_notes )) {
-				$attribute = $readonly ? "readonly" : ""; // readonly attribute
-				$hide = ($hidden) ? "hidden" : ""; // hidden class
-				$field_output = "<div class = \"clear " . $hide . "\">";
-				$field_output .= "<label class = \"spaced padded floatleft left overflow medium shaded " . $hide . "\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
-				$field_output .= "<div class=\"clear " . $hide . "\"></div>";
-				$field_output .= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea></div>";
-			} else {
-				// standard input/textbox
-				$attribute = $readonly ? "readonly" : ""; // readonly attribute
-				$hide = ($hidden) ? "hidden" : ""; // hidden class
-				$field_output = "<div class=\"clear " . $hide . "\">";
-				$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
-				$field_output .= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . htmlentities ( $input ) . "\" " . $attribute . " onFocus=\"bb_remove_message(); return false;\" />";
-				$field_output .= "<label class=\"error\">" . $error . "</label></div>";
-			}
+			} //switch
 			// filter to echo the field output
 			$field_output = $main->filter ( 'bb_input_field_output', $field_output );
 			echo $field_output;

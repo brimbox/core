@@ -193,7 +193,7 @@ else :
 			default :
 				// user defined
 				// account for possibility of unknown or undefined
-				$module_type = isset ( $array_interface [$row ['interface']] [$row ['module_type']]['module_type_name'] ) ? $array_interface[$row ['interface']] [$row ['module_type']]['module_type_name'] : "Unknown";
+				$module_type = isset ( $array_interface [$row ['interface']] [$row ['module_type']] ['module_type_name'] ) ? $array_interface [$row ['interface']] [$row ['module_type']] ['module_type_name'] : "Unknown";
 				break;
 		}
 		// row shading
@@ -210,10 +210,10 @@ else :
 		// form elements
 		echo "<input type=\"hidden\"  name=\"module_type_" . $row ['id'] . "\" value = \"" . $row ['module_type'] . "-" . $row ['interface'] . "\">";
 		echo "<div class=\"cell short middle\">";
-        // not hidden, globals and functions have an order
+		// not hidden, globals and functions have an order
 		if ($row ['module_type'] != 0) {
 			echo "<select name=\"order_" . $row ['id'] . "\">";
-            // reuse j
+			// reuse j
 			for($j = 1; $j <= $row ['cnt']; $j ++) {
 				echo "<option value=\"" . $j . "\" " . (($j == $row ['module_order']) ? "selected" : "") . " >" . $j . "&nbsp;</option>";
 			}

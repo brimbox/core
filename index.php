@@ -48,7 +48,7 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	$userroles = $_SESSION ['userroles']; // comma separated string careful with userroles session, used to check for valid userrole
 	$archive = $_SESSION ['archive']; // archive state
 	$keeper = $_SESSION ['keeper']; // state_table id
-    
+	                                
 	// get interface from userrole
 	list ( , $interface ) = explode ( "_", $_SESSION ['userrole'], 2 );
 	$_SESSION ['interface'] = $interface;
@@ -118,8 +118,8 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 			// check for session poisoning, userroles string should not be altered
 			// $userroles variable should be protected and not used or altered anywhere
 			// non-integer or empty usertype will convert to 0
-            // any userrole starting with 0 logout
-			if ((( int ) explode("_", $userrole, 2)) && in_array ( $POST ['bb_userrole'], explode ( ",", $_SESSION ['userroles'] ) )) {
+			// any userrole starting with 0 logout
+			if ((( int ) explode ( "_", $userrole, 2 )) && in_array ( $POST ['bb_userrole'], explode ( ",", $_SESSION ['userroles'] ) )) {
 				$_SESSION ['userrole'] = $POST ['bb_userrole'];
 				$_SESSION ['module'] = ""; // send back to default landing page
 				$index_path = "Location: " . dirname ( $_SERVER ['PHP_SELF'] );
@@ -138,15 +138,15 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	/* GET HEADER AND GLOBAL ARRAYS */
 	/* UNPAK ARRAY INTO SEPARATE UNIT */
 	
-	if (file_exists ("bb-extend/bb_parse_globals.php" )) 
+	if (file_exists ( "bb-extend/bb_parse_globals.php" ))
 		include_once ("bb-extend/bb_parse_globals.php");
-	else 
+	else
 		include_once ("bb-blocks/bb_parse_globals.php");
 		
 		/* RECONCILE SLUG AND MODULE */
 		// get module types for current user and interface
 	$module_types = array ();
-	foreach ( $array_interface[$interface] as $key => $value ) {
+	foreach ( $array_interface [$interface] as $key => $value ) {
 		if (in_array ( $userrole, $value ['userroles'] )) {
 			// (int) cast for security
 			array_push ( $module_types, $key );
@@ -156,21 +156,28 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	// get modules type into string for query
 	$module_types = implode ( ",", array_unique ( $module_types ) );
 	
-	/* GET SLUG AND MODULE USING SQL */
+	/* RECONCILE SLUG AND MODULE USING SQL */
+    $_SESSION['pretty_slugs'] = $pretty_slugs = $main->get_constant('BB_PRETTY_SLUGS', 0);
 	// get slug and module, in order of precedence, 1 good slug and module, 2 good slug (back button), 3 empty slug (on login)
-	$query = "SELECT id, module_slug, module_name FROM (SELECT 1 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_slug = '" . pg_escape_string ( $slug ) . "' AND module_name = '" . pg_escape_string ( $module ) . "' " . "UNION ALL " . "SELECT 2 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_slug = '" . pg_escape_string ( $slug ) . "' " . "UNION ALL " . "SELECT 3 as id, module_slug, module_name, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ")) T1 " . "ORDER BY id, module_type, module_order LIMIT 1";
-	$result = $main->query ( $con, $query );
-	$row = pg_fetch_array ( $result );
-	$module = $_SESSION ['module'] = $row ['module_name'];
-	$slug = $_SESSION ['slug'] = $row ['module_slug'];
-	
-	/* REDIRECT WITH DEFAULT SLUG AND MODULE ON LOGIN */
-	// this redirect has to happen after global array and hooks are loaded
-	if ($row['id'] == 3) {
-		$index_path = "Location: " . dirname ( $_SERVER ['PHP_SELF'] ) . "/" . $slug;
-		header ( $index_path );
-	}
-	
+    if ($pretty_slugs == 1) {
+        $query = "SELECT id, module_name, module_slug FROM (SELECT 1 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string ( $slug ) . "' AND  module_name = '" . pg_escape_string ( $module ) . "' UNION ALL SELECT 2 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string ( $slug ) . "' UNION ALL SELECT 3 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ")) T1 " . "ORDER BY id, module_type, module_order LIMIT 1";
+    }
+    else {
+        $query = "SELECT id, module_name, module_slug FROM (SELECT 1 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_name = '" . pg_escape_string ( $slug ) . "' AND  module_name = '" . pg_escape_string ( $module ) . "' UNION ALL SELECT 2 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_name = '" . pg_escape_string ( $slug ) . "' UNION ALL SELECT 3 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ")) T1 " . "ORDER BY id, module_type, module_order LIMIT 1";
+    }
+    $result = $main->query ( $con, $query );
+    $row = pg_fetch_array ( $result );
+    $module = $_SESSION ['module'] = $row ['module_name'];
+    $slug = $_SESSION ['slug'] = $row ['module_slug'];
+    
+    /* REDIRECT WITH DEFAULT SLUG AND MODULE ON LOGIN */
+    // this redirect has to happen after global array and hooks are loaded
+    if (in_array($row ['id'], array(2,3))) {
+        $index_path = "Location: " . dirname ( $_SERVER ['PHP_SELF'] ) . "/" . $slug;
+        header ( $index_path );
+    }        
+
+    
 	// cleanup
 	unset ( $key, $value, $module_types, $query, $result, $row, $index_path );
 	
@@ -181,24 +188,23 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	
 	/* CONTROLLER INCLUDE */
 	// a custom controller will contain several standard include files, bb_javascript, bb_css, bb_less if desired
-	include_once ($abspath . $array_header[$interface] ['controller']);
+	include_once ($abspath . $array_header [$interface] ['controller']);
  
 
 else : /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */
 	
 	/* LOGIN SECTION */
 	/* INCLUDES THE LOGIN PHP VERIFICATION */
-	if (file_exists ( "bb-extend/bb_verify_login.php" )) 
+	if (file_exists ( "bb-extend/bb_verify_login.php" ))
 		include_once ("bb-extend/bb_verify_login.php");
-	else 
-		include_once ("bb-blocks/bb_verify_login.php");	
-	
-	/* INCLUDE LOGIN CSS AND HTML FOR THE MOST PART */
-	if (file_exists ( "bb-extend/bb_login_form.php" )) 
+	else
+		include_once ("bb-blocks/bb_verify_login.php");
+		
+		/* INCLUDE LOGIN CSS AND HTML FOR THE MOST PART */
+	if (file_exists ( "bb-extend/bb_login_form.php" ))
 		include_once ("bb-extend/bb_login_form.php");
 	else
 		include_once ("bb-blocks/bb_login_form.php");
-	
 
 
 /* END LOGIN SECTION */

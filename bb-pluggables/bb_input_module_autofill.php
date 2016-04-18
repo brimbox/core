@@ -22,13 +22,14 @@
 /* Postback when entering the input module */
 if (! function_exists ( 'bb_input_module_autofill' )) :
 
-	function bb_input_module_autofill(&$arr_state, $row) {
+	function bb_input_module_autofill(&$arr_state) {
 
 		global $main, $con;
 		
+		$row = $main->init($arr_state['row'], array());
 		$arr_layouts = $main->layouts ( $con );
 		
-		$parent_row_type = $row ['row_type'];
+		$parent_row_type = $main->init($row ['row_type'], 0);
 		$row_type = $main->init ( $arr_state ['row_type'], 0 );
 		$row_join = $main->init ( $arr_state ['row_join'], 0 );
 		

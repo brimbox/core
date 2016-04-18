@@ -28,22 +28,33 @@
 // $array_interface
 // $array_reports
 
-
 // STANDARD HEADER
-//key is interface
-$main->add_value ( 'header', array('name' => "Brimbox", 'controller' => "/box.php"), 'bb_brimbox' );
-
+// key is interface
+$main->add_value ( 'header', array (
+		'name' => "Brimbox",
+		'controller' => "/box.php" 
+), 'bb_brimbox' );
 
 // USERROLES HEADER ARRAYS
-//key is userrole
-$main->add_value ( 'userroles', array('name'=>'Guest'), '1_bb_brimbox' );
-$main->add_value ( 'userroles', array('name'=>'Viewer'), '2_bb_brimbox' );
-$main->add_value ( 'userroles', array('name'=>'User'), '3_bb_brimbox' );
-$main->add_value ( 'userroles', array('name'=>'Superuser'), '4_bb_brimbox' );
-$main->add_value ( 'userroles', array('name'=>'Admin'), '5_bb_brimbox' );
+// key is userrole
+$main->add_value ( 'userroles', array (
+		'name' => 'Guest' 
+), '1_bb_brimbox' );
+$main->add_value ( 'userroles', array (
+		'name' => 'Viewer' 
+), '2_bb_brimbox' );
+$main->add_value ( 'userroles', array (
+		'name' => 'User' 
+), '3_bb_brimbox' );
+$main->add_value ( 'userroles', array (
+		'name' => 'Superuser' 
+), '4_bb_brimbox' );
+$main->add_value ( 'userroles', array (
+		'name' => 'Admin' 
+), '5_bb_brimbox' );
 
 // SECURITY HEADER ARRAYS
-//key is security type
+// key is security type
 $main->add_value ( 'security', array (), 'row_archive' );
 $main->add_value ( 'security', array (), 'row_security' );
 $main->add_value ( 'security', array (), 'layout_security' );
@@ -51,7 +62,7 @@ $main->add_value ( 'security', array (), 'column_security' );
 $main->add_value ( 'security', array (), 'guest_index' );
 
 // VALIDATION HEADER ARRAY
-//key is validation key
+// key is validation key
 $main->add_value ( 'validation', array (
 		'func' => array (
 				$main,
@@ -102,79 +113,77 @@ $main->add_value ( 'validation', array (
 ), "bb_brimbox_yesno" );
 
 // STANDARD INTERFACE DEFINITION #
-//key is module type
-//add_action sets up a array $array_interface[$interface][$module_type]
+// key is module type
+// add_action sets up a array $array_interface[$interface][$module_type]
 $main->add_action ( 'interface', 'bb_brimbox', array (
-        'interface_type' => 'Standard',
-        'userroles' => array (
-                '1_bb_brimbox' 
-        ),
-        'module_type_name' => 'Guest' 
+		'interface_type' => 'Standard',
+		'userroles' => array (
+				'1_bb_brimbox' 
+		),
+		'module_type_name' => 'Guest' 
 ), 1 );
 $main->add_action ( 'interface', 'bb_brimbox', array (
-        'interface_type' => 'Standard',
-        'userroles' => array (
-                '2_bb_brimbox' 
-        ),
-        'module_type_name' => 'Viewer' 
+		'interface_type' => 'Standard',
+		'userroles' => array (
+				'2_bb_brimbox' 
+		),
+		'module_type_name' => 'Viewer' 
 ), 2 );
 $main->add_action ( 'interface', 'bb_brimbox', array (
-        'interface_type' => 'Standard',
-        'userroles' => array (
-                '3_bb_brimbox',
-                '4_bb_brimbox',
-                '5_bb_brimbox' 
-        ),
-        'module_type_name' => 'User' 
+		'interface_type' => 'Standard',
+		'userroles' => array (
+				'3_bb_brimbox',
+				'4_bb_brimbox',
+				'5_bb_brimbox' 
+		),
+		'module_type_name' => 'User' 
 ), 3 );
 $main->add_action ( 'interface', 'bb_brimbox', array (
-        'interface_type' => 'Auxiliary',
-        'userroles' => array (
-                '4_bb_brimbox',
-                '5_bb_brimbox' 
-        ),
-        'module_type_name' => 'Setup' 
+		'interface_type' => 'Auxiliary',
+		'userroles' => array (
+				'4_bb_brimbox',
+				'5_bb_brimbox' 
+		),
+		'module_type_name' => 'Setup' 
 ), 4 );
 $main->add_action ( 'interface', 'bb_brimbox', array (
-        'interface_type' => 'Auxiliary',
-        'userroles' => array (
-                '5_bb_brimbox' 
-        ),
-        'module_type_name' => 'Admin' 
+		'interface_type' => 'Auxiliary',
+		'userroles' => array (
+				'5_bb_brimbox' 
+		),
+		'module_type_name' => 'Admin' 
 ), 5 );
 
-
 // CURRENT REPORT TYPES ARRAY
-//key is a priority
+// key is a priority
 $main->add_value ( 'reports', array (
 		'type' => 0,
-        'name' => ""
+		'name' => "" 
 ), 10 );
 $main->add_value ( 'reports', array (
-    	'type' => 1,
-        'name' => "Paginated"
+		'type' => 1,
+		'name' => "Paginated" 
 ), 20 );
 $main->add_value ( 'reports', array (
 		'type' => 2,
-        'name' => "Fulle" 
+		'name' => "Fulle" 
 ), 30 );
 $main->add_value ( 'reports', array (
 		'type' => 3,
-        'name' => "Textarea" 
+		'name' => "Textarea" 
 ), 40 );
 
 // BRIMBOX INTERFACE SPECIFIC
 
 if ($interface == "bb_brimbox") :
-
-/* PRODUCES */
-
-    // $array_hooks
-    // $array_filters
-    // $array_common_variables
-    // $array_links
-
-		
+	
+	/* PRODUCES */
+	
+	// $array_hooks
+	// $array_filters
+	// $array_common_variables
+	// $array_links
+	
 	// STANDARD HOOKS #
 	// use static classes or standard functions
 	$main->add_action ( 'hooks', 'index_hot_state', array (
@@ -202,51 +211,42 @@ if ($interface == "bb_brimbox") :
 	$main->add_action ( 'hooks', "bb_input_module_postback", array (
 			'func' => "bb_input_module_postback",
 			'vars' => array (
-					"&arr_state",
-					"&arr_columns",
-					"&row",
-					"params" 
+					"&arr_state"
 			),
 			'file' => "/bb-pluggables/bb_input_module_postback.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_module_autofill", array (
 			'func' => "bb_input_module_autofill",
 			'vars' => array (
-					"&arr_state",
-					"row",
-					"params" 
+					"&arr_state"
 			),
 			'file' => "/bb-pluggables/bb_input_module_autofill.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_render_form", array (
 			'func' => "bb_data_table_render_form",
 			'vars' => array (
-					"&arr_state",
-					"params" 
+					"&arr_state"
 			),
 			'file' => "/bb-pluggables/bb_data_table_render_form.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_redirect_postback", array (
 			'func' => "bb_input_redirect_postback",
 			'vars' => array (
-					"&arr_state",
-					"params" 
+					"&arr_state"
 			),
 			'file' => "/bb-pluggables/bb_input_redirect_postback.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_row_validate", array (
 			'func' => "bb_data_table_row_validate",
 			'vars' => array (
-					"&arr_state",
-					"params" 
+					"&arr_state"
 			),
 			'file' => "/bb-pluggables/bb_data_table_row_validate.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_row_input", array (
 			'func' => "bb_data_table_row_input",
 			'vars' => array (
-					"&arr_state",
-					"params" 
+					"&arr_state"
 			),
 			'file' => "/bb-pluggables/bb_data_table_row_input.php" 
 	), 50 );
@@ -316,7 +316,7 @@ if ($interface == "bb_brimbox") :
 	$main->add_action ( 'filters', "bb_column_names_definitions", array (
 			'func' => 'test_definitions' 
 	), 50 );
-		
+	
 	// COMMON VARS SHARED WITH OTHER TABS #
 	// will not be processed through the form posting engine
 	$main->add_value ( 'common_variables', "bb_row_type" );
@@ -437,6 +437,8 @@ if ($interface == "bb_brimbox") :
 				) 
 		), 90 );
 	}
+
+
 
 
 endif; // interface bb_brimbox
