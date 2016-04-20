@@ -39,7 +39,6 @@ class bb_manage_modules {
 		$this->arr_required = array (
 				"@module_path",
 				"@module_name",
-				"@module_slug",
 				"@friendly_name",
 				"@interface",
 				"@module_type",
@@ -154,11 +153,6 @@ class bb_manage_modules {
 		if (preg_match ( $pattern_name, $arr_module ['@module_name'] )) {
 			// any other files should contain the principle php file name + _extra, or _css or _javascript etc
 			return "Error: Module name in " . $path . " must contain only alphanumeric characters, dashes, or underscores.";
-		}
-		
-		if (preg_match ( $pattern_slug, $arr_module ['@module_slug'] )) {
-			// any other files should contain the principle php file name + _extra, or _css or _javascript etc
-			return "Error: Module slug in " . $path . " must contain only alphanumeric characters, dashes, or underscores.";
 		}
 		
 		// check that file name matches module name

@@ -41,12 +41,12 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	// set by javascript submit form (bb_submit_form())
 	$_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
 	$_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
-    if ($_SESSION['pretty_slugs'] == 1) {
-        list ( , $slug) = explode("_", $module, 2);
-        $_SESSION ['slug']  = str_replace("_", "-", $slug);
-    } else {
-        $_SESSION ['slug'] = $slug = $module;
-    }
+	if ($_SESSION ['pretty_slugs'] == 1) {
+		list ( , $slug ) = explode ( "_", $module, 2 );
+		$_SESSION ['slug'] = $slug = str_replace ( "_", "-", $slug );
+	} else {
+		$_SESSION ['slug'] = $slug = $module;
+	}
 	$_SESSION ['submit'] = $submit = isset ( $_POST ['bb_submit'] ) ? $_POST ['bb_submit'] : "";
 	
 	/* SET UP WORK OBJECT AND POST STUFF */
@@ -275,7 +275,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 							for($i = 0; $i < $cnt; $i ++) {
 								$str = rtrim ( fgets ( $handle ) );
 								$row = explode ( "\t", decrypt_line ( $str, $passwd, $iv, $type ) );
-								$query = "INSERT INTO modules_table (module_order, module_path, module_name, module_slug, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details, change_date) " . "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);";
+								$query = "INSERT INTO modules_table (module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details, change_date) " . "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11);";
 								// echo "<p>" . htmlentities($query) . "</p><br>";
 								// use query params because not updating or inserting full text columns
 								$main->query_params ( $con, $query, $row );
@@ -512,6 +512,7 @@ else // no file at all
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
 
 
 

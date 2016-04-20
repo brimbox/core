@@ -28,14 +28,14 @@ session_regenerate_id ();
 // set up work from last object
 // contains bb_database class, extends bb_main
 // constants include -- some constants are used
-$abspath = $_SESSION['abspath'];
+$abspath = $_SESSION ['abspath'];
 include_once ($abspath . "/bb-config/bb_constants.php");
 // include build class object
 if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
-    include_once ($abspath . "/bb-extend/bb_include_main_class.php");
+	include_once ($abspath . "/bb-extend/bb_include_main_class.php");
 else
-    include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
-    
+	include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
+	
 // main object for hooks
 $main = new bb_main ();
 
@@ -63,8 +63,6 @@ header ( "Content-disposition: attachment; filename=\"$filename\"" );
 header ( "Content-Transfer-Encoding: binary" );
 ob_clean ();
 flush ();
-
-if (function_exists('pg_lo_open')) echo "HUYTY";
 
 pg_query ( $con, "BEGIN" );
 $handle = pg_lo_open ( $con, $post_key, "r" ) or die ( "File Error" );

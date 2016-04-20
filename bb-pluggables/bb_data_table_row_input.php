@@ -103,18 +103,19 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				
 				// will detect secure and archive form values
 				// secure can be updated if there is a form value being posted and constant is set
-				if ($input_secure_post)
-					$secure_clause = $main->check ( 'secure', $submit ) ? ", secure = " . $secure . " " : "";
-				else
-					$secure_clause = "";
-					// archive is wired in for update, not generally used for standard interface
-				if ($input_archive_post)
-					$archive_clause = $main->check ( 'archive', $submit ) ? ", archive = " . $archive . " " : "";
-				else
-					$archive_clause = "";
+				$archive_clause = $secure_clause = "";
+				if ($input_secure_post) {
+					$secure = (int)$arr_state['secure'];
+					$secure_clause = ", secure = " . $secure . " ";					
+				}
+				// archive is wired in for update, not generally used for standard interface
+				if ($input_archive_post) {
+					$archive = (int)$arr_state['archive'];
+					$archive_clause = ", archive = " . $archive . " ";
+				}
 					
-					// key exists must check for duplicate value
-					// $select_where_not & $unique_key passed and created as reference
+				// key exists must check for duplicate value
+				// $select_where_not & $unique_key passed and created as reference
 				$col_unique_key = $main->pad ( "c", $unique_key );
 				if (in_array ( $unique_key, array_keys ( $arr_columns ) ))
 					$unique_value = $arr_state [$col_unique_key];
@@ -125,9 +126,9 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				$main->unique_key ( true, $select_where_not, $unique_key, $unique_value, $row_type, $post_key );
 				
 				$return_primary = isset ( $arr_columns_props ['primary'] ) ? $main->pad ( "c", $arr_columns_props ['primary'] ) : "c01";
-				$query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " . "WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as primary;";
+				$query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " . $archive_clause . " WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as primary;";
 				/* STEP 1 */
-				// die($query);
+				//die($query);
 				$result = $main->query ( $con, $query );
 				// echo "<p>" . $query . "</p>";
 				
@@ -161,44 +162,6 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 							// again, web users don't have access to pg_largeobjects only superusers do
 							@pg_lo_unlink ( $con, $row ['id'] );
 							pg_query ( $con, "END" );
-						}
-					}
-					// in the case of editing filtered columns
-					// may need to update full text field
-					// will only happen if using filter
-					/* OPTIONAL STEP 3 */
-					if (! empty ( $filter )) {
-						$arr_return = array ();
-						foreach ( $arr_columns as $key => $value ) {
-							$col = $main->pad ( "c", $key );
-							array_push ( $arr_return, $col );
-							$search_flag = ($value ['search'] == 1) ? true : false;
-							// guest flag
-							if (empty ( $array_guest_index )) {
-								$guest_flag = (($value ['search'] == 1) && ($value ['secure'] == 0)) ? true : false;
-							} else {
-								$guest_flag = (($value ['search'] == 1) && in_array ( ( int ) $value ['secure'], $array_guest_index )) ? true : false;
-							}
-							// build fts SQL code
-							if ($search_flag) {
-								array_push ( $arr_ts_vector_fts, $col . " || ' ' || regexp_replace(" . $col . ", E'(\\\\W)+', ' ', 'g')" );
-							}
-							if ($guest_flag) {
-								array_push ( $arr_ts_vector_ftg, $col . " || ' ' || regexp_replace(" . $col . ", E'(\\\\W)+', ' ', 'g')" );
-							}
-						} // $xml_column
-						  // implode arrays with guest column full text query definitions
-						$str_ts_vector_fts = ! empty ( $arr_ts_vector_fts ) ? implode ( " || ' ' || ", $arr_ts_vector_fts ) : "''";
-						$str_ts_vector_ftg = ! empty ( $arr_ts_vector_ftg ) ? implode ( " || ' ' || ", $arr_ts_vector_ftg ) : "''";
-						
-						// build the union query array
-						$query = "UPDATE data_table SET fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") WHERE id = " . $post_key . " RETURNING " . implode ( ", ", $arr_return ) . ";";
-						die ( $query );
-						$result = $main->query ( $con, $query );
-						$row = pg_fetch_array ( $result );
-						foreach ( $arr_return as $value ) {
-							// $value = $col
-							$arr_state [$value] = $row [$value];
 						}
 					}
 					// Return message and log, recordkeeping
@@ -312,20 +275,21 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				
 				// will detect secure and archive form values
 				// secure can be inserted if there is a form value being posted
-				
-				if ($input_secure_post)
-					$secure_clause = $main->check ( 'secure', $submit ) ? " " . $secure . " as secure, " : "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
-				else
-					$secure_clause = "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
-					// archive is wired in for insert, not generally used for standard interface
-				if ($input_archive_post)
-					$archive_clause = $main->check ( 'archive', $submit ) ? " " . $archive . " as archive " : "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
-				else
-					$archive_clause = "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
-					
-					// key exists must check for duplicate value
-					// $select_where_not & $unique_key passed and created as reference
-					// still check key for blank on insert
+				// inherit archive + secure from parent
+				$secure_clause = "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
+				$archive_clause = "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
+				// if constants are set 
+				if ($input_secure_post) {
+					$secure = (int)$arr_state['secure'];
+					$secure_clause = " " . $secure . " as secure, " ;
+				}
+				if ($input_archive_post) {
+					$archive = (int)$arr_state['archive'];
+					$archive_clause =  " " . $archive . " as archive ";
+				}					
+				// key exists must check for duplicate value
+				// $select_where_not & $unique_key passed and created as reference
+				// still check key for blank on insert
 				$col_unique_key = $main->pad ( "c", $unique_key );
 				if (in_array ( $unique_key, array_keys ( $arr_columns ) ))
 					$unique_value = $arr_state [$col_unique_key];

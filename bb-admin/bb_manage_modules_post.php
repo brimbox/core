@@ -41,12 +41,12 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	// set by javascript submit form (bb_submit_form())
 	$_SESSION ['button'] = $button = isset ( $_POST ['bb_button'] ) ? $_POST ['bb_button'] : 0;
 	$_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
-    if ($_SESSION['pretty_slugs'] == 1) {
-        list ( , $slug) = explode("_", $module, 2);
-        $_SESSION ['slug']  = str_replace("_", "-", $slug);
-    } else {
-        $_SESSION ['slug'] = $slug = $module;
-    }
+	if ($_SESSION ['pretty_slugs'] == 1) {
+		list ( , $slug ) = explode ( "_", $module, 2 );
+		$_SESSION ['slug'] = $slug = str_replace ( "_", "-", $slug );
+	} else {
+		$_SESSION ['slug'] = $slug = $module;
+	}
 	$_SESSION ['submit'] = $submit = isset ( $_POST ['bb_submit'] ) ? $_POST ['bb_submit'] : "";
 	
 	// constants include -- some constants are used
@@ -230,8 +230,9 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 					// can be true true, string, or has header
 					if (is_string ( $message )) {
 						$arr_messages [] = $message;
-					} // populate if module_name is set, ignore included
-elseif (isset ( $arr_module ['@module_name'] )) {
+					} 
+                elseif (isset ( $arr_module ['@module_name'] )) {
+                        // populate if module_name is set, ignore included
 						$arr_modules [] = $arr_module;
 					}
 				}
@@ -243,8 +244,8 @@ elseif (isset ( $arr_module ['@module_name'] )) {
 		}
 		
 		// no errors continue
-		if (! count ( $arr_messages )) // !$message
-{
+		if (! count ( $arr_messages )) 
+            {
 			// this does insert with not exists lookup in insert cases
 			$query = "SELECT module_name from modules_table;";
 			$result = $main->query ( $con, $query );
@@ -277,7 +278,7 @@ elseif (isset ( $arr_module ['@module_name'] )) {
 				if (in_array ( $arr_module ['@module_name'], $arr_module_names )) {
 					// compensate when module is moved from one module type to another
 					$module_order = "(SELECT CASE WHEN module_type <> " . $arr_module ['@module_type'] . " OR interface <> '" . $arr_module ['@module_type'] . "' THEN max(module_order) + 1 ELSE module_order END FROM modules_table " . "WHERE module_name = '" . $arr_module ['@module_name'] . "' GROUP BY interface, module_type, module_order)";
-					$update_clause = "UPDATE modules_table SET module_order = " . $module_order . ", module_path = '" . pg_escape_string ( $arr_module ['@module_path'] ) . "',friendly_name = '" . pg_escape_string ( $arr_module ['@friendly_name'] ) . "', " . "interface = '" . pg_escape_string ( $arr_module ['@interface'] ) . "', module_type = " . $arr_module ['@module_type'] . ", module_version = '" . pg_escape_string ( $arr_module ['@module_version'] ) . "', " . "module_url = '" . pg_escape_string ( $arr_module ['@module_url'] ) . "', standard_module = " . $standard_module . ", " . "module_slug = '" . $arr_module ['@module_slug'] . "', module_files = '" . pg_escape_string ( $arr_module ['@module_files'] ) . "', module_details = '" . pg_escape_string ( $arr_module ['@module_details'] ) . "' ";
+					$update_clause = "UPDATE modules_table SET module_order = " . $module_order . ", module_path = '" . pg_escape_string ( $arr_module ['@module_path'] ) . "',friendly_name = '" . pg_escape_string ( $arr_module ['@friendly_name'] ) . "', " . "interface = '" . pg_escape_string ( $arr_module ['@interface'] ) . "', module_type = " . $arr_module ['@module_type'] . ", module_version = '" . pg_escape_string ( $arr_module ['@module_version'] ) . "', " . "module_url = '" . pg_escape_string ( $arr_module ['@module_url'] ) . "', standard_module = " . $standard_module . ", module_files = '" . pg_escape_string ( $arr_module ['@module_files'] ) . "', module_details = '" . pg_escape_string ( $arr_module ['@module_details'] ) . "' ";
 					$where_clause = "WHERE module_name = '" . pg_escape_string ( $arr_module ['@module_name'] ) . "'";
 					$query = $update_clause . $where_clause . ";";
 					// echo "<p>" . $query . "</p>";
@@ -286,13 +287,14 @@ elseif (isset ( $arr_module ['@module_name'] )) {
 					// reorder modules without deleted module
 					$query = "UPDATE modules_table SET module_order = T1.order " . "FROM (SELECT row_number() OVER (PARTITION BY interface, module_type ORDER BY module_order) " . "as order, id FROM modules_table) T1 " . "WHERE modules_table.id = T1.id;";
 					$main->query ( $con, $query );
-				}  // Install module
-else {
+				}  
+                else {
+                    // Install module
 					// $module_order finds next available order number
 					$module_order = "(SELECT CASE WHEN max(module_order) > 0 THEN max(module_order) + 1 ELSE 1 END FROM modules_table WHERE interface = '" . $arr_module ['@interface'] . "' AND module_type = " . $arr_module ['@module_type'] . ")";
 					// INSERT query when inserting por reinstalling module
-					$insert_clause = "(module_order, module_path, module_name, module_slug, friendly_name, interface, module_type, module_version,  module_url, standard_module, module_files, module_details)";
-					$select_clause = $module_order . " as module_order, '" . pg_escape_string ( $arr_module ['@module_path'] ) . "' as module_path, '" . pg_escape_string ( $arr_module ['@module_name'] ) . "' as module_name, '" . pg_escape_string ( $arr_module ['@module_slug'] ) . "' as module_slug, " . "'" . pg_escape_string ( $arr_module ['@friendly_name'] ) . "' as friendly_name, '" . pg_escape_string ( $arr_module ['@interface'] ) . "' as interface, " . $arr_module ['@module_type'] . " as module_type, " . "'" . pg_escape_string ( $arr_module ['@module_version'] ) . "' as module_version, '" . pg_escape_string ( $arr_module ['@module_url'] ) . "' as module_url, " . $standard_module . " as standard_module, " . "'" . pg_escape_string ( $arr_module ['@module_files'] ) . "' as module_files, '" . pg_escape_string ( $arr_module ['@module_details'] ) . "'::xml as module_details";
+					$insert_clause = "(module_order, module_path, module_name, friendly_name, interface, module_type, module_version,  module_url, standard_module, module_files, module_details)";
+					$select_clause = $module_order . " as module_order, '" . pg_escape_string ( $arr_module ['@module_path'] ) . "' as module_path, '" . pg_escape_string ( $arr_module ['@module_name'] ) . "' as module_name, " . pg_escape_string ( $arr_module ['@friendly_name'] ) . "' as friendly_name, '" . pg_escape_string ( $arr_module ['@interface'] ) . "' as interface, " . $arr_module ['@module_type'] . " as module_type, " . "'" . pg_escape_string ( $arr_module ['@module_version'] ) . "' as module_version, '" . pg_escape_string ( $arr_module ['@module_url'] ) . "' as module_url, " . $standard_module . " as standard_module, " . "'" . pg_escape_string ( $arr_module ['@module_files'] ) . "' as module_files, '" . pg_escape_string ( $arr_module ['@module_details'] ) . "'::xml as module_details";
 					$query = "INSERT INTO modules_table " . $insert_clause . " " . "SELECT " . $select_clause . " WHERE NOT EXISTS (SELECT 1 FROM modules_table WHERE module_name IN ('" . $arr_module ['@module_name'] . "','bb_logout'));";
 					// echo "<p>" . $query . "</p>";
 					$result = $main->query ( $con, $query );
@@ -410,6 +412,7 @@ else {
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
 
 
 

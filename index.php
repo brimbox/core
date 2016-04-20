@@ -157,27 +157,28 @@ if (isset ( $_SESSION ['username'] )) : /* START IF, IF (logged in) THEN (contro
 	$module_types = implode ( ",", array_unique ( $module_types ) );
 	
 	/* RECONCILE SLUG AND MODULE USING SQL */
-    $_SESSION['pretty_slugs'] = $pretty_slugs = $main->get_constant('BB_PRETTY_SLUGS', 0);
+	$_SESSION ['pretty_slugs'] = $pretty_slugs = $main->get_constant ( 'BB_PRETTY_SLUGS', 0 );
 	// get slug and module, in order of precedence, 1 good slug and module, 2 good slug (back button), 3 empty slug (on login)
-    if ($pretty_slugs == 1) {
-        $query = "SELECT id, module_name, module_slug FROM (SELECT 1 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string ( $slug ) . "' AND  module_name = '" . pg_escape_string ( $module ) . "' UNION ALL SELECT 2 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string ( $slug ) . "' UNION ALL SELECT 3 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ")) T1 " . "ORDER BY id, module_type, module_order LIMIT 1";
-    }
-    else {
-        $query = "SELECT id, module_name, module_slug FROM (SELECT 1 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_name = '" . pg_escape_string ( $slug ) . "' AND  module_name = '" . pg_escape_string ( $module ) . "' UNION ALL SELECT 2 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_name = '" . pg_escape_string ( $slug ) . "' UNION ALL SELECT 3 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ")) T1 " . "ORDER BY id, module_type, module_order LIMIT 1";
-    }
-    $result = $main->query ( $con, $query );
-    $row = pg_fetch_array ( $result );
-    $module = $_SESSION ['module'] = $row ['module_name'];
-    $slug = $_SESSION ['slug'] = $row ['module_slug'];
-    
-    /* REDIRECT WITH DEFAULT SLUG AND MODULE ON LOGIN */
-    // this redirect has to happen after global array and hooks are loaded
-    if (in_array($row ['id'], array(2,3))) {
-        $index_path = "Location: " . dirname ( $_SERVER ['PHP_SELF'] ) . "/" . $slug;
-        header ( $index_path );
-    }        
-
-    
+	if ($pretty_slugs == 1) {
+		$query = "SELECT id, module_name, module_slug FROM (SELECT 1 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string ( $slug ) . "' AND module_name = '" . pg_escape_string ( $module ) . "' AND interface = '" . pg_escape_string($interface) . "' UNION ALL SELECT 2 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string ( $slug ) . "' AND interface = '" . pg_escape_string($interface) . "' UNION ALL SELECT 3 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1 " . "ORDER BY id, module_type, module_order LIMIT 1";
+	} else {
+		$query = "SELECT id, module_name, module_slug FROM (SELECT 1 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_name = '" . pg_escape_string ( $slug ) . "' AND  module_name = '" . pg_escape_string ( $module ) . "' AND interface = '" . pg_escape_string($interface) . "' UNION ALL SELECT 2 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_name = '" . pg_escape_string ( $slug ) . "' AND interface = '" . pg_escape_string($interface) . "' UNION ALL SELECT 3 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1 " . "ORDER BY id, module_type, module_order LIMIT 1";
+	}
+	$result = $main->query ( $con, $query );
+	$row = pg_fetch_array ( $result );
+	$module = $_SESSION ['module'] = $row ['module_name'];
+	$slug = $_SESSION ['slug'] = $row ['module_slug'];
+	
+	/* REDIRECT WITH DEFAULT SLUG AND MODULE ON LOGIN */
+	// this redirect has to happen after global array and hooks are loaded
+	if (in_array ( $row ['id'], array (
+			2,
+			3 
+	) )) {
+		$index_path = "Location: " . dirname ( $_SERVER ['PHP_SELF'] ) . "/" . $slug;
+		header ( $index_path );
+	}
+	
 	// cleanup
 	unset ( $key, $value, $module_types, $query, $result, $row, $index_path );
 	

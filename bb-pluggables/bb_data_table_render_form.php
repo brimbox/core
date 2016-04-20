@@ -103,12 +103,12 @@ if (! function_exists ( 'bb_data_table_render_form' )) :
 						$field_output = "<div class=\"clear\">";
 						$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
 						if ($multiselect) {
-							$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced short\" name = \"" . $col . "[]\" size=\"5\" multiple onFocus=\"bb_remove_message(); return false;\">";
+							$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced floatleft\" name = \"" . $col . "[]\" size=\"5\" multiple onFocus=\"bb_remove_message(); return false;\">";
 							foreach ( $dropdown as $value ) {
 								$selected = is_int ( array_search ( strtolower ( $value ), array_map ( 'strtolower', $input ) ) ) ? "selected" : "";
 								$field_output .= "<option value=\"" . htmlentities ( $value ) . "\" " . $selected . ">" . htmlentities ( $value ) . "&nbsp;</option>";
 							}
-							$field_output .= "</select><label class=\"error\">" . $error . "</label></div>";
+							$field_output .= "</select><div class=\"error spaced floatleft\">" . $error . "</div></div>";
 						} else {
 							$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
 							foreach ( $dropdown as $value ) {							
@@ -173,8 +173,8 @@ if (! function_exists ( 'bb_data_table_render_form' )) :
 						foreach ( $input as $value ) {
 							$field_output .= "<input type=\"hidden\" name=\"" . $col . "[]\" value=\"" . htmlentities ( $value ) . "\" />";
 						}
-						$field_output .= "<textarea class=\"spaced\" readonly>" . implode("\r\n", $input) . "</textarea>"; 
-						$field_output .= "<label class=\"error\">" . $error . "</label></div>";
+						$field_output .= "<textarea class=\"spaced floatleft\" readonly>" . implode("\r\n", $input) . "</textarea>"; 
+						$field_output .= "<div class=\"error spaced floatleft\">" . $error . "</div></div>";
 					} else {
 						$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
 						foreach ( $input as $value ) {
@@ -234,11 +234,11 @@ if (! function_exists ( 'bb_data_table_render_form' )) :
 					$field_output .= "<label class = \"spaced padded floatleft right overflow medium shaded hidden\" for=\"" . $col . "\">" . htmlentities ( $value ['name'] ) . ": </label>";
 					//normal
 					if (!$multiselect) {
-						$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
+						$field_output .= "<select id=\"" . $field_id . "\" class = \"spaced floatleft\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
 						foreach ( $input as $value ) {
 							$field_output .= "<option value=\"" . htmlentities ( $value ) . "\">" . htmlentities ( $value ) . "&nbsp;</option>";							
 						}
-						$field_output .= "</select><label class=\"error\">" . $error . "</label></div>";
+						$field_output .= "</select><div class=\"error spaced floatleft\">" . $error . "</div></div>";
 					}
 					else {
 						foreach ( $input as $value ) {

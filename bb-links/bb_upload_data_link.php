@@ -18,11 +18,14 @@
 define ( 'BASE_CHECK', true );
 include ("../bb-config/bb_config.php"); // need DB_NAME
 
-if (file_exists ( "../bb-extend/include_main.php" )) {
-	include_once ("/bb-extend/include_main.php");
-} else {
-	include_once ("../bb-utilities/bb_include_main.php");
-}
+$abspath = $_SESSION['abspath'];
+include_once ($abspath . "/bb-config/bb_constants.php");
+// include build class object
+if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
+    include_once ($abspath . "/bb-extend/bb_include_main_class.php");
+else
+    include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
+
 // main instance
 $main = new bb_main ();
 

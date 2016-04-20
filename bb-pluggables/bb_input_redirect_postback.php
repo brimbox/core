@@ -76,7 +76,7 @@ if (! function_exists ( 'bb_input_redirect_postback' )) :
 					// deal with remove and lo, present when doing files
 					$remove = $main->post ( 'remove', $submit, 0 );
 					$main->set ( "remove", $arr_state, $remove );
-					if (is_uploaded_file ( $_FILES [$main->name ( 'c47', $submit )] ["tmp_name"] )) {
+					if (isset ( $_FILES [$main->name ( 'c47', $submit )] ["tmp_name"] )) {
 						$str1 = $_FILES [$main->name ( $col, $submit )] ["name"];
 					}
 					$str2 = $main->post ( "lo", $submit );

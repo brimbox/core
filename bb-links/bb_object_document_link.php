@@ -25,14 +25,14 @@ session_regenerate_id ();
 
 if (isset ( $_SESSION ['username'] )) :
 	
-	/* SET UP MAIN OBJECT */
-	include ("../bb-config/bb_constants.php"); // need FILE PERMISSIONS
-	
-	if (file_exists ( "../bb-extend/include_main.php" )) {
-		include_once ("/bb-extend/include_main.php");
-	} else {
-		include_once ("../bb-utilities/bb_include_main.php");
-	}
+	/* SET UP MAIN OBJECT */	
+    $abspath = $_SESSION['abspath'];
+    include_once ($abspath . "/bb-config/bb_constants.php");
+    // include build class object
+    if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
+        include_once ($abspath . "/bb-extend/bb_include_main_class.php");
+    else
+    include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
 	// main instance
 	$main = new bb_main ();
 	
@@ -67,6 +67,7 @@ if (isset ( $_SESSION ['username'] )) :
 	flush ();
 	
 	echo $document;
+
 
 
 

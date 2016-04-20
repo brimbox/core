@@ -24,12 +24,14 @@ session_name ( DB_NAME );
 session_start ();
 session_regenerate_id ();
 
-// extendable include
-if (file_exists ( "../bb-extend/include_main.php" )) {
-	include_once ("/bb-extend/include_main.php");
-} else {
-	include_once ("../bb-utilities/bb_include_main.php");
-}
+$abspath = $_SESSION['abspath'];
+include_once ($abspath . "/bb-config/bb_constants.php");
+// include build class object
+if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
+    include_once ($abspath . "/bb-extend/bb_include_main_class.php");
+else
+    include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
+    
 // main instance
 $main = new bb_main ();
 
@@ -190,7 +192,7 @@ while ( $row = pg_fetch_row ( $result ) ) {
 /* MODULES TABLE */
 $query = "BEGIN; LOCK TABLE modules_table;";
 $main->query ( $con, $query );
-$query = "SELECT module_order, module_path, module_name, module_slug, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details, change_date FROM modules_table;";
+$query = "SELECT module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details, change_date FROM modules_table;";
 $result = $main->query ( $con, $query );
 $cnt = pg_num_rows ( $result );
 $query = "COMMIT;";
