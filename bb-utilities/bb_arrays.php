@@ -211,42 +211,42 @@ if ($interface == "bb_brimbox") :
 	$main->add_action ( 'hooks', "bb_input_module_postback", array (
 			'func' => "bb_input_module_postback",
 			'vars' => array (
-					"&arr_state"
+					"&arr_state" 
 			),
 			'file' => "/bb-pluggables/bb_input_module_postback.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_module_autofill", array (
 			'func' => "bb_input_module_autofill",
 			'vars' => array (
-					"&arr_state"
+					"&arr_state" 
 			),
 			'file' => "/bb-pluggables/bb_input_module_autofill.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_render_form", array (
 			'func' => "bb_data_table_render_form",
 			'vars' => array (
-					"&arr_state"
+					"&arr_state" 
 			),
 			'file' => "/bb-pluggables/bb_data_table_render_form.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_redirect_postback", array (
 			'func' => "bb_input_redirect_postback",
 			'vars' => array (
-					"&arr_state"
+					"&arr_state" 
 			),
 			'file' => "/bb-pluggables/bb_input_redirect_postback.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_row_validate", array (
 			'func' => "bb_data_table_row_validate",
 			'vars' => array (
-					"&arr_state"
+					"&arr_state" 
 			),
 			'file' => "/bb-pluggables/bb_data_table_row_validate.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_input_data_table_row_input", array (
 			'func' => "bb_data_table_row_input",
 			'vars' => array (
-					"&arr_state"
+					"&arr_state" 
 			),
 			'file' => "/bb-pluggables/bb_data_table_row_input.php" 
 	), 50 );
@@ -255,22 +255,14 @@ if ($interface == "bb_brimbox") :
 	$main->add_action ( 'hooks', "bb_upload_data_row_validation", array (
 			'func' => "bb_data_table_row_validate",
 			'vars' => array (
-					"&arr_layouts",
-					"&arr_columns",
-					"&arr_dropdowns",
-					"&arr_pass",
-					"params" 
+					"&arr_pass" 
 			),
 			'file' => "/bb-pluggables/bb_data_table_row_validate.php" 
 	), 50 );
 	$main->add_action ( 'hooks', "bb_upload_data_row_input", array (
 			'func' => "bb_data_table_row_input",
 			'vars' => array (
-					"&arr_layouts",
-					"&arr_columns",
-					"&arr_dropdowns",
-					"&arr_pass",
-					"params" 
+					"&arr_pass" 
 			),
 			'file' => "/bb-pluggables/bb_data_table_row_input.php" 
 	), 50 );
@@ -437,6 +429,8 @@ if ($interface == "bb_brimbox") :
 				) 
 		), 90 );
 	}
+
+
 
 
 

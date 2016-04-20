@@ -634,7 +634,7 @@ else {
 		pg_result_seek ( $result, 0 );
 	}
 
-	function array_to_select($arr, $name, $selected, $prepend = array(), $params = array(), $sort = true) {
+	function array_to_select($arr, $name, $selected, $prepend = array(), $params = array()) {
 		// turns an array to a select dropdown
 		$params = array (
 				'name' => $name 
@@ -643,15 +643,7 @@ else {
 		$usekey = isset ( $params ['usekey'] ) ? $params ['usekey'] : false;
 		unset ( $params ['usekey'] );
 		
-		if ($sort && $usekey) {
-			asort ( $arr );
-			$arr = $prepend + $arr;
-		} else {
-			sort ( $arr );
-			$prepend = array_reverse ( $prepend );
-			foreach ( $prepend as $value )
-				array_unshift ( $arr, $value );
-		}
+		$arr = $prepend + $arr;
 		
 		$attributes = $this->attributes ( $params );
 		

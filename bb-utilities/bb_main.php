@@ -991,22 +991,24 @@ class bb_main extends bb_reports {
 	function validate_required(&$field, $error = false) {
 		// Checks to see that a field has some data
 		// returns false on good, true or error string if bad
-		if (is_string($field)  && ! $this->blank ( trim($field) ) ) {
+		if (is_string ( $field ) && ! $this->blank ( trim ( $field ) )) {
 			return false;
-        } elseif (is_array($field)  && ! empty($field) ) {
-            return false;
+		} elseif (is_array ( $field ) && ! empty ( $field )) {
+			return false;
 		} else {
 			$return_value = $error ? "Error: This value is required." : true;
-            return $return_value;
-		}		
+			return $return_value;
+		}
 	}
 
 	function validate_dropdown(&$field, $arr_dropdown, $error = false) {
 		// validates dropdowns, primarily used in bulk loads (Upload Data)
 		// returns false on good, true or error string if bad
-        $multiselect = $this->init ( $arr_dropdown ['multiselect'], 0 );
-		$arr_dropdown = $this->filter_keys ( $arr_dropdown );		
-		$arr_values = (!$multiselect) ? array ($field ) : $field;
+		$multiselect = $this->init ( $arr_dropdown ['multiselect'], 0 );
+		$arr_dropdown = $this->filter_keys ( $arr_dropdown );
+		$arr_values = (! is_array ( $field )) ? array (
+				$field 
+		) : $field;
 		// field built from dropdown for return values
 		$arr_formatted = array ();
 		foreach ( $arr_values as $value ) {
@@ -1019,8 +1021,8 @@ class bb_main extends bb_reports {
 			}
 		}
 		// field formatted with actual dropdown values
-        $field = (!$multiselect) ? implode( $arr_formatted ) : $arr_formatted;
-        // false is no error
+		$field = (! $multiselect) ? implode ( $arr_formatted ) : $arr_formatted;
+		// false is no error
 		return false;
 	}
 

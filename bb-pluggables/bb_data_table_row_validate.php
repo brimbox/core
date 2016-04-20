@@ -25,7 +25,8 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 		// session or globals
 		global $con, $main, $submit;
 		
-		$error = true;
+		//return error message
+		$error = true;		
 		
 		$arr_layouts = $main->layouts ( $con );
 		$default_row_type = $main->get_default_layout ( $arr_layouts );
@@ -44,7 +45,6 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 		/* WARNING -- filtering required columns can result in blank required values on INSERT */
 		
 		foreach ( $arr_columns as $key => $value ) {
-			// do not process columns with dropdowns
 			$col = $main->pad ( "c", $key );
 			$field = $arr_state [$col];
 			$field = $main->filter ( "bb_input_custom_char_replace", $field );
@@ -52,7 +52,7 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 			// start validation
 			$type = $value ['type']; // validation type
 			$required_flag = $value ['required'] == 1 ? true : false; // required boolean
-			                                                          
+																	  
 			// all validated
 			$return_required = $return_validate = false;
 			// required field
@@ -87,8 +87,8 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 			$field = $main->filter ( $filtername, $field );
 			
 			$main->set ( $col, $arr_state, $field );
-		}
-		$main->set ( 'arr_errors', $arr_state, $arr_errors );
+			}
+		$main->set ( 'arr_errors', $arr_state, $arr_errors );		
 	}
 	
 	

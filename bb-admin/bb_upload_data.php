@@ -79,19 +79,19 @@ if (count ( $arr_messages ) > 0) {
 	$main->echo_messages ( $arr_messages );
 	echo "</div>";
 }
-if (isset ( $data_stats ['not_validated'] )) {
+if (! empty ( $data_stats ['not_validated'] )) {
 	echo "<div class=\"spaced\">";
 	echo "<p>" . $data_stats ['not_validated'] . " row(s) rejected because data validation errors.</p>";
 	$main->echo_messages ( $arr_errors_all );
 	echo "</div>";
 }
-if (isset ( $data_stats ['not_inputted'] )) {
+if (! empty ( $data_stats ['not_inputted'] )) {
 	echo "<div class=\"spaced\">";
 	echo "<p>" . $data_stats ['not_inputted'] . " row(s) rejected by insert algorithm.</p>";
 	$main->echo_messages ( $arr_messages_all );
 	echo "</div>";
 }
-if (isset ( $data_stats ['inputted'] )) {
+if (! empty ( $data_stats ['inputted'] )) {
 	echo "<div class=\"spaced\">";
 	if ($edit_or_insert == 0)
 		echo "<p>" . $data_stats ['inputted'] . " row(s) inserted into database.</p>";
@@ -128,18 +128,6 @@ echo "</div>";
 $main->echo_clear ();
 echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
-echo "<input type=\"text\" name=\"data_file\" value=\"" . $data_file . "\" class=\"spaced\">";
-echo "<input type=\"hidden\" name=\"bb_data_file_extension\" value=\"txt\" class=\"spaced\">";
-$params = array (
-		"class" => "spaced",
-		"onclick" => "bb_submit_link('bb-links/bb_upload_data_link.php'; return false;)",
-		"label" => "Download Data Area" 
-);
-$main->echo_script_button ( "dump_button", $params );
-echo "</div>";
-$main->echo_clear ();
-echo "<div class=\"spaced border floatleft padded\">";
-echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_file\" id=\"file\" />";
 $params = array (
 		"class" => "spaced",
@@ -159,13 +147,12 @@ $params = array (
 );
 $main->echo_button ( "submit_data", $params );
 $arr_select = array (
-		"Insert",
-		"Edit",
-		"Update" 
+		0 => "Insert",
+		1 => "Update" 
 );
-$main->array_to_select ( $arr_select, "edit_or_insert", $edit_or_insert, array (
+$main->array_to_select ( $arr_select, "edit_or_insert", $edit_or_insert, array (), array (
 		'usekey' => true,
-		'select_class' => "spaced" 
+		'class' => "spaced" 
 ) );
 echo "</div>";
 $main->echo_clear ();

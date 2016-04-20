@@ -122,7 +122,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	// get column names based on row_type/record types
 	$parent_row_type = $layouts [$row_type] ['parent']; // should be set
 	                                                    // need unreduced column
-	$arr_colums = $main->columns ( $con, $row_type );
+	$arr_columns = $main->columns ( $con, $row_type );
 	// get dropdowns for validation
 	$arr_dropdowns = $main->dropdowns ( $con, $row_type );
 	// get has_link
@@ -137,7 +137,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 					"Link" 
 			);
 		}
-		foreach ( $arr_colums as $value ) {
+		foreach ( $arr_columns as $value ) {
 			array_push ( $arr_implode, $value ['name'] );
 		}
 		$data_area = implode ( "\t", $arr_implode ) . PHP_EOL;
@@ -157,8 +157,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	// 1 - UPDATE POPULATED VALUES
 	
 	// button 3 -- post data to database
-	if ($main->button ( 3 )) // submit_data
-{
+	if ($main->button ( 3 )) {
 		// $i is used to check header
 		// $j is the number of rows of data, 0 is header row, 1 starts data
 		// $k is the line item count
@@ -179,15 +178,15 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 			}
 			$i ++;
 		}
-		foreach ( $arr_colums as $value ) {
+		foreach ( $arr_columns as $value ) {
 			// there is a value to check
 			if (isset ( $arr_row [$i] )) {
 				if (strcasecmp ( $value ['name'], $arr_row [$i] )) {
 					$check_header = false;
 					break;
 				}
-			}  // no value to check
-else {
+			} else {
+				// no value to check
 				$check_header = false;
 				break;
 			}
@@ -196,7 +195,7 @@ else {
 		// end check header
 		
 		// determine $p
-		$line_items = ($has_link) ? count ( $arr_colums ) + 1 : count ( $arr_colums );
+		$line_items = ($has_link) ? count ( $arr_columns ) + 1 : count ( $arr_columns );
 		/* End Check Header */
 		
 		// check header checks that the first line of data matches $xml_column
@@ -235,80 +234,67 @@ else {
 						$l = 0;
 					}
 				}  // EDIT OR UPDATE RECORD
-else // $edit_or_insert = 1 or 2
-{
+else {
 					$l = 1;
 					$arr_pass ['row_type'] = $row_type;
 					$arr_pass ['row_join'] = $row_type;
 					$arr_pass ['post_key'] = ( int ) $arr_line [0];
 				}
 				
-				// set up array to pass, $arr_pass
-				// also build filter if editing
-				$filter = array ();
-				foreach ( $arr_colums as $key => $value ) {
-					$col = $main->pad ( "c", $key );
-					$arr_pass [$col] = $arr_line [$l];
-					// setup filter for edit, filter is columns to be edited
-					if ($edit_or_insert == 1)
-						if (! $main->blank ( $arr_line [$l] ))
-							array_push ( $filter, $key );
+				/* ENFORCE UPLOAD POLICY */
+				foreach ( $arr_columns as $key => $value ) {
+					$arr_line [$l] = isset ( $arr_line [$l] ) ? $arr_line [$l] : "";
+					if (in_array ( $edit_or_insert, array (
+							0,
+							2 
+					) ) || ! $main->blank ( $arr_line [$l] )) {
+						$col = $main->pad ( "c", $key );
+						if (in_array ( $key, $arr_notes )) {
+							$arr_pass [$col] = $main->purge_chars ( $arr_line [$l], false );
+						} elseif (in_array ( $key, $arr_file )) {
+							// not files
+							$arr_pass [$col] = "";
+						} // everthing else {
+						$arr_pass [$col] = $main->purge_chars ( $arr_line [$l] );
+					}
 					$l ++;
 				}
 				
-				// setup params to pass, $mode left to default
-				// edit columns in $filter array
-				$params = array ();
-				if ($edit_or_insert == 1)
-					$params ['filter'] = $filter;
-					
-					/* ENFORCE UPLOAD POLICY */
-				foreach ( $arr_colums as $key => $value ) {
-					$col = $main->pad ( "c", $key );
-					if (in_array ( $key, $arr_notes )) {
-						$arr_pass [$col] = $main->purge_chars ( $arr_pass [$col], false );
-					} elseif (in_array ( $key, $arr_file )) {
-						// not files
-						$arr_pass [$col] = "";
-					} // everthing else {
-					$arr_pass [$col] = $main->purge_chars ( $arr_pass [$col] );
-				}
-			}
-			
-			/* DO VALIDATION */
-			$main->hook ( "bb_upload_data_row_validation" );
-			
-			if (count ( $arr_pass ['arr_errors'] ) != 0) {
-				// FAILURE
-				$not_validated ++;
-				foreach ( $arr_pass ['arr_errors'] as $value ) {
-					array_push ( $arr_errors_all, $value );
-				}
-				$arr_errors_all = array_unique ( $arr_errors_all );
-			} else {
-				/* DO INPUT */
-				$main->hook ( "bb_upload_data_row_input" );
+				/* DO VALIDATION */
+				$main->hook ( "bb_upload_data_row_validation" );
 				
-				$arr_messages_grep = preg_grep ( "/^Error:/i", $arr_pass ['arr_messages'] );
-				if (count ( $arr_messages_grep ) > 0) {
+				if (count ( $arr_pass ['arr_errors'] ) != 0) {
 					// FAILURE
-					$not_inputted ++;
-					$arr_messages_all = array_unique ( $arr_messages_all + $arr_messages_grep );
+					$not_validated ++;
+					foreach ( $arr_pass ['arr_errors'] as $value ) {
+						array_push ( $arr_errors_all, $value );
+					}
+					$arr_errors_all = array_unique ( $arr_errors_all );
 				} else {
-					// SUCCESS
-					// remove line on success
-					unset ( $arr_lines [$j] );
-					$inputted ++;
+					/* DO INPUT */
+					$main->hook ( "bb_upload_data_row_input" );
+					
+					$arr_messages_grep = preg_grep ( "/^Error:/i", $arr_pass ['arr_messages'] );
+					if (count ( $arr_messages_grep ) > 0) {
+						// FAILURE
+						$not_inputted ++;
+						$arr_messages_all = array_unique ( $arr_messages_all + $arr_messages_grep );
+					} else {
+						// SUCCESS
+						// remove line on success
+						unset ( $arr_lines [$j] );
+						$inputted ++;
+					}
 				}
 			}
+		} else {
+			array_push ( $arr_messages, "Error: Header row does not match the column names of layout chosen." );
 		}
 		if (count ( $arr_lines ) > 1) {
 			$data_area = implode ( "\r\n", $arr_lines );
 		} else {
 			$data_area = "";
 		}
-	} else {
-		array_push ( $arr_messages, "Error: Header row does not match the column names of layout chosen." );
 	}
 	
 	// pass back values
@@ -337,6 +323,7 @@ else // $edit_or_insert = 1 or 2
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
 
 
 
