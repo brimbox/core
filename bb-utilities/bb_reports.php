@@ -59,7 +59,7 @@ class bb_reports extends bb_forms {
 		}
 		echo "<select name = \"report_type\" class = \"" . $select_class . "\" onChange=\"bb_reports.clear_report()\">";
 		foreach ( $array_reports as $key => $value ) {
-			echo "<option value=\"" . $key . "\" " . ($key == $selected ? "selected" : "") . ">" . $value . "&nbsp;</option>";
+			echo "<option value=\"" . $value['type'] . "\" " . ($value['type'] == $selected ? "selected" : "") . ">" . $value['name'] . "&nbsp;</option>";
 		}
 		echo "</select>";
 	}

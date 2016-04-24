@@ -24,15 +24,15 @@ session_name ( DB_NAME );
 session_start ();
 session_regenerate_id ();
 
-$abspath = $_SESSION['abspath'];
+$abspath = $_SESSION ['abspath'];
 include_once ($abspath . "/bb-config/bb_constants.php");
 // include build class object
 if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
-    include_once ($abspath . "/bb-extend/bb_include_main_class.php");
+	include_once ($abspath . "/bb-extend/bb_include_main_class.php");
 else
-    include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
-    
-// main instance
+	include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
+	
+	// main instance
 $main = new bb_main ();
 
 // will check SESSION

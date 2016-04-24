@@ -475,7 +475,7 @@ for($m = 1; $m <= 50; $m ++) {
 				echo "<div class = \"cell middle\"><select name = \"length_" . $m . "\" class = \"spaced\">";
 				foreach ( $arr_column_css_class as $key2 => $value2 ) {
 					$selected = ($key2 == $formvalue) ? "selected" : "";
-					echo "<option value=\"short\" " . $selected . ">" . htmlentities ( $value2 ) . "</option>";
+					echo "<option value=\"" . $key2 . "\" " . $selected . ">" . htmlentities ( $value2 ) . "</option>";
 				}
 				echo "</select></div>";
 				break;

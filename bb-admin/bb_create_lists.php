@@ -25,13 +25,13 @@ function bb_reload_1()
 function bb_reload_2()
 	{
 	var frmobj = document.forms["bb_form"];  
-    frmobj.list_number_2.value = 0;
+    frmobj.list_number_update.value = 0;
     bb_submit_form(); //call javascript submit_form function	
 	}    
 function bb_reload_3()
 	{
 	var frmobj = document.forms["bb_form"];  
-    frmobj.list_number_3.value = 0;
+    frmobj.list_number_delete.value = 0;
     bb_submit_form(); //call javascript submit_form function	
 	}
 </script>

@@ -166,7 +166,7 @@ $main->add_value ( 'reports', array (
 ), 20 );
 $main->add_value ( 'reports', array (
 		'type' => 2,
-		'name' => "Fulle" 
+		'name' => "Full" 
 ), 30 );
 $main->add_value ( 'reports', array (
 		'type' => 3,

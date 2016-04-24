@@ -31,10 +31,8 @@
 
 // There are many error reports in these modules, the appear in waterfall order
 class bb_manage_modules {
-
-	function __construct() {
-
-		global $array_header;
+    
+	function __construct() {		
 		
 		$this->arr_required = array (
 				"@module_path",
@@ -42,10 +40,8 @@ class bb_manage_modules {
 				"@friendly_name",
 				"@interface",
 				"@module_type",
-				"@module_version",
-				"@module_url" 
+				"@module_version"
 		);
-		$this->arr_header = $array_header;
 	}
 	
 	// This checks the php files calling function build_module_array
@@ -142,6 +138,10 @@ class bb_manage_modules {
 	// arr_module passed as a value
 	// this function checks $arr_module for errors
 	protected function error_waterfall(&$arr_module) {
+        
+        global $array_header;
+        global $array_interface;
+        
 		// check for valid module name
 		$path = $arr_module ['@module_path'];
 		$pattern_name = "/[^A-Za-z0-9_]/";
@@ -196,11 +196,11 @@ class bb_manage_modules {
 		}
 		
 		// check if global interface array is set, only then can you check userroles and module types
-		if (in_array ( $arr_module ['@interface'], array_keys ( $this->arr_header ) )) {
+		if (in_array ( $arr_module ['@interface'], array_keys ( $array_header ) )) {
 			// check the module types
 			// tricky to validate ints, deal with value as a string
 			if (filter_var ( ( string ) $arr_module ['@module_type'], FILTER_VALIDATE_INT )) {
-				$arr_keys = array_keys ( $this->arr_header [$arr_module ['@interface']] ['module_types'] );
+				$arr_keys = array_keys ( $array_interface [$arr_module ['@interface']] );
 				$arr_keys = array_unique ( array_merge ( $arr_keys, array (
 						0,
 						- 1,

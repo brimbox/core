@@ -176,7 +176,6 @@ CREATE TABLE modules_table
   interface text NOT NULL DEFAULT ''::text,
   module_type smallint,
   module_version text NOT NULL DEFAULT ''::text,
-  module_url text NOT NULL DEFAULT ''::text,
   standard_module smallint,
   module_files text NOT NULL DEFAULT ''::text,
   module_details text NOT NULL DEFAULT ''::text,
