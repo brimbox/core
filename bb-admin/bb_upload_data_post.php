@@ -233,8 +233,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 						$arr_pass ['post_key'] = - 1;
 						$l = 0;
 					}
-				}  // EDIT OR UPDATE RECORD
-else {
+				} else {
 					$l = 1;
 					$arr_pass ['row_type'] = $row_type;
 					$arr_pass ['row_join'] = $row_type;
@@ -323,6 +322,10 @@ else {
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
+
+
+
 
 
 

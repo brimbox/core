@@ -65,8 +65,8 @@ $truncate_option = $main->process ( "truncate_option", $module, $arr_state, $def
 $main->update ( $con, $module, $arr_state );
 
 // This area is for truncating the table
-if ($main->button ( 1 )) // truncate_table
-{
+if ($main->button ( 1 )) {
+	// truncate_table
 	// delete query
 	$query = "DELETE FROM log_table WHERE change_date + interval '" . $truncate_option . "' < now();";
 	$result = $main->query ( $con, $query );
@@ -74,8 +74,8 @@ if ($main->button ( 1 )) // truncate_table
 	array_push ( $arr_messages, $num_rows . " rows deleted from log table." );
 }
 
-if ($main->button ( 2 )) // truncate_table
-{
+if ($main->button ( 2 )) {
+	// truncate_table
 	// delete query
 	$query = "DELETE FROM state_table WHERE change_date + interval '" . $truncate_option . "' < now();";
 	$result = $main->query ( $con, $query );

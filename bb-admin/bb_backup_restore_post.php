@@ -109,8 +109,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	
 	// CLEAN DATABASE DATA
 	// removes tabs and cleans up new lines
-	if ($main->button ( 1 )) // submit_file
-{
+	if ($main->button ( 1 )) {
+		// submit_file
 		$valid_password = $main->validate_password ( $con, $main->post ( "backup_passwd", $module ), "5_bb_brimbox" );
 		if (! $valid_password) {
 			array_push ( $arr_messages, "Invalid Password." );
@@ -120,8 +120,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		}
 	}
 	// CLEAN DATABASE COLUMN
-	if ($main->button ( 2 )) // clean_up_columns
-{
+	if ($main->button ( 2 )) {
+		// clean_up_columns
 		$valid_password = $main->validate_password ( $con, $main->post ( "backup_passwd", $module ), "5_bb_brimbox" );
 		if (! $valid_password) {
 			array_push ( $arr_messages, "Invalid Password." );
@@ -132,8 +132,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	}
 	
 	// CLEAN DATABASE LAYOUT
-	if ($main->button ( 3 )) // clean_up_columns
-{
+	if ($main->button ( 3 )) {
+		// clean_up_columns
 		$valid_password = $main->validate_password ( $con, $main->post ( "backup_passwd", $module ), "5_bb_brimbox" );
 		if (! $valid_password) {
 			array_push ( $arr_messages, "Invalid Password." );
@@ -144,8 +144,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	}
 	
 	// RESTORE DATABASE
-	if ($main->button ( 4 )) // submit_file
-{
+	if ($main->button ( 4 )) {
+		// submit_file
 		// admin password
 		$valid_password = $main->validate_password ( $con, $main->post ( "admin_passwd_1", $module ), "5_bb_brimbox" );
 		if (! $valid_password) {
@@ -156,8 +156,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 				/* VERY LONG IFS FOR RESTORING DATABASE */
 				$handle = fopen ( $_FILES [$main->name ( 'backup_file', $module )] ["tmp_name"], "r" );
 				$str = rtrim ( fgets ( $handle ) ); // get first line without encryption, has salt and hash
-				if (strlen ( $str ) == 168) // correct header length
-{
+				                                    // correct header length
+				if (strlen ( $str ) == 168) {
 					// get backup file password
 					$passwd = $main->post ( 'file_passwd_1', $module );
 					// split up hash, salt and iv
@@ -367,23 +367,20 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 							$main->query ( $con, $query );
 							
 							array_push ( $arr_messages, "Data table has been restored from backup." );
-						} else // close file if not restoring data table
-{
+						} else {
+							// close file if not restoring data table
 							fclose ( $handle );
 						}
-					}  // hash password test
-else // bad password
-{
+					} else {
+						// bad password
 						array_push ( $arr_messages, "Error: Password for backup file not verified." );
 					}
-				}  // first line check
-else // bad first line
-{
+				} else {
+					// bad first line
 					array_push ( $arr_messages, "Error: File is not a valid backup file." );
 				}
-			}  // file exists
-else // no file at all
-{
+			} else {
+				// no file at all
 				array_push ( $arr_messages, "Error: Must choose backup file." );
 			}
 		} // check admin password
@@ -391,14 +388,14 @@ else // no file at all
 	
 	// BUILD INDEXES
 	// full text indexes do not exist after data table restore
-	if ($main->button ( 5 )) // submit_file
-{
+	if ($main->button ( 5 )) {
+		// submit_file
 		$main->build_indexes ( $con, 0 );
 		array_push ( $arr_messages, "Indexes have been rebuilt." );
 	}
 	
-	if ($main->button ( 6 )) // submit_file
-{
+	if ($main->button ( 6 )) {
+		// submit_file
 		// admin password
 		$valid_password = $main->validate_password ( $con, $main->post ( "admin_passwd_2", $module ), "5_bb_brimbox" );
 		if (! $valid_password) {
@@ -409,8 +406,8 @@ else // no file at all
 				/* VERY LONG IFS FOR RESTORING DATABASE */
 				$handle = fopen ( $_FILES [$main->name ( 'lo_file', $module )] ["tmp_name"], "r" );
 				$str = rtrim ( fgets ( $handle ) ); // get first line without encryption, has salt and hash
-				if (strlen ( $str ) == 168) // correct header length
-{
+				if (strlen ( $str ) == 168) {
+					// correct header length
 					// get backup file password
 					$passwd = $main->post ( 'file_passwd_2', $module );
 					// split up hash, salt and iv
@@ -477,18 +474,16 @@ else // no file at all
 								array_push ( $arr_messages, "Files have been restored from backup." );
 							} // count or lo_open
 						} // total
-					} else // bad password
-{
+					} else {
+						// bad password
 						array_push ( $arr_messages, "Error: Password for backup file not verified." );
 					}
-				}  // first line check
-else // bad first line
-{
+				} else {
+					// bad first line
 					array_push ( $arr_messages, "Error: File is not a valid backup file." );
 				}
-			}  // file exists
-else // no file at all
-{
+			} else {
+				// no file at all
 				array_push ( $arr_messages, "Error: Must choose backup file." );
 			}
 		}
@@ -520,7 +515,5 @@ else // no file at all
 
 
 
-
-    
 endif;
 ?>

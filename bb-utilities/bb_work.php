@@ -202,7 +202,7 @@ class bb_work extends bb_meta {
 
 	function load($con, $module) {
 		// gets and loads $arr_state from global $array_state
-		// module doesn't need to be defalut module
+		// module doesn't need to be default module
 		global $keeper;
 		
 		// nasty little implicit unconstrained JOIN

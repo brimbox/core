@@ -112,8 +112,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 			// echo "<p>" . $query . "</p>";
 			$result = $main->query ( $con, $query );
 			
-			if (pg_affected_rows ( $result ) == 0) // will do nothing if error
-{
+			if (pg_affected_rows ( $result ) == 0) {
+				// will do nothing if error
 				array_push ( $arr_messages, "Error: No changes have been made." );
 			} else {
 				array_push ( $arr_messages, $message );
@@ -123,7 +123,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		/* DELETE MODULE */
 		if ($module_action == - 2) {
 			// delete by id
-			$query = "DELETE FROM modules_table WHERE id = " . $module_id . " RETURNING module_name;";
+			$query = "DELETE FROM modules_table WHERE id = " . $module_id . " RETURNING module_path, module_name;";
 			$result = $main->query ( $con, $query );
 			// should return one row
 			if (pg_affected_rows ( $result ) == 1) {
@@ -131,7 +131,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 				// lookup should start with module name
 				$query = "DELETE FROM json_table WHERE lookup LIKE '" . $row ['module_name'] . "%'";
 				$main->query ( $con, $query );
-				
+				// delete file
+				@unlink ( $abspath . "/" . $row ['module_path'] );
 				// reorder modules without deleted module
 				$query = "UPDATE modules_table SET module_order = T1.order " . "FROM (SELECT row_number() OVER (PARTITION BY interface, module_type ORDER BY module_order) " . "as order, id FROM modules_table) T1 " . "WHERE modules_table.id = T1.id;";
 				$main->query ( $con, $query );
@@ -148,8 +149,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		if ($module_action == - 1) {
 			$query = "SELECT module_details FROM modules_table WHERE id = " . $module_id . ";";
 			$result = $main->query ( $con, $query );
-			if (pg_num_rows ( $result ) == 1) // get details
-{
+			if (pg_num_rows ( $result ) == 1) {
+				// get details
 				$row = pg_fetch_array ( $result );
 				$arr_details = json_decode ( $row ['module_details'], true );
 			} else {
@@ -168,7 +169,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 			// bad password
 			array_push ( $arr_messages, "Error: Invalid or missing password." );
 		} else {
-			$main->empty_directory ( "bb-temp/" );
+			$main->empty_directory ( $abspath . "/bb-temp/" );
 			// upload zip file to temp directory
 			if (! empty ( $_FILES [$main->name ( 'update_file', $module )] ["tmp_name"] )) {
 				if (substr ( $_FILES [$main->name ( 'update_file', $module )] ["name"], 0, 14 ) == "brimbox-update") {
@@ -189,15 +190,15 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 			} else {
 				$arr_messages [] = "Error: Must specify update file name.";
 			}
-			$main->empty_directory ( "bb-temp/", "bb-temp/" );
+			$main->empty_directory ( $abspath . "/bb-temp/" );
 		}
 	}
 	
 	/* BEGIN INSTALL OPTIONAL MODULES */
-	if ($main->button ( 2 )) // submit_modules
-{
+	if ($main->button ( 2 )) {
+		// submit_modules
 		// empty temp directory
-		$main->empty_directory ( "bb-temp/" );
+		$main->empty_directory ( $abspath . "/bb-temp/" );
 		// upload zip file to temp directory
 		if (! empty ( $_FILES [$main->name ( 'module_file', $module )] ["tmp_name"] )) {
 			$zip = new ZipArchive ();
@@ -279,7 +280,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 					$update_clause = "UPDATE modules_table SET module_order = " . $module_order . ", module_path = '" . pg_escape_string ( $arr_module ['@module_path'] ) . "',friendly_name = '" . pg_escape_string ( $arr_module ['@friendly_name'] ) . "', " . "interface = '" . pg_escape_string ( $arr_module ['@interface'] ) . "', module_type = " . $arr_module ['@module_type'] . ", module_version = '" . pg_escape_string ( $arr_module ['@module_version'] ) . "',  standard_module = " . $standard_module . ", module_files = '" . pg_escape_string ( $arr_module ['@module_files'] ) . "', module_details = '" . pg_escape_string ( $arr_module ['@module_details'] ) . "' ";
 					$where_clause = "WHERE module_name = '" . pg_escape_string ( $arr_module ['@module_name'] ) . "'";
 					$query = $update_clause . $where_clause . ";";
-					//die( "<p>" . $query . "</p>");
+					// die( "<p>" . $query . "</p>");
 					$message = "Module " . $arr_module ['@module_name'] . " has been updated.";
 					$result = $main->query ( $con, $query );
 					// reorder modules without deleted module
@@ -293,7 +294,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 					$insert_clause = "(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)";
 					$select_clause = $module_order . " as module_order, '" . pg_escape_string ( $arr_module ['@module_path'] ) . "' as module_path, '" . pg_escape_string ( $arr_module ['@module_name'] ) . "' as module_name, '" . pg_escape_string ( $arr_module ['@friendly_name'] ) . "' as friendly_name, '" . pg_escape_string ( $arr_module ['@interface'] ) . "' as interface, " . $arr_module ['@module_type'] . " as module_type, " . "'" . pg_escape_string ( $arr_module ['@module_version'] ) . "' as module_version, " . $standard_module . " as standard_module, " . "'" . pg_escape_string ( $arr_module ['@module_files'] ) . "' as module_files, '" . pg_escape_string ( $arr_module ['@module_details'] ) . "'::xml as module_details";
 					$query = "INSERT INTO modules_table " . $insert_clause . " " . "SELECT " . $select_clause . " WHERE NOT EXISTS (SELECT 1 FROM modules_table WHERE module_name IN ('" . $arr_module ['@module_name'] . "','bb_logout'));";
-					//die("<p>" . $query . "</p>");
+					// die("<p>" . $query . "</p>");
 					$result = $main->query ( $con, $query );
 					$message = "Module " . $arr_module ['@module_name'] . " has been installed.";
 				}
@@ -302,8 +303,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 				// if update or insert worked
 				if (pg_affected_rows ( $result ) == 0) {
 					$arr_messages [] = "Error: Module " . $arr_module ['@module_name'] . " has not been installed.";
-				} else // good install or update
-{
+				} else {
+					// good install or update
 					// include the globals so array_master is updated
 					$arr_messages [] = $message;
 				}
@@ -311,7 +312,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 			  // move it all over
 			$main->copy_directory ( $abspath . "/bb-temp/", $abspath . "/bb-modules/" );
 			// empty temp directory
-			$main->empty_directory ( $abspath . "/bb-temp/", $abspath . "/bb-modules/" );
+			$main->empty_directory ( $abspath . "/bb-temp/" );
 			
 			// include header files before manage modules display
 			foreach ( $arr_modules as $value ) {
@@ -319,13 +320,16 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 					include ($value ['@module_path']);
 				}
 			}
-		} // install modules
+		} else {
+			// empty temp directory
+			$main->empty_directory ( $abspath . "/bb-temp/" );
+		} // end install modules
 	} // check buttons
 	/* END INSTALL OPTIONAL MODULES */
 	
 	/* BEGIN RESET ORDER */
-	if ($main->button ( 3 )) // set_module_order
-{
+	if ($main->button ( 3 )) {
+		// set_module_order
 		$query = "SELECT id FROM modules_table ORDER BY id;";
 		$result = $main->query ( $con, $query );
 		$arr_id = pg_fetch_all_columns ( $result );
@@ -350,8 +354,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 			// all but module type hidden
 			foreach ( $arr_order as $key1 => $arr1 ) {
 				foreach ( $arr1 as $key2 => $arr2 ) {
-					if ($key1 != 0) // ignore hidden values and hooks
-{
+					if ($key1 != 0) {
+						// ignore hidden values and hooks
 						if (count ( $arr2 ) != count ( array_unique ( $arr2 ) )) {
 							$arr_messages [] = "Error: There are duplicate values in the order choices.";
 						}
@@ -412,14 +416,6 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 
 
 
-
-
-
-
-
-
-
-   
 
 endif;
 ?>

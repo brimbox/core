@@ -67,8 +67,8 @@ $arr_layouts_fields = array (
 
 // waterfall, first layout, second layout, third layout
 // will only work if first layout is populated
-if ($main->button ( 1 )) // layout_submit
-{
+if ($main->button ( 1 )) {
+	// layout_submit
 	// one record must be populated
 	// use two arrays,
 	for($i = 1; $i <= $number_layouts; $i ++) {
@@ -115,8 +115,8 @@ if ($main->button ( 1 )) // layout_submit
 		}
 	}
 	
-	if ($both) // one layout populated
-{
+	if ($both) {
+		// one layout populated
 		// check for distinct values in singular or plural, use $main->array_iunique so check is not case sensitive
 		if ((count ( $arr_singular ) != count ( $main->array_iunique ( $arr_singular ) )) || (count ( $arr_plural ) != count ( $main->array_iunique ( $arr_plural ) ))) {
 			array_push ( $arr_messages, "Error: Layouts must have distinct singular and plural names." );
@@ -133,11 +133,10 @@ if ($main->button ( 1 )) // layout_submit
 		if (count ( $arr_parent ) != count ( array_unique ( $arr_parent ) )) {
 			array_push ( $arr_messages, "Error: Circular or self-referential relationship between layouts." );
 		}
-	} 	
+	} 
 
-	// must have one layout populated
-	else // empty
-{
+	else {
+		// must have one layout populated
 		array_push ( $arr_messages, "Error: Singular and plural must be populated for at least one layout." );
 	}
 	
@@ -151,14 +150,14 @@ if ($main->button ( 1 )) // layout_submit
 	}
 } // submit
 
-if ($main->button ( 2 )) // revert to json in database
-{
+if ($main->button ( 2 )) {
+	// revert to json in database
 	$arr_layouts = $main->get_json ( $con, "bb_layout_names" );
 	array_push ( $arr_messages, "Layouts have been refreshed from database." );
 }
 
-if ($main->button ( 3 )) // vaccum database
-{
+if ($main->button ( 3 )) {
+	// vaccum database
 	$query = "VACUUM;";
 	$main->query ( $con, $query );
 	array_push ( $arr_messages, "Database has been vacuumed." );

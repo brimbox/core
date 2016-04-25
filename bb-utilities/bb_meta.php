@@ -21,15 +21,6 @@
 /* NO HTML OUTPUT */
 
 /* PHP FUNCTIONS */
-/* class bb_hooks() */
-// layouts
-// infolinks
-// postback_area
-// top_level_records
-// parent_record
-// quick_links
-// submit_buttons
-// textarea_load
 class bb_meta extends bb_validate {
 
 	function layouts($con, $key_type = false, $sort = true) {
@@ -99,7 +90,7 @@ class bb_meta extends bb_validate {
 
 		$arr_columns_json = $this->get_json ( $con, "bb_column_names" );
 		$arr_props_keys = array_keys ( $arr_columns_json ['properties'] );
-		return $this->filter_keys ( $this->init($arr_columns_json [$row_type], array()), $arr_props_keys, true, true );
+		return $this->filter_keys ( $this->init ( $arr_columns_json [$row_type], array () ), $arr_props_keys, true, true );
 	}
 
 	function lists($con, $row_type, $key_type = false, $sort = true) {

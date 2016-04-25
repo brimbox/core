@@ -149,8 +149,8 @@ class bb_database extends bb_build {
 
 	function process_related(&$arr_select_where, $arr_layouts_reduced, $value, $str) {
 		// process related records/table
-		if (isset ( $value )) // set column part
-{
+		if (isset ( $value )) {
+			// set column part
 			// proceed if not blank and relate is set
 			if (! $this->blank ( $str ) && ($value ['relate'] > 0)) {
 				// proper string, else bad
@@ -158,14 +158,13 @@ class bb_database extends bb_build {
 					$row_type_relate = $this->relate_row_type ( $str );
 					$post_key_relate = $this->relate_post_key ( $str );
 					// proper row_type, else bad
-					if ($value ['relate'] == $row_type_relate) // check related
-{
+					// check related
+					if ($value ['relate'] == $row_type_relate) {
 						// layout defined, else bad
-						if ($arr_layouts_reduced [$row_type_relate] ['relate'] == 1) // good value
-{
+						if ($arr_layouts_reduced [$row_type_relate] ['relate'] == 1) {
+							// good value
 							$arr_select_where [] = "(id = " . ( int ) $post_key_relate . " AND row_type = " . ( int ) $row_type_relate . ")";
-						} else // not properly defined
-{
+						} else { // not properly defined
 							$arr_select_where [] = "(1 = 0)";
 						}
 					} else {
@@ -181,14 +180,14 @@ class bb_database extends bb_build {
 	function unique_key($edit_or_insert, &$select_where_not, $unique_key, $unique_value, $row_type, $post_key) {
 		// Note -- empty string is allowed as single value, use required to eliminate the possibility of an empty string
 		$select_where_not = "SELECT 1 WHERE 1 = 0";
-		if ($unique_key) // no key = 0
-{
+		if ($unique_key) {
+			// no key = 0
 			$unique_column = $this->pad ( "c", $unique_key );
 			// edit
 			if ($edit_or_insert) {
 				$select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
-			}  // insert
-else {
+			} else {
+				// insert
 				$select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
 			}
 		}

@@ -149,8 +149,8 @@ class bb_build {
 									else
 										${$var} = NULL;
 									$args_hook [] = &${$var};
-								}  // passed by value
-else {
+								} else {
+									// passed by value
 									if (isset ( $GLOBALS [$var] ))
 										${$var} = $GLOBALS [$var];
 									else

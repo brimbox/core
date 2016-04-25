@@ -195,7 +195,7 @@ if ($main->blank ( $message )) {
 		// this sets the correct column xml -- each iteration requires new columns
 		// $xml is global so there is only one round trip to the db per page load
 		// get row type from returned rows
-		$arr_columns = $main->columns ( $con, $row ['row_type']);
+		$arr_columns = $main->columns ( $con, $row ['row_type'] );
 		
 		// get the primary column and set $row['hdr'] based on primary header
 		$parent_row_type = $arr_layouts [$row ['row_type']] ['parent'];

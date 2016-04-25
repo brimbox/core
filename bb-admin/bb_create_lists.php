@@ -116,29 +116,6 @@ foreach ( $arr_definitions as $key => $value ) {
 			break;
 	}
 }
-/*
- *
- * $row_type_1 = $main->post ( 'row_type_new', $module, $default_row_type );
- * $new_value_1 = $main->post ( 'new_value_new', $module );
- * $new_description_1 = $main->post ( 'new_description_new', $module );
- *
- *
- * $row_type_2 = $main->post ( 'row_type_2', $module, $default_row_type );
- * $list_number_2 = $main->post ( 'list_number_2', $module, 0 );
- * if ($list_number_2 > 0) {
- * $list_2 = $arr_lists [$row_type_2] [$list_number_2];
- * $list_output_2 = chr ( $row_type_2 + 64 ) . $list_number_2;
- * $update_list_2 = $list_2 ['name'];
- * $update_description_2 = $list_2 ['description'];
- * } else {
- * //initialize
- * $list_output_2 = $update_list_2 = $update_description_2 = "";
- * }
- *
- * $row_type_3 = $main->post ( 'row_type_3', $module, $default_row_type );
- * $list_number_3 = $main->post ( 'list_number_3', $module, 0 );
- *
- */
 
 // add new list
 if ($main->button ( 1 )) {

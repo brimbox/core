@@ -138,8 +138,8 @@ class bb_main extends bb_reports {
 		$pop = false; // to catch empty rows, pop = true for non-empty rows
 		
 		foreach ( $arr_columns as $key => $value ) {
-			if (is_integer ( $key )) // integer keys reserved for columns
-{
+			if (is_integer ( $key )) {
+				// integer keys reserved for columns
 				$row1 = ( int ) $value ['row']; // current row number
 				$col2 = $this->pad ( "c", $key );
 				// always skipped first time
@@ -179,8 +179,8 @@ class bb_main extends bb_reports {
 		foreach ( $arr_layouts as $key => $value ) {
 			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$secure = ($check && ($value ['secure'] >= $check)) ? true : false;
-			if (! $secure) // check is true
-{
+			if (! $secure) {
+				// check is true
 				return $key;
 			}
 		}
@@ -195,8 +195,8 @@ class bb_main extends bb_reports {
 		foreach ( $arr_columns as $key => $value ) {
 			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$secure = ($check && ($value ['secure'] >= $check)) ? true : false;
-			if (! $secure) // check is true
-{
+			if (! $secure) {
+				// check is true
 				return $key;
 			}
 		}
@@ -212,8 +212,8 @@ class bb_main extends bb_reports {
 		foreach ( $arr_lists as $key => $value ) {
 			// not secure is $value['secure'] < $check OR $check = 0 (default no check)
 			$default = ($archive && ($value ['archive'] >= $archive)) ? true : false;
-			if (! $default) // check is true
-{
+			if (! $default) {
+				// check is true
 				return $key;
 			}
 		}
@@ -405,32 +405,17 @@ class bb_main extends bb_reports {
 		}
 	}
 
-	function empty_directory($dir, $root = "") {
-		// true means to keep directory
-		// false means to delete directory
-		if (is_dir ( $dir )) {
-			$objects = scandir ( $dir );
-			foreach ( $objects as $object ) {
-				if (! in_array ( $object, array (
-						".",
-						".." 
-				) )) {
-					if (is_dir ( $dir . $object )) {
-						// not empty recurse
-						$object = $object . "/";
-						$this->empty_directory ( $dir . $object, $root );
-					} else {
-						// remove file
-						@unlink ( $dir . $object );
-					}
-				}
-			}
-			reset ( $objects );
+	function empty_directory($directory, $delete = false) {
+
+		$contents = glob ( $directory . '*' );
+		foreach ( $contents as $item ) {
+			if (is_dir ( $item ))
+				$this->empty_directory ( $item . '/', true );
+			else
+				@unlink ( $item );
 		}
-		$rmdir_bool = ($dir == $root) ? false : true;
-		if ($rmdir_bool) {
-			@rmdir ( trim ( $dir, "/" ) );
-		}
+		if ($delete === true)
+			@rmdir ( $directory );
 	}
 
 	function copy_directory($from_directory, $to_directory) {
@@ -740,8 +725,8 @@ class bb_main extends bb_reports {
 		$arr_columns = $this->get_json ( $con, "bb_column_names" );
 		
 		$arr_row_type = array ();
-		if ($row_type == 0) // all
-{
+		if ($row_type == 0) {
+			// all
 			foreach ( $arr_layouts_reduced as $key => $value ) {
 				array_push ( $arr_row_type, $key );
 			}
@@ -814,8 +799,8 @@ class bb_main extends bb_reports {
 		$arr_columns = $this->get_json ( $con, "bb_column_names" );
 		$arr_dropdowns = $this->get_json ( $con, "bb_dropdowns" );
 		for($i = 1; $i <= 26; $i ++) {
-			if (! isset ( $arr_layouts_reduced [$i] )) // clean up rows
-{
+			if (! isset ( $arr_layouts_reduced [$i] )) {
+				// clean up rows
 				unset ( $arr_columns [$i] );
 				unset ( $arr_dropdowns [$i] );
 				$query = "DELETE FROM data_table WHERE row_type IN (" . $i . ");";
@@ -939,8 +924,8 @@ class bb_main extends bb_reports {
 		
 		echo "<br>";
 		echo "<div class=\"center\">";
-		if ($top > $bottom) // skip only one page
-{
+		if ($top > $bottom) {
+			// skip only one page
 			// echo page selector out...
 			echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','1')\">First</button>&nbsp;&nbsp;&nbsp;";
 			if ($offset > 1) {

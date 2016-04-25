@@ -60,17 +60,6 @@ function bb_submit_form(params) {
 		frmobj['bb_module'].value = target;
 	}	
 	
-	/*
-	var slug = target.substr(target.indexOf('_')+1);
-	slug = slug.replace('_', '-');
-	if (slug != undefined) {
-		// update bb_slug with slug going to
-		// set bb_slug as target slug
-		// slug coming from not preserved
-		frmobj['bb_slug'].value = slug;
-	}
-	*/
-
 	for (var i = 0; i < frmobj.length; i++) {
 		// rel attribute from form element tag
 		// ignore attribute so the elements need not have the current module

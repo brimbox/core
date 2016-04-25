@@ -59,7 +59,7 @@ class bb_reports extends bb_forms {
 		}
 		echo "<select name = \"report_type\" class = \"" . $select_class . "\" onChange=\"bb_reports.clear_report()\">";
 		foreach ( $array_reports as $key => $value ) {
-			echo "<option value=\"" . $value['type'] . "\" " . ($value['type'] == $selected ? "selected" : "") . ">" . $value['name'] . "&nbsp;</option>";
+			echo "<option value=\"" . $value ['type'] . "\" " . ($value ['type'] == $selected ? "selected" : "") . ">" . $value ['name'] . "&nbsp;</option>";
 		}
 		echo "</select>";
 	}
@@ -86,8 +86,8 @@ class bb_reports extends bb_forms {
 			// sort column has changed
 			if ($sort_post != $sort) {
 				$order = "ASC";
-			}  // toggle order (ASC/DESC)
-else {
+			} else {
+				// toggle order (ASC/DESC)
 				if (($order == "") || ($order == "DESC")) {
 					$order = "ASC";
 				} else {
@@ -320,8 +320,8 @@ else {
 				               // increment $i & $k
 				$k ++;
 				$i ++;
-			}  // groupby row $row[0] > 0
-else {
+			} else {
+				// groupby row $row[0] > 0
 				// row has grouping
 				// group class
 				$arr = $setting [$row [0]];
@@ -449,8 +449,8 @@ else {
 				echo "</div>"; // end row
 				               // increment $i & $k
 				$k ++;
-			}  // groupby row $row[0] > 0
-else {
+			} else {
+				// groupby row $row[0] > 0
 				// row has grouping
 				// group class
 				$arr = $setting [$row [0]];

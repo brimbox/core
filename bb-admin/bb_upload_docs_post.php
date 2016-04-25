@@ -82,8 +82,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$delete_id = $main->post ( "delete_id", $submit, 0 );
 	
 	// insert file
-	if ($main->button ( 1 )) // submit_file
-{
+	if ($main->button ( 1 )) {
 		if (is_uploaded_file ( $_FILES [$main->name ( 'upload_file', $submit )] ["tmp_name"] )) {
 			$filename = $_FILES [$main->name ( 'upload_file', $submit )] ["name"];
 			$filedata = str_replace ( array (
@@ -112,8 +111,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	}
 	
 	// update file
-	if ($main->button ( 2 )) // submit_file
-{
+	if ($main->button ( 2 )) {
 		if (is_uploaded_file ( $_FILES [$main->name ( 'upload_file', $submit )] ["tmp_name"] )) {
 			$filename = $_FILES [$main->name ( 'upload_file', $submit )] ["name"];
 			$filedata = str_replace ( array (
@@ -169,6 +167,11 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
+
+
+
+
 
 
 

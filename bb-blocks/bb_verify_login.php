@@ -68,16 +68,16 @@ if (isset ( $_POST ['bb_submit'] )) {
 					} else {
 						$message = $log_message = "Program in Single User mode"; // only if failure
 					}
-				} elseif (! strcasecmp ( ADMIN_ONLY, "YES" ) && SINGLE_USER_ONLY == "") // admin only
-{
+				} elseif (! strcasecmp ( ADMIN_ONLY, "YES" ) && SINGLE_USER_ONLY == "") {
+					// admin only
 					if (in_array ( "5_bb_brimbox", $arr_userroles )) {
 						$set_session = true;
 						$message = $log_message = "Login Success/Admin Only";
 					} else {
 						$message = $log_message = "Program in Admin Only mode";
 					} // only if failure
-				} else // regular login
-{
+				} else {
+					// regular login
 					if (in_array ( $userrole, $arr_userroles )) {
 						// userrole already set
 						$set_session = true;
@@ -88,16 +88,16 @@ if (isset ( $_POST ['bb_submit'] )) {
 						$message = $log_message = "Login Success/Default Userrole";
 					}
 				}
-			} else // bad password
-{
+			} else {
+				// bad password
 				// $set_session is false
 				$set_attempts = true;
 				// only one bad login message
 				$log_message = "Bad Password";
 			}
 			
-			if ($set_session) // good login and mode
-{
+			if ($set_session) {
+				// good login and mode
 				// set attempts to zero
 				$query = "UPDATE users_table SET attempts = 0 WHERE UPPER(username) = UPPER('" . pg_escape_string ( $username ) . "');";
 				pg_query ( $con, $query );
@@ -122,8 +122,8 @@ if (isset ( $_POST ['bb_submit'] )) {
 				// userrole is posted on login
 				if (! empty ( $userrole ) && (in_array ( $userrole, $arr_userroles ))) {
 					$_SESSION ['userrole'] = $userrole;
-				}  // userrole is first item
-else {
+				} else {
+					// userrole is first item
 					$_SESSION ['userrole'] = $arr_userroles [0]; // first item of array
 				}
 				$_SESSION ['archive'] = 1; // archive mode is off
@@ -145,8 +145,8 @@ else {
 				$index_path = "Location: " . dirname ( $_SERVER ['PHP_SELF'] );
 				header ( $index_path );
 				die (); // important to stop script
-			} elseif ($set_attempts) // bad password
-{
+			} elseif ($set_attempts) {
+				// bad password
 				$query = "UPDATE users_table SET attempts = attempts + 1 WHERE UPPER(username) = UPPER('" . pg_escape_string ( $username ) . "') RETURNING attempts;";
 				$result = pg_query ( $con, $query );
 				$row = pg_fetch_array ( $result );
@@ -166,8 +166,8 @@ else {
 				$rnd = rand ( 100000, 200000 );
 				$username = $password = "";
 				usleep ( $rnd );
-			} else // admin or single user
-{
+			} else {
+				// admin or single user
 				$arr_log = array (
 						$email,
 						$ip,
@@ -184,9 +184,8 @@ else {
 				// delay if invalid login
 				$username = $password = "";
 			}
-		}  // end row found
-else // no rows, bad username or locked
-{
+		} else {
+			// no rows, bad username or locked
 			// only one bad login message
 			$log_message = "Login Failure: Bad Username, Invalid IP, or Account Locked";
 			$arr_log = array (
@@ -202,8 +201,8 @@ else // no rows, bad username or locked
 			$username = $password = "";
 			usleep ( $rnd );
 		}
-	}  // just in case there is something awry with the ip, not really possible
-else {
+	} else {
+		// just in case there is something awry with the ip, not really possible
 		$log_message = "Malformed IP";
 		$arr_log = array (
 				$username,

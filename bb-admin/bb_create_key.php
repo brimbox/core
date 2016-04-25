@@ -103,11 +103,11 @@ elseif ($col_type) {
 	/* UPDATE OR REPORT ON KEY */
 	// if no message, inform administartor or add key, col_type > 0 so empty works
 	if (empty ( $arr_messages ) && $col_type) {
-		if ($main->button ( 1 )) // check_column
-{
+		if ($main->button ( 1 )) {
+			// check_column
 			array_push ( $arr_messages, "Unique key can be created on layout \"" . $arr_layout ['plural'] . "\" column \"" . $arr_columns [$col_type] ['name'] . "\"." );
-		} elseif ($main->button ( 2 )) // add_key, $col_type <> 0
-{
+		} elseif ($main->button ( 2 )) {
+			// add_key, $col_type <> 0
 			$arr_columns_json [$row_type] ['unique'] = $col_type;
 			
 			// Update json row explicitly, check for valid key
@@ -115,11 +115,11 @@ elseif ($col_type) {
 			// echo "<p>" . $query . "</p>";
 			$result = $main->query ( $con, $query );
 			
-			if (pg_affected_rows ( $result ) == 1) // key updated or set
-{
+			if (pg_affected_rows ( $result ) == 1) {
+				// key updated or set
 				array_push ( $arr_messages, "Unique Key has been created on layout \"" . $arr_layout ['plural'] . "\", column \"" . $arr_columns [$col_type] ['name'] . "\"." );
-			} else // something changed
-{
+			} else {
+				// something changed
 				array_push ( $arr_messages, "Unique Key has not been created on layout \"" . $arr_layout ['plural'] . "\", column \"" . $arr_columns [$col_type] ['name'] . "\". Underlying data change." );
 			}
 		}
@@ -127,8 +127,8 @@ elseif ($col_type) {
 }
 
 /* REMOVE KEY */
-if ($main->button ( 3 )) // remove_key
-{
+if ($main->button ( 3 )) {
+	// remove_key
 	unset ( $arr_columns_json [$row_type] ['unique'] );
 	foreach ( $arr_columns_json [$row_type] ['alternative'] as $key => $value ) {
 		unset ( $value ['unique'] );

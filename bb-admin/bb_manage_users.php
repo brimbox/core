@@ -223,22 +223,21 @@ if ($main->button ( array (
 /* END POSTBACK FOR NEW USER AND UPDATE USER */
 
 /* ADD NEW USER */
-if ($main->button ( 1 )) // postback add new user
-{
+// correct header length
+if ($main->button ( 1 )) {
 	$action = 1; // in case of validation error
 	             // email work
 	check_is_empty ( $username_work, "username_work", $arr_error, "Username cannot be empty." );
-	if (! isset ( $arr_error ['email_work'] )) // non-empty email
-{
+	// non-empty email
+	if (! isset ( $arr_error ['email_work'] )) {
 		// username must be 5 characters or more
-		if (strlen ( $username_work ) < 5) // check for valid email
-{
+		if (strlen ( $username_work ) < 5) {
 			$arr_error ['username_work'] = "Username must be 5 characters or longer.";
 		}
 	}
 	check_is_empty ( $email_work, "email_work", $arr_error, "Email cannot be empty." );
-	if (! isset ( $arr_error ['email_work'] )) // non-empty email
-{
+	// non-empty email
+	if (! isset ( $arr_error ['email_work'] )) {
 		// check for valid email or that email matches username
 		if (! filter_var ( $email_work, FILTER_VALIDATE_EMAIL ) && ($username_work !== $email_work)) {
 			$arr_error ['email_work'] = "Email is not valid.";
@@ -276,22 +275,22 @@ if ($main->button ( 1 )) // postback add new user
 /* END ADD NEW USER */
 
 /* UPDATE INFO */
-if ($main->button ( 2 )) // postback update
-{
+if ($main->button ( 2 )) {
+	// postback update
 	// updates based on id
 	$action = 2; // in case of validation error
 	check_is_empty ( $username_work, "username_work", $arr_error, "Username cannot be empty." );
-	if (! isset ( $arr_error ['email_work'] )) // non-empty email
-{
+	if (! isset ( $arr_error ['email_work'] )) {
+		// non-empty email
 		// username must be 5 characters or more
-		if (strlen ( $username_work ) < 5) // check for valid email
-{
+		if (strlen ( $username_work ) < 5) {
+			// check for valid email
 			$arr_error ['username_work'] = "Username must be 5 characters or longer.";
 		}
 	}
 	check_is_empty ( $email_work, "email_work", $arr_error, "Email cannot be empty." );
-	if (! isset ( $arr_error ['email_work'] )) // non-empty email
-{
+	if (! isset ( $arr_error ['email_work'] )) {
+		// non-empty email
 		// check for valid email or that email matches username
 		if (! filter_var ( $email_work, FILTER_VALIDATE_EMAIL ) && ($username_work !== $email_work)) {
 			$arr_error ['email_work'] = "Email is not valid.";
@@ -341,8 +340,8 @@ if ($main->button ( 2 )) // postback update
 /* UPDATE INFO */
 
 /* LOCK USER */
-if ($main->button ( 3 )) // postback delete_user
-{
+if ($main->button ( 3 )) {
+	// postback delete_user
 	// deletes based on email
 	$action = 0; // no validation
 	
@@ -369,8 +368,8 @@ if ($main->button ( 3 )) // postback delete_user
 /* END LOCK USER */
 
 /* DELETE USER */
-if ($main->button ( 4 )) // postback delete_user
-{
+if ($main->button ( 4 )) {
+	// postback delete_user
 	// deletes based on email
 	$action = 0; // no validation
 	
@@ -864,10 +863,6 @@ if (in_array ( $action, array (
 
 
 
-
-
-
-        
 endif;
 
 $main->echo_form_end ();

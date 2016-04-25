@@ -31,16 +31,16 @@
 
 // There are many error reports in these modules, the appear in waterfall order
 class bb_manage_modules {
-    
-	function __construct() {		
-		
+
+	function __construct() {
+
 		$this->arr_required = array (
 				"@module_path",
 				"@module_name",
 				"@friendly_name",
 				"@interface",
 				"@module_type",
-				"@module_version"
+				"@module_version" 
 		);
 	}
 	
@@ -138,10 +138,10 @@ class bb_manage_modules {
 	// arr_module passed as a value
 	// this function checks $arr_module for errors
 	protected function error_waterfall(&$arr_module) {
-        
-        global $array_header;
-        global $array_interface;
-        
+
+		global $array_header;
+		global $array_interface;
+		
 		// check for valid module name
 		$path = $arr_module ['@module_path'];
 		$pattern_name = "/[^A-Za-z0-9_]/";

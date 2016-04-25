@@ -103,8 +103,8 @@ $main->update ( $con, $module, $arr_state );
 $col_text = isset ( $arr_column [$col_type] ['name'] ) ? $arr_column [$col_type] ['name'] : "";
 
 // this area populates the textarea
-if ($main->button ( 1 )) // populate_dropdown
-{
+if ($main->button ( 1 )) {
+	// populate_dropdown
 	// preexisting dropdown xml
 	$arr_dropdown = $main->reduce ( $arr_dropdowns_json, array (
 			$row_type,
@@ -154,8 +154,8 @@ if ($main->button ( 1 )) // populate_dropdown
 }
 
 // this area updates the drop down if set
-if ($main->button ( 2 )) // submit dropdown
-{
+if ($main->button ( 2 )) {
+	// submit dropdown
 	$arr_txt = preg_split ( "/[\r\n]+/", $main->purge_chars ( $main->post ( 'dropdown', $module ), false ) );
 	$arr_txt = array_filter ( $arr_txt ); // remove empty rows
 	$arr_txt = array_map ( array (
@@ -204,9 +204,9 @@ if ($main->button ( 2 )) // submit dropdown
 	}
 }
 
-// this area removes the dropdown
 if ($main->button ( 3 )) // remove_dropdown
 {
+	// this area removes the dropdown
 	unset ( $arr_dropdowns_json [$row_type] [$col_type] );
 	$main->update_json ( $con, $arr_dropdowns_json, "bb_dropdowns" );
 	

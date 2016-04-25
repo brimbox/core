@@ -25,15 +25,15 @@ session_regenerate_id ();
 
 if (isset ( $_SESSION ['username'] )) :
 	
-	/* SET UP MAIN OBJECT */	
-    $abspath = $_SESSION['abspath'];
-    include_once ($abspath . "/bb-config/bb_constants.php");
-    // include build class object
-    if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
-        include_once ($abspath . "/bb-extend/bb_include_main_class.php");
-    else
-    include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
-	// main instance
+	/* SET UP MAIN OBJECT */
+	$abspath = $_SESSION ['abspath'];
+	include_once ($abspath . "/bb-config/bb_constants.php");
+	// include build class object
+	if (file_exists ( $abspath . "/bb-extend/bb_include_main_class.php" ))
+		include_once ($abspath . "/bb-extend/bb_include_main_class.php");
+	else
+		include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
+		// main instance
 	$main = new bb_main ();
 	
 	$userroles = $main->get_constant ( 'BB_DOCUMENT_DOWNLOAD_PERMISSIONS', "3_bb_brimbox,4_bb_brimbox,5_bb_brimbox" );
@@ -67,6 +67,10 @@ if (isset ( $_SESSION ['username'] )) :
 	flush ();
 	
 	echo $document;
+
+
+
+
 
 
 
