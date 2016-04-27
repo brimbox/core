@@ -90,7 +90,7 @@ if (! function_exists ( 'bb_index_hot_state' )) :
                     "empty_value"
             );
             // work array
-            $array_hot_state ['bb_dropdowns'] ['5_bb_brimbox'] = $arr;
+            $array_hot_state ['bb_dropdowns'] ['5_bb_brimbox'] =  $array_hot_state ['bb_dropdowns'] ['4_bb_brimbox'] = $arr;
             // unset any variable used in global, unset $POST for organization
         }
  
