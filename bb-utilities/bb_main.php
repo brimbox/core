@@ -27,8 +27,7 @@
 // return_rows
 // get_default_layout
 // get_default_column
-// filter_keys
-// filter_init -- deprecated
+// get_default_list
 // layout_dropdown
 // column_dropdown
 // list_dropdown
@@ -37,11 +36,13 @@
 // build_name
 // convert_date
 // rconvert_date
+// include_file
 // get_directory_tree
 // array_flatten
 // empty_directory
 // copy_directory
 // replace_root
+// check_syntax
 // array_iunique
 // custom_trim_string
 // purge_chars
@@ -49,11 +50,17 @@
 // has_error_messages
 // check_permission
 // validate_password
+// logout_link
+// archive_link
+// database_stats
+// replicate_link
+// userrole_switch
+// infolinks
 // build_indexes
 // cleanup_database_data
 // cleanup_database_layouts
 // cleanup_database_columns
-// log_entry
+// log
 // output_links
 // check_child
 // drill_links
@@ -61,20 +68,9 @@
 // validate_logic
 // validate_required
 // validate_dropdown
-// logout_link
-// archive_link
-// database_stats
-// replicate_link
-// userrole_switch
-// on_constant
-// set_constant
+// document
 // make_html_id
 class bb_main extends bb_reports {
-
-	function return_main($main) {
-
-		$main = new bb_main ();
-	}
 	
 	// this quickly returns the query header stats including count and current time...
 	function return_stats($result) {
@@ -133,7 +129,7 @@ class bb_main extends bb_reports {
 	function return_rows($row, $arr_columns, $check = 0) {
 		// you could always feed this function only non-secured columns
 		$row2 = 1; // to catch row number change
-		$row3 = ""; // string with row data in it
+		$output = ""; // string with row data in it
 		$secure = false; // must be check = true and secure = 1 to secure column
 		$pop = false; // to catch empty rows, pop = true for non-empty rows
 		
@@ -145,9 +141,9 @@ class bb_main extends bb_reports {
 				// always skipped first time
 				if ($row2 != $row1) {
 					if ($pop) {
-						echo "<div class = \"left\">" . $row3 . "</div><div class = \"clear\"></div>";
+						echo "<div class = \"left\">" . $output . "</div><div class = \"clear\"></div>";
 					}
-					$row3 = ""; // reset row data
+					$output = ""; // reset row data
 					$pop = false; // start row again with pop = false
 				}
 				// not secure is $value['secure'] < $check OR $check = 0 (default no check)
@@ -158,14 +154,14 @@ class bb_main extends bb_reports {
 						$pop = true; // field has data, so row will too
 					}
 					// prepare row, if row has data also echo the empty cell spots
-					$row3 .= "<div class = \"overflow " . $value ['length'] . "\">" . htmlentities ( $row [$col2] ) . "</div>";
+					$output .= "<div class = \"overflow " . $value ['length'] . "\">" . htmlentities ( $row [$col2] ) . "</div>";
 				}
 				$row2 = $row1;
 			}
 		}
 		// echo the last row if populated
 		if ($pop) {
-			echo "<div class = \"left\">" . $row3 . "</div><div class = \"clear\"></div>";
+			echo "<div class = \"left\">" . $output . "</div><div class = \"clear\"></div>";
 		}
 		
 		return $row ['cnt'];
@@ -830,21 +826,6 @@ class bb_main extends bb_reports {
 			}
 		}
 		$this->update_json ( $con, $arr_dropdowns, "bb_dropdowns" );
-	}
-
-	function log_entry($con, $message, $email = "") {
-
-		if (isset ( $_SESSION ['username'] )) {
-			$email = $_SESSION ['username'];
-		}
-		$ip = $_SERVER ['REMOTE_ADDR'];
-		$arr_log = array (
-				$email,
-				$ip,
-				$message 
-		);
-		$query = "INSERT INTO log_table (email, ip_address, action) VALUES ($1,$2,$3)";
-		$this->query_params ( $con, $query, $arr_log );
 	}
 
 	function log($con, $message, $username = NULL, $email = NULL) {

@@ -22,15 +22,11 @@
 
 /* PHP AND JAVASCRIPT FUNCTIONS */
 
-/* Javascript */
-/* related javascript in bb_script.js */
-// bb_links.standard
-// bb_links.input
-
 /* PHP */
 /* class bb_links() */
 // standard
 // edit
+// relate
 // children
 // drill
 

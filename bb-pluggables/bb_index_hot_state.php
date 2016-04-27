@@ -34,7 +34,7 @@ if (! function_exists ( 'bb_index_hot_state' )) :
         
         // Hot State for Search
         if ($main->hot ( "bb_search" )) {
-            $array_hot_state ['bb_search'] [5] = $array_hot_state ['bb_search'] [4] = $array_hot_state ['bb_search'] [3] = array (
+            $array_hot_state ['bb_search'] ['5_bb_brimbox'] = $array_hot_state ['bb_search'] ['4_bb_brimbox'] = $array_hot_state ['bb_search'] ['3_bb_brimbox'] = array (
                     "search",
                     "row_type" 
             );
@@ -56,7 +56,7 @@ if (! function_exists ( 'bb_index_hot_state' )) :
                     array_push ( $arr, $main->pad ( "c", $key ) );
                 }
             }
-            $array_hot_state ['bb_input'] [5] = $array ['bb_input'] [4] = $array ['bb_input'] [3] = $arr;
+            $array_hot_state ['bb_input'] ['5_bb_brimbox'] = $array ['bb_input'] ['4_bb_brimbox'] = $array ['bb_input'] ['3_bb_brimbox'] = $arr;
             // unset any variable used in global, unset $POST for organization
         }
         
@@ -77,9 +77,24 @@ if (! function_exists ( 'bb_index_hot_state' )) :
                     "notes" 
             );
             // work array
-            $array_hot_state ['bb_manage_users'] [5] = $arr;
+            $array_hot_state ['bb_manage_users'] ['5_bb_brimbox'] = $arr;
             // unset any variable used in global, unset $POST for organization
         }
+        
+        if ($main->hot ( "bb_dropdowns" )) {
+            $arr = array (
+                    "row_type",
+                    "col_type",
+                    "dropdown",
+                    "multiselect",
+                    "empty_value"
+            );
+            // work array
+            $array_hot_state ['bb_dropdowns'] ['5_bb_brimbox'] = $arr;
+            // unset any variable used in global, unset $POST for organization
+        }
+ 
+        
 }
 
 endif;

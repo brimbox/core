@@ -8,47 +8,37 @@
 @bb_text_color : #181818;
 @bb_error_color : #FF0000;
 
-@import "bb-config/bb_admin_less.less";
+@import "bb-config/bb_less.less";
 
-#bb_index #index_image
-	 {
-     width: @bb_login_image_width;
-     height: @bb_login_image_height; 
-	 }
-     
+#bb_index #index_image {
+	width: @bb_login_image_width;
+    height: @bb_login_image_height; 
+}
+ 
 #bb_index #index_holder,
-#bb_index #index_holder input
-	 {
-     border:1px solid @bb_border_color;
-	 }
-     
+#bb_index #index_holder input {
+    border:1px solid @bb_border_color;
+}
+ 
 #bb_index #index_holder td,
 #bb_index #index_holder input,
 #bb_index #index_message,
-#bb_index #index_button
-	{
-    /* font of label and input */
+#bb_index #index_button {
     color: @bb_text_color;
-    }
+}
     
-#bb_index #index_holder td.left
-	 {
-	 /* image path related to css file */
-     background-color: @bb_shaded_color;
-	 }
-     
-#bb_index #index_button 
-	{
-	/* the login button */
+#bb_index #index_holder td.left {
+    background-color: @bb_shaded_color;
+}
+ 
+#bb_index #index_button  {
     border:1px solid @bb_border_color;
     background-color: @bb_button_color;
-	}
-     
-#bb_index #index_message 
-	 {
-	 /* the color of error messages */
-     color: @bb_error_color;
-	 }
+}
+ 
+#bb_index #index_message {
+	color: @bb_error_color;
+}
 
 
 

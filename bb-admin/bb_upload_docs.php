@@ -92,7 +92,7 @@ $params = array (
 		"select_class" => "spaced",
 		'usekey' => true 
 );
-$main->array_to_select ( $arr_result, "update_id", $update_id, $params );
+$main->array_to_select ( $arr_result, "update_id", $update_id, array(), $params );
 $params = array (
 		"class" => "spaced",
 		"number" => 2,

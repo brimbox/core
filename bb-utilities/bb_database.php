@@ -28,7 +28,6 @@
 // get_mbox
 // get_json
 // update_json
-// search_json
 // get_next_node
 // full_text
 // process_related

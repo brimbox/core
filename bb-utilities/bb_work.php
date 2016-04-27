@@ -26,6 +26,8 @@
 // button
 // name
 // blank
+// init
+// hot
 // check
 // changed
 // full
@@ -35,12 +37,10 @@
 // process
 // render
 // load
-// saver
 // keeper
 // retrieve
 // update
-// hot_state (private)
-// report
+// hot_state
 // on_constant
 // get_constant
 
@@ -262,16 +262,14 @@ class bb_work extends bb_meta {
 
 	function hot_state($con) {
 		// hot state used to update state vars when tabs are switched without postback
-		global $usertype;
+		global $userrole;
 		global $array_hot_state;
 		global $submit;
 		
 		// check usertype set
-		if (isset ( $array_hot_state [$submit] [$usertype] )) {
-			$arr_work = $array_hot_state [$submit] [$usertype];
-			if (! empty ( $arr_work ))
-				;
-			{
+		if (isset ( $array_hot_state [$submit] [$userrole] )) {
+			$arr_work = $array_hot_state [$submit] [$userrole];
+			if (! empty ( $arr_work )) {
 				$arr_state = $this->load ( $con, $submit );
 				foreach ( $arr_work as $value ) {
 					if ($this->check ( $value, $submit )) {
@@ -281,13 +279,6 @@ class bb_work extends bb_meta {
 				$this->update ( $con, $submit, $arr_state );
 			}
 		}
-	}
-	
-	// this function duplicated in both reports and work classes under different names
-	function report(&$arr_state, $module_submit, $module_display, $params = array()) {
-		// alias of report_post
-		$current = $this->report_post ( $arr_state, $module_submit, $module_display, $params = array () );
-		return $current;
 	}
 	
 	// checks and processes OFF/ON constants

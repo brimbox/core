@@ -24,9 +24,11 @@
 /* class bb_hooks() */
 // filter
 // hook
-// parse
-// connect
-// lock
+// add_action
+// remove_action
+// add_value
+// remove_value
+// locked
 
 /* STANDARD INDEX MAIN INCLUDE */
 // can be hacked in bb_constants if necessary

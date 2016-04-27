@@ -32,6 +32,9 @@
 // echo_script_button
 // echo_input
 // echo_textarea
+// attributes
+// echo_clear
+// echo_tag
 // echo_form_end
 //
 class bb_forms extends bb_links {

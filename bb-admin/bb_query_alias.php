@@ -175,7 +175,7 @@ $params = array (
 		"onchange" => "bb_reload()" 
 );
 echo "<div class=\"spaced floatleft\"><span>Number of Subqueries: </span>";
-$main->array_to_select ( $arr_number, "number_sub_queries", $number_sub_queries, $params );
+$main->array_to_select ( $arr_number, "number_sub_queries", $number_sub_queries, array(), $params );
 echo "</div>";
 
 $params = array (
@@ -185,7 +185,7 @@ $params = array (
 );
 
 echo "<div class=\"spaced floatleft\"><span>Limit Return Rows: </span>";
-$main->array_to_select ( $arr_limit, "row_limit", $row_limit, $params );
+$main->array_to_select ( $arr_limit, "row_limit", $row_limit, array(), $params );
 echo "</div>";
 
 $main->echo_clear ();

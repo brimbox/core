@@ -21,13 +21,13 @@
 /* NO HTML OUTPUT */
 
 /* PHP FUNCTIONS */
-/* Class bb_validate() */
-// bb_validate_text
-// bb_validate_number
-// bb_validate_date
-// bb_validate_email
-// bb_validate_money
-// bb_validate_yesno
+/* class bb_validate() */
+// validate_text
+// validate_numeric
+// validate_date
+// validate_email
+// validate_money
+// validate_yesno
 class bb_validate extends bb_database {
 
 	function validate_text(&$field, $error = false) {
