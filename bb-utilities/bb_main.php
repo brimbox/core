@@ -89,7 +89,10 @@ class bb_main extends bb_reports {
 	}
 	
 	// this function returns a record header with a view_details link for each record returned
-	function return_header($row, $target, $link = 1, $mark = true) {
+	function return_header($row, $target, $params = array()) {
+        //params for customization
+        $link = isset($params['link']) ? $params['link'] : 1;
+        $mark = isset($params['mark']) ? $params['mark'] : 1;
 
 		echo "<div class = \"left italic nowrap\">";
 		$row_type = $row ['row_type'];
@@ -126,7 +129,10 @@ class bb_main extends bb_reports {
 	// $row1 is the row number, and $row2 is the catch to see when the row changes
 	// $col2 is the actual name of the columns from the xml, $row[$col2] is $row['c03']
 	// $child is the visable name of the column the user name of the column
-	function return_rows($row, $arr_columns, $check = 0) {
+	function return_rows($row, $arr_columns, $params = array()) {
+        //params for customization
+        $check = isset($params['check']) ? $params['check'] : 0;
+        
 		// you could always feed this function only non-secured columns
 		$row2 = 1; // to catch row number change
 		$output = ""; // string with row data in it
