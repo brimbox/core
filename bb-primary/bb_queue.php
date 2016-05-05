@@ -158,7 +158,6 @@ if (! $mbox) :
 	echo "<form method=\"post\" name=\"queue_form\">";
 	echo "<p>Unable to connect to mailbox</p>";
 	echo "<input name=\"current_tab\" type=\"hidden\" value=\"queue\" />";
-	$main->echo_state ( $array_state );
 	echo "</form>";
  else : // long else
        // delete email by UID (not message id)
