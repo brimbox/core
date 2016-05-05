@@ -32,7 +32,7 @@
 // key is interface
 $main->add_value ( 'header', array (
 		'name' => "Brimbox",
-		'controller' => "/box.php" 
+		'controller' => "/bb-box/bb_box.php" 
 ), 'bb_brimbox' );
 
 // USERROLES HEADER ARRAYS

@@ -45,8 +45,8 @@ $main->include_file ( $webpath . "/bb-utilities/bb_styles.css", "css" );
 $less->parse_less_file ( $abspath . "/bb-utilities/bb_styles.less" );
 
 // styles for the box
-$main->include_file ( $webpath . "/bb-utilities/bb_box.css", "css" );
-$less->parse_less_file ( $abspath . "/bb-utilities/bb_box.less" );
+$main->include_file ( $webpath . "/bb-box/bb_box.css", "css" );
+$less->parse_less_file ( $abspath . "/bb-box/bb_box.less" );
 
 /* CUSTOM CSS */
 $main->include_file ( $webpath . "/bb-config/bb_css.css", "css" );
@@ -135,7 +135,8 @@ foreach ( $arr_interface as $key => $value ) {
 	// layout standard tabs
 	if ($value ['interface_type'] == 'Standard') {
 		foreach ( $arr_controller [$key] as $module_work => $value_work ) {
-			$selected = ($module == $module_work) ? "chosen" : "";;
+			$selected = ($module == $module_work) ? "chosen" : "";
+			;
 			$submit_form_params = "[0,'$module_work', this]";
 			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value_work ['friendly_name'] . "</button>";
 		}
