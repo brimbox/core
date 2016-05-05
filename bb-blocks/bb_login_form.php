@@ -32,7 +32,7 @@
 }
 
 #bb_image {
-	background-image: url("../bb-config/login_image.gif");
+	background-image: url("bb-config/login_image.gif");
 	width: 300px;
 	height: 50px;
 	background-repeat: no-repeat;

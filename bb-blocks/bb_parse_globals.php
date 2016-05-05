@@ -17,7 +17,7 @@
  * If not, see http://www.gnu.org/licenses/
  */
 ?>
- <?php
+<?php
 	/* GET HEADER AND GLOBAL ARRAYS */
 	/* load header array, addon functions, and global arrays */
 	// returns $array_header and by default all functions declared
@@ -48,4 +48,4 @@
 		}
 	}
 	
-	?>
+?>
