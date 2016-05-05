@@ -45,7 +45,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$_SESSION ['module'] = $module = isset ( $_POST ['bb_module'] ) ? $_POST ['bb_module'] : "";
 	if ($_SESSION ['pretty_slugs'] == 1) {
 		list ( , $slug ) = explode ( "_", $module, 2 );
-		$_SESSION ['slug'] = str_replace ( "_", "-", $slug );
+		$_SESSION ['slug'] = $slug = str_replace ( "_", "-", $slug );
 	} else {
 		$_SESSION ['slug'] = $slug = $module;
 	}
@@ -132,17 +132,7 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
-
-
-
-
-
-
-
-
-
-
     
-    /* END REDIRECT */
+/* END REDIRECT */
 endif;
 ?>
