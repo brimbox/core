@@ -56,7 +56,7 @@ if (! function_exists ( 'bb_index_hot_state' )) :
                     array_push ( $arr, $main->pad ( "c", $key ) );
                 }
             }
-            $array_hot_state ['bb_input'] ['5_bb_brimbox'] = $array ['bb_input'] ['4_bb_brimbox'] = $array ['bb_input'] ['3_bb_brimbox'] = $arr;
+            $array_hot_state ['bb_input'] ['5_bb_brimbox'] = $array_hot_state ['bb_input'] ['4_bb_brimbox'] = $array_hot_state ['bb_input'] ['3_bb_brimbox'] = $arr;
             // unset any variable used in global, unset $POST for organization
         }
         

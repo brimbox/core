@@ -54,7 +54,7 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 		/* INITIALIZE */
 		// get layout and properties
 		$arr_layouts = $main->layouts ( $con );
-		$default_row_type = $main->get_default_layout ( $arr_layouts );
+		$default_row_type = $main->get_default_layout ( $arr_layouts );		
 		
 		// entering the input from a link, most likely with $row_type, $post_key, and $row_join
 		if (! empty ( $POST ['bb_row_type'] )) {
@@ -72,8 +72,7 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 			// get the record, either for edit or parent record info
 			// first result
 			$query = "SELECT * FROM data_table WHERE id = " . $post_key . ";";
-			$result = $main->query ( $con, $query );
-			
+			$result = $main->query ( $con, $query );			
 			$row = pg_fetch_array ( $result );
 			
 			// populate from database if edit
@@ -97,6 +96,7 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 						}
 					}
 				}
+				
 				// see if there is a parent record
 				$query = "SELECT * FROM data_table WHERE id IN (SELECT key1 FROM data_table WHERE id = " . $post_key . ");";
 				$result = $main->query ( $con, $query );
@@ -128,8 +128,6 @@ if (! function_exists ( 'bb_input_module_postback' )) :
 			// get archive and secure
 			$main->set ( 'secure', $arr_state, $row ['secure'] );
 			$main->set ( 'archive', $arr_state, $row ['archive'] );
-			$main->set ( 'row', $arr_state, $row );
-			
 		}		
 
 		// if relating a record when there is a relate field

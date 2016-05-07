@@ -70,7 +70,7 @@ $main->echo_common_vars (); // common to standard interface
 // $arr_columns passed by reference
 $main->hook ( "bb_input_top_level_records" );
 
-/* need array columns for test */
+/* need arr_columns for test */
 $row_type = $main->init ( $arr_state ['row_type'], 0 );
 $arr_columns = $main->columns ( $con, $arr_state ['row_type'] );
 
