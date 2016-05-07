@@ -945,7 +945,7 @@ class bb_main extends bb_reports {
 		// if not set call default text
 		if (isset ( $array_validation [$type] ['func'] ) && is_callable ( $array_validation [$type] ['func'] )) {
 			$return_value = call_user_func_array ( $array_validation [$type] ['func'], array (
-					$field,
+					&$field,
 					$error 
 			) );
 		} else {
@@ -953,7 +953,7 @@ class bb_main extends bb_reports {
 					$this,
 					'validate_text' 
 			), array (
-					$field,
+					&$field,
 					$error 
 			) );
 		}
