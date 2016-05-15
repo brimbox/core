@@ -176,19 +176,30 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 					$zip = new ZipArchive ();
 					$res = $zip->open ( $_FILES [$main->name ( 'update_file', $module )] ["tmp_name"] );
 					if ($res === true) {
-						$zip->extractTo ( 'bb-temp/' );
+						$zip->extractTo ( $abspath . "/bb-temp/" );
 						$zip->close ();
-						$main->copy_directory ( "bb-temp/update/", "" );
-						include ("bb-utilities/bb_update.php");
-						array_push ( $arr_messages, "Brimbox has been updated." );
+						$main->copy_directory ( $abspath . "/bb-temp/update/", $abspath . "/" );
+						include ($abspath . "/bb-utilities/bb_update.php");
+						array_push ( $arr_messages, "Brimbox core update has been updated." );
 					} else {
 						array_push ( $arr_messages, "Error: Unable to open zip archive." );
 					}
-				} else {
-					$arr_messages [] = "Error: Does not appear to be a Brimbox update.";
+				} elseif (substr ( $_FILES [$main->name ( 'update_file', $module )] ["name"], 0, 12 ) == "brimbox-root") {
+                   	$zip = new ZipArchive ();
+					$res = $zip->open ( $_FILES [$main->name ( 'update_file', $module )] ["tmp_name"] );
+					if ($res === true) {
+						$zip->extractTo (  $abspath . "/bb-temp/" );
+						$zip->close ();
+						$main->copy_directory ($abspath . "/bb-temp/root/", $abspath . "/" );
+						array_push ( $arr_messages, "Brimbox root file has been installed." );
+					} else {
+						array_push ( $arr_messages, "Error: Unable to open zip archive." );
+					} 
+                } else {
+					$arr_messages [] = "Error: Does not appear to be a Brimbox core update or root install file.";
 				}
 			} else {
-				$arr_messages [] = "Error: Must specify update file name.";
+				$arr_messages [] = "Error: Must specify Brimbox core update or root install file name.";
 			}
 			$main->empty_directory ( $abspath . "/bb-temp/" );
 		}
