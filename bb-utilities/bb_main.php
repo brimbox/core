@@ -90,10 +90,10 @@ class bb_main extends bb_reports {
 	
 	// this function returns a record header with a view_details link for each record returned
 	function return_header($row, $target, $params = array()) {
-        //params for customization
-        $link = isset($params['link']) ? $params['link'] : 1;
-        $mark = isset($params['mark']) ? $params['mark'] : 1;
-
+		// params for customization
+		$link = isset ( $params ['link'] ) ? $params ['link'] : 1;
+		$mark = isset ( $params ['mark'] ) ? $params ['mark'] : 1;
+		
 		echo "<div class = \"left italic nowrap\">";
 		$row_type = $row ['row_type'];
 		$row_type_left = $row ['row_type_left'];
@@ -130,9 +130,9 @@ class bb_main extends bb_reports {
 	// $col2 is the actual name of the columns from the xml, $row[$col2] is $row['c03']
 	// $child is the visable name of the column the user name of the column
 	function return_rows($row, $arr_columns, $params = array()) {
-        //params for customization
-        $check = isset($params['check']) ? $params['check'] : 0;
-        
+		// params for customization
+		$check = isset ( $params ['check'] ) ? $params ['check'] : 0;
+		
 		// you could always feed this function only non-secured columns
 		$row2 = 1; // to catch row number change
 		$output = ""; // string with row data in it
@@ -408,41 +408,54 @@ class bb_main extends bb_reports {
 	}
 
 	function empty_directory($directory, $delete = false) {
-
-		$contents = glob ( $directory . '*' );
-		foreach ( $contents as $item ) {
-			if (is_dir ( $item ))
-				$this->empty_directory ( $item . '/', true );
-			else
-				@unlink ( $item );
+		// works with or without trailing slash
+		$directory = rtrim ( $directory, '/' );
+		if (is_dir ( $directory )) {
+			$objects = array_diff ( scandir ( $directory ), array (
+					".",
+					".." 
+			) );
+			foreach ( $objects as $object ) {
+				if (is_dir ( $directory . '/' . $object )) {
+					// not empty recurse
+					$this->empty_directory ( $directory . '/' . $object, true );
+				} else {
+					// remove file
+					@unlink ( $directory . '/' . $object );
+				}
+			}
 		}
-		if ($delete === true)
+		if ($delete) {
 			@rmdir ( $directory );
+		}
 	}
 
 	function copy_directory($from_directory, $to_directory) {
-
-		$filter = array (
+		// works with or without trailing slash
+		$from_directory = rtrim ( $from_directory, '/' );
+		$to_directory = rtrim ( $to_directory, '/' );
+		$objects = array_diff ( scandir ( $from_directory ), array (
 				".",
-				"..",
-				"Thumbs.db" 
-		);
-		$dirs = array_diff ( scandir ( $from_directory ), $filter );
-		$dir_array = Array ();
-		foreach ( $dirs as $d ) {
-			if (is_dir ( $from_directory . $d )) {
-				$d = $d . "/";
-				@mkdir ( $to_directory . $d );
-				$dir_array [$d] = $this->copy_directory ( $from_directory . $d, $to_directory . $d );
+				".." 
+		) );
+		foreach ( $objects as $object ) {
+			if (is_dir ( $from_directory . '/' . $object )) {
+				@mkdir ( $to_directory . '/' . $object );
+				// recurse
+				$this->copy_directory ( $from_directory . '/' . $object, $to_directory . '/' . $object );
 			} else {
-				@copy ( $from_directory . $d, $to_directory . $d );
+				// copy file
+				@copy ( $from_directory . '/' . $object, $to_directory . '/' . $object );
 			}
 		}
 	}
 
 	function replace_root($dir, $search, $replace) {
-
-		return $replace . substr ( $dir, strlen ( $search ) );
+		// works with or without trailing slash
+		$search = rtrim ( $search, '/' );
+		$replace = rtrim ( $replace, '/' );
+		
+		return $replace . '/' . substr ( $dir, strlen ( $search . '/' ) );
 	}
 
 	function check_syntax($filepath) {

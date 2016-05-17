@@ -132,6 +132,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
+
     
 /* END REDIRECT */
 endif;

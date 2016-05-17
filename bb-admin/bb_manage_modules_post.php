@@ -185,17 +185,17 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 						array_push ( $arr_messages, "Error: Unable to open zip archive." );
 					}
 				} elseif (substr ( $_FILES [$main->name ( 'update_file', $module )] ["name"], 0, 12 ) == "brimbox-root") {
-                   	$zip = new ZipArchive ();
+					$zip = new ZipArchive ();
 					$res = $zip->open ( $_FILES [$main->name ( 'update_file', $module )] ["tmp_name"] );
 					if ($res === true) {
-						$zip->extractTo (  $abspath . "/bb-temp/" );
+						$zip->extractTo ( $abspath . "/bb-temp/" );
 						$zip->close ();
-						$main->copy_directory ($abspath . "/bb-temp/root/", $abspath . "/" );
+						$main->copy_directory ( $abspath . "/bb-temp/root/", $abspath . "/" );
 						array_push ( $arr_messages, "Brimbox root file has been installed." );
 					} else {
 						array_push ( $arr_messages, "Error: Unable to open zip archive." );
-					} 
-                } else {
+					}
+				} else {
 					$arr_messages [] = "Error: Does not appear to be a Brimbox core update or root install file.";
 				}
 			} else {
@@ -424,6 +424,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
+
 
 
 

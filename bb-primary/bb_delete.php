@@ -54,7 +54,7 @@ if ($main->button ( 1 )) {
 		array_push ( $arr_messages, "This Cascade Delete deleted " . $cnt_affected . " rows." );
 		if ($delete_log) {
 			$message = "Record " . chr ( $row_type + 64 ) . $post_key . " and " . ($cnt_affected - 1) . " children deleted.";
-			$main->log_entry ( $con, $message, $username );
+			$main->log ( $con, $message );
 		}
 	} else {
 		array_push ( $arr_messages, "Error: There may have been an underlying data change." );

@@ -55,27 +55,27 @@ if ($main->button ( 1 )) {
 	if ($cnt_affected > 0) {
 		if ($archive_log) {
 			$message = "Record " . chr ( $row_type + 64 ) . $post_key . " and " . ($cnt_affected - 1) . " children archived.";
-			$main->log_entry ( $con, $message, $username );
+			$main->log ( $con, $message );
 		}
 		if (empty ( $arr_archive )) {
 			if ($setbit) {
 				array_push ( $arr_messages, "This Cascade Archive archived " . $cnt_affected . " rows." );
 				if ($archive_log) {
 					$message = "Record " . chr ( $row_type + 64 ) . $post_key . " and " . ($cnt_affected - 1) . " children archived.";
-					$main->log_entry ( $con, $message, $username );
+					$main->log ( $con, $message );
 				}
 			} elseif (! $setbit) {
 				array_push ( $arr_messages, "This Retrieve Cascade retrieved " . $cnt_affected . " rows." );
 				if ($archive_log) {
 					$message = "Record " . chr ( $row_type + 64 ) . $post_key . " and " . ($cnt_affected - 1) . " children retrieved.";
-					$main->log_entry ( $con, $message, $username );
+					$main->log ( $con, $message );
 				}
 			}
 		} else {
 			array_push ( $arr_messages, "This Cascade set " . $cnt_affected . " rows to archive level \"" . $arr_archive [$setbit] . "\"." );
 			if ($archive_log) {
 				$message = "Record " . chr ( $row_type + 64 ) . $post_key . " and " . ($cnt_affected - 1) . " children set to archive level " . $arr_archive [$setbit] . ".";
-				$main->log_entry ( $con, $message, $username );
+				$main->log ( $con, $message );
 			}
 		}
 	} else {

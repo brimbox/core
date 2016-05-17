@@ -61,6 +61,7 @@ class bb_links extends bb_work {
 		// target is input and text is editable, uses js input function
 		$filter = isset ( $params ['layouts'] ) ? $params ['layouts'] : array ();
 		$class = isset ( $params ['class'] ) ? $params ['class'] : "link rightmargin";
+		
 		if (! $row ['archive'] && $arr_layouts [$row ['row_type']] ['relate'] && (in_array ( $row ['row_type'], $filter ) || empty ( $filter ))) {
 			echo "<button class = \"" . $class . "\" onclick=\"bb_links.relate(" . $row ['id'] . ",'" . $target . "','" . $slug . "'); return false;\">";
 			echo $text . "</button>";
@@ -74,6 +75,7 @@ class bb_links extends bb_work {
 		// post_key is the parent
 		$check = isset ( $params ['check'] ) ? $params ['check'] : false;
 		$class = isset ( $params ['class'] ) ? $params ['class'] : "link rightmargin";
+		
 		// find all the children
 		$arr_children = array ();
 		foreach ( $arr_layouts as $key => $value ) {

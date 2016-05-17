@@ -28,18 +28,18 @@ if (! function_exists ( 'bb_input_module_autofill' )) :
 		
 		$arr_layouts = $main->layouts ( $con );
 		
-		$parent_row_type = $main->init($arr_state ['parent_row_type'], 0);
-		$parent_id = $main->init($arr_state ['parent_id'], 0);
-		$parent_primary = $main->init($arr_state ['parent_primary'], "");	
+		$parent_row_type = $main->init ( $arr_state ['parent_row_type'], 0 );
+		$parent_id = $main->init ( $arr_state ['parent_id'], 0 );
+		$parent_primary = $main->init ( $arr_state ['parent_primary'], "" );
 		
 		$row_type = $main->init ( $arr_state ['row_type'], 0 );
 		$row_join = $main->init ( $arr_state ['row_join'], 0 );
-		$post_key = $main->init ( $arr_state ['post_key'], 0 );		
-
+		$post_key = $main->init ( $arr_state ['post_key'], 0 );
+		
 		$query = "SELECT * FROM data_table WHERE id = " . $parent_id . ";";
-		$result = $main->query ( $con, $query );			
+		$result = $main->query ( $con, $query );
 		$row = pg_fetch_array ( $result );
-
+		
 		if (($row_type != $row_join) && ($row_join == $parent_row_type) && ($parent_row_type > 0)) {
 			$arr_columns = $main->columns ( $con, $row_type );
 			$arr_columns_parent = $main->columns ( $con, $parent_row_type );
@@ -61,6 +61,8 @@ if (! function_exists ( 'bb_input_module_autofill' )) :
 			}
 		}
 	}
+
+
 
 
 

@@ -69,7 +69,7 @@ if (! class_exists ( 'bb_input_module_hooks' )) :
 				echo "<select name = \"row_type\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
 				echo "<option value=\"" . $row_type . "\" selected>" . $arr_layouts [$row_type] ['plural'] . "&nbsp;</option>";
 				echo "</select>";
-			}  else {
+			} else {
 				// no parent, all possible top level records
 				// get top level records
 				foreach ( $arr_layouts as $key => $value ) {
@@ -207,6 +207,8 @@ if (! class_exists ( 'bb_input_module_hooks' )) :
 			echo "</div>";
 		}
 	}
+
+
 
 
 

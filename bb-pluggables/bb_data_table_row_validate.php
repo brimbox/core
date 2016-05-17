@@ -25,8 +25,8 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 		// session or globals
 		global $con, $main, $submit;
 		
-		//return error message
-		$error = true;		
+		// return error message
+		$error = true;
 		
 		$arr_layouts = $main->layouts ( $con );
 		$default_row_type = $main->get_default_layout ( $arr_layouts );
@@ -52,12 +52,11 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 			// start validation
 			$type = $value ['type']; // validation type
 			$required_flag = $value ['required'] == 1 ? true : false; // required boolean
-																	  
+			                                                          
 			// all validated
 			$return_required = $return_validate = false;
 			// required field
-			if ($required_flag) 
-				{
+			if ($required_flag) {
 				// false = not required, true = required
 				$return_required = $main->validate_required ( $field, $error );
 				if (! is_bool ( $return_required )) {
@@ -73,23 +72,24 @@ if (! function_exists ( 'bb_data_table_row_validate' )) :
 					if (! is_bool ( $return_validate )) {
 						$arr_errors [$key] = $return_validate;
 					}
-				}
-				else {
+				} else {
 					// value is passed a reference and may change in function if formatted
 					$return_validate = $main->validate_logic ( $con, $type, $field, $error );
 					if (! is_bool ( $return_validate )) {
 						// key is col_type
 						$arr_errors [$key] = $return_validate;
-					}				
+					}
 				}
 			}
 			$filtername = "bb_input_custom_validation";
 			$field = $main->filter ( $filtername, $field );
 			
 			$main->set ( $col, $arr_state, $field );
-			}
-		$main->set ( 'arr_errors', $arr_state, $arr_errors );		
+		}
+		$main->set ( 'arr_errors', $arr_state, $arr_errors );
 	}
+
+
 	
 	
         

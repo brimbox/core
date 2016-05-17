@@ -105,15 +105,15 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				// secure can be updated if there is a form value being posted and constant is set
 				$archive_clause = $secure_clause = "";
 				if ($input_secure_post) {
-					$secure = (int)$arr_state['secure'];
-					$secure_clause = ", secure = " . $secure . " ";					
+					$secure = ( int ) $arr_state ['secure'];
+					$secure_clause = ", secure = " . $secure . " ";
 				}
 				// archive is wired in for update, not generally used for standard interface
 				if ($input_archive_post) {
-					$archive = (int)$arr_state['archive'];
+					$archive = ( int ) $arr_state ['archive'];
 					$archive_clause = ", archive = " . $archive . " ";
 				}
-					
+				
 				// key exists must check for duplicate value
 				// $select_where_not & $unique_key passed and created as reference
 				$col_unique_key = $main->pad ( "c", $unique_key );
@@ -128,7 +128,7 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				$return_primary = isset ( $arr_columns_props ['primary'] ) ? $main->pad ( "c", $arr_columns_props ['primary'] ) : "c01";
 				$query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " . $archive_clause . " WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as primary;";
 				/* STEP 1 */
-				//die($query);
+				// die($query);
 				$result = $main->query ( $con, $query );
 				// echo "<p>" . $query . "</p>";
 				
@@ -200,7 +200,7 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 					// should do a recursive update cascade
 					// end good edit
 				} else {
-                    // bad edit
+					// bad edit
 					$result_where_not = $main->query ( $con, $select_where_not );
 					$result_where = $main->query ( $con, $select_where );
 					if (pg_num_rows ( $result_where_not ) == 1) {
@@ -228,10 +228,9 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 					}
 					// add message
 				}
-			} 
-            else {
-            // insert new row
-            // $row_type <> $row_join
+			} else {
+				// insert new row
+				// $row_type <> $row_join
 				$insert_clause = "row_type, key1, owner_name, updater_name";
 				$select_clause = $row_type . " as row_type, " . $post_key . " as key1, '" . $username . "' as owner_name, '" . $username . "' as updater_name";
 				foreach ( $arr_columns as $key => $value ) {
@@ -278,15 +277,15 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 				// inherit archive + secure from parent
 				$secure_clause = "CASE WHEN (SELECT coalesce(secure,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT secure FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as secure, ";
 				$archive_clause = "CASE WHEN (SELECT coalesce(archive,0) FROM data_table WHERE id IN (" . $post_key . ")) > 0 THEN (SELECT archive FROM data_table WHERE id IN (" . $post_key . ")) ELSE 0 END as archive ";
-				// if constants are set 
+				// if constants are set
 				if ($input_secure_post) {
-					$secure = (int)$arr_state['secure'];
-					$secure_clause = " " . $secure . " as secure, " ;
+					$secure = ( int ) $arr_state ['secure'];
+					$secure_clause = " " . $secure . " as secure, ";
 				}
 				if ($input_archive_post) {
-					$archive = (int)$arr_state['archive'];
-					$archive_clause =  " " . $archive . " as archive ";
-				}					
+					$archive = ( int ) $arr_state ['archive'];
+					$archive_clause = " " . $archive . " as archive ";
+				}
 				// key exists must check for duplicate value
 				// $select_where_not & $unique_key passed and created as reference
 				// still check key for blank on insert
@@ -359,8 +358,8 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 					$main->set ( 'parent_row_type', $arr_state, $parent_row_type );
 					$parent_primary = isset ( $row ['parent'] ) ? $row ['parent'] : "";
 					$main->set ( 'parent_primary', $arr_state, $parent_primary );
-				}  else {
-                    // bad insert
+				} else {
+					// bad insert
 					// check for key problem
 					$result_where_not = $main->query ( $con, $select_where_not );
 					$result_where = $main->query ( $con, $select_where );
@@ -395,6 +394,8 @@ if (! function_exists ( 'bb_data_table_row_input' )) :
 		  // will be empty array if no messages
 		$main->set ( 'arr_messages', $arr_state, $arr_messages );
 	}
+
+
 
         
 endif; // pluggable
