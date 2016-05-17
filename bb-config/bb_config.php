@@ -2,7 +2,7 @@
 <?php
 
 /*
- * Copyright (C) 2012 - 2013 Kermit Will Richardson, Brimbox LLC
+ * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
@@ -21,24 +21,25 @@
 
 /* DATABASE SETTINGS */
 // Postgres friendly database name
-define ( 'DB_FRIENDLY_NAME', 'Contactagon' );
-// Postgres hostname
+define ( 'DB_FRIENDLY_NAME', 'Brimbox' );
+// Postgres hostname */
 define ( 'DB_HOST', 'localhost' );
-// Postgres database name
-define ( 'DB_NAME', 'contact1_test' );
-// Postgres database username
-define ( 'DB_USER', 'contact1_test2' );
-// Postgres database password
-define ( 'DB_PASSWORD', 'LbD5z}H!EN8$' );
-// Postgres database owner, for standard cPanel installs
-define ( 'DB_OWNER', 'contact1' );
+// Postgres database name */
+define ( 'DB_NAME', 'database' );
+// Postgres database username */
+define ( 'DB_USER', 'user' );
+// Postgres database password */
+define ( 'DB_PASSWORD', 'password' );
+// Postgres database owner, for standard cPanel installs */
+define ( 'DB_OWNER', 'owner' );
+
 /* EMAIL SETTINGS, get this information from system administrator */
 // Email server
-define ( 'EMAIL_SERVER', 'mail.contactagon.com' );
+define ( 'EMAIL_SERVER', 'mail.brimbox.net' );
 // Email address
-define ( 'EMAIL_ADDRESS', 'test@contactagon.com' );
+define ( 'EMAIL_ADDRESS', 'test@brimbox.net' );
 // Email password
-define ( 'EMAIL_PASSWORD', 'F1D+wIulsDa,' );
+define ( 'EMAIL_PASSWORD', 'brimbox123' );
 // Email configuration option (port and then flags separated by "/")
 // Might have to play around to find the fastest loading configuration
 // see http://php.net/manual/en/function.imap-open.php
