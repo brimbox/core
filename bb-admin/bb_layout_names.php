@@ -82,7 +82,8 @@ if ($main->button ( 1 )) {
 			foreach ( $arr_layouts_fields as $key => $value ) {
 				$arr_layouts [$i] [$key] = $main->purge_chars ( $main->post ( $key . '_' . $i, $module, 0 ), true, true );
 			}
-			$populated = $i;
+		} else {
+			unset ($arr_layouts [$i]);
 		}
 	}
 	
@@ -93,7 +94,7 @@ if ($main->button ( 1 )) {
 	$arr_order = array ();
 	$arr_parent = array ();
 	
-	for($i = 1; $i <= $populated; $i ++) {
+	for($i = 1; $i <= $number_layouts; $i ++) {
 		$singular = $arr_layouts [$i] ['singular'];
 		$plural = $arr_layouts [$i] ['plural'];
 		// AND condition to save variables in database JSON table

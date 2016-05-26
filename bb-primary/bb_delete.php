@@ -42,11 +42,18 @@ $delete_log = $main->on_constant ( 'BB_DELETE_LOG' );
 if ($main->button ( 1 )) {
 	$post_key = $main->post ( 'post_key', $module );
 	$row_type = $main->post ( 'row_type', $module );
-	
+	// recursive query for large object delete
+	$query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) SELECT id FROM data_table WHERE id IN (SELECT id FROM t);";
+	$result = $main->query ( $con, $query );
+	$arr_ids = pg_fetch_all_columns ( $result );
+	foreach ( $arr_ids as $id ) {
+		pg_query ( $con, "BEGIN" );
+		// delete with prejudice will ignore a not exists warning
+		// again, web users don't have access to pg_largeobjects only superusers do
+		@pg_lo_unlink ( $con, $id );
+		pg_query ( $con, "END" );
+	}
 	// recursive query for cascading delete
-	// needs to updated when postgres 9.* is standard
-	// cannot use DELETE in CTE in postgres 8.4, so it is done in 2 steps
-	// second step double checks for changes before execution, however one step would be better
 	$query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) DELETE FROM data_table WHERE id IN (SELECT id FROM t);";
 	$result = $main->query ( $con, $query );
 	$cnt_affected = pg_affected_rows ( $result );

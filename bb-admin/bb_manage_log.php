@@ -136,7 +136,7 @@ $params = array (
 		'onchange' => "bb_reload()",
 		'usekey' => true 
 );
-$main->array_to_select ( $arr_options, "truncate_option", $truncate_option, $params );
+$main->array_to_select ( $arr_options, "truncate_option", $truncate_option, array (), $params );
 
 // submit button
 $params = array (
