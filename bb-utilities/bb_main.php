@@ -868,7 +868,10 @@ class bb_main extends bb_reports {
 		// for standard interface
 		global $array_links;
 		
-		foreach ( $array_links as $arr ) {
+		// not sorted by default
+		$arr_links = $array_links;
+		ksort ( $arr_links );
+		foreach ( $arr_links as $arr ) {
 			array_unshift ( $arr ['params'], $layouts );
 			array_unshift ( $arr ['params'], $row );
 			call_user_func_array ( $arr ['func'], $arr ['params'] );

@@ -176,10 +176,7 @@ class bb_work extends bb_meta {
 	function render($con, $name, $module, &$arr_state, $type, &$check, $default = "") {
 		// psuedo post var
 		global $POST;
-		
-		// fully processes $POST variable into state setting with initial value
-		$arr_header = $this->get_json ( $con, "bb_interface_enable" );
-		$arr_validation = $arr_header ['validation'];
+		global $array_validation;
 		
 		$var = isset ( $arr_state [$name] ) ? $arr_state [$name] : $default;
 		$temp = $this->name ( $name, $module );
@@ -191,7 +188,7 @@ class bb_work extends bb_meta {
 		
 		// will format value if valid, otherwise leaves $var untouched
 		// check becomes false on valid type, true opn error
-		$check = call_user_func_array ( $arr_validation [$type] ['function'], array (
+		$check = call_user_func_array ( $array_validation [$type] ['func'], array (
 				&$var,
 				false 
 		) );

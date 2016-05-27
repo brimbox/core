@@ -46,7 +46,9 @@ class bb_build {
 		$filter = $args [1];
 		
 		if (isset ( $array_filters [$args [0]] )) {
-			foreach ( $array_filters [$args [0]] as $arr_filter ) {
+			$arr_filters = $array_filters [$args [0]];
+			ksort ( $arr_filters );
+			foreach ( $arr_filters as $arr_filter ) {
 				// get the callable function
 				if (isset ( $arr_filter ['func'] ))
 					$arr_func = $arr_filter ['func'];
@@ -91,7 +93,9 @@ class bb_build {
 		// hook must be set
 		if (isset ( $array_hooks [$hookname] )) {
 			// hook loop
-			foreach ( $array_hooks [$hookname] as $arr_hook ) {
+			$arr_hooks = $array_hooks [$hookname];
+			ksort ( $arr_hooks );
+			foreach ( $arr_hooks as $arr_hook ) {
 				// simple function with no parameters
 				// or include file for some reason
 				// handles callable array and strings

@@ -323,9 +323,7 @@ if ($interface == "bb_brimbox") :
 			"3_bb_brimbox",
 			"4_bb_brimbox",
 			"5_bb_brimbox" 
-	) ))
-		;
-	{
+	) )) {
 		$main->add_value ( 'links', array (
 				'func' => array (
 						$main,
@@ -429,6 +427,9 @@ if ($interface == "bb_brimbox") :
 				) 
 		), 90 );
 	}
+
+
+
 
 
 

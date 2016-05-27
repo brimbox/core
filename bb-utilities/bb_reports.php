@@ -50,14 +50,10 @@ class bb_reports extends bb_forms {
 	function report_type($selected, $params = array()) {
 
 		global $array_reports;
+		$params = array('name'=>"report_type", 'onchange'=>"bb_reports.clear_report()") + $params;
+		$attributes = $this->attributes($params);
 		
-		$select_class = isset ( $params ['select_class'] ) ? $params ['select_class'] : "";
-		$label_class = isset ( $params ['label_class'] ) ? $params ['label_class'] : "";
-		$label = isset ( $params ['label'] ) ? $params ['label'] : "";
-		if (! empty ( $label )) {
-			echo "<label class = \"" . $label_class . "\">" . $label . "</label>";
-		}
-		echo "<select name = \"report_type\" class = \"" . $select_class . "\" onChange=\"bb_reports.clear_report()\">";
+		echo "<select " . $attributes . ">";
 		foreach ( $array_reports as $key => $value ) {
 			echo "<option value=\"" . $value ['type'] . "\" " . ($value ['type'] == $selected ? "selected" : "") . ">" . $value ['name'] . "&nbsp;</option>";
 		}
@@ -618,17 +614,15 @@ class bb_reports extends bb_forms {
 		$params = array (
 				'name' => $name 
 		) + $params;
-		
-		$arr = $prepend + $arr;
-		
+				
 		$attributes = $this->attributes ( $params );
 		
 		echo "<select " . $attributes . ">";
 		foreach ( $prepend as $value ) {
-			echo "<option " . ($selected == $value ? "selected" : "") . ">" . $value . "&nbsp;</option>";
+			echo "<option value=\"" . htmlentities ( $value ) . "\" " . ($selected == $value ? "selected" : "") . ">" .  htmlentities ( $value )  . "&nbsp;</option>";
 		}
 		while ( $row = pg_fetch_array ( $result ) ) {
-			echo "<option " . ($selected == $row [0] ? "selected" : "") . ">" . htmlentities ( $row [0] ) . "&nbsp;</option>";
+			echo "<option value=\"" . htmlentities ( $row [0] ) . "\" " . ($selected == $row [0] ? "selected" : "") . ">" . htmlentities ( $row [0] ) . "&nbsp;</option>";
 		}
 		echo "</select>";
 		pg_result_seek ( $result, 0 );
