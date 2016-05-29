@@ -37,16 +37,16 @@ $main->include_file ( $webpath . "/bb-config/bb_javascript.js", "js" );
 
 /* GET LESS SUBSTITUTER */
 include ($abspath . "/bb-less/bb_less_substituter.php");
-$less = new bb_less_substituter ();
+// $less = new bb_less_substituter ();
 
 /* LOAD CSS AND SUBSTITUTE LESS STYLES */
 // standard style for customization
 $main->include_file ( $webpath . "/bb-utilities/bb_styles.css", "css" );
-$less->parse_less_file ( $abspath . "/bb-utilities/bb_styles.less" );
+// $less->parse_less_file ( $abspath . "/bb-utilities/bb_styles.less" );
 
 // styles for the box
 $main->include_file ( $webpath . "/bb-box/bb_box.css", "css" );
-$less->parse_less_file ( $abspath . "/bb-box/bb_box.less" );
+// $less->parse_less_file ( $abspath . "/bb-box/bb_box.less" );
 
 /* CUSTOM CSS */
 $main->include_file ( $webpath . "/bb-config/bb_css.css", "css" );
@@ -66,9 +66,12 @@ if (! $main->blank ( $image )) {
 // echo tabs and links for each module
 echo "<div id=\"bb_header\">";
 // header image
-echo "<div id=\"controller_image\"></div>";
+$controller_image = "<img src=\"" . $webpath . "/bb-config/controller_image.gif\">";
+if (! $main->blank ( $controller_image )) {
+	echo "<div id=\"controller_image\">" . $controller_image . "</div>";
+}
 // global message for all users
-$controller_message = $main->get_constant ( 'BB_CONTROLLER_MESSAGE', '' );
+$controller_message = "";
 if (! $main->blank ( $controller_message )) {
 	echo "<div id=\"controller_message\">" . $controller_message . "</div>";
 }
@@ -126,6 +129,14 @@ while ( $row = pg_fetch_array ( $result ) ) {
 
 /* ECHO TABS */
 // set up standard tab and auxiliary header tabs
+echo "<div id=\"bb_mobile_header\">";
+echo "<label for=\"bb_show_menu\" id=\"bb_mobile_logo\">Brimbox</label>";
+$mobile_image = "<img src=\"" . $webpath . "/bb-config/mobile_image.png\">";
+echo "<label for=\"bb_show_menu\" id=\"bb_mobile_button\">" . $mobile_image . "</label>";
+echo "</div>";
+echo "<div id=\"bb_menu_header\">";
+echo "<input type=\"checkbox\" id=\"bb_show_menu\" role=\"button\">";
+echo "<ul id=\"bb_menu\" class=\"clearfix\">";
 foreach ( $arr_interface as $key => $value ) {
 	$selected = ""; // reset selected
 	                // active module type
@@ -136,9 +147,8 @@ foreach ( $arr_interface as $key => $value ) {
 	if ($value ['interface_type'] == 'Standard') {
 		foreach ( $arr_controller [$key] as $module_work => $value_work ) {
 			$selected = ($module == $module_work) ? "chosen" : "";
-			;
 			$submit_form_params = "[0,'$module_work', this]";
-			echo "<button class=\"tabs " . $selected . "\" onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value_work ['friendly_name'] . "</button>";
+			echo "<li><button class=\"" . $selected . "\" onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value_work ['friendly_name'] . "</button></li>";
 		}
 	} elseif ($value ['interface_type'] == 'Auxiliary') {
 		// this section
@@ -151,30 +161,31 @@ foreach ( $arr_interface as $key => $value ) {
 				$module_work = key ( $arr_controller [$key] );
 				$submit_form_params = "[0,'$module_work', this]";
 			}
-			echo "<button class=\"tabs " . $selected . "\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['module_type_name'] . "</button>";
+			echo "<li><button class=\"" . $selected . "\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['module_type_name'] . "</button></li>";
 		}
 	}
 }
+echo "</ul>";
+echo "</div>";
 /* END ECHO TABS */
 
 /* LINE UNDER TABS */
 // line either set under chosen tab or below all tabs and a hidden module
-$lineclass = ($type == 0) ? "line" : "under";
-echo "<div class=\"" . $lineclass . "\"></div>";
-echo "</div>"; // bb_header
+echo "<div id=\"bb_line\"></div>";
 /* END LINE UNDER TABS */
 
 /* INCLUDE APPROPRIATE MODULE */
 echo "<div id=\"bb_wrapper\">";
 // Auxiliary tabs and links,
 if (isset ( $interface_type ) && ($interface_type == 'Auxiliary')) {
-	echo "<div id=\"bb_admin_menu\">";
+	echo "<ul id=\"bb_admin_menu\">";
 	// echo auxiliary buttons on the side
 	foreach ( $arr_controller [$type] as $module_work => $value ) {
+		$selected = ($module == $module_work) ? "chosen" : "";
 		$submit_form_params = "[0,'$module_work', this]";
-		echo "<button class=\"menu\" name=\"" . $module_work . "_name\" value=\"" . $module_work . "_value\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['friendly_name'] . "</button>";
+		echo "<li><button class=\"" . $selected . "\"name=\"" . $module_work . "_name\" value=\"" . $module_work . "_value\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value ['friendly_name'] . "</button></li>";
 	}
-	echo "</div>";
+	echo "</ul>";
 	
 	// clean up before include
 	unset ( $arr_interface, $controller_message, $interface_type, $javascript, $key, $lineclass, $module_types, $module_work, $query, $result, $row, $slug_work, $submit_form_params, $value, $type );

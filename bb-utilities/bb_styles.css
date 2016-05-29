@@ -37,7 +37,7 @@ body, td, input, select, button, textarea {
 /* standard form objects, including HTML5 inputs */
 button, input, select, textarea {
 	padding: 1px;
-	border: 1px solid;
+	border: 1px solid #A070B6;
 }
 /* immediately change radio, checkbox and image to no border */
 input[type="radio"], input[type="checkbox"], input[type="image"] {
@@ -54,8 +54,14 @@ button, input, select {
 	-webkit-border-radius: 2px;
 	-o-border-radius: 2px;
 }
+
+button {
+	background-color: #F2EAFF;
+}
+
 /* link style button css */
 button.link {
+	color: #56006F;
 	background: none;
 	border: 0;
 	padding: 0;
@@ -80,37 +86,32 @@ div.clear {
 
 /* border colors in LESS */
 .border {
-	border-style: solid;
-	border-width: 1px;
+	border: 1px solid #A070B6;
 }
 
 .bordertop {
-	border-top-style: solid;
-	border-top-width: 1px;
+	border-top: 1px solid #A070B6;
 }
 
 .borderright {
-	border-right-style: solid;
-	border-right-width: 1px;
+	border-right: 1px solid #A070B6;
 }
 
 .borderbottom {
-	border-bottom-style: solid;
-	border-bottom-width: 1px;
+	border-bottom: 1px solid #A070B6;
 }
 
 .borderleft {
-	border-left-style: solid;
-	border-left-width: 1px;
+	border-left: 1px solid #A070B6;
 }
 /* divider colors in LESS */
 .divider {
-	border-top: 1px solid;
+	border-top: 1px solid #A070B6;
 	padding: 3px 0px 3px 0;
 }
 
 .darkline {
-	border-top: 1px solid;
+	border-top: 1px solid #CCBBDD;
 	padding: 3px 0px 3px 0;
 }
 
@@ -158,6 +159,31 @@ div.clear {
 	font-size: 13px;
 	letter-spacing: 0.3px;
 }
+
+.message {
+	color: #56006F;
+}
+
+.colored {
+	color: #56006F;
+}
+
+.error {
+	color: #FF0000;
+}
+
+.odd {
+	background-color: #F2EAFF;
+}
+
+.shaded {
+	background-color: #F2EAFF;
+}
+
+.even {
+	background-color: #FFFFFF;
+}
+
 /* rounding */
 .rounded {
 	border-radius: 2px;
