@@ -433,10 +433,10 @@ if (! $core) {
 // display table head
 echo "<div class=\"table spaced border\">";
 echo "<div class=\"row\">";
-echo "<div class=\"padded cell shaded middle\">Column</div>";
-echo "<div class=\"padded cell shaded middle\">Name</div>";
+echo "<div class=\"bold underline extra shaded middle cell\">Column</div>";
+echo "<div class=\"bold underline extra shaded middle cell\">Name</div>";
 foreach ( $arr_fields as $key => $value ) {
-	echo "<div class=\"padded cell shaded middle\">" . $value ['name'] . "</div>";
+	echo "<div class=\"bold underline extra shaded middle cell\">" . $value ['name'] . "</div>";
 }
 echo "</div>";
 
@@ -444,19 +444,19 @@ for($m = 1; $m <= 50; $m ++) {
 	// columns by row
 	echo "<div class=\"row\">";
 	// layout and column number
-	echo "<div class = \"padded cell middle\">" . htmlentities ( $layout_name ) . " " . str_pad ( ( string ) $m, 2, "0", STR_PAD_LEFT ) . "</div>";
+	echo "<div class = \"extra middle cell\">" . htmlentities ( $layout_name ) . " " . str_pad ( ( string ) $m, 2, "0", STR_PAD_LEFT ) . "</div>";
 	
 	// name, alternative is readonly, always use core array
 	$readonly = $core ? "" : "readonly";
 	$formvalue = $main->init ( $arr_columns [$m] ['name'], "" );
-	echo "<div class = \"cell middle\"><input name=\"name_" . $m . "\" class = \"spaced\" type=\"text\" value=\"" . htmlentities ( $formvalue ) . "\" size=\"25\" maxlength=\"" . $maxinput . "\" " . $readonly . "/></div>";
+	echo "<div class = \"extra middle cell\"><input name=\"name_" . $m . "\" type=\"text\" value=\"" . htmlentities ( $formvalue ) . "\" size=\"25\" maxlength=\"" . $maxinput . "\" " . $readonly . "/></div>";
 	
 	foreach ( $arr_fields as $key => $value ) {
 		switch ($key) {
 			case "row" :
 				// row dropdown
 				$formvalue = $main->init ( $arr_columns [$m] ['row'], 0 );
-				echo "<div class = \"cell middle\"><select name=\"row_" . $m . "\" class = \"spaced\">";
+				echo "<div class = \"extra middle cell\"><select name=\"row_" . $m . "\">";
 				echo "<option value = \"0\"></option>";
 				for($i = 1; $i <= 50; $i ++) {
 					$selected = ($i == $formvalue) ? "selected" : "";
@@ -472,7 +472,7 @@ for($m = 1; $m <= 50; $m ++) {
 						"long" => "Long",
 						"note" => "Note" 
 				);
-				echo "<div class = \"cell middle\"><select name = \"length_" . $m . "\" class = \"spaced\">";
+				echo "<div class = \"extra middle cell\"><select name = \"length_" . $m . "\">";
 				foreach ( $arr_column_css_class as $key2 => $value2 ) {
 					$selected = ($key2 == $formvalue) ? "selected" : "";
 					echo "<option value=\"" . $key2 . "\" " . $selected . ">" . htmlentities ( $value2 ) . "</option>";
@@ -482,7 +482,7 @@ for($m = 1; $m <= 50; $m ++) {
 			case "order" :
 				// order dropdown
 				$formvalue = $main->init ( $arr_columns [$m] ['order'], 0 );
-				echo "<div class = \"cell middle\"><select name = \"order_" . $m . "\" class = \"spaced\">";
+				echo "<div class = \"extra middle cell\"><select name = \"order_" . $m . "\">";
 				echo "<option value = \"0\"></option>";
 				for($i = 1; $i <= 50; $i ++) {
 					$selected = ($i == $formvalue) ? "selected" : "";
@@ -492,14 +492,14 @@ for($m = 1; $m <= 50; $m ++) {
 				break;
 			case "type" :
 				if (in_array ( $m, $arr_notes )) {
-					echo "<div class = \"padded cell middle center colored\">Note</div>";
+					echo "<div class = \"colored extra center middle cell\">Note</div>";
 				} elseif (in_array ( $m, $arr_reserved )) {
-					echo "<div class = \"padded cell middle center colored\">Reserved</div>";
+					echo "<div class = \"colored extra center middle cell\">Reserved</div>";
 				} elseif (in_array ( $m, $arr_file )) {
-					echo "<div class = \"padded cell middle center colored\">File</div>";
+					echo "<div class = \"colored extra center middle cell\">File</div>";
 				} else {
 					$formvalue = $main->init ( $arr_columns [$m] ['type'], "" );
-					echo "<div class = \"cell middle\"><select name = \"type_" . $m . "\" class=\"spaced\">";
+					echo "<div class = \"middle cell\"><select name = \"type_" . $m . "\" class=\"spaced\">";
 					// global $array_validation
 					foreach ( $arr_validation as $key2 => $value2 ) {
 						$selected = ($key2 == $formvalue) ? "selected" : "";
@@ -510,8 +510,8 @@ for($m = 1; $m <= 50; $m ++) {
 				break;
 			case "display" :
 				$formvalue = $main->init ( $arr_columns [$m] ['display'], 0 );
-				echo "<div class = \"cell middle\">";
-				echo "<select name = \"display_" . $m . "\" class = \"spaced\">";
+				echo "<div class = \"extra middle cell\">";
+				echo "<select name = \"display_" . $m . "\">";
 				$arr_display = array (
 						0 => "",
 						1 => "Readonly",
@@ -527,7 +527,7 @@ for($m = 1; $m <= 50; $m ++) {
 			case "required" :
 				// required checkbox
 				$formvalue = $main->init ( $arr_columns [$m] ['required'], 0 );
-				echo "<div class = \"padded cell center middle\">";
+				echo "<div class = \"extra center middle cell\">";
 				$checked = ($formvalue == 1) ? true : false;
 				$main->echo_input ( "required_" . $m, 1, array (
 						'type' => 'checkbox',
@@ -540,7 +540,7 @@ for($m = 1; $m <= 50; $m ++) {
 				// secure checkbox
 				$formvalue = $main->init ( $arr_columns [$m] ['secure'], 0 );
 				if (empty ( $arr_column_security )) {
-					echo "<div class = \"padded cell center middle\">";
+					echo "<div class = \"extra center middle cell\">";
 					$checked = ($formvalue == 1) ? true : false;
 					$main->echo_input ( "secure_" . $m, 1, array (
 							'type' => 'checkbox',
@@ -549,7 +549,7 @@ for($m = 1; $m <= 50; $m ++) {
 					) );
 					echo "</div>";
 				} else {
-					echo "<div class = \"cell middle\"><select name=\"secure_" . $m . "\"class = \"spaced\">";
+					echo "<div class = \"extra middle cell\"><select name=\"secure_" . $m . "\">";
 					foreach ( $arr_column_security as $key2 => $value2 ) {
 						$selected = ($key2 == $formvalue) ? "selected" : "";
 						echo "<option value = \"" . $key2 . "\" " . $selected . ">" . htmlentities ( $value2 ) . "&nbsp;</option>";
@@ -560,7 +560,7 @@ for($m = 1; $m <= 50; $m ++) {
 			case "search" :
 				// search checkbox
 				$formvalue = $main->init ( $arr_columns [$m] ['search'], 0 );
-				echo "<div class = \"padded cell center middle\">";
+				echo "<div class = \"extra center middle cell\">";
 				$checked = ($formvalue == 1) ? true : false;
 				$main->echo_input ( "search_" . $m, 1, array (
 						'type' => 'checkbox',
@@ -572,7 +572,7 @@ for($m = 1; $m <= 50; $m ++) {
 			case "relate" :
 				if (in_array ( $m, $arr_relate )) {
 					$formvalue = $main->init ( $arr_columns [$m] ['relate'], 0 );
-					echo "<div class = \"cell middle\"><select name=\"relate_" . $m . "\"class = \"spaced\">";
+					echo "<div class = \"extra middle cell\"><select name=\"relate_" . $m . "\">";
 					echo "<option value = \"0\"></option>";
 					foreach ( $arr_layouts as $key2 => $value2 ) {
 						$selected = ($key2 == $formvalue) ? "selected" : "";
@@ -582,7 +582,7 @@ for($m = 1; $m <= 50; $m ++) {
 					}
 					echo "</select></div>";
 				} else {
-					echo "<div class = \"cell middle\"></div>";
+					echo "<div class = \"extra middle cell\"></div>";
 				}
 				break;
 		} // switch

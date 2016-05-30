@@ -109,14 +109,14 @@
 #bb_admin_content {
 	border-left: 1px solid #A070B6;
 	border-top: 1px solid #A070B6;
-	margin: 4px;
+	margin-top: 4px;
 	padding: 4px;
 	float: left;
 }
 
 /* Admin Menu */
 #bb_admin_menu {
-	padding: 4px 0;
+	padding: 4px 4px 4px 0;
 	float: left;
 }
 
@@ -152,6 +152,9 @@
 
 /* Responsive Styles for Pads */
 @media screen and (max-width : 768px) {
+	body {
+		margin: 0 2px;
+	}
 	#bb_wrapper {
 		margin: 6px 0;
 	}
@@ -196,7 +199,7 @@
 /* Responsive Styles for Phones */
 @media screen and (max-width : 480px) {
 	body {
-		margin: 0 2px 2px 2px;
+		margin: 0 2px;
 	}
 
 	/* Mobile Button and Header */

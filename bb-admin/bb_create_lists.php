@@ -256,8 +256,8 @@ foreach ( $arr_definitions as $key => $value ) {
 			echo "<span class=\"spaced colored\">Add New List</span>";
 			echo "<div class=\"table border spaced\">";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"cell padded\">List Type: </div>";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"padded cell\">List Type: </div>";
+			echo "<div class=\"padded cell\">";
 			$params = array (
 					"class" => "spaced",
 					"onchange" => "bb_reload_1()" 
@@ -266,16 +266,16 @@ foreach ( $arr_definitions as $key => $value ) {
 			echo "</div>";
 			echo "</div>";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"cell padded top\">List Name: </div>";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"padded top cell\">List Name: </div>";
+			echo "<div class=\"padded cell\">";
 			$main->echo_input ( "name_new", "", array (
 					'type' => 'text',
 					'class' => 'spaced' 
 			) );
 			echo "</div></div>";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"cell padded top\">Description: </div>";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"padded top cell\">Description: </div>";
+			echo "<div class=\"padded cell\">";
 			$main->echo_textarea ( "description_new", "", array (
 					'rows' => 4,
 					'cols' => 60,
@@ -283,8 +283,8 @@ foreach ( $arr_definitions as $key => $value ) {
 			) );
 			echo "</div></div>";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"cell padded\"></div>";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"padded cell\"></div>";
+			echo "<div class=\"padded cell\">";
 			$params = array (
 					"class" => "spaced",
 					"number" => 1,
@@ -306,7 +306,7 @@ foreach ( $arr_definitions as $key => $value ) {
 			echo "<div class=\"border table\">"; // border
 			echo "<div class=\"table spaced\">";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"padded cell\">";
 			$params = array (
 					"class" => "spaced",
 					"onchange" => "bb_reload_2()" 
@@ -324,8 +324,8 @@ foreach ( $arr_definitions as $key => $value ) {
 			echo "</div>";
 			echo "<div class=\"spaced table padded\">";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"spaced cell padded\">List Number: </div>";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"spaced padded cell\">List Number: </div>";
+			echo "<div class=\"padded cell\">";
 			$main->echo_input ( "identifier_update", htmlentities ( $arr_create_lists ['update'] ['identifier'] ), array (
 					'type' => 'text',
 					'class' => 'spaced textbox',
@@ -333,16 +333,16 @@ foreach ( $arr_definitions as $key => $value ) {
 			) );
 			echo "</div></div>";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"spaced cell padded top\">List Name: </div>";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"spaced padded top cell\">List Name: </div>";
+			echo "<div class=\"padded cell\">";
 			$main->echo_input ( "name_update", htmlentities ( $arr_create_lists ['update'] ['name'] ), array (
 					'type' => 'text',
 					'class' => 'spaced textbox' 
 			) );
 			echo "</div></div>";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"spaced cell padded\">Description: </div>";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"spaced padded cell\">Description: </div>";
+			echo "<div class=\"padded cell\">";
 			$main->echo_textarea ( "description_update", $arr_create_lists ['update'] ['description'], array (
 					'rows' => 4,
 					'cols' => 60,
@@ -350,8 +350,8 @@ foreach ( $arr_definitions as $key => $value ) {
 			) );
 			echo "</div></div>";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"cell padded\"></div>";
-			echo "<div class=\"cell padded\">";
+			echo "<div class=\"padded cell\"></div>";
+			echo "<div class=\"padded cell\">";
 			$params = array (
 					"class" => "spaced",
 					"number" => 2,
@@ -376,7 +376,7 @@ foreach ( $arr_definitions as $key => $value ) {
 			echo "<span class=\"spaced colored\">Remove or Archive List</span>";
 			echo "<div class=\"table border spaced\">";
 			echo "<div class=\"row padded\">";
-			echo "<div class=\"cell padded nowrap\">";
+			echo "<div class=\"padded cell nowrap\">";
 			$params = array (
 					"class" => "spaced",
 					"onchange" => "bb_reload_3()" 
@@ -391,7 +391,7 @@ foreach ( $arr_definitions as $key => $value ) {
 			$main->list_dropdown ( $arr_lists, "list_number_delete", $arr_create_lists ['delete'] ['list_number'], $params );
 			echo " | ";
 			echo "</div>";
-			echo "<div class=\"cell padded nowrap\">";
+			echo "<div class=\"padded cell nowrap\">";
 			$params = array (
 					"class" => "spaced",
 					"number" => 3,
@@ -410,7 +410,7 @@ foreach ( $arr_definitions as $key => $value ) {
 			echo "</span>";
 			echo " | ";
 			echo "</div>";
-			echo "<div class=\"cell padded nowrap\">";
+			echo "<div class=\"padded cell nowrap\">";
 			$params = array (
 					"class" => "spaced",
 					"number" => 4,
@@ -421,7 +421,7 @@ foreach ( $arr_definitions as $key => $value ) {
 			);
 			$main->echo_button ( "archive_list", $params );
 			echo "</div>";
-			echo "<div class=\"cell padded nowrap\">";
+			echo "<div class=\"padded cell nowrap\">";
 			$main->echo_input ( "archive_delete", 1, array (
 					'type' => 'checkbox',
 					'class' => 'middle holderup' 

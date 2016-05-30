@@ -450,12 +450,15 @@ if ($action == 0) {
 	// echo "<p>" . $query . "</p>";
 	$result = $main->query ( $con, $query );
 	
-	echo "<table cellpadding=\"0\" cellspacing=\"0\">";
-	echo "<thead><tr colspan=\"6\"><td>";
+	echo "<div class=\"floatleft\">";
 	echo "<button class=\"floatleft spaced\" name=\"add_new_user\" onclick=\"bb_set_hidden(0,1)\">Add New User</button>";
-	echo "<table class=\"floatright\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"padded middle\">";
-	echo "<span>Filter By: </span>";
-	echo "<select class=\"middle\" name=\"filterrole\" onChange=\"bb_reload()\">";
+	
+	// floatright in reverse order
+	echo "<div class=\"table floatright\">";
+	echo "<div class=\"row\">";
+	echo "<div class=\"padded cell\">Filter By: </div>";
+	echo "<div class=\"padded cell\">";
+	echo "<select name=\"filterrole\" onChange=\"bb_reload()\">";
 	echo "<option value=\"all\">All</option>";
 	foreach ( $arr_userroles_loop as $arr_userrole_loop ) {
 		$key = $arr_userrole_loop ['userrole_value'];
@@ -464,10 +467,11 @@ if ($action == 0) {
 		echo "<option value=\"" . $key . "\" " . $selected . ">" . $value . "</option>";
 	}
 	echo "</select>";
-	echo "</td><td class=\"padded middle\">";
-	echo "<span class=\"middle spaced padded\">&nbsp;&nbsp;&nbsp;</span>";
-	echo "<span class=\"middle spaced padded\">Sort By: </span>";
-	echo "<select class=\"middle\" name=\"usersort\" onChange=\"bb_reload()\">";
+	echo "</div>";
+	
+	echo "<div class=\"padded cell\"> Sort By: </div>";
+	echo "<div class=\"padded cell\">";
+	echo "<select name=\"usersort\" onChange=\"bb_reload()\">";
 	$arr_usersort = array (
 			'lname' => "Last Name",
 			'fname' => "First Name",
@@ -479,34 +483,37 @@ if ($action == 0) {
 		echo "<option value=\"" . $key . "\" " . $selected . ">" . $value . "&nbsp;</option>";
 	}
 	echo "</select>";
-	echo "</td></tr></table>";
-	echo "</td></tr></thead>";
+	echo "</div>";
+	echo "</div>";
+	echo "</div>";
+	echo "<div class=\"clear\"></div>";
 	
-	echo "<tbody class=\"spaced block border\">";
-	echo "<tr class=\"shaded\">";
-	echo "<td class=\"padded medium middle bold\">Username</td>";
-	echo "<td class=\"padded medium middle bold\">Email</td>";
-	echo "<td class=\"padded medium middle bold\">Full Name</td>";
-	echo "<td class=\"padded short middle bold\">Userrole</td>";
-	echo "<td class=\"padded\"></td>";
-	echo "<td class=\"padded\"></td>";
-	echo "<td class=\"padded\"></td>";
-	echo "</tr>";
+	// user table
+	echo "<div class=\"table spaced border\">";
+	echo "<div class=\"row shaded\">";
+	echo "<div class=\"extra middle bold cell\">Username</div>";
+	echo "<div class=\"extra middle bold cell\">Email</div>";
+	echo "<div class=\"extra middle bold cell\">Full Name</div>";
+	echo "<div class=\"extra middle bold cell\">Userrole</div>";
+	echo "<div class=\"cell\"></div>";
+	echo "<div class=\"cell\"></div>";
+	echo "<div class=\"cell\"></div>";
+	echo "</div>";
 	
 	$i = 0;
 	// iterate through all current users
 	while ( $row = pg_fetch_array ( $result ) ) {
 		$shaded = ($i % 2) == 0 ? "even" : "odd";
-		echo "<tr class=\"" . $shaded . "\">";
+		echo "<div class=\"" . $shaded . " row\">";
 		$name = $main->build_name ( $row );
 		$id = $row ['id'];
 		$username_work = $row ['username'];
 		$email_work = $row ['email'];
 		$userroles_work = explode ( ",", $row ['userroles'] );
-		echo "<td class=\"padded medium middle\">" . htmlentities ( $username_work ) . "</td>";
-		echo "<td class=\"padded medium middle\">" . htmlentities ( $email_work ) . "</td>";
-		echo "<td class=\"padded medium middle\">" . htmlentities ( $name ) . "</td>";
-		echo "<td class=\"padded long middle\">";
+		echo "<div class=\"extra middle cell\">" . htmlentities ( $username_work ) . "</div>";
+		echo "<div class=\"extra middle cell\">" . htmlentities ( $email_work ) . "</div>";
+		echo "<div class=\"extra middle cell\">" . htmlentities ( $name ) . "</div>";
+		echo "<div class=\"extra middle cell\">";
 		$arr_display = array ();
 		foreach ( $userroles_work as $value ) {
 			if ($value == "0_bb_brimbox")
@@ -515,18 +522,20 @@ if ($action == 0) {
 				array_push ( $arr_display, $array_userroles [$value] ['name'] );
 		}
 		echo implode ( ", ", $arr_display );
-		echo "</td>";
-		echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",2); return false;\">Edit</button></td>";
-		echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",3); return false;\">Lock</button></td>";
-		echo "<td class=\"shorter padded right middle\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",4); return false;\">Delete</button></td>";
-		echo "</tr>";
+		echo "</div>";
+		echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",2); return false;\">Edit</button></div>";
+		echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",3); return false;\">Lock</button></div>";
+		echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",4); return false;\">Delete</button></div>";
+		echo "</div>";
 		$i ++;
 	}
-	echo "</tbody></table>";
+	echo "</div>";
 	
 	// these hidden forms are used on the initial page
 	echo "<input name=\"action\" type=\"hidden\" value=\"\" />";
 	echo "<input name=\"id\" type=\"hidden\" value=\"\" />";
+	
+	echo "</div>";
 }
 /* END MAIN */
 
@@ -537,6 +546,79 @@ if (in_array ( $action, array (
 		3,
 		4 
 ) )) :
+	
+	// buttons
+	if ($action == 1) {
+		$params = array (
+				"class" => "spaced",
+				"number" => 1,
+				"target" => $module,
+				"passthis" => true,
+				"label" => "Add User" 
+		);
+		$main->echo_button ( "add_user", $params );
+		// Reset Button
+		$params = array (
+				"class" => "spaced",
+				"number" => - 1,
+				"target" => $module,
+				"passthis" => true,
+				"label" => "Reset Form" 
+		);
+		$main->echo_button ( "clear_form", $params );
+	} elseif ($action == 2) {
+		$params = array (
+				"class" => "spaced",
+				"number" => 2,
+				"target" => $module,
+				"passthis" => true,
+				"label" => "Update Information" 
+		);
+		$main->echo_button ( "update_info", $params );
+		$params = array (
+				"class" => "spaced",
+				"number" => - 1,
+				"target" => $module,
+				"passthis" => true,
+				"label" => "Reset Form" 
+		);
+		$main->echo_button ( "clear_form", $params );
+	} elseif ($action == 3) {
+		$params = array (
+				"class" => "spaced",
+				"number" => 3,
+				"target" => $module,
+				"passthis" => true,
+				"label" => "Lock User" 
+		);
+		$main->echo_button ( "lock_user", $params );
+		$params = array (
+				"class" => "spaced",
+				"number" => - 1,
+				"target" => $module,
+				"passthis" => true,
+				"label" => "Reset Form" 
+		);
+		$main->echo_button ( "clear_form", $params );
+	} elseif ($action == 4) {
+		$params = array (
+				"class" => "spaced",
+				"number" => 4,
+				"target" => $module,
+				"passthis" => true,
+				"label" => "Delete User" 
+		);
+		$main->echo_button ( "delete_user", $params );
+		$params = array (
+				"class" => "spaced",
+				"number" => - 1,
+				"target" => $module,
+				"passthis" => true,
+				"label" => "Reset Form" 
+		);
+		$main->echo_button ( "clear_form", $params );
+	}
+	
 	// get the specific record for edit, delete, or lock, not on postback
 	// manage users a little tricky because of multiple functionalites
 	// check action is either delet or lock, or that it is from edit link, and also postback (rather than tab switch)
@@ -581,8 +663,8 @@ if (in_array ( $action, array (
 	echo "<div class=\"table spaced\">";
 	
 	echo "<div class=\"row\">";
-	echo "<div class=\"cell middle\">Username:</div>";
-	echo "<div class=\"cell middle\">";
+	echo "<div class=\"middle cell\">Username:</div>";
+	echo "<div class=\"middle cell\">";
 	$main->echo_input ( "username_work", htmlentities ( $username_work ), array (
 			'type' => "text",
 			'class' => "spaced long",
@@ -590,12 +672,12 @@ if (in_array ( $action, array (
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
-	echo "<div class=\"cell error middle\"> " . (isset ( $arr_error ['username_work'] ) ? $arr_error ['username_work'] : "") . "</div>";
+	echo "<div class=\"error middle cell\"> " . (isset ( $arr_error ['username_work'] ) ? $arr_error ['username_work'] : "") . "</div>";
 	echo "</div>";
 	
 	echo "<div class=\"row\">";
-	echo "<div class=\"cell middle\">Email:</div>";
-	echo "<div class=\"cell middle\">";
+	echo "<div class=\"middle cell\">Email:</div>";
+	echo "<div class=\"middle cell\">";
 	$main->echo_input ( "email_work", htmlentities ( $email_work ), array (
 			'type' => "text",
 			'class' => "spaced long",
@@ -603,13 +685,13 @@ if (in_array ( $action, array (
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
-	echo "<div class=\"cell error middle\"> " . (isset ( $arr_error ['email_work'] ) ? $arr_error ['email_work'] : "") . "</div>";
+	echo "<div class=\"error middle cell\"> " . (isset ( $arr_error ['email_work'] ) ? $arr_error ['email_work'] : "") . "</div>";
 	echo "</div>";
 	
 	// passwords, md5 so never repopulate, no readonly, has error msgs
 	echo "<div class=\"row\">";
-	echo "<div class=\"cell middle\">Password:</div>";
-	echo "<div class=\"cell middle\">";
+	echo "<div class=\"middle cell\">Password:</div>";
+	echo "<div class=\"middle cell\">";
 	$handler = "onKeyUp=\"bb_check_passwd(this.value,'passwd_work')\"";
 	$main->echo_input ( "passwd_work", "", array (
 			'type' => 'password',
@@ -618,12 +700,12 @@ if (in_array ( $action, array (
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
-	echo "<div class=\"cell error middle\"> " . (isset ( $arr_error ['passwd_work'] ) ? $arr_error ['passwd_work'] : "") . "</div>";
+	echo "<div class=\"error middle cell\"> " . (isset ( $arr_error ['passwd_work'] ) ? $arr_error ['passwd_work'] : "") . "</div>";
 	echo "</div>";
 	
 	echo "<div class=\"row spaced\">";
-	echo "<div class=\"cell middle\">Re-Enter Password:</div>";
-	echo "<div class=\"cell middle\">";
+	echo "<div class=\"middle cell\">Re-Enter Password:</div>";
+	echo "<div class=\"middle cell\">";
 	$handler = "onKeyUp=\"bb_check_passwd(this.value,'repasswd_work')\"";
 	$main->echo_input ( "repasswd_work", "", array (
 			'type' => 'password',
@@ -632,14 +714,14 @@ if (in_array ( $action, array (
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
-	echo "<div class=\"cell error middle\"> " . (isset ( $arr_error ['repasswd_work'] ) ? $arr_error ['repasswd_work'] : "") . "</div>";
+	echo "<div class=\"error middle cell\"> " . (isset ( $arr_error ['repasswd_work'] ) ? $arr_error ['repasswd_work'] : "") . "</div>";
 	echo "</div>";
 	
 	// names, readonly for delete, has first and last name error messages for edit
 	// delete will have no error msgs but is tested anyway
 	echo "<div class=\"row\">";
-	echo "<div class=\"cell middle\">First Name:</div>";
-	echo "<div class=\"cell middle\">";
+	echo "<div class=\"middle cell\">First Name:</div>";
+	echo "<div class=\"middle cell\">";
 	$main->echo_input ( "fname", htmlentities ( $fname ), array (
 			'type' => "input",
 			'class' => "spaced long",
@@ -647,12 +729,12 @@ if (in_array ( $action, array (
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
-	echo "<div class=\"cell error middle\"> " . (isset ( $arr_error ['fname'] ) ? $arr_error ['fname'] : "") . "</div>";
+	echo "<div class=\"error middle cell\"> " . (isset ( $arr_error ['fname'] ) ? $arr_error ['fname'] : "") . "</div>";
 	echo "</div>";
 	
 	echo "<div class=\"row\">";
-	echo "<div class=\"cell middle\">Middle Initial:</div>";
-	echo "<div class=\"cell middle\">";
+	echo "<div class=\"middle cell\">Middle Initial:</div>";
+	echo "<div class=\"middle cell\">";
 	$main->echo_input ( "minit", htmlentities ( $minit ), array (
 			'type' => "input",
 			'class' => "spaced long",
@@ -660,12 +742,12 @@ if (in_array ( $action, array (
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
-	echo "<div class=\"cell middle\"></div>";
+	echo "<div class=\"middle cell\"></div>";
 	echo "</div>";
 	
 	echo "<div class=\"row\">";
-	echo "<div class=\"cell middle\"\">Last Name:</div>";
-	echo "<div class=\"cell middle\">";
+	echo "<div class=\"middle cell\"\">Last Name:</div>";
+	echo "<div class=\"middle cell\">";
 	$main->echo_input ( "lname", htmlentities ( $lname ), array (
 			'type' => "input",
 			'class' => "spaced long",
@@ -673,7 +755,7 @@ if (in_array ( $action, array (
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
-	echo "<div class=\"cell error middle\"> " . (isset ( $arr_error ['lname'] ) ? $arr_error ['lname'] : "") . "</div>";
+	echo "<div class=\"error middle cell\"> " . (isset ( $arr_error ['lname'] ) ? $arr_error ['lname'] : "") . "</div>";
 	echo "</div>";
 	
 	// lock and delete
@@ -683,8 +765,8 @@ if (in_array ( $action, array (
 	) )) {
 		// display roles
 		echo "<div class=\"row\">";
-		echo "<div class=\"cell middle\"\">Roles:</div>";
-		echo "<div class=\"cell middle\">";
+		echo "<div class=\"middle cell\"\">Roles:</div>";
+		echo "<div class=\"middle cell\">";
 		echo "<div class=\"padded spaced border\">";
 		$arr_display = array ();
 		foreach ( $userroles_work as $value ) {
@@ -693,19 +775,19 @@ if (in_array ( $action, array (
 		}
 		echo implode ( "<br>", $arr_display );
 		echo "</div></div>";
-		echo "<div class=\"cell middle\"></div>";
+		echo "<div class=\"middle cell\"></div>";
 		echo "</div>";
 		echo "<div class=\"row\">";
-		echo "<div class=\"cell middle\"\">IPs (cidr):</div>";
+		echo "<div class=\"middle cell\"\">IPs (cidr):</div>";
 		$ips_display = ($ips == "") ? "&nbsp" : str_replace ( "\n", "<br>", $ips );
 		echo "<div class=\"padded spaced border\">" . $ips_display . "</div>";
-		echo "<div class=\"cell middle\"></div>";
+		echo "<div class=\"middle cell\"></div>";
 		echo "</div>";
 		echo "<div class=\"row\">";
-		echo "<div class=\"cell middle\"\">Notes:</div>";
+		echo "<div class=\"middle cell\"\">Notes:</div>";
 		$notes_display = ($notes == "") ? "&nbsp" : str_replace ( "\n", "<br>", htmlentities ( $notes ) );
 		echo "<div class=\"padded spaced border\">" . $notes_display . "</div>";
-		echo "<div class=\"cell middle\"></div>";
+		echo "<div class=\"middle cell\"></div>";
 		echo "</div>";
 	}
 	
@@ -716,8 +798,8 @@ if (in_array ( $action, array (
 	) )) {
 		// default role select
 		echo "<div class=\"row\">";
-		echo "<div class=\"cell middle\"\">Default Role:</div>";
-		echo "<div class=\"cell middle\"><select name=\"userrole_default\" id=\"select_default\"  class=\"spaced\" />";
+		echo "<div class=\"middle cell\"\">Default Role:</div>";
+		echo "<div class=\"middle cell\"><select name=\"userrole_default\" id=\"select_default\"  class=\"spaced\" />";
 		// if add user
 		if (in_array ( $action, array (
 				1 
@@ -733,13 +815,13 @@ if (in_array ( $action, array (
 		}
 		
 		echo "</select></div>";
-		echo "<div class=\"cell error middle\"></div>";
+		echo "<div class=\"error middle cell\"></div>";
 		echo "</div>";
 		
 		// userroles select
 		echo "<div class=\"row\">";
-		echo "<div class=\"cell middle\">Roles:</div>";
-		echo "<div class=\"cell middle\">";
+		echo "<div class=\"middle cell\">Roles:</div>";
+		echo "<div class=\"middle cell\">";
 		echo "<div class=\"spaced border padded\">";
 		// unset locked value
 		unset ( $arr_userroles_loop ['0_bb_brimbox'] );
@@ -756,12 +838,12 @@ if (in_array ( $action, array (
 		}
 		echo "</div>";
 		echo "</div>";
-		echo "<div class=\"cell middle\"></div>";
+		echo "<div class=\"middle cell\"></div>";
 		echo "</div>";
 		
 		// id addresses textarea
 		echo "<div class=\"row\">";
-		echo "<div class=\"cell middle\">IP Addresses or Ranges (cidr):</div>";
+		echo "<div class=\"middle cell\">IP Addresses or Ranges (cidr):</div>";
 		echo "<div class=\"cell\">";
 		$main->echo_textarea ( "ips", $ips, array (
 				'class' => "spaced",
@@ -769,11 +851,11 @@ if (in_array ( $action, array (
 				'cols' => 27 
 		) );
 		echo "</div>";
-		echo "<div class=\"cell error middle\"> " . (isset ( $arr_error ['ips'] ) ? $arr_error ['ips'] : "") . "</div>";
+		echo "<div class=\"error middle cell\"> " . (isset ( $arr_error ['ips'] ) ? $arr_error ['ips'] : "") . "</div>";
 		echo "</div>";
 		
 		echo "<div class=\"row\">";
-		echo "<div class=\"cell middle\">Notes:</div>";
+		echo "<div class=\"middle cell\">Notes:</div>";
 		echo "<div class=\"cell\">";
 		$main->echo_textarea ( "notes", $notes, array (
 				'class' => "spaced",
@@ -781,88 +863,17 @@ if (in_array ( $action, array (
 				'cols' => 35 
 		) );
 		echo "</div>";
-		echo "<div class=\"cell middle\"></div>";
+		echo "<div class=\"middle cell\"></div>";
 		echo "</div>";
 	}
 	
 	echo "</div>"; // end table
-	               
-	// buttons
-	if ($action == 1) {
-		$params = array (
-				"class" => "spaced",
-				"number" => 1,
-				"target" => $module,
-				"passthis" => true,
-				"label" => "Add User" 
-		);
-		$main->echo_button ( "add_user", $params );
-		// Reset Button
-		$params = array (
-				"class" => "spaced",
-				"number" => - 1,
-				"target" => $module,
-				"passthis" => true,
-				"label" => "Reset Form" 
-		);
-		$main->echo_button ( "clear_form", $params );
-		echo "<p class=\"spaced\">Password must contain numbers, uppercase and lowercase letters, and length must be 8 or greater.</p>";
-	} elseif ($action == 2) {
-		$params = array (
-				"class" => "spaced",
-				"number" => 2,
-				"target" => $module,
-				"passthis" => true,
-				"label" => "Update Information" 
-		);
-		$main->echo_button ( "update_info", $params );
-		$params = array (
-				"class" => "spaced",
-				"number" => - 1,
-				"target" => $module,
-				"passthis" => true,
-				"label" => "Reset Form" 
-		);
-		$main->echo_button ( "clear_form", $params );
-		echo "<p class=\"spaced\">Password must contain numbers, uppercase and lowercase letters, and length must be 8 or greater.</p>";
-	} elseif ($action == 3) {
-		$params = array (
-				"class" => "spaced",
-				"number" => 3,
-				"target" => $module,
-				"passthis" => true,
-				"label" => "Lock User" 
-		);
-		$main->echo_button ( "lock_user", $params );
-		$params = array (
-				"class" => "spaced",
-				"number" => - 1,
-				"target" => $module,
-				"passthis" => true,
-				"label" => "Reset Form" 
-		);
-		$main->echo_button ( "clear_form", $params );
-	} elseif ($action == 4) {
-		$params = array (
-				"class" => "spaced",
-				"number" => 4,
-				"target" => $module,
-				"passthis" => true,
-				"label" => "Delete User" 
-		);
-		$main->echo_button ( "delete_user", $params );
-		$params = array (
-				"class" => "spaced",
-				"number" => - 1,
-				"target" => $module,
-				"passthis" => true,
-				"label" => "Reset Form" 
-		);
-		$main->echo_button ( "clear_form", $params );
-	}
-
-
-
+	
+	if (in_array ( $action, array (
+			1,
+			2 
+	) ))
+		echo "<p class=\"spaced italic\">Password must contain numbers, uppercase and lowercase letters, and length must be 8 or greater.</p>";
 
 
 endif;

@@ -139,7 +139,7 @@ echo "<label class=\"spaced\">Filename (bbdb): </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"backup_file\" id=\"file\" /><br>";
 echo "<div class=\"table\">";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\">";
+echo "<div class=\"padded middle cell\">";
 $main->echo_input ( "json_table_checkbox", 1, array (
 		'type' => 'checkbox',
 		'class' => 'spaced' 
@@ -147,7 +147,7 @@ $main->echo_input ( "json_table_checkbox", 1, array (
 echo " Restore JSON Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\">";
+echo "<div class=\"padded middle cell\">";
 $main->echo_input ( "users_table_checkbox", 1, array (
 		'type' => 'checkbox',
 		'class' => 'spaced' 
@@ -155,7 +155,7 @@ $main->echo_input ( "users_table_checkbox", 1, array (
 echo " Restore Users Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\">";
+echo "<div class=\"padded middle cell\">";
 $main->echo_input ( "modules_table_checkbox", 1, array (
 		'type' => 'checkbox',
 		'class' => 'spaced' 
@@ -163,7 +163,7 @@ $main->echo_input ( "modules_table_checkbox", 1, array (
 echo " Restore Modules Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\">";
+echo "<div class=\"padded middle cell\">";
 $main->echo_input ( "log_table_checkbox", 1, array (
 		'type' => 'checkbox',
 		'class' => 'spaced' 
@@ -171,7 +171,7 @@ $main->echo_input ( "log_table_checkbox", 1, array (
 echo " Restore Log Table</div>";
 echo "</div>";
 echo "<div class=\"row\">";
-echo "<div class=\"cell middle padded\">";
+echo "<div class=\"padded middle cell\">";
 $main->echo_input ( "data_table_checkbox", 1, array (
 		'type' => 'checkbox',
 		'class' => 'spaced' 

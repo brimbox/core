@@ -120,12 +120,12 @@ echo "<div class=\"table padded\">";
 
 // table header
 echo "<div class=\"row shaded\">";
-echo "<div class=\"padded bold cell short middle\">Id</div>";
-echo "<div class=\"padded bold cell long middle\">Filename</div>";
-echo "<div class=\"padded bold cell long middle\">Username</div>";
-echo "<div class=\"padded bold cell short middle\">Level</div>";
-echo "<div class=\"padded bold cell medium middle\">Timestamp</div>";
-echo "<div class=\"padded bold cell long middle\">Action</div>";
+echo "<div class=\"bold extra middle cell\">Id</div>";
+echo "<div class=\"bold extra middle cell\">Filename</div>";
+echo "<div class=\"bold extra middle cell\">Username</div>";
+echo "<div class=\"bold extra middle cell\">Level</div>";
+echo "<div class=\"bold extra middle cell\">Timestamp</div>";
+echo "<div class=\"bold extra middle cell\">Action</div>";
 echo "</div>";
 
 // table rows
@@ -134,13 +134,13 @@ while ( $row = pg_fetch_array ( $result ) ) {
 	// row shading
 	$shade_class = ($i % 2) == 0 ? "even" : "odd";
 	echo "<div class=\"row " . $shade_class . "\">";
-	echo "<div class=\"padded cell short middle\">" . $row ['id'] . "</div>";
-	echo "<div class=\"padded cell medium middle\">" . $row ['filename'] . "</div>";
-	echo "<div class=\"padded cell long middle\">" . $row ['username'] . "</div>";
-	echo "<div class=\"padded cell short middle\">" . $row ['level'] . "</div>";
+	echo "<div class=\"extra middle cell\">" . $row ['id'] . "</div>";
+	echo "<div class=\"extra middle cell\">" . $row ['filename'] . "</div>";
+	echo "<div class=\"extra middle cell\">" . $row ['username'] . "</div>";
+	echo "<div class=\"extra middle cell\">" . $row ['level'] . "</div>";
 	$date = $main->convert_date ( $row ['change_date'], "Y-m-d h:i:s" );
-	echo "<div class=\"padded cell medium middle\">" . $date . "</div>";
-	echo "<div class=\"padded cell long middle\">";
+	echo "<div class=\"extra middle cell\">" . $date . "</div>";
+	echo "<div class=\"extra middle cell\">";
 	$onclick = "bb_set_hidden(" . $row ['id'] . "); return false;";
 	$main->echo_script_button ( "delete_" . $row ['id'], array (
 			'class' => "link spaced",

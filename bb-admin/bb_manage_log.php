@@ -101,11 +101,11 @@ echo "<div class=\"table padded\">";
 
 // table header
 echo "<div class=\"row shaded\">";
-echo "<div class=\"padded bold cell medium middle\">Username</div>";
-echo "<div class=\"padded bold cell medium middle\">Email</div>";
-echo "<div class=\"padded bold cell long middle\">IP Address/Bits</div>";
-echo "<div class=\"padded bold cell long middle\">Log Date/Time</div>";
-echo "<div class=\"padded bold cell long middle\">Action</div>";
+echo "<div class=\"bold underline extra middle cell\">Username</div>";
+echo "<div class=\"bold underline extra middle cell\">Email</div>";
+echo "<div class=\"bold underline extra middle cell\">IP Address/Bits</div>";
+echo "<div class=\"bold underline extra middle cell\">Log Date/Time</div>";
+echo "<div class=\"bold underline extra middle cell\">Action</div>";
 echo "</div>";
 
 // table rows
@@ -114,12 +114,12 @@ while ( $row = pg_fetch_array ( $result ) ) {
 	// row shading
 	$shade_class = ($i % 2) == 0 ? "even" : "odd";
 	echo "<div class=\"row " . $shade_class . "\">";
-	echo "<div class=\"padded cell medium middle\">" . $row ['username'] . "</div>";
-	echo "<div class=\"padded cell medium middle\">" . $row ['email'] . "</div>";
-	echo "<div class=\"padded cell long middle\">" . $row ['ip_address'] . "</div>";
+	echo "<div class=\"extra middle cell\">" . $row ['username'] . "</div>";
+	echo "<div class=\"extra middle cell\">" . $row ['email'] . "</div>";
+	echo "<div class=\"extra middle cell\">" . $row ['ip_address'] . "</div>";
 	$date = $main->convert_date ( $row ['change_date'], "Y-m-d h:i:s.u" );
-	echo "<div class=\"padded cell long middle\">" . $date . "</div>";
-	echo "<div class=\"padded cell long middle\">" . $row ['action'] . "</div>";
+	echo "<div class=\"extra middle cell\">" . $date . "</div>";
+	echo "<div class=\"extra middle cell\">" . $row ['action'] . "</div>";
 	echo "</div>";
 	$i ++;
 }

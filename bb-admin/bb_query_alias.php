@@ -37,26 +37,20 @@ function bb_reload()
 </script>
 <style>
 /* Query Alias */
-.query_alias_query_table {
-	width: 800px;
-	border-collapse: collapse;
+.sub_textarea {
+	width: 400px;
+	overflow-y: scroll;
 }
 
-.query_alias_sub_query {
-	width: 492px;
-	border-collapse: collapse;
+.full_textarea {
+	width: 700px;
+	overflow-y: scroll;
 }
 
-.query_alias_sub_textarea {
-	width: 488px;
-}
-
-.query_alias_full_textarea {
-	width: 792px;
-}
-
-.query_alias_return_query {
-	width: 792px;
+.return_textarea {
+	width: 700px;
+	background-color: #F0F0F0;
+	overflow-y: scroll;
 }
 </style>
 <?php
@@ -130,7 +124,8 @@ else {
 // display query
 if (isset ( $fullquery )) {
 	if (substr ( strtoupper ( trim ( $fullquery ) ), 0, 6 ) == "SELECT") {
-		@$result = pg_query ( $con, $fullquery . " LIMIT " . $row_limit );
+		$limit_string = ($row_limit > 0) ? " LIMIT " . $row_limit : "";
+		@$result = pg_query ( $con, $fullquery . $limit_string );
 		$settings [2] [0] = array (
 				'start_column' => 0,
 				'ignore' => true,
@@ -192,10 +187,10 @@ $main->echo_clear ();
 
 // loop through subqueries
 if ($number_sub_queries > 0) {
-	echo "<table class=\"spaced query_alias_query_table\" >";
-	echo "<tr><td class=\"padded border\"></td><td class=\"padded border\">SubQuery Alias</td><td class=\"padded border\">SubQuery Value</td></tr>";
+	echo "<div class=\"table spaced\" >";
+	echo "<div class=\"row\"><div class=\"padded border cell\"></div><div class=\"padded border cell\">SubQuery Alias</div><div class=\"padded border cell\">SubQuery Value</div></div>";
 	for($i = 1; $i <= $number_sub_queries; $i ++) {
-		echo "<tr><td class=\"padded border medium top\">";
+		echo "<div class=\"row\"><div class=\"padded border top cell\">";
 		$params = array (
 				"class" => "spaced",
 				"number" => $i,
@@ -204,31 +199,37 @@ if ($number_sub_queries > 0) {
 				"label" => "Submit SubQuery" 
 		);
 		$main->echo_button ( "submit_subquery_" . $i, $params );
-		echo "</td><td class=\"padded border medium top\">";
+		echo "</div><div class=\"padded border top cell\">";
 		$name = $main->pad ( "s", $i );
 		$main->echo_input ( $name, $arr_sub_queries [$i] ['name'], array (
 				'type' => "text",
 				'class' => "spaced" 
 		) );
-		echo "</td><td class=\"padded border top query_alias_sub_query\">";
+		echo "</div><div class=\"padded border top cell\">";
 		$subquery = $main->pad ( "q", $i );
 		$main->echo_textarea ( $subquery, $arr_sub_queries [$i] ['subquery'], array (
-				'class' => "spaced query_alias_sub_textarea" 
+				'class' => "spaced sub_textarea" 
 		) );
-		echo "</td></tr>";
+		echo "</div>";
+		echo "</div>";
 	}
-	echo "<tr><td class=\"padded border top\" colspan=\"3\">";
+	echo "</div>";
+	echo "<div class=\"top\">";
 	$main->echo_textarea ( "substituter", $substituter, array (
-			'class' => "spaced query_alias_full_textarea",
-			'rows' => 7 
+			'class' => "spaced full_textarea",
+			'rows' => 5 
 	) );
+	echo "</div>";
 	
+	echo "<div class=\"top\">";
 	if (isset ( $fullquery )) {
-		echo "<tr><td class=\"padded border top query_alias_return_query\" colspan=\"3\">";
-		echo "<div class=\"padded\">" . $fullquery . "</div>";
-		echo "</td></tr>";
+		$main->echo_textarea ( "fullquery", $fullquery, array (
+				'class' => "spaced return_textarea",
+				'rows' => 5,
+				'readonly' => true 
+		) );
+		echo "</div>";
 	}
-	echo "</table>";
 }
 
 // echo report

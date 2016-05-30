@@ -167,15 +167,15 @@ else :
 	echo "<div class=\"table spaced border\">";
 	// table header
 	echo "<div class=\"row shaded\">";
-	echo "<div class=\"padded bold cell middle\">Path</div>";
-	echo "<div class=\"padded bold cell middle\">Module Name</div>";
-	echo "<div class=\"padded bold cell middle\">Friendly Name</div>";
-	echo "<div class=\"padded bold cell middle\">Interface: Type</div>";
-	echo "<div class=\"padded bold cell middle\">Version</div>";
-	echo "<div class=\"padded bold cell middle\">Order</div>";
-	echo "<div class=\"padded bold cell middle\">Action</div>";
-	echo "<div class=\"padded bold cell middle\">Delete</div>";
-	echo "<div class=\"padded bold cell middle\">Details</div>";
+	echo "<div class=\"underline extra bold middle cell\">Path</div>";
+	echo "<div class=\"underline extra bold middle cell\">Module Name</div>";
+	echo "<div class=\"underline extra bold middle cell\">Friendly Name</div>";
+	echo "<div class=\"underline extra bold middle cell\">Interface: Type</div>";
+	echo "<div class=\"underline extra bold middle cell\">Version</div>";
+	echo "<div class=\"underline extra bold middle cell\">Order</div>";
+	echo "<div class=\"underline extra bold middle cell\">Action</div>";
+	echo "<div class=\"underline extra bold middle cell\">Delete</div>";
+	echo "<div class=\"underline extra bold middle cell\">Details</div>";
 	echo "</div>";
 	
 	// table rows
@@ -198,16 +198,16 @@ else :
 		// row shading
 		$shade_class = (($i % 2) == 0) ? "even" : "odd";
 		echo "<div class=\"row " . $shade_class . "\">";
-		echo "<div class=\"twice cell long middle\">" . $row ['module_path'] . "</div>";
-		echo "<div class=\"twice cell medium middle\">" . $row ['module_name'] . "</div>";
-		echo "<div class=\"twice cell long middle\">" . $row ['friendly_name'] . "</div>";
+		echo "<div class=\"extra middle cell\">" . $row ['module_path'] . "</div>";
+		echo "<div class=\"extra middle cell\">" . $row ['module_name'] . "</div>";
+		echo "<div class=\"extra middle cell\">" . $row ['friendly_name'] . "</div>";
 		// combine interface and module type, account for possibility of unknown or undefined
 		$interface_name = isset ( $array_header [$row ['interface']] ['name'] ) ? $array_header [$row ['interface']] ['name'] : "Unknown";
-		echo "<div class=\"twice cell long middle\">" . $interface_name . ": " . $module_type . "</div>";
-		echo "<div class=\"twice cell short middle\">" . $row ['module_version'] . "</div>";
+		echo "<div class=\"extra middle cell\">" . $interface_name . ": " . $module_type . "</div>";
+		echo "<div class=\"extra middle cell\">" . $row ['module_version'] . "</div>";
 		// form elements
 		echo "<input type=\"hidden\"  name=\"module_type_" . $row ['id'] . "\" value = \"" . $row ['module_type'] . "-" . $row ['interface'] . "\">";
-		echo "<div class=\"cell short middle\">";
+		echo "<div class=\"extra middle cell\">";
 		// not hidden, globals and functions have an order
 		if ($row ['module_type'] != 0) {
 			echo "<select name=\"order_" . $row ['id'] . "\">";
@@ -242,15 +242,15 @@ else :
 				$str_standard = "<button class=\"link\" onclick=\"bb_module_links(" . $row ['id'] . "," . ( int ) $row ['standard_module'] . ")\">Deactivate</button>";
 				break;
 		}
-		echo "<div class=\"padded cell short middle\">" . $str_standard . "</div>";
+		echo "<div class=\"extra middle cell\">" . $str_standard . "</div>";
 		
 		if (( int ) $row ['standard_module'] == 3 || ( int ) $row ['standard_module'] == 1) {
-			echo "<div class=\"padded cell short middle\"><button class=\"link\" onclick=\"bb_module_links(" . $row ['id'] . ", -2)\">Delete</button></div>";
+			echo "<div class=\"extra middle cell\"><button class=\"link\" onclick=\"bb_module_links(" . $row ['id'] . ", -2)\">Delete</button></div>";
 		} else {
-			echo "<div class=\"padded cell short\"></div>";
+			echo "<div class=\"extra middle cell\"></div>";
 		}
 		
-		echo "<div class=\"padded cell short middle\"><button class=\"link\" onclick=\"bb_module_links(" . $row ['id'] . ", -1)\">Details</button></div>";
+		echo "<div class=\"extra middle cell\"><button class=\"link\" onclick=\"bb_module_links(" . $row ['id'] . ", -1)\">Details</button></div>";
 		echo "</div>"; // end row
 		$i ++;
 	}

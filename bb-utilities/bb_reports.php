@@ -50,8 +50,11 @@ class bb_reports extends bb_forms {
 	function report_type($selected, $params = array()) {
 
 		global $array_reports;
-		$params = array('name'=>"report_type", 'onchange'=>"bb_reports.clear_report()") + $params;
-		$attributes = $this->attributes($params);
+		$params = array (
+				'name' => "report_type",
+				'onchange' => "bb_reports.clear_report()" 
+		) + $params;
+		$attributes = $this->attributes ( $params );
 		
 		echo "<select " . $attributes . ">";
 		foreach ( $array_reports as $key => $value ) {
@@ -277,7 +280,7 @@ class bb_reports extends bb_forms {
 		// do header, $num_fields used in while loop
 		$num_fields = pg_num_fields ( $result );
 		for($j = $start_column; $j < $num_fields; $j ++) {
-			$field = htmlentities ( ucfirst ( pg_field_name ( $result, $j ) ) );
+			$field = htmlentities ( pg_field_name ( $result, $j ) );
 			$sort = $this->pad ( "s", $j, 2 );
 			if (isset ( $arr [$sort] )) {
 				echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr [$sort] . "','" . $order . "')\">" . $field . "</button></div>";
@@ -411,7 +414,7 @@ class bb_reports extends bb_forms {
 		// do header, $num_fields used in while loop
 		$num_fields = pg_num_fields ( $result );
 		for($j = $start_column; $j < $num_fields; $j ++) {
-			$field = htmlentities ( ucfirst ( pg_field_name ( $result, $j ) ) );
+			$field = htmlentities ( pg_field_name ( $result, $j ) );
 			$sort = $this->pad ( "s", $j, 2 );
 			if (isset ( $arr [$sort] )) {
 				echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link bold\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr [$sort] . "','" . $order . "')\">" . $field . "</button></div>";
@@ -614,12 +617,12 @@ class bb_reports extends bb_forms {
 		$params = array (
 				'name' => $name 
 		) + $params;
-				
+		
 		$attributes = $this->attributes ( $params );
 		
 		echo "<select " . $attributes . ">";
 		foreach ( $prepend as $value ) {
-			echo "<option value=\"" . htmlentities ( $value ) . "\" " . ($selected == $value ? "selected" : "") . ">" .  htmlentities ( $value )  . "&nbsp;</option>";
+			echo "<option value=\"" . htmlentities ( $value ) . "\" " . ($selected == $value ? "selected" : "") . ">" . htmlentities ( $value ) . "&nbsp;</option>";
 		}
 		while ( $row = pg_fetch_array ( $result ) ) {
 			echo "<option value=\"" . htmlentities ( $row [0] ) . "\" " . ($selected == $row [0] ? "selected" : "") . ">" . htmlentities ( $row [0] ) . "&nbsp;</option>";

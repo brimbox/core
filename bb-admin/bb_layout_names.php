@@ -49,7 +49,7 @@ function cmp($a, $b) {
 
 $arr_layouts_fields = array (
 		'parent' => array (
-				'name' => "parent" 
+				'name' => "Parent" 
 		),
 		'order' => array (
 				'name' => "Order" 
@@ -83,7 +83,7 @@ if ($main->button ( 1 )) {
 				$arr_layouts [$i] [$key] = $main->purge_chars ( $main->post ( $key . '_' . $i, $module, 0 ), true, true );
 			}
 		} else {
-			unset ($arr_layouts [$i]);
+			unset ( $arr_layouts [$i] );
 		}
 	}
 	
@@ -177,37 +177,35 @@ $main->echo_module_vars ();
 
 echo "<div class=\"table spaced border\">";
 echo "<div class=\"row\">";
-echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">&nbsp;</label></div>";
-echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Singular</label></div>";
-echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">Plural</label></div>";
+echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">&nbsp;</label></div>";
+echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">Singular</label></div>";
+echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">Plural</label></div>";
 foreach ( $arr_layouts_fields as $key => $value ) {
-	echo "<div class=\"cell shaded middle\"><label class=\"spaced padded\">" . $value ['name'] . "</label></div>";
+	echo "<div class=\"bold underline shaded extra middle cell \"><label class=\"padded\">" . $value ['name'] . "</label></div>";
 }
 echo "</div>";
 for($i = 1; $i <= $number_layouts; $i ++) {
 	echo "<div class=\"row\">"; // begin row
 	                            
 	// label
-	echo "<div class=\"cell middle\">";
-	echo "<label class=\"spaced\">Layout " . chr ( $i + 64 ) . $i . "</label>";
+	echo "<div class=\"extra middle cell\">";
+	echo "<label>Layout " . chr ( $i + 64 ) . $i . "</label>";
 	echo "</div>";
 	
-	// required
-	echo "<div class=\"cell middle\">";
+	// singular
+	echo "<div class=\"extra middle cell\">";
 	$value = isset ( $arr_layouts [$i] ) ? htmlentities ( $arr_layouts [$i] ['singular'] ) : "";
 	$main->echo_input ( "singular_" . $i, $value, array (
 			'type' => "input",
-			'class' => "spaced",
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
 	
-	// required
-	echo "<div class=\"cell middle\">";
+	// plural
+	echo "<div class=\"extra middle cell\">";
 	$value = isset ( $arr_layouts [$i] ) ? htmlentities ( $arr_layouts [$i] ['plural'] ) : "";
 	$main->echo_input ( "plural_" . $i, $value, array (
 			'type' => "input",
-			'class' => "spaced",
 			'maxlength' => $maxinput 
 	) );
 	echo "</div>";
@@ -215,8 +213,8 @@ for($i = 1; $i <= $number_layouts; $i ++) {
 	foreach ( $arr_layouts_fields as $key => $value ) {
 		switch ($key) {
 			case "parent" :
-				echo "<div class=\"cell middle\">";
-				echo "<select class=\"spaced\" name=\"parent_" . $i . "\">";
+				echo "<div class=\"extra middle cell\">";
+				echo "<select name=\"parent_" . $i . "\">";
 				echo "<option value=\"0\">&nbsp;</option>";
 				for($j = 1; $j <= $number_layouts; $j ++) {
 					$selected = "";
@@ -230,8 +228,8 @@ for($i = 1; $i <= $number_layouts; $i ++) {
 				break;
 			
 			case "order" :
-				echo "<div class=\"cell middle\">";
-				echo "<select class=\"spaced\" name=\"order_" . $i . "\">";
+				echo "<div class=\"extra middle cell\">";
+				echo "<select name=\"order_" . $i . "\">";
 				echo "<option value=\"0\"0>&nbsp;</option>";
 				for($j = 1; $j <= $number_layouts; $j ++) {
 					$selected = "";
@@ -247,7 +245,7 @@ for($i = 1; $i <= $number_layouts; $i ++) {
 			case "secure" :
 				// secure checkbox
 				if (empty ( $arr_layout_security )) {
-					echo "<div class=\"cell padded middle center\">";
+					echo "<div class=\"extra center middle cell\">";
 					// has a zero or 1 value
 					$checked = false;
 					if (isset ( $arr_layouts [$i] ['secure'] )) {
@@ -260,8 +258,8 @@ for($i = 1; $i <= $number_layouts; $i ++) {
 					) );
 					echo "</div>";
 				} else {
-					echo "<div class = \"cell middle\">";
-					echo "<select name=\"secure_" . $i . "\"class = \"spaced\">";
+					echo "<div class = \"extra middle cell\">";
+					echo "<select name=\"secure_" . $i . "\">";
 					foreach ( $arr_layout_security as $key => $value ) {
 						$selected = "";
 						if (isset ( $arr_layouts [$i] ['secure'] )) {
@@ -276,7 +274,7 @@ for($i = 1; $i <= $number_layouts; $i ++) {
 			
 			case "autoload" :
 				// autoload
-				echo "<div class=\"cell padded middle center\">";
+				echo "<div class=\"extra center middle cell\">";
 				$checked = false;
 				if (isset ( $arr_layouts [$i] ['autoload'] )) {
 					$checked = ($arr_layouts [$i] ['autoload'] == 1) ? true : false;
@@ -291,7 +289,7 @@ for($i = 1; $i <= $number_layouts; $i ++) {
 			
 			case "relate" :
 				// relate checkbox
-				echo "<div class=\"cell padded middle center\">";
+				echo "<div class=\"cell extra middle center\">";
 				$checked = false;
 				if (isset ( $arr_layouts [$i] ['relate'] )) {
 					$checked = ($arr_layouts [$i] ['relate'] == 1) ? true : false;
