@@ -91,37 +91,22 @@ function bb_set_field(col)
 </script>
 <style>
 /* MODULE CSS */
-.queue_super_short {
-	width: 25px;
+.email_container {
+	overflow-y: scroll;
+	height: 200px;
+	resize: both;
 }
 
-.queue_div_width {
-	width: 900px;
+.email_div {
+	max-width: 600px;
+	width: 600px;
+	height: 300px;
+	resize: both;
+	overflow: scroll;
 }
 
-.queue_div_container {
-	width: 890px;
-	height: 150px;
-	overflow: auto;
-}
-
-.queue_clipboard {
-	height: 50px;
-	width: 635px;
-}
-
-.queue_subject {
-	width: 635px;
-	margin-bottom: -1px;
-	margin-left: 2px;
-	margin-right: 2px;
-}
-
-.queue_email_body {
-	margin-left: 2px;
-	width: 680px;
-	height: 680px;
-	overflow: auto;
+.email_viewer {
+	max-width: 600px;
 }
 </style>
 <?php
@@ -212,7 +197,9 @@ if (! $mbox) :
 		echo "<div class = \"spaced\">There are " . $nbr . " total messages, " . $nbr_unseen . " unread. Date: " . date ( 'Y-m-d h:i A', time () ) . "</div>";
 		
 		// this is the email list container -- start container
-		echo "<div class=\"queue_div_container border spaced padded\">";
+		echo "<div class=\"floatleft spaced\">"; // buttons
+		echo "<div class=\"border spaced border email_container\">";
+		echo "<div class=\"spaced padded table\">";
 		for($i = $nbr; $i >= 1; $i --) {
 			$header = imap_header ( $mbox, $i );
 			// bold open emails
@@ -222,7 +209,7 @@ if (! $mbox) :
 				$strong = "  ";
 			}
 			// short or long odd or even
-			$class_shade = ($i % 2 == 1) ? " odd " : " even ";
+			$shaded = ($i % 2) ? "odd" : "even";
 			
 			// deal with header -- convert to utf-8 if not default
 			$arr_subject = imap_mime_header_decode ( $header->subject );
@@ -235,16 +222,19 @@ if (! $mbox) :
 				$var_subject = $arr_subject [0]->text;
 			}
 			// output loop, hidden uid, javascript link, and checkbox
-			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_subject . "</button></div>";
-			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_personal . "</button></div>";
-			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_email . "</button></div>";
-			echo "<div class = \"long spaced overflow floatleft\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_date . "</button></div>";
-			echo "<input name=\"f" . ( string ) $i . "\" type=\"checkbox\" class=\"queue_super_short spaced \" value=\"Y\" />";
-			echo "<input name=\"u" . ( string ) $i . "\" type=\"hidden\" value=\"" . imap_uid ( $mbox, $header->Msgno ) . "\" />";
-			$main->echo_clear ();
+			echo "<div class=\"row " . $shaded . "\">";
+			echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_subject . "</button></div>";
+			echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_personal . "</button></div>";
+			echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_email . "</button></div>";
+			echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_date . "</button></div>";
+			echo "<div class = \"extra cell\"><input name=\"f" . ( string ) $i . "\" type=\"checkbox\" class=\"queue_super_short spaced \" value=\"Y\" /></div>";
+			echo "<div class = \"extra cell\"><input name=\"u" . ( string ) $i . "\" type=\"hidden\" value=\"" . imap_uid ( $mbox, $header->Msgno ) . "\" /></div>";
+			echo "</div>";
 		}
+		echo "</div>"; // end table
 		echo "</div>"; // end container
-		echo "<div class=\"queue_div_width\">"; // buttons
+		$main->echo_clear ();
+		
 		echo "<div class=\"floatleft\">"; // buttons
 		$params = array (
 				"class" => "spaced",
@@ -300,44 +290,6 @@ if (! $mbox) :
 			$var_subject = $arr_subject [0]->text;
 		}
 		
-		// get glean row_type -- standard email headers for guest pack and viewer pack
-		$row_type = 0;
-		$post_record = false;
-		$arr_layouts = $main->layouts ( $con );
-		
-		if (substr ( $var_subject, 0, 12 ) == "Record Add: " && preg_match ( "/^[A-Z][-][A-Z]\d+/", substr ( $var_subject, 12 ) )) {
-			$post_record = true;
-			$post_key = substr ( $var_subject, 15 );
-			if (ctype_digit ( $post_key )) {
-				$query = "SELECT 1 FROM data_table WHERE id = " . $post_key . ";";
-				$result = $main->query ( $con, $query );
-				$cnt_rows = pg_num_rows ( $result );
-				if ($cnt_rows) {
-					$row_type = ord ( substr ( $var_subject, 12, 1 ) ) - 64;
-					$layout = $main->reduce ( $arr_layouts, $row_type );
-					if ($layout ['parent'] == 0) {
-						$row_type = 0;
-					}
-				}
-			}
-		} elseif (substr ( $var_subject, 0, 13 ) == "Record Edit: " && preg_match ( "/^[A-Z]\d+/", substr ( $var_subject, 13 ) )) {
-			$post_record = true;
-			$post_key = substr ( $var_subject, 14 );
-			if (ctype_digit ( $post_key )) {
-				$query = "SELECT 1 FROM data_table WHERE id = " . $post_key . ";";
-				$result = $main->query ( $con, $query );
-				$cnt_rows = pg_num_rows ( $result );
-				$row_type = ($cnt_rows == 0) ? 0 : ord ( substr ( $var_subject, 13, 1 ) ) - 64;
-			}
-		} elseif (substr ( $var_subject, 0, 12 ) == "Record New: " && preg_match ( "/^[A-Z]$/", substr ( $var_subject, 12 ) )) {
-			$post_record = true;
-			$row_type = ord ( substr ( $var_subject, 12, 1 ) ) - 64;
-			$layout = $main->reduce ( $arr_layouts, $row_type );
-			if ($layout ['parent'] > 0) {
-				$row_type = 0;
-			}
-		}
-		
 		// Record Add, New or Edit
 		if ($row_type) {
 			$arr_columns = $main->columns ( $con, $row_type );
@@ -345,6 +297,7 @@ if (! $mbox) :
 		
 		// Check input state
 		if ((! $post_record) && (! $row_type)) {
+			$arr_layouts = $main->layouts ( $con );
 			$default_row_type = $main->get_default_layout ( $arr_layouts );
 			$arr_state_input = $main->load ( $con, "bb_input" );
 			$row_type = $main->state ( 'row_type', $arr_state_input, $default_row_type );
@@ -356,13 +309,14 @@ if (! $mbox) :
 		// subject is dependent on email number, no need to include in state
 		echo "<input name=\"subject\" type=\"hidden\" value=\"" . $var_subject . "\" />";
 		
-		echo "<div id=\"clipboard\" class=\"spaced padded floatleft border overflow queue_clipboard\"></div>";
-		$main->echo_clear ();
-		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_personal . " &lt;" . $var_email . "&gt;</div>";
-		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_subject . "</div>";
-		echo "<div class=\"padded left border queue_subject\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_date . "</div>";
-		
-		echo "<div class=\"border padded floatleft queue_email_body\" onMouseUp=\"bb_get_selected_text()\">" . $trans_htmlmsg . "</div>";
+		echo "<div class=\"spaced floatleft\">";
+		echo "<div class=\"spaced floatleft email_viewer border\" >";
+		echo "<div id=\"clipboard\" class=\"padded left borderbottom\"></div>";
+		echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_personal . " &lt;" . $var_email . "&gt;</div>";
+		echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_subject . "</div>";
+		echo "<div class=\"padded left\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_date . "</div>";
+		echo "<div class=\"left email_div\" onMouseUp=\"bb_get_selected_text()\">" . $trans_htmlmsg . "</div>";
+		echo "</div>";
 		$i = 1;
 		// visable queue fields
 		echo "<div class=\"floatleft\"><ul class=\"nobullets noindent\">";
@@ -376,6 +330,7 @@ if (! $mbox) :
 			}
 		}
 		echo "</ul></div>";
+		echo "</div>";
 		$main->echo_clear ();
 	}
 	imap_close ( $mbox );

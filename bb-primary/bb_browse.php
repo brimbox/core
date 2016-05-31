@@ -104,9 +104,9 @@ echo "<div class=\"center\">"; // centering
 $main->echo_form_begin ();
 $main->echo_module_vars ();
 
-echo "<span class=\"padded larger\">"; // font size
-                                       // do alpha and numeric links
-                                       // this area make the alphabetic and numeric links including the posting javascript
+echo "<div class=\"inlineblock padded larger\">"; // font size
+                                                  // do alpha and numeric links
+                                                  // this area make the alphabetic and numeric links including the posting javascript
 for($i = 65; $i <= 90; $i ++) // alpha
 {
 	$alpha_number = chr ( $i );
@@ -117,9 +117,11 @@ for($i = 65; $i <= 90; $i ++) // alpha
 	echo $alpha_number;
 	echo "</button>&nbsp;";
 }
+echo "</div>";
 
 echo "&nbsp;&nbsp;";
 
+echo "<div class=\"inlineblock padded larger\">";
 for($i = 48; $i <= 57; $i ++) // numeric
 {
 	$alpha_number = chr ( $i );
@@ -130,9 +132,9 @@ for($i = 48; $i <= 57; $i ++) // numeric
 	echo $alpha_number;
 	echo "</button>&nbsp;";
 }
-echo "</span>"; // end font size
-                // end do alpha and numeric links
-                
+echo "</div>"; // end font size
+               // end do alpha and numeric links
+               
 // get column names based on row_type/record types (repeated after state load but why not for clarity)
 $col = $main->pad ( "c", $col_type );
 
@@ -151,6 +153,7 @@ if ($parent_row_type) {
 }
 
 echo "&nbsp;&nbsp;";
+echo "<div class=\"inlineblock\">";
 // layout types, this produces $row_type
 $params = array (
 		"onchange" => "bb_reload()" 
@@ -162,6 +165,7 @@ $params = array (
 		"onchange" => "bb_reload()" 
 );
 $main->column_dropdown ( $arr_columns, "col_type", $col_type, $params );
+echo "</div>";
 
 // hidden element containing the current chosen letter
 echo "<input type = \"hidden\"  name = \"letter\" value = \"" . $letter . "\">";

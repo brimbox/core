@@ -94,10 +94,11 @@ class bb_main extends bb_reports {
 		$link = isset ( $params ['link'] ) ? $params ['link'] : 1;
 		$mark = isset ( $params ['mark'] ) ? $params ['mark'] : 1;
 		
-		echo "<div class = \"left italic nowrap\">";
+		echo "<div class = \"italic\">";
 		$row_type = $row ['row_type'];
 		$row_type_left = $row ['row_type_left'];
 		// do not return link, (ie cascade)
+		echo "<div class=\"inlineblock rightmargin\">";
 		echo "<span class=\"bold colored\">" . chr ( $row_type + 64 ) . $row ['id'] . "</span>";
 		// archive or secure > 0
 		if ($mark) {
@@ -112,16 +113,18 @@ class bb_main extends bb_reports {
 		}
 		if (! $this->blank ( $row ['hdr'] ) && ($link == 1)) {
 			// calls javascript in bb_link
-			echo " <button class = \"link italic\" onclick=\"bb_links.standard(" . ( int ) $row ['key1'] . "," . ( int ) $row ['row_type_left'] . ", '" . $target . "'); return false;\">";
-			echo htmlentities ( $row ['hdr'] ) . "</button> / ";
+			echo " / <button class = \"link italic\" onclick=\"bb_links.standard(" . ( int ) $row ['key1'] . "," . ( int ) $row ['row_type_left'] . ", '" . $target . "'); return false;\">";
+			echo htmlentities ( $row ['hdr'] ) . "</button>";
 		} elseif (! $this->blank ( $row ['hdr'] ) && ($link == - 1)) {
 			// non linked row
-			echo " <span class = \"colored italic\">";
-			echo htmlentities ( $row ['hdr'] ) . "</span> / ";
+			echo " / <span class = \"colored italic\">";
+			echo htmlentities ( $row ['hdr'] ) . "</span>";
 		}
+		echo "</div>";
 		// else link 0 no output
-		echo " Created: " . $this->convert_date ( $row ['create_date'], "Y-m-d h:i A" ) . " / ";
-		echo "Modified: " . $this->convert_date ( $row ['modify_date'], "Y-m-d h:i A" ) . "</div>";
+		echo "<div class=\"inlineblock rightmargin\">Created: " . $this->convert_date ( $row ['create_date'], "Y-m-d h:i A" ) . "</div>";
+		echo "<div class=\"inlineblock rightmargin\">Modified: " . $this->convert_date ( $row ['modify_date'], "Y-m-d h:i A" ) . "</div>";
+		echo "</div>";
 	}
 	// function
 	

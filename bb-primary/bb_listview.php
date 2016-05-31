@@ -111,7 +111,7 @@ $main->echo_form_begin ();
 $main->echo_module_vars ();
 
 echo "<div class=\"cell padded middle\">";
-echo "Choose List: ";
+echo "<label class=\"spaced\">Choose List: </label>";
 $params = array (
 		"class" => "spaced",
 		"onchange" => "bb_reload()" 
@@ -122,10 +122,10 @@ $params = array (
 		"onchange" => "bb_reload()" 
 );
 $main->list_dropdown ( $arr_lists, "list_number", $list_number, $params );
+echo "</div>";
 
 // list return
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
-echo "</div>";
 echo "<div class=\"cell padded middle\">";
 $main->echo_textarea ( "description", $description, $params = array (
 		"rows" => 2,
@@ -133,11 +133,12 @@ $main->echo_textarea ( "description", $description, $params = array (
 		"class" => "spaced border",
 		"readonly" => "readonly" 
 ) );
+echo "</div>";
 
 $main->echo_common_vars ();
 $main->echo_form_end ();
 
-echo "</div></div></div>"; // end align center, table, row
+echo "</div></div>"; // end align center, table, row
 
 /* BEGIN RETURN ROWS */
 // calculate lower limit of ordered query, return rows will be dealt with later

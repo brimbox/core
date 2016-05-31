@@ -174,6 +174,9 @@ echo "</div>";
 echo "<div id=\"bb_line\"></div>";
 /* END LINE UNDER TABS */
 
+// bb_header
+echo "</div>";
+
 /* INCLUDE APPROPRIATE MODULE */
 echo "<div id=\"bb_wrapper\">";
 // Auxiliary tabs and links,

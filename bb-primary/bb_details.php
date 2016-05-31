@@ -53,6 +53,12 @@ function bb_select_field(div_id)
         }        
  	}
 </script>
+<style>
+.dump_textarea {
+	width: 400px;
+	height: 100px;
+}
+</style>
 
 <?php
 /* INITIALIZE */
@@ -144,17 +150,17 @@ if ($post_key > 0) // a detail of a record
 		foreach ( $arr_columns as $key => $value ) {
 			$col2 = $main->pad ( "c", $key );
 			$field_id = "details_" . $main->make_html_id ( $row_type, $key );
-			if (in_array ( $key, $arr_notes )) // notes
-{
+			if (in_array ( $key, $arr_notes )) {
+				// notes
 				$str_details = str_replace ( "\n", "<br>", htmlentities ( $row [$col2] ) );
 				echo "<label class = \"spaced left floatleft overflow medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities ( $value ['name'] ) . ":</label>";
 				$main->echo_clear ();
 				// double it up for emheight
-				echo "<div class=\"spaced border half\">";
+				echo "<div class=\"spaced border half pad_note\">";
 				echo "<div id=\"" . $field_id . "\" class=\"spaced emheight\">" . $str_details . "</div></div>";
 				$main->echo_clear ();
-			} elseif (in_array ( $key, $arr_file )) // files
-{
+			} elseif (in_array ( $key, $arr_file )) {
+				// files
 				echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities ( $value ['name'] ) . ":</label>";
 				echo "<button id=\"" . $field_id . "\" class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . htmlentities ( $row [$col2] ) . "</button>";
 				$main->echo_clear ();
@@ -284,8 +290,8 @@ if ($post_key > 0) // a detail of a record
 			if (empty ( $arr_linked )) {
 				array_push ( $arr_messages, "No Records were linked." );
 				$link_values = "";
-			}  // linked
-else {
+			} else {
+				// linked
 				array_push ( $arr_messages, "Record(s) " . htmlentities ( $str_linked ) . " were linked to record " . $letter . ( string ) $post_key );
 				$link_values = "";
 			}
@@ -329,7 +335,9 @@ if (($post_key > 0) && ($cnt_rows == 1)) {
 	$main->echo_button ( "link_button", $params );
 	$main->echo_clear ();
 	echo "<br>";
-	echo "<textarea class=\"spaced\" name=\"dump_area\"rows=\"8\" cols=\"80\">" . $text_str . "</textarea>";
+	$main->echo_textarea ( "dump_area", $text_str, array (
+			'class' => "spaced dump_textarea" 
+	) );
 	$main->echo_clear ();
 	$params = array (
 			"class" => "spaced",

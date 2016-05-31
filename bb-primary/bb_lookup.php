@@ -131,28 +131,76 @@ echo "<div class=\"spaced\">";
 $main->echo_messages ( $arr_messages );
 echo "</div>";
 
-echo "<table class=\"border\" cellpadding=\"0\" cellspacing=\"0\">";
+echo "<div class=\"table\">";
 // use a table to organized form, headers follow
-echo "<tr><td class=\"middle nowrap padded\" rowspan=\"2\">";
+echo "<div class=\"row\">";
+
+echo "<div class=\"spaced border middle cell\">";
 $params = array (
-		"class" => "spaced middle",
+		"class" => "spaced nowrap",
 		"onclick" => "bb_reload()",
 		"label" => "Submit Lookup" 
 );
 $main->echo_script_button ( "lookup_button", $params );
-echo "</td>";
-echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">Record ID</span></td>";
-echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">Layout</span></td>";
-echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">First Lookup Column</span></td>";
-echo "<td class=\"borderleft nowrap padded\"><span class=\"spaced\">Second Lookup Column</span></td>";
+echo "</div>";
+
+echo "<div class=\"spaced border cell\">";
+echo "<div class=\"spaced\">Record ID</div>";
+echo "<div class=\"spaced\"><input type =\"text\" class =\"short\" name = \"record_id\" value = \"" . $record_id . "\"></div>";
+echo "</div>";
+
+echo "<div class=\"border cell\">";
+echo "<div class=\"spaced\">Layout</div>";
+echo "<div class=\"spaced\">";
+$params = array (
+		"onchange" => "bb_reload()" 
+);
+$main->layout_dropdown ( $arr_layouts, "row_type", $row_type, $params );
+echo "</div>";
+echo "</div>";
+
+echo "<div class=\"border cell\">";
+echo "<div class=\"spaced\">First Lookup Column</div>";
+echo "<div class=\"spaced inlineblock\">";
+echo "<input type=\"text\" name = \"value_1\" value = \"" . $value_1 . "\">";
+echo "</div>";
+echo "<div class=\"spaced nowrap inlineblock\">";
+echo "<span>Begins:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"1\"" . ($radio_1 == 1 ? "checked" : "") . " >";
+echo "<span> Exact:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"2\"" . ($radio_1 == 2 ? "checked" : "") . ">";
+echo "<span> Like:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"3\"" . ($radio_1 == 3 ? "checked" : "") . ">";
+echo "<span> Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
+echo "</div>";
+echo "&nbsp;";
+echo "<div class=\"spaced inlineblock\">";
+$main->column_dropdown ( $arr_columns, "col_type_1", $col_type_1 );
+echo "</div>";
+echo "</div>";
+
+echo "<div class=\"border cell\">";
+echo "<div class=\"spaced\">Second Lookup Column</div>";
+echo "<div class=\"spaced inlineblock\">";
+echo "<input type=\"text\" name = \"value_1\" value = \"" . $value_1 . "\">";
+echo "</div>";
+echo "<div class=\"spaced nowrap inlineblock\">";
+echo "<span>Begins:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"1\"" . ($radio_1 == 1 ? "checked" : "") . " >";
+echo "<span> Exact:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"2\"" . ($radio_1 == 2 ? "checked" : "") . ">";
+echo "<span> Like:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"3\"" . ($radio_1 == 3 ? "checked" : "") . ">";
+echo "<span> Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
+echo "</div>";
+echo "&nbsp;";
+echo "<div class=\"spaced inlineblock\">";
+$main->column_dropdown ( $arr_columns, "col_type_2", $col_type_2 );
+echo "</div>";
+echo "</div>";
+
 if ($main->on_constant ( 'BB_ARCHIVE_INTERWORKING' )) {
 	$checked = "";
 	if ($archive_flag == 1) {
 		$checked = "checked";
 		$mode = " 1 = 1 ";
 	}
-	echo "<td class=\"borderleft nowrap padded middle\" rowspan=\"2\">";
-	echo "<span class = \"border rounded padded shaded\">";
+	echo "<div class=\"border middle cell\">";
+	echo "<span class = \"spaced border nowrap rounded padded shaded\">";
 	$main->echo_input ( "archive_flag", 1, array (
 			'type' => 'checkbox',
 			'class' => 'middle padded',
@@ -161,51 +209,12 @@ if ($main->on_constant ( 'BB_ARCHIVE_INTERWORKING' )) {
 	echo "<label class=\"padded\">Check Archives</label>";
 	echo "</span><br>";
 	echo "</span>";
-	echo "</td>";
+	echo "</div>";
 }
-echo "</tr>";
 
-echo "<tr>";
-// submit button
-echo "<td class=\"borderleft nowrap padded\">";
-echo "<input type =\"text\" class=\"spaced short\" name = \"record_id\" value = \"" . $record_id . "\">";
-echo "</td>";
-echo "<td class=\"borderleft nowrap padded\">";
-$params = array (
-		"onchange" => "bb_reload()" 
-);
-$main->layout_dropdown ( $arr_layouts, "row_type", $row_type, $params );
-echo "</td>";
-echo "<td class=\"borderleft nowrap padded\">";
-// column 1 values
-echo "<input type=\"text\" class=\"spaced medium\" name = \"value_1\" value = \"" . $value_1 . "\">";
-echo "<span class=\"spaced middle\">Begins:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"1\"" . ($radio_1 == 1 ? "checked" : "") . " >";
-echo "<span class=\"spaced middle\">Exact:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"2\"" . ($radio_1 == 2 ? "checked" : "") . ">";
-echo "<span class=\"spaced middle\">Like:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"3\"" . ($radio_1 == 3 ? "checked" : "") . ">";
-echo "<span class=\"spaced middle\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
-echo "&nbsp;";
-$params = array (
-		"class" => "spaced" 
-);
-$main->column_dropdown ( $arr_columns, "col_type_1", $col_type_1, $params );
-echo "</td>";
-
-// column 2 values
-echo "<td class=\"borderleft nowrap padded\">";
-echo "<input type = \"text\" class=\"spaced medium\" name = \"value_2\" value = \"" . $value_2 . "\">";
-echo "<span class=\"spaced\">Begins:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"1\"" . ($radio_2 == 1 ? "checked" : "") . ">";
-echo "<span class=\"spaced\">Exact:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"2\"" . ($radio_2 == 2 ? "checked" : "") . ">";
-echo "<span class=\"spaced\">Like:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"3\"" . ($radio_2 == 3 ? "checked" : "") . ">";
-echo "<span class=\"spaced\">Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"4\"" . ($radio_2 == 4 ? "checked" : "") . ">";
-echo "&nbsp;";
-$params = array (
-		"class" => "spaced" 
-);
-$main->column_dropdown ( $arr_columns, "col_type_2", $col_type_2, $params );
-echo "</td>";
-
-echo "</tr></table>"; // table 1
-                      
+echo "</div>"; // end row
+echo "</div>"; // end table
+               
 // hidden element containing the current return page, this is related to the row offset in the query LIMIT clause
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
