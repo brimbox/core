@@ -33,42 +33,42 @@
 // related PHP class
 class bb_links extends bb_work {
 
-	function standard($row, $arr_layouts, $target, $slug, $text, $params = array()) {
+	function standard($row, $arr_layouts, $target, $text, $params = array()) {
 		// standard row_type and post_key for a target
 		// commonly used in linking things
 		$filter = isset ( $params ['layouts'] ) ? $params ['layouts'] : array ();
 		$class = isset ( $params ['class'] ) ? $params ['class'] : "link rightmargin";
 		$id = isset ( $params ['id'] ) ? "id=\"" . $params ['id'] . "\"" : "";
 		if (in_array ( $row ['row_type'], $filter ) || empty ( $filter )) {
-			echo "<button " . $id . " class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row ['id'] . "," . $row ['row_type'] . ",'" . $target . "','" . $slug . "'); return false;\">";
+			echo "<button " . $id . " class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row ['id'] . "," . $row ['row_type'] . ",'" . $target . "'); return false;\">";
 			echo $text . "</button>";
 		}
 	}
 
-	function edit($row, $arr_layouts, $target, $slug, $text, $params = array()) {
+	function edit($row, $arr_layouts, $target, $text, $params = array()) {
 		// edit row, row_type and row_join are the same and from row
 		// target is input and text is editable, uses js input function
 		$filter = isset ( $params ['layouts'] ) ? $params ['layouts'] : array ();
 		$class = isset ( $params ['class'] ) ? $params ['class'] : "link rightmargin";
 		if (! $row ['archive'] && (in_array ( $row ['row_type'], $filter ) || empty ( $filter ))) {
-			echo "<button class = \"" . $class . "\" onclick=\"bb_links.input(" . $row ['id'] . "," . $row ['row_type'] . "," . $row ['row_type'] . ",'" . $target . "','" . $slug . "'); return false;\">";
+			echo "<button class = \"" . $class . "\" onclick=\"bb_links.join(" . $row ['id'] . "," . $row ['row_type'] . "," . $row ['row_type'] . ",'" . $target . "'); return false;\">";
 			echo $text . "</button>";
 		}
 	}
 
-	function relate($row, $arr_layouts, $target, $slug, $text, $params = array()) {
+	function relate($row, $arr_layouts, $target, $text, $params = array()) {
 		// edit row, row_type and row_join are the same and from row
 		// target is input and text is editable, uses js input function
 		$filter = isset ( $params ['layouts'] ) ? $params ['layouts'] : array ();
 		$class = isset ( $params ['class'] ) ? $params ['class'] : "link rightmargin";
 		
 		if (! $row ['archive'] && $arr_layouts [$row ['row_type']] ['relate'] && (in_array ( $row ['row_type'], $filter ) || empty ( $filter ))) {
-			echo "<button class = \"" . $class . "\" onclick=\"bb_links.relate(" . $row ['id'] . ",'" . $target . "','" . $slug . "'); return false;\">";
+			echo "<button class = \"" . $class . "\" onclick=\"bb_links.relate(" . $row ['id'] . ",'" . $target . "'); return false;\">";
 			echo $text . "</button>";
 		}
 	}
 
-	function children($row, $arr_layouts, $target_add, $slug_add, $text_add, $target_view, $slug_view, $text_view, $params = array()) {
+	function children($row, $arr_layouts, $target_add, $text_add, $target_view, $text_view, $params = array()) {
 		// view children and add child links, outputted at once
 		// row_join is row_type of current row
 		// row_type is form the child array
@@ -95,11 +95,11 @@ class bb_links extends bb_work {
 		if (! empty ( $arr_children )) {
 			foreach ( $arr_children as $arr_child ) {
 				// view link, sues standard js function
-				echo "<button class = \"" . $class . "\" onclick=\"bb_links.standard(" . $row ['id'] . "," . $arr_child ['row_type'] . ",'" . $target_view . "','" . $slug_view . "'); return false;\">";
+				echo "<button class = \"" . $class . "\" onclick=\"bb_links.join(" . $row ['id'] . "," . $row ['row_type'] . "," . $arr_child ['row_type'] . ",'" . $target_view . "'); return false;\">";
 				echo $text_view . " " . $arr_child ['plural'] . "</button>";
 				// add link, not available when archived
 				if (! $row ['archive']) {
-					echo "<button class = \"" . $class . "\" onclick=\"bb_links.input(" . $row ['id'] . "," . $row ['row_type'] . "," . $arr_child ['row_type'] . ",'" . $target_add . "','" . $slug_add . "'); return false;\">";
+					echo "<button class = \"" . $class . "\" onclick=\"bb_links.join(" . $row ['id'] . "," . $row ['row_type'] . "," . $arr_child ['row_type'] . ",'" . $target_add . "'); return false;\">";
 					echo $text_add . " " . $arr_child ['singular'] . "</button>";
 				}
 			}
@@ -124,7 +124,7 @@ class bb_links extends bb_work {
 		if (! empty ( $arr_children )) {
 			foreach ( $arr_children as $arr_child ) {
 				// add link, not available when archived
-				echo "<button class = \"link rightmargin\" onclick=\"bb_links.input(" . $post_key . "," . $row_type . "," . $arr_child ['row_type'] . ",'" . $target_add . "'); return false;\">";
+				echo "<button class = \"link rightmargin\" onclick=\"bb_links.join(" . $post_key . "," . $row_type . "," . $arr_child ['row_type'] . ",'" . $target_add . "'); return false;\">";
 				echo $text_add . " " . $arr_child ['singular'] . "</button>";
 			}
 		}

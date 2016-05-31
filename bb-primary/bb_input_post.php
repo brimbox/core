@@ -74,6 +74,15 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 		/* GET STATE AND $POST */
 	$POST = $_POST;
 	
+	/*
+	 * IF $row_type = $row_join THEN
+	 * Use $row_join -- on Edit
+	 */
+	/*
+	 * ELSE $row_join is the child
+	 * So again use $row_join -- on Insert
+	 */
+	
 	// get $arr_state
 	$arr_state = $main->load ( $con, $submit );
 	
@@ -132,6 +141,8 @@ if (isset ( $_SESSION ['username'] ) && in_array ( $_SESSION ['userrole'], array
 	$index_path = "Location: " . $webpath . "/" . $slug;
 	header ( $index_path );
 	die ();
+
+
 
 
 

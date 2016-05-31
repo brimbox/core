@@ -331,7 +331,6 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target' => "bb_details",
-						'slug' => "details",
 						'text' => "Details" 
 				) 
 		), 10 );
@@ -342,7 +341,6 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target' => "bb_cascade",
-						'slug' => "cascade",
 						'text' => "Cascade" 
 				) 
 		), 20 );
@@ -353,7 +351,6 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target' => "bb_input",
-						'slug' => "input",
 						'text' => "Edit" 
 				) 
 		), 30 );
@@ -364,7 +361,6 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target' => "bb_input",
-						'slug' => "input",
 						'text' => "Relate" 
 				) 
 		), 40 );
@@ -375,7 +371,6 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target' => "bb_listchoose",
-						'slug' => "listchoose",
 						'text' => "List" 
 				) 
 		), 50 );
@@ -386,7 +381,6 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target' => "bb_archive",
-						'slug' => "archive",
 						'text' => "Archive" 
 				) 
 		), 60 );
@@ -397,7 +391,6 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target' => "bb_delete",
-						'slug' => "delete",
 						'text' => "Delete" 
 				) 
 		), 70 );
@@ -408,7 +401,6 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target' => "bb_secure",
-						'slug' => "secure",
 						'text' => "Secure" 
 				) 
 		), 80 );
@@ -419,14 +411,16 @@ if ($interface == "bb_brimbox") :
 				),
 				'params' => array (
 						'target_add' => "bb_input",
-						'slug_add' => "input",
 						'text_add' => "Add",
 						'target_view' => "bb_view",
-						'slug_view' => "view",
 						'text_view' => "View" 
 				) 
 		), 90 );
 	}
+
+
+
+
 
 
 

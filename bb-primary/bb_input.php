@@ -40,6 +40,15 @@ $main->check_permission ( array (
 		"5_bb_brimbox" 
 ) );
 
+/*
+ * IF $row_type = $row_join THEN
+ * Use $row_join -- on Edit
+ */
+/*
+ * ELSE $row_join is the child
+ * So again use $row_join -- on Insert
+ */
+
 // get $POST variable
 $POST = $main->retrieve ( $con );
 
@@ -71,8 +80,8 @@ $main->echo_common_vars (); // common to standard interface
 $main->hook ( "bb_input_top_level_records" );
 
 /* need arr_columns for test */
-$row_type = $main->init ( $arr_state ['row_type'], 0 );
-$arr_columns = $main->columns ( $con, $arr_state ['row_type'] );
+$row_type = $main->init ( $arr_state ['row_join'], 0 );
+$arr_columns = $main->columns ( $con, $arr_state ['row_join'] );
 
 // render form
 if (! empty ( $arr_columns )) :
@@ -96,11 +105,6 @@ if (! empty ( $arr_columns )) :
 	$main->hook ( "bb_input_submit_buttons" );
 	// textarea load
 	$main->hook ( "bb_input_textarea_load" );
-
-
-
-
-
 
 
 

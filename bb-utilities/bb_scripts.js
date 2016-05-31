@@ -123,30 +123,30 @@ function bb_submit_link(f) {
 // links javascript
 var bb_links = new Object();
 
-bb_links.standard = function(k, rt, tg, sl) {
+bb_links.standard = function(k, rt, tg) {
 	var frmobj = document.forms['bb_form'];
 
 	frmobj.bb_post_key.value = k;
 	frmobj.bb_row_type.value = rt;
-	bb_submit_form([ 0, tg, sl ]);
+	bb_submit_form([ 0, tg]);
 	return false;
 }
 
-bb_links.input = function(k, rj, rt, tg, sl) {
+bb_links.join = function(k, rt, rj, tg) {
 	var frmobj = document.forms['bb_form'];
 
 	frmobj.bb_post_key.value = k;
 	frmobj.bb_row_type.value = rt;
 	frmobj.bb_row_join.value = rj;
-	bb_submit_form([ 0, tg, sl ]);
+	bb_submit_form([ 0, tg]);
 	return false;
 }
 
-bb_links.relate = function(rl, tg, sl) {
+bb_links.relate = function(rl, tg) {
 	var frmobj = document.forms['bb_form'];
 
 	frmobj.bb_relate.value = rl;
-	bb_submit_form([ 0, tg, sl ]);
+	bb_submit_form([ 0, tg ]);
 	return false;
 }
 

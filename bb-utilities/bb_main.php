@@ -867,7 +867,7 @@ class bb_main extends bb_reports {
 		$this->query_params ( $con, $query, $arr_log );
 	}
 
-	function output_links($row, $layouts, $userrole) {
+	function output_links($row, $arr_layouts, $userrole) {
 		// for standard interface
 		global $array_links;
 		
@@ -875,7 +875,7 @@ class bb_main extends bb_reports {
 		$arr_links = $array_links;
 		ksort ( $arr_links );
 		foreach ( $arr_links as $arr ) {
-			array_unshift ( $arr ['params'], $layouts );
+			array_unshift ( $arr ['params'], $arr_layouts );
 			array_unshift ( $arr ['params'], $row );
 			call_user_func_array ( $arr ['func'], $arr ['params'] );
 		}
@@ -892,7 +892,7 @@ class bb_main extends bb_reports {
 		return false;
 	}
 
-	function drill_links($post_key, $row_type, $layouts, $module, $text) {
+	function drill_links($post_key, $row_type, $arr_layouts, $module, $text) {
 		// call function add drill links in class bb_link
 		call_user_func_array ( array (
 				$this,
@@ -900,7 +900,7 @@ class bb_main extends bb_reports {
 		), array (
 				$post_key,
 				$row_type,
-				$layouts,
+				$arr_layouts,
 				$module,
 				$text 
 		) );

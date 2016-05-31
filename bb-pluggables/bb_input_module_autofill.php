@@ -24,43 +24,55 @@ if (! function_exists ( 'bb_input_module_autofill' )) :
 
 	function bb_input_module_autofill(&$arr_state) {
 
-		global $main, $con ;
+		global $main, $con;
 		
-		$arr_layouts = $main->layouts ( $con ) ;
+		/*
+		 * IF $row_type = $row_join THEN
+		 * Use $row_join -- on Edit
+		 */
+		/*
+		 * ELSE $row_join is the child
+		 * So again use $row_join -- on Insert
+		 */
 		
-		$parent_row_type = $main->init ( $arr_state ['parent_row_type'], 0 ) ;
-		$parent_id = $main->init ( $arr_state ['parent_id'], 0 ) ;
-		$parent_primary = $main->init ( $arr_state ['parent_primary'], "" ) ;
+		$arr_layouts = $main->layouts ( $con );
 		
-		$row_type = $main->init ( $arr_state ['row_type'], 0 ) ;
-		$row_join = $main->init ( $arr_state ['row_join'], 0 ) ;
-		$post_key = $main->init ( $arr_state ['post_key'], 0 ) ;
+		$parent_row_type = $main->init ( $arr_state ['parent_row_type'], 0 );
+		$parent_id = $main->init ( $arr_state ['parent_id'], 0 );
+		$parent_primary = $main->init ( $arr_state ['parent_primary'], "" );
 		
-		$query = "SELECT * FROM data_table WHERE id = " . $parent_id . ";" ;
-		$result = $main->query ( $con, $query ) ;
-		$row = pg_fetch_array ( $result ) ;
+		$row_type = $main->init ( $arr_state ['row_type'], 0 );
+		$row_join = $main->init ( $arr_state ['row_join'], 0 );
+		$post_key = $main->init ( $arr_state ['post_key'], 0 );
 		
-		if (($row_type != $row_join) && ($row_join == $parent_row_type) && ($parent_row_type > 0)) {
-			$arr_columns = $main->columns ( $con, $row_type ) ;
-			$arr_columns_parent = $main->columns ( $con, $parent_row_type ) ;
+		$query = "SELECT * FROM data_table WHERE id = " . $parent_id . ";";
+		$result = $main->query ( $con, $query );
+		$row = pg_fetch_array ( $result );
+		
+		if (($row_type != $row_join) && ($row_type == $parent_row_type) && ($parent_row_type > 0)) {
+			$arr_columns = $main->columns ( $con, $row_join );
+			$arr_columns_parent = $main->columns ( $con, $parent_row_type );
 			
 			foreach ( $arr_columns as $key => $value ) {
-				$arr_search [$key] = $value ['name'] ;
+				$arr_search [$key] = $value ['name'];
 			}
 			foreach ( $arr_columns_parent as $key1 => $value1 ) {
-				$col1 = $main->pad ( "c", $key1 ) ;
-				$key2 = array_search ( $value1 ['name'], $arr_search ) ;
+				$col1 = $main->pad ( "c", $key1 );
+				$key2 = array_search ( $value1 ['name'], $arr_search );
 				// if found
 				if (is_integer ( $key2 )) {
-					$col2 = $main->pad ( "c", $key2 ) ;
+					$col2 = $main->pad ( "c", $key2 );
 					// if autofill column is empty
 					if ($main->blank ( $arr_state [$col2] )) {
-						$arr_state [$col2] = $row [$col1] ;
+						$arr_state [$col2] = $row [$col1];
 					}
 				}
 			}
 		}
 	}
+
+
+
 
 
 endif;

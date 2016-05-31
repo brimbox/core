@@ -61,7 +61,8 @@ $arr_state = $main->load ( $con, $module );
 if (! empty ( $POST ['bb_row_type'] )) {
 	// global post_key and row_type
 	$offset = $main->set ( 'offset', $arr_state, 1 );
-	$row_type = $main->set ( 'row_type', $arr_state, $POST ['bb_row_type'] );
+	$row_type = $main->set ( 'row_type', $arr_state, $POST ['bb_row_type'] ); // parent
+	$row_join = $main->set ( 'row_join', $arr_state, $POST ['bb_row_join'] ); // child
 	$post_key = $main->set ( 'post_key', $arr_state, $POST ['bb_post_key'] );
 	$col1 = $main->set ( 'col1', $arr_state, "create_date" );
 	$asc_desc = $main->set ( 'asc_desc', $arr_state, "DESC" );
@@ -69,7 +70,8 @@ if (! empty ( $POST ['bb_row_type'] )) {
 {
 	// local post_key and row_type
 	$offset = $main->process ( 'offset', $module, $arr_state, 1 );
-	$row_type = $main->process ( 'row_type', $module, $arr_state, $default_row_type );
+	$row_type = $main->process ( 'row_type', $module, $arr_state, $default_row_type ); // parent
+	$row_join = $main->process ( 'row_join', $module, $arr_state, 0 ); // child
 	$post_key = $main->process ( 'post_key', $module, $arr_state, 0 );
 	$col1 = $main->process ( 'col1', $module, $arr_state, "create_date" );
 	$asc_desc = $main->process ( 'asc_desc', $module, $arr_state, 'DESC' );
@@ -88,13 +90,13 @@ $main->update ( $con, $module, $arr_state );
  */
 
 // get xml_column and sort column type
-$arr_columns = $main->columns ( $con, $row_type );
+$arr_columns = $main->columns ( $con, $row_join );
 
 // for the header left join
 // get column name from "primary" attribute in column array
 // this is used to populate the record header link to parent record
 $parent_row_type = $main->reduce ( $arr_layouts, array (
-		$row_type,
+		$row_join,
 		"parent" 
 ) ); // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 if ($parent_row_type) {
@@ -133,6 +135,7 @@ echo "</select>";
 // local POST variables
 echo "<input type=\"hidden\" name=\"offset\" value=\"" . $offset . "\" />";
 echo "<input type=\"hidden\" name=\"row_type\" value=\"" . $row_type . "\" />";
+echo "<input type=\"hidden\" name=\"row_join\" value=\"" . $row_join . "\" />";
 echo "<input type=\"hidden\" name=\"post_key\" value=\"" . $post_key . "\" />";
 
 // global POST variables
@@ -153,7 +156,7 @@ $lower_limit = ($offset - 1) * $return_rows;
 if ($post_key > 0) // viewing children of record
 {
 	// four int(s) and a string
-	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " . "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table WHERE row_type = " . $parent_row_type . ") T2 " . "ON T1.key1 = T2.id " . "WHERE key1 = " . $post_key . " AND row_type = " . $row_type . " AND " . $mode . " ORDER BY " . $col1 . " " . $asc_desc . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
+	$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table WHERE row_type = " . $parent_row_type . ") T2 " . "ON T1.key1 = T2.id " . "WHERE T2.id = " . $post_key . " AND row_type = " . $row_join . " AND " . $mode . " ORDER BY " . $col1 . " " . $asc_desc . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
 	// echo "<p>" . $query . "</p>";
 	$result = $main->query ( $con, $query );
 	

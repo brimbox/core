@@ -316,7 +316,7 @@ class bb_reports extends bb_forms {
 					echo "<div class=\"cell " . $cell . "\">" . htmlentities ( $row [$j] ) . "</div>";
 				}
 				echo "</div>"; // end row
-				               // increment $i & $k
+				                // increment $i & $k
 				$k ++;
 				$i ++;
 			} else {
@@ -446,7 +446,7 @@ class bb_reports extends bb_forms {
 					echo "<div class=\"cell " . $cell . "\">" . htmlentities ( $row [$j] ) . "</div>";
 				}
 				echo "</div>"; // end row
-				               // increment $i & $k
+				                // increment $i & $k
 				$k ++;
 			} else {
 				// groupby row $row[0] > 0
