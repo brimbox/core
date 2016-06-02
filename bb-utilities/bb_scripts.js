@@ -128,6 +128,7 @@ bb_links.standard = function(k, rt, tg) {
 
 	frmobj.bb_post_key.value = k;
 	frmobj.bb_row_type.value = rt;
+	frmobj.bb_row_join.value = rt;
 	bb_submit_form([ 0, tg]);
 	return false;
 }

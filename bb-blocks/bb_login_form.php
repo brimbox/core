@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -15,7 +14,7 @@
  *
  * You should have received a copy of the GNU GPL v3 along with this program.
  * If not, see http://www.gnu.org/licenses/
- */
+*/
 ?>
 <style>
 /* These are the login styles */

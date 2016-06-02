@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -15,11 +14,10 @@
  *
  * You should have received a copy of the GNU GPL v3 along with this program.
  * If not, see http://www.gnu.org/licenses/
- */
+*/
 ?>
 <?php
 // EOT stands for end of text
-
 /* BEFORE AND AFTER CREATE STRINGS FOR RESTORE */
 /* ORDER */
 // data_table
@@ -27,8 +25,7 @@
 // modules_table
 // users_table
 // json_table
-
-$list_zeros = str_repeat ( "0", 2000 );
+$list_zeros = str_repeat("0", 2000);
 
 $data_before_eot = <<<EOT
 CREATE TABLE data_table
@@ -139,6 +136,7 @@ ALTER TABLE data_table ALTER COLUMN id SET DEFAULT NEXTVAL('data_table_id_seq');
 SELECT setval('data_table_id_seq', (SELECT max(id) + 1 FROM data_table));
 EOT;
 
+
 $log_before_eot = <<<EOT
 CREATE TABLE log_table
 (
@@ -164,6 +162,7 @@ CREATE TRIGGER ts1_update_bb_change_date
   FOR EACH ROW
   EXECUTE PROCEDURE bb_change_date();
 EOT;
+
 
 $modules_before_eot = <<<EOT
 CREATE TABLE modules_table
@@ -196,6 +195,7 @@ CREATE TRIGGER ts1_update_change_date
   FOR EACH ROW
   EXECUTE PROCEDURE bb_change_date();
 EOT;
+
 
 $users_before_eot = <<<EOT
 CREATE TABLE users_table
@@ -232,6 +232,7 @@ CREATE TRIGGER ts1_update_bb_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 
+
 $json_before_eot = <<<EOT
 CREATE TABLE json_table
 (
@@ -256,4 +257,5 @@ CREATE TRIGGER ts1_update_bb_change_date
   FOR EACH ROW
   EXECUTE PROCEDURE bb_change_date();
 EOT;
+
 ?>

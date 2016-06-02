@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -15,12 +14,12 @@
  *
  * You should have received a copy of the GNU GPL v3 along with this program.
  * If not, see http://www.gnu.org/licenses/
- */
+*/
 
 /* NO HTML OUTPUT */
 
-define ( 'BRIMBOX_PROGRAM', '2.0' );
-define ( 'BRIMBOX_DATABASE', '2.0' );
-define ( 'BRIMBOX_BACKUP', '2.0' );
+define('BRIMBOX_PROGRAM', '2.0');
+define('BRIMBOX_DATABASE', '2.0');
+define('BRIMBOX_BACKUP', '2.0');
 
 ?>

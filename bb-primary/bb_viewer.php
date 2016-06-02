@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -16,14 +15,13 @@
  *
  * You should have received a copy of the GNU GPL v3 along with this program.
  * If not, see http://www.gnu.org/licenses/
- */
+*/
 ?>
 <?php
-
-$main->check_permission ( "2_bb_brimbox" );
+$main->check_permission("2_bb_brimbox");
 
 /* DATABASE STATS -- AUTOFILL HOOK */
-$main->hook ( "bb_viewer_infolinks" );
+$main->hook("bb_viewer_infolinks");
 
 include ("bb-config/bb_viewer_extra.php");
 ?>

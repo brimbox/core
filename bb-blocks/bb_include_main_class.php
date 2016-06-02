@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -15,17 +14,16 @@
  *
  * You should have received a copy of the GNU GPL v3 along with this program.
  * If not, see http://www.gnu.org/licenses/
- */
+*/
 ?>
 <?php
-
 /* SET UP MAIN OBJECT AND POST STUFF */
 // objects are all daisy chained together
 // set up main from last object
 // contains bb_database class, extends bb_main
 /* NO HTML OUTPUT */
 // get from $_SESSION
-$abspath = $_SESSION ['abspath'];
+$abspath = $_SESSION['abspath'];
 include_once ($abspath . "/bb-utilities/bb_build.php");
 // contains bb_build class, extend bb_database
 include_once ($abspath . "/bb-utilities/bb_database.php");

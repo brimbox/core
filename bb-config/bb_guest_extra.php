@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -15,18 +14,17 @@
  *
  * You should have received a copy of the GNU GPL v3 along with this program.
  * If not, see http://www.gnu.org/licenses/
- */
+*/
 ?>
 <?php
-
 /* BEGIN REQUIRED FORM */
 
-$main->echo_form_begin ();
-$main->echo_module_vars ();
+$main->echo_form_begin();
+$main->echo_module_vars();
 
 /* In case you need to put a quick link on the home page */
-$main->echo_common_vars ();
-$main->echo_form_end ();
+$main->echo_common_vars();
+$main->echo_form_end();
 
 /* END FORM */
 ?>
