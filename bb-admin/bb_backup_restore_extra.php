@@ -258,4 +258,4 @@ CREATE TRIGGER ts1_update_bb_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 
-?>
+?>

@@ -96,4 +96,4 @@ if (!function_exists('bb_data_table_row_validate')):
     }
 
 endif;
-?>
+?>

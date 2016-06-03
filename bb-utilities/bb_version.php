@@ -22,4 +22,4 @@ define('BRIMBOX_PROGRAM', '2.0');
 define('BRIMBOX_DATABASE', '2.0');
 define('BRIMBOX_BACKUP', '2.0');
 
-?>
+?>

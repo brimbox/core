@@ -99,4 +99,4 @@ class bb_validate extends bb_database {
     }
 } // end class
 
-?>
+?>

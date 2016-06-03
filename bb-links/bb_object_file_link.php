@@ -65,4 +65,4 @@ $handle = pg_lo_open($con, $post_key, "r") or die("File Error");
 pg_lo_read_all($handle) or die("File Error");
 pg_query($con, "COMMIT");
 
-?>
+?>

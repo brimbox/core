@@ -317,4 +317,4 @@ if (!function_exists('bb_data_table_render_form')):
     }
 
 endif;
-?>
+?>

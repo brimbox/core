@@ -71,4 +71,4 @@ if (!function_exists('bb_index_hot_state')):
     }
 
 endif;
-?>
+?>

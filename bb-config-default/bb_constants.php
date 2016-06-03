@@ -57,4 +57,4 @@ define('BB_FILE_DOWNLOAD_PERMISSIONS', '');
 define('BB_DOCUMENT_DOWNLOAD_PERMISSIONS', '');
 // "word" to search by whole word is default, "begin" to search by beginning of all tokens searched for
 define('BB_FULLTEXT_STATE', 'begin');
-?>
+?>

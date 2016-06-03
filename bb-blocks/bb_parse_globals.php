@@ -47,4 +47,4 @@ if (isset($array_global)) {
     }
 }
 
-?>
+?>

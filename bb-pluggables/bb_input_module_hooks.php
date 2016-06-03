@@ -181,4 +181,4 @@ if (!class_exists('bb_input_module_hooks')):
     }
 
 endif;
-?>
+?>

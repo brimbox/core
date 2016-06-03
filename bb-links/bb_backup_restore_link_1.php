@@ -262,4 +262,4 @@ while ($row = pg_fetch_row($result)) {
     $str = encrypt_line($str, $passwd, $iv, $type) . $eol;
     echo $str;
 }
-?>
+?>

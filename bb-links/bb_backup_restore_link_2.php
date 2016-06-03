@@ -155,4 +155,4 @@ while ($row = pg_fetch_array($result)) {
     pg_query($con, "COMMIT");
 }
 
-?>
+?>

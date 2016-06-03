@@ -785,4 +785,4 @@ if ($do_state_table) {
 	echo "State Table Created (No Population)<br>";
 }
 
-echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";
+echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";
