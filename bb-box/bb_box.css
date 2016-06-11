@@ -1,6 +1,24 @@
-/* CSS Document */
+/*
+ * Copyright (C) Brimbox LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License Version 3 (?GNU GPL v3?)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU GPL v3 for more details.
+ *
+ * You should have received a copy of the GNU GPL v3 along with this program.
+ * If not, see http://www.gnu.org/licenses/
+ */
+
+/* CSS/LESS Document for parsing*/
 
 /* Reset and Clearfix */
+
+/* Reset */
 * {
 	border: 0;
 	margin: 0;
@@ -62,7 +80,7 @@
 	border-width: 1px;
 	border-color: #A070B6;
 	font-weight: bold;
-	color: #2f3036;
+	color: #56006F;
 	background-color: #F2EAFF;
 	text-decoration: none;
 	border-top-left-radius: 6px;
@@ -76,6 +94,9 @@
 	border-bottom: 1px solid #FFFFFF;
 }
 
+#bb_menu li button:hover {
+	background-color: #F6F0FF;
+}
 /* Hide Mobile Header Toggle Button*/
 #bb_mobile_header {
 	display: none;

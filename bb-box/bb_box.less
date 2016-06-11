@@ -1,87 +1,296 @@
 /*
-Copyright (C) Brimbox LLC
+ * Copyright (C) Brimbox LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License Version 3 (?GNU GPL v3?)
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU GPL v3 for more details.
+ *
+ * You should have received a copy of the GNU GPL v3 along with this program.
+ * If not, see http://www.gnu.org/licenses/
+ */
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
-as published by the Free Software Foundation. 
+/* CSS/LESS Document for parsing*/
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU GPL v3 for more details. 
-
-You should have received a copy of the GNU GPL v3 along with this program.
-If not, see http://www.gnu.org/licenses/
-*/
-
-/* LESS COLORS */
-
-/* These are the Tab Colors */
+@bb_background_color : #FFFFFF;
+@bb_text_color : #181818;
+@bb_colored_text_color : #56006F;
+@bb_error_color : #FF0000;
+@bb_link_color : #56006F;
+@bb_message_color : #56006F;
+@bb_even_color : #FFFFFF;
+@bb_odd_color : #F2EAFF;
+@bb_shaded_color : #F2EAFF;
+@bb_button_color  : #F2EAFF;
+@bb_button_text_color : #181818;
+@bb_border_color : #A070B6;
+@bb_divider_color : #A070B6;
+@bb_darkline_color : #CCBBDD;
 @bb_tab_text_color : #56006F;
 @bb_tab_background_color : #F2EAFF;
 @bb_tab_hover_color : #F6F0FF;
 @bb_tab_chosen_color : #FFFFFF;
+@bb_mobile_header_color : #A070B6;
 
-/* Border and Divider Colors */
-@bb_border_color : #A070B6;
+@import "../bb-config/bb_less.less";
 
-/* Controller and Index Color */
-@bb_controller_image_width : 728px;
-@bb_controller_image_height : 54px;
-@bb_controller_message_color : #56006F;
+/* Reset and Clearfix */
 
-/* CUSTOM LESS */
-
-@import "bb-config/bb_less.less";
-
-/* CONTROLLER AREA */
-
-body {
-    border-left-color: @bb_border_color;
-    background-color: @bb_background_color;
+/* Reset */
+* {
+	border: 0;
+	margin: 0;
+	outline: 0;
+	padding: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
 }
 
-
-#bb_header #controller_image {
-    width: @bb_controller_image_width;
-    height: @bb_controller_image_height;
+/* Clearfix */
+.clearfix:before, .clearfix:after {
+	content: " ";
+	display: table;
 }
 
-#bb_header #controller_message {
-    color: @bb_controller_message_color;
+.clearfix:after {
+	clear: both;
+}
+
+.clearfix {
+	*zoom: 1;
+}
+
+/* Header */
+#bb_header {
+	width: 100%;
+}
+
+/* Menu Reset*/
+#bb_menu, #bb_admin_menu {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* Main Menu */
+#bb_menu li {
+	float: left;
+	margin-right: -1px;
+	margin-bottom: -1px;
+}
+
+#bb_menu li:first-child {
+	margin-left: 6px;
+}
+
+/* Menu Links */
+#bb_menu li button {
+	display: block;
+	font-size: 13px;
+	letter-spacing: 0.3px;
+	padding: 3px 6px 2px 6px;
+	text-align: center;
+	font-size: 13px;
+	letter-spacing: 0.3px;
+	cursor: pointer;
+	border-style: solid;
+	border-width: 1px;
+	border-color: @bb_border_color;
+	font-weight: bold;
+	color: @bb_tab_text_color;
+	background-color: @bb_shaded_color;
+	text-decoration: none;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+#bb_menu li button.chosen {
+	background-color: @bb_background_color;
+	border-bottom: 1px solid @bb_background_color;
+}
+
+#bb_menu li button:hover {
+	background-color: @bb_tab_hover_color;
+}
+/* Hide Mobile Header Toggle Button*/
+#bb_mobile_header {
+	display: none;
+}
+
+/* Hide Label Toggle Checkbox */
+#bb_menu_header input#bb_show_menu {
+	display: none;
+}
+
+/* Show Menu When Invisible Checkbox is Checked */
+#bb_menu_header input#bb_show_menu:checked ~ #bb_menu {
+	display: block;
+}
+
+/* Line Under Tabs */
+#bb_line {
+	width: 100%;
+	border-top: 1px solid @bb_border_color;
+}
+
+/* Display Module */
+#bb_wrapper {
+	margin: 6px;
+}
+
+#bb_content {
+	margin: 4px 0;
 }
 
 #bb_admin_content {
-    border-top: 1px solid @bb_border_color;
-    border-left: 1px solid @bb_border_color;
+	border-left: 1px solid @bb_border_color;
+	border-top: 1px solid @bb_border_color;
+	margin-top: 4px;
+	padding: 4px;
+	float: left;
 }
 
-#bb_header div.line {
-    border-color: @bb_border_color;
+/* Admin Menu */
+#bb_admin_menu {
+	padding: 4px 4px 4px 0;
+	float: left;
 }
 
-#bb_header div.under {
-    border-top-color: @bb_border_color;
+#bb_admin_menu li button {
+	display: block;
+	border-radius: 0px;
+	-moz-border-radius: 0px;
+	border: 1px solid @bb_border_color;
+	background-color: #F2EAFF;
+	width: 150px;
+	margin-bottom: -1px;
 }
 
-#bb_header button {
-    color: @bb_tab_text_color;
-    background: @bb_tab_background_color;
-    border-color: @bb_border_color;
+#bb_admin_menu li button.chosen {
+	background-color: @bb_background_color;
 }
 
-#bb_header button:hover{
-    background: @bb_tab_hover_color;
+/* Processing Image */
+#bb_processor {
+	display: block;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	z-index: 1000;
 }
 
-#bb_header button.chosen {
-    background: @bb_tab_chosen_color;
+#bb_processor img {
+	margin: 200px auto;
 }
 
-/* END CONTROLLER AREA */
+/* Responsive Styles for Pads */
+@media screen and (max-width : 768px) {
+	body {
+		margin: 0 2px;
+	}
+	#bb_wrapper {
+		margin: 6px 0;
+	}
+	#bb_admin_content {
+		margin: 6px 0;
+	}
+	#bb_menu {
+		display: block;
+		border-top: 1px;
+		border-right: 1px;
+		border-left: 0;
+		border-bottom: 0;
+		border-color: @bb_border_color;
+		border-style: solid;
+		background: #F2EAFF;
+	}
+	#bb_menu li {
+		margin-top: -1px;
+	}
+	#bb_menu li:first-child {
+		margin-left: 0;
+	}
+	#bb_menu li button {
+		width: 175px;
+		border-top-left-radius: 0px;
+		border-top-right-radius: 0px;
+	}
+	#bb_menu li button.chosen {
+		background-color: @bb_background_color;
+		border-bottom: 1px solid @bb_border_color;
+	}
+	#bb_admin_menu {
+		margin: 0;
+		display: block;
+	}
+	#bb_admin_menu li {
+		float: left;
+		margin-right: -1px;
+	}
+}
 
+/* Responsive Styles for Phones */
+@media screen and (max-width : 480px) {
+	body {
+		margin: 0 2px;
+	}
 
+	/* Mobile Button and Header */
+	#bb_mobile_header {
+		display: block;
+		padding: 8px;
+		background-color: @bb_mobile_header_color;
+		overflow: hidden;
+	}
 
+	/* Text Logo */
+	#bb_mobile_logo {
+		line-height: 24px;
+		color: white;
+		font-size: large;
+		font-weight: bold;
+		float: left;
+	}
 
+	/* Mobile Menu Button */
+	#bb_mobile_button {
+		float: right;
+	}
 
+	/* Pointer on Hover */
+	#bb_mobile_button:hover {
+		cursor: pointer;
+	}
 
+	/* Mobile Menu */
+	#bb_menu {
+		display: none;
+		border: 0;
+	}
+	#bb_menu li {
+		margin-bottom: -1px;
+	}
+	#bb_menu li:first-child {
+		margin-left: 0;
+	}
+	#bb_menu li button {
+		min-width: 140px;
+		text-align: center;
+		padding: 3px;
+	}
+
+	/*Make Menu Full Width*/
+	#bb_menu li, #bb_menu li button {
+		width: 100%;
+	}
+}
