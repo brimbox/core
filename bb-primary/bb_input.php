@@ -72,7 +72,7 @@ $main->echo_common_vars(); // common to standard interface
 $main->hook("bb_input_top_level_records");
 
 /* need arr_columns for test */
-$row_type = $main->init($arr_state['row_join'], 0);
+$row_join = $main->init($arr_state['row_join'], 0);
 $arr_columns = $main->columns($con, $arr_state['row_join']);
 
 // render form
