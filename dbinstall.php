@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU GPL v3 along with this program.
  * If not, see http://www.gnu.org/licenses/
- */
+*/
 /*
  * Database Change Log
  * 2012.1.3 header added
@@ -44,7 +44,7 @@
  * 1.27 added docs table and renamed functions to start with bb
  * 1.28 text fields instead of varchar
  * 2.0 module_slug and module_url added
- */
+*/
 
 /*
  * Backup Change Log
@@ -52,7 +52,7 @@
  * 2014.1.3 Database column userrole changed to userroles and from smallint to array of smallint
  * 2014.1.4 Convesion to JSON data structure, modules_table and users_table changed
  * 2014.1.5 added username to log and users tables and text field to users table
- */
+*/
 ?>
 <html>
 <head>
@@ -63,7 +63,7 @@ This may or may not work in IE -->
 </head>
 <?php
 // defined here for include
-define ( 'BASE_CHECK', true );
+define('BASE_CHECK', true);
 // need connection string variables
 include ("bb-config/bb_config.php");
 
@@ -75,52 +75,53 @@ $passwd = "password";
 // SHA256 standard for the program
 // use a 36 char text salt instead of a binary one
 // simple but effective salt generator
-$salt = md5 ( microtime () );
+$salt = md5(microtime());
 // reduce to 16 and append
-$hash = hash ( 'sha512', $passwd . $salt );
+$hash = hash('sha512', $passwd . $salt);
 
 $con_string = "host=" . DB_HOST . "  dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
-$con = pg_connect ( $con_string );
+$con = pg_connect($con_string);
 
-if (! $con) {
-	die ( "Cannot connect to database: " . pg_last_error () );
+if (!$con) {
+    die("Cannot connect to database: " . pg_last_error());
 }
 
-echo "PHP Version: " . phpversion () . "<br>";
-$arr_postgres = pg_version ();
-echo "Postgres Version: " . $arr_postgres ['client'] . "<br>";
+echo "PHP Version: " . phpversion() . "<br>";
+$arr_postgres = pg_version();
+echo "Postgres Version: " . $arr_postgres['client'] . "<br>";
 
 $query = "SELECT encoding FROM pg_database WHERE datname = '" . DB_NAME . "' AND encoding = 6";
-$result = pg_query ( $con, $query );
+$result = pg_query($con, $query);
 
 // possibly a permission error
 if ($result) {
-	$num_rows = pg_num_rows ( $result );
-	if ($num_rows == 0) {
-		echo "Warning: Database not encoded to UTF-8.<br>";
-	} else {
-		echo "Database encoding is UTF-8.<br>";
-	}
+    $num_rows = pg_num_rows($result);
+    if ($num_rows == 0) {
+        echo "Warning: Database not encoded to UTF-8.<br>";
+    }
+    else {
+        echo "Database encoding is UTF-8.<br>";
+    }
 }
 
 /* INSTALL plpgsql */
 // Generally you want to issue this command logged in as the db owner
 $query = "SELECT 1 FROM pg_language WHERE lanname='plpgsql';";
-$result = pg_query ( $con, $query );
-$num_rows = pg_num_rows ( $result );
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
 if ($num_rows == 0) {
-	$query = "CREATE LANGUAGE plpgsql;";
-	@$result = pg_query ( $con, $query );
-	if (! pg_result_error ( $result )) {
-		die ( "<br>Error: Cannot proceed with installation. Please issue command \"CREATE LANGUAGE plpgsql;\" as the database owner." );
-	}
+    $query = "CREATE LANGUAGE plpgsql;";
+    @$result = pg_query($con, $query);
+    if (!pg_result_error($result)) {
+        die("<br>Error: Cannot proceed with installation. Please issue command \"CREATE LANGUAGE plpgsql;\" as the database owner.");
+    }
 }
 
 /* GRANT PRIVILEGES TO OWNER */
 // This is generally used in cPanel installs so you don't run the db off your cPanel password
 if (DB_OWNER != "") {
-	$query = "GRANT " . DB_USER . " TO " . DB_OWNER . ";";
-	pg_query ( $con, $query );
+    $query = "GRANT " . DB_USER . " TO " . DB_OWNER . ";";
+    pg_query($con, $query);
 }
 
 /* INSTALL FUNCTIONS */
@@ -142,7 +143,7 @@ $body
   LANGUAGE plpgsql VOLATILE
   COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_list(bit, integer)
@@ -155,7 +156,7 @@ $body
   LANGUAGE plpgsql VOLATILE
   COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_list_set(bit, integer)
@@ -173,7 +174,7 @@ $body
   LANGUAGE plpgsql VOLATILE
   COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_is_integer(txt_input text)
@@ -192,7 +193,7 @@ $body
 LANGUAGE plpgsql VOLATILE
 COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_is_number(txt_input text)
@@ -211,7 +212,7 @@ $body
 LANGUAGE plpgsql VOLATILE
 COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_is_date(txt_input text)
@@ -230,7 +231,7 @@ $body
 LANGUAGE plpgsql VOLATILE
 COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_change_date()
@@ -245,7 +246,7 @@ $body
   LANGUAGE plpgsql VOLATILE
   COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_create_date()
@@ -261,7 +262,7 @@ $body
   LANGUAGE plpgsql VOLATILE
   COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_modify_date()
@@ -276,7 +277,7 @@ $body
   LANGUAGE plpgsql VOLATILE
   COST 100;
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE function bb_key(text)
@@ -285,7 +286,7 @@ $body
 SELECT substr($1, 2, strpos($1,':') - 2)::bigint WHERE $1 ~ E'^[A-Z]\\\\d+:.*';
 $body
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = <<<EOT
 CREATE OR REPLACE function bb_value(text)
@@ -294,17 +295,17 @@ $body
 SELECT substr($1, strpos($1,':') + 1, length($1))::text WHERE $1 ~ E'^[A-Z]\\\\d+:.*';
 $body
 EOT;
-pg_query ( $con, $query );
+pg_query($con, $query);
 
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'data_table'";
-$result = pg_query ( $con, $query );
-$num_rows = pg_num_rows ( $result );
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
 $do_data_table = false;
 if ($num_rows == 0) {
-	$do_data_table = true;
+    $do_data_table = true;
 }
 
-$list_zeros = str_repeat ( "0", 2000 );
+$list_zeros = str_repeat("0", 2000);
 
 $query = <<<EOT
 CREATE TABLE data_table
@@ -412,8 +413,8 @@ CREATE TRIGGER ts2_create_date
   EXECUTE PROCEDURE bb_create_date();
 EOT;
 if ($do_data_table) {
-	$result = pg_query ( $con, $query );
-	echo "Data Table Created<br>";
+    $result = pg_query($con, $query);
+    echo "Data Table Created<br>";
 }
 
 $query = <<<EOT
@@ -471,16 +472,16 @@ UPDATE data_table SET fts = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W
 UPDATE data_table SET fts = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c02 || ' ' || regexp_replace(c02, E'(\\W)+', ' ', 'g') || ' ' || c03 || regexp_replace(c03, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c05 || regexp_replace(c05, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c06 || regexp_replace(c06, E'(\\W)+', ' ', 'g')), ftg = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c02 || ' ' || regexp_replace(c02, E'(\\W)+', ' ', 'g') || ' ' || c03 || regexp_replace(c03, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c05 || regexp_replace(c05, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c06 || regexp_replace(c06, E'(\\W)+', ' ', 'g')) WHERE row_type = 1;
 EOT;
 if ($do_data_table) {
-	$result = pg_query ( $con, $query );
-	echo "Data Table Populated<br>";
+    $result = pg_query($con, $query);
+    echo "Data Table Populated<br>";
 }
 
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'log_table'";
-$result = pg_query ( $con, $query );
-$num_rows = pg_num_rows ( $result );
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
 $do_log_table = false;
 if ($num_rows == 0) {
-	$do_log_table = true;
+    $do_log_table = true;
 }
 
 $query = <<<EOT
@@ -506,16 +507,16 @@ CREATE TRIGGER ts1_update_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_log_table) {
-	$result = pg_query ( $con, $query );
-	echo "Log Table Created (No Population)<br>";
+    $result = pg_query($con, $query);
+    echo "Log Table Created (No Population)<br>";
 }
 
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'modules_table'";
-$result = pg_query ( $con, $query );
-$num_rows = pg_num_rows ( $result );
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
 $do_modules_table = false;
 if ($num_rows == 0) {
-	$do_modules_table = true;
+    $do_modules_table = true;
 }
 
 $query = <<<EOT
@@ -547,8 +548,8 @@ CREATE TRIGGER ts1_update_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_modules_table) {
-	$result = pg_query ( $con, $query );
-	echo "Module Table Created<br>";
+    $result = pg_query($con, $query);
+    echo "Module Table Created<br>";
 }
 
 $query = <<<EOT
@@ -610,16 +611,16 @@ INSERT INTO modules_table(module_order, module_path, module_name, friendly_name,
 VALUES (7, 'bb-admin/bb_backup_restore.php', 'bb_backup_restore', 'Backup and Restore', 'bb_brimbox', 5, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the module for backing up, cleansing, and restoring an encrypted brimbox database."}');
 EOT;
 if ($do_modules_table) {
-	$result = pg_query ( $con, $query );
-	echo "Module Table Populated<br>";
+    $result = pg_query($con, $query);
+    echo "Module Table Populated<br>";
 }
 
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'users_table'";
-$result = pg_query ( $con, $query );
-$num_rows = pg_num_rows ( $result );
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
 $do_users_table = false;
 if ($num_rows == 0) {
-	$do_users_table = true;
+    $do_users_table = true;
 }
 
 $query = <<<EOT
@@ -654,8 +655,8 @@ CREATE TRIGGER ts1_update_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_users_table) {
-	$result = pg_query ( $con, $query );
-	echo "Users Table Created<br>";
+    $result = pg_query($con, $query);
+    echo "Users Table Created<br>";
 }
 
 $query = <<<EOT
@@ -663,16 +664,16 @@ INSERT INTO users_table(username, email, hash, salt, userroles)
 VALUES ('$username', '$email', '$hash', '$salt', '{"5_bb_brimbox"}');
 EOT;
 if ($do_users_table) {
-	$result = pg_query ( $con, $query );
-	echo "Users Table Populated<br>";
+    $result = pg_query($con, $query);
+    echo "Users Table Populated<br>";
 }
 
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'json_table'";
-$result = pg_query ( $con, $query );
-$num_rows = pg_num_rows ( $result );
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
 $do_json_table = false;
 if ($num_rows == 0) {
-	$do_json_table = true;
+    $do_json_table = true;
 }
 
 $query = <<<EOT
@@ -697,8 +698,8 @@ CREATE TRIGGER ts1_update_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_json_table) {
-	$result = pg_query ( $con, $query );
-	echo "JSON Table Created<br>";
+    $result = pg_query($con, $query);
+    echo "JSON Table Created<br>";
 }
 
 $query = <<<EOT
@@ -712,16 +713,16 @@ INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_create_lists','{"1":{"2":{"name":"Cat","archive":0,"description":"This is the cat list."},"1":{"name":"Dog","archive":0,"description":"This is the dog list."}},"2":{"1":{"name":"Vet","description":"This is the vet list.","archive":0}}}');
 EOT;
 if ($do_json_table) {
-	$result = pg_query ( $con, $query );
-	echo "JSON Table Populated<br>";
+    $result = pg_query($con, $query);
+    echo "JSON Table Populated<br>";
 }
 
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'docs_table'";
-$result = pg_query ( $con, $query );
-$num_rows = pg_num_rows ( $result );
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
 $do_docs_table = false;
 if ($num_rows == 0) {
-	$do_docs_table = true;
+    $do_docs_table = true;
 }
 
 $query = <<<EOT
@@ -748,16 +749,16 @@ CREATE TRIGGER ts1_update_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_docs_table) {
-	$result = pg_query ( $con, $query );
-	echo "Docs Table Created (No Population)<br>";
+    $result = pg_query($con, $query);
+    echo "Docs Table Created (No Population)<br>";
 }
 
 $query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'state_table'";
-$result = pg_query ( $con, $query );
-$num_rows = pg_num_rows ( $result );
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
 $do_state_table = false;
 if ($num_rows == 0) {
-	$do_state_table = true;
+    $do_state_table = true;
 }
 
 $query = <<<EOT
@@ -781,8 +782,8 @@ CREATE TRIGGER ts1_update_change_date
   EXECUTE PROCEDURE bb_change_date();
 EOT;
 if ($do_state_table) {
-	$result = pg_query ( $con, $query );
-	echo "State Table Created (No Population)<br>";
+    $result = pg_query($con, $query);
+    echo "State Table Created (No Population)<br>";
 }
 
-echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";
+echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";

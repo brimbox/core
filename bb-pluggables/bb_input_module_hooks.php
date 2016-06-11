@@ -48,7 +48,7 @@ if (!class_exists('bb_input_module_hooks')):
             // buttons an record selector
             $arr_layouts = $main->layouts($con);
             $default_row_type = $main->get_default_layout($arr_layouts);
-            $row_type = $main->state("row_type", $arr_state); // should never be < 1
+            $row_type = $main->state("row_type", $arr_state, 0);
             // working with $row_join on input
             $row_join = $main->state("row_join", $arr_state, $default_row_type); // could be 0
             $parent_row_type = $main->init($arr_layouts[$row_join]['parent'], 0);

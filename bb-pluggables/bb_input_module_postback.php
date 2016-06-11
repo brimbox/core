@@ -203,9 +203,6 @@ if (!function_exists('bb_input_module_postback')):
             $row_type = $main->set("row_type", $arr_state, 0);
             $row_join = $main->set("row_join", $arr_state, $default_row_type);
             $post_key = $main->set("post_key", $arr_state, 0);
-
-            $arr_columns = $main->columns($con, $row_join);
-            $arr_dropdowns = $main->dropdowns($con, $row_join);
             /* END CLEAR FORM BUTTON */
         }
 
@@ -217,9 +214,6 @@ if (!function_exists('bb_input_module_postback')):
             $row_type = $main->set('row_type', $arr_state, 0);
             $row_join = $main->process('row_join', $module, $arr_state, $default_row_type);
             $post_key = $main->set('post_key', $arr_state, 0);
-
-            $arr_columns = $main->columns($con, $row_join);
-            $arr_dropdowns = $main->dropdowns($con, $row_join);
         } /* END SELECT COMBO CHANGE CLEAR */
 
         // $main->button(4) reserved for autoload
@@ -277,10 +271,6 @@ if (!function_exists('bb_input_module_postback')):
             $row_type = $main->process('row_type', $module, $arr_state, 0);
             $row_join = $main->process('row_join', $module, $arr_state, $default_row_type);
             $post_key = $main->process('post_key', $module, $arr_state, 0);
-
-            // get the columns and dropdowns for given row_type
-            $arr_columns = $main->columns($con, $row_join);
-            $arr_dropdowns = $main->dropdowns($con, $row_join);
         }
     }
 

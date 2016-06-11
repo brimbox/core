@@ -309,10 +309,9 @@ if (!function_exists('bb_data_table_render_form')):
         echo "<div class=\"clear\"></div>";
         /* END POPULATE INPUT FIELDS */
 
-        // hidden vars, $row_type is contained in the layout dropdown
+        // hidden vars, $row_join is contained in the layout dropdown
         echo "<input type=\"hidden\"  name=\"post_key\" value = \"" . $post_key . "\">";
         echo "<input type=\"hidden\"  name=\"row_type\" value = \"" . $row_type . "\">";
-        echo "<input type=\"hidden\"  name=\"row_join\" value = \"" . $row_join . "\">";
         /* END FORM */
     }
 

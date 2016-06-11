@@ -30,8 +30,6 @@ function bb_reload()
 <?php
 /* DEFINITIONS */
 
-$arr_test = [2, 3, 4];
-
 $arr_fields = array(
     'row' => array(
         'name' => 'Row',
