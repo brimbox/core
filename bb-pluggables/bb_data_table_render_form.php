@@ -25,11 +25,11 @@ if (!function_exists('bb_data_table_render_form')):
 
         /*
          * IF $row_type = $row_join THEN
-         * Use $row_join -- on Edit
+         * Use $row_work = $row_join on Edit
         */
         /*
          * ELSE $row_join is the child
-         * So again use $row_join -- on Insert
+         * So again use $row_work = $row_join -- on Insert
         */
 
         // standard values
@@ -42,17 +42,20 @@ if (!function_exists('bb_data_table_render_form')):
         $maxinput = $main->get_constant('BB_STANDARD_LENGTH', 255);
         $maxnote = $main->get_constant('BB_NOTE_LENGTH', 65536);
 
-        // $ayouts must have one layout set
+        // layouts must have one layout set
         $arr_layouts = $main->layouts($con);
         $default_row_type = $main->get_default_layout($arr_layouts);
 
         // bring in everything from state
-        $row_type = $main->state('row_type', $arr_state, $default_row_type);
+        $row_type = $main->state('row_type', $arr_state, 0);
         $row_join = $main->state('row_join', $arr_state, 0);
         $post_key = $main->state('post_key', $arr_state, 0);
 
-        $arr_columns = $main->columns($con, $row_join);
-        $arr_dropdowns = $main->dropdowns($con, $row_join);
+        //row_join could be zero
+        $row_work = $row_join ? $row_join : $default_row_type;
+
+        $arr_columns = $main->columns($con, $row_work);
+        $arr_dropdowns = $main->dropdowns($con, $row_work);
 
         // get the error and regular messages, populated form redirect
         $arr_messages = $main->state('arr_messages', $arr_state, array());
@@ -77,8 +80,8 @@ if (!function_exists('bb_data_table_render_form')):
             $display = isset($arr_columns[$key]['display']) ? $arr_columns[$key]['display'] : 0;
 
             // filters
-            $filtername = "bb_input_" . $main->make_html_id($row_join, $key);
-            $field_id = "bb_input_" . $main->make_html_id($row_join, $key);
+            $filtername = "bb_input_" . $main->make_html_id($row_work, $key);
+            $field_id = "bb_input_" . $main->make_html_id($row_work, $key);
 
             switch ($display) {
 
@@ -141,7 +144,6 @@ if (!function_exists('bb_data_table_render_form')):
                         $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                         $field_output.= "<div class=\"clear\"></div>";
                         $field_output.= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea pad_notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea>";
-                        $field_output.= "<label class=\"error spaced\">" . $error . "</label>";
                         $field_output.= "</div>";
                     }
                     else {
@@ -214,7 +216,6 @@ if (!function_exists('bb_data_table_render_form')):
                         $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                         $field_output.= "<div class=\"clear\"></div>";
                         $field_output.= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea pad_notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" onFocus=\"bb_remove_message(); return false;\" readonly>" . $input . "</textarea>";
-                        $field_output.= "<label class=\"error spaced\">" . $error . "</label>";
                         $field_output.= "</div>";
                     }
                     else {
@@ -287,7 +288,6 @@ if (!function_exists('bb_data_table_render_form')):
                         $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                         $field_output.= "<div class=\"clear\"></div>";
                         $field_output.= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea pad_notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" onFocus=\"bb_remove_message(); return false;\" readonly>" . $input . "</textarea>";
-                        $field_output.= "<label class=\"error spaced\">" . $error . "</label>";
                         $field_output.= "</div>";
                     }
                     else {

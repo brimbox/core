@@ -50,18 +50,22 @@ if (!class_exists('bb_input_module_hooks')):
             $default_row_type = $main->get_default_layout($arr_layouts);
             $row_type = $main->state("row_type", $arr_state, 0);
             // working with $row_join on input
-            $row_join = $main->state("row_join", $arr_state, $default_row_type); // could be 0
-            $parent_row_type = $main->init($arr_layouts[$row_join]['parent'], 0);
+            $row_join = $main->state("row_join", $arr_state, 0); // could be 0
+            //row_join could be zero
+            $row_work = $row_join ? $row_join : $default_row_type;
+            //
+            $edit_or_insert_text = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
 
-            $insert_or_edit = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
-            $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => $insert_or_edit);
+            $parent_row_type = $main->init($arr_layouts[$row_work]['parent'], 0);
+
+            $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => $edit_or_insert_text);
             $main->echo_button("top_submit", $params);
             $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Reset Form");
             $main->echo_button("top_reset", $params);
             // checked twice by default
             if (!empty($parent_row_type)) {
                 echo "<select name = \"row_join\" class = \"spaced\" onchange=\"bb_reload_on_layout()\">";
-                echo "<option value=\"" . $row_join . "\" selected>" . $arr_layouts[$row_join]['plural'] . "&nbsp;</option>";
+                echo "<option value=\"" . $row_work . "\" selected>" . $arr_layouts[$row_work]['plural'] . "&nbsp;</option>";
                 echo "</select>";
             }
             else {
@@ -77,7 +81,7 @@ if (!class_exists('bb_input_module_hooks')):
                     // on reset, $arr_column already set if changing top level from select
                     echo "<select name = \"row_join\" class = \"spaced\" onchange=\"bb_reload()\">";
                     foreach ($arr_select as $key => $value) {
-                        echo "<option value=\"" . $key . "\" " . ($key == $row_join ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";
+                        echo "<option value=\"" . $key . "\" " . ($key == $row_work ? "selected" : "") . ">" . $value['plural'] . "&nbsp;</option>";
                     }
                     echo "</select>";
                 }
@@ -85,7 +89,7 @@ if (!class_exists('bb_input_module_hooks')):
                 
             }
             // autoload button, not implemented
-            $autoload = $main->init($arr_layouts[$row_join]['autoload'], 0);
+            $autoload = $main->init($arr_layouts[$row_work]['autoload'], 0);
             if ($autoload) {
                 $params = array("class" => "spaced", "number" => 4, "target" => $module, "passthis" => true, "label" => "Autoload");
                 $main->echo_button("top_reset", $params);
@@ -100,17 +104,20 @@ if (!class_exists('bb_input_module_hooks')):
 
             $row_type = $main->state('row_type', $arr_state, 0);
             $row_join = $main->state('row_join', $arr_state, 0);
+
+            //use $row_work
+            $row_work = $row_join;
+            $edit_or_insert_text = ($row_type == $row_join) ? "Edit Mode" : "Insert Mode";
+
             $parent_id = $main->state('parent_id', $arr_state, 0);
             $parent_row_type = $main->state('parent_row_type', $arr_state, 0);
             $parent_primary = $main->state('parent_primary', $arr_state, "");
 
-            $arr_columns = $main->columns($con, $row_join);
-
-            $edit_or_insert = ($row_type == $row_join) ? "Edit Mode" : "Insert Mode";
+            $arr_columns = $main->columns($con, $row_work);
 
             // edit or Insert Record and primary parent column
             $parent_string = $main->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $parent_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
-            echo "<p class=\"spaced\"><span class=\"bold\">" . $edit_or_insert . "</span>" . $parent_string . "</p>";
+            echo "<p class=\"spaced\"><span class=\"bold\">" . $edit_or_insert_text . "</span>" . $parent_string . "</p>";
         }
 
         // quick child and sibling links
@@ -153,8 +160,9 @@ if (!class_exists('bb_input_module_hooks')):
             $row_type = $main->state('row_type', $arr_state, 0);
             $row_join = $main->state('row_join', $arr_state, 0);
 
-            $insert_or_edit = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
-            $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => $insert_or_edit);
+            $edit_or_insert_text = ($row_type == $row_join) ? "Edit Record" : "Insert Record";
+
+            $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => $edit_or_insert_text);
             $main->echo_button("bottom_submit", $params);
             $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Reset Form");
             $main->echo_button("bottom_reset", $params);
@@ -165,7 +173,9 @@ if (!class_exists('bb_input_module_hooks')):
             global $module, $main, $con;
             // reduce columns
             $row_join = $main->state('row_type', $arr_state, 0);
-            $arr_columns = $main->columns($con, $row_join);
+
+            $row_work = $row_join;
+            $arr_columns = $main->columns($con, $row_work);
 
             $textarea_rows = count($arr_columns) > 3 ? count($arr_columns) : 3;
             echo "<div class=\"clear\"></div>";

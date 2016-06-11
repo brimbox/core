@@ -86,7 +86,8 @@ if (!empty($POST['bb_row_type'])) {
     $post_key = $main->set('post_key', $arr_state, $POST['bb_post_key']);
     $link_values = $main->set('link_values', $arr_state, "");
 }
-else // default = nothing, or populate with input_state if coming from other page
+else
+// default = nothing, or populate with input_state if coming from other page
 {
     // local post variables
     $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
@@ -152,10 +153,11 @@ if ($post_key > 0) // a detail of a record
                 $relate['id'] = $relate_post_key;
                 $relate['row_type'] = $relate_row_type;
                 echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities($value['name']) . ":</label>";
-                $main->standard($relate, $arr_layouts, "bb_cascade", "cascade", $row[$col2], array('id' => $field_id, 'class' => "link spaced left floatleft"));
+                $main->standard($relate, $arr_layouts, "bb_cascade", $row[$col2], array('id' => $field_id, 'class' => "link spaced left floatleft"));
                 $main->echo_clear();
             }
-            else // regular
+            else
+            // regular
             {
                 echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities($value['name']) . ":</label>";
                 echo "<div id=\"" . $field_id . "\" class=\"spaced left floatleft\">" . htmlentities($row[$col2]) . "</div>";
@@ -185,7 +187,8 @@ if ($post_key > 0) // a detail of a record
         {
             array_push($arr_messages, "Error: No values supplied.");
         }
-        else // check to see if record is linkable
+        else
+        // check to see if record is linkable
         {
             foreach ($arr_layouts as $key => $value) {
                 if ($row_type == $value['parent']) {

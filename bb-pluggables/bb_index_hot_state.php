@@ -37,10 +37,10 @@ if (!function_exists('bb_index_hot_state')):
         if ($main->hot("bb_input")) {
             $arr = array(); // work array
             $POST = $main->retrieve($con);
-            $row_type = $main->post('row_type', 'bb_input', 0);
+            $row_join = $main->post('row_join', 'bb_input', 0);
             if ($main->check("security", "bb_input")) array_push($arr, "security");
             if ($main->check("archive", "bb_input")) array_push($arr, "archive");
-            $arr_columns = $main->columns($con, $row_type);
+            $arr_columns = $main->columns($con, $row_join);
             // removes a warning we there are no columns in a layout
             if (isset($arr_columns)) {
                 foreach ($arr_columns as $key => $value) {

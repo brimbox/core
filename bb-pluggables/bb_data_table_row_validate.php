@@ -25,11 +25,11 @@ if (!function_exists('bb_data_table_row_validate')):
 
         /*
          * IF $row_type = $row_join THEN
-         * Use $row_join -- on Edit
+         * Use $row_work = $row_join on Edit
         */
         /*
          * ELSE $row_join is the child
-         * So again use $row_join -- on Insert
+         * So again use $row_work = $row_join -- on Insert
         */
 
         // return error message
@@ -39,11 +39,14 @@ if (!function_exists('bb_data_table_row_validate')):
         $default_row_type = $main->get_default_layout($arr_layouts);
 
         $row_type = $main->state('row_type', $arr_state, 0);
-        $row_join = $main->state('row_join', $arr_state, $default_row_type);
+        $row_join = $main->state('row_join', $arr_state, 0);
         $post_key = $main->state('post_key', $arr_state, 0);
 
-        $arr_columns = $main->columns($con, $row_join);
-        $arr_dropdowns = $main->dropdowns($con, $row_join);
+        //row_join could be zero
+        $row_work = $row_join ? $row_join : $default_row_type;
+
+        $arr_columns = $main->columns($con, $row_work);
+        $arr_dropdowns = $main->dropdowns($con, $row_work);
 
         // count of arr_errors will indicate validation
         $arr_errors = array(); // empty array

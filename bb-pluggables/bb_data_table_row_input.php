@@ -23,11 +23,11 @@ if (!function_exists('bb_data_table_row_input')):
 
         /*
          * IF $row_type = $row_join THEN
-         * Use $row_join -- on Edit
+         * Use $row_work = $row_join on Edit
         */
         /*
          * ELSE $row_join is the child
-         * So again use $row_join -- on Insert
+         * So again use $row_work = $row_join -- on Insert
         */
 
         /* DEAL WITH CONSTANTS */
@@ -51,17 +51,21 @@ if (!function_exists('bb_data_table_row_input')):
         $errors = count($arr_errors);
 
         $row_type = $main->state('row_type', $arr_state, 0);
-        // working with row_join on input
-        $row_join = $main->state('row_join', $arr_state, $default_row_type);
+        $row_join = $main->state('row_join', $arr_state, 0);
         $post_key = $main->state('post_key', $arr_state, 0);
 
-        $arr_columns = $main->columns($con, $row_join);
-        $arr_dropdowns = $main->dropdowns($con, $row_join);
+        //row_join could be zero
+        $row_work = $row_join ? $row_join : $default_row_type;
+        //edit = true, insert = false
+        $edit_or_insert = ($row_type == $row_join) ? 1 : 0;
+
+        $arr_columns = $main->columns($con, $row_work);
+        $arr_dropdowns = $main->dropdowns($con, $row_work);
 
         if (!$errors) {
             // no errors
             // produce empty form since we are going to load the data
-            $arr_columns_props = $main->column_properties($con, $row_join);
+            $arr_columns_props = $main->column_properties($con, $row_work);
 
             $unique_key = isset($arr_columns_props['unique']) ? $arr_columns_props['unique'] : 0;
             $arr_ts_vector_fts = array();
@@ -72,7 +76,7 @@ if (!function_exists('bb_data_table_row_input')):
             $arr_state = $main->filter("bb_row_input_character_policy", $arr_state);
 
             // edit preexisting row
-            if ($row_type == $row_join) {
+            if ($edit_or_insert) {
                 $update_clause = "updater_name = '" . pg_escape_string($username) . "'";
                 foreach ($arr_columns as $key => $value) {
                     $col = $main->pad("c", $key);
@@ -122,7 +126,7 @@ if (!function_exists('bb_data_table_row_input')):
                 $unique_key = 0;
 
                 $unique_value = isset($arr_state[$col_unique_key]) ? $arr_state[$col_unique_key] : "";
-                $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_join, $post_key);
+                $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_work, $post_key);
 
                 $return_primary = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
                 $query = "UPDATE data_table SET " . $update_clause . ", fts = to_tsvector(" . $str_ts_vector_fts . "), ftg = to_tsvector(" . $str_ts_vector_ftg . ") " . $secure_clause . " " . $archive_clause . " WHERE id IN (" . $post_key . ") AND NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as primary;";
@@ -165,7 +169,7 @@ if (!function_exists('bb_data_table_row_input')):
                     // Return message and log, recordkeeping
                     array_push($arr_messages, "Record Succesfully Edited.");
                     if ($input_update_log) {
-                        $message = "Record " . chr($row_join + 64) . $post_key . " updated.";
+                        $message = "Record " . chr($row_work + 64) . $post_key . " updated.";
                         $main->log($con, $message);
                     }
                     // put fundemental variables into state
@@ -201,20 +205,36 @@ if (!function_exists('bb_data_table_row_input')):
                 }
                 else {
                     // bad edit
+                    // deal with lo
+                    if (isset($arr_columns[47])) {
+                        //use row_type index
+                        $query_lo = "SELECT c47 FROM data_table WHERE row_type = " . (int)$row_work . " AND id = " . (int)$post_key . ";";
+                        $result_lo = $main->query($con, $query_lo);
+                        if (pg_affected_rows($result_lo) == 1) {
+                            //revert back to orginal lo
+                            $row = pg_fetch_array($result_lo);
+                            $arr_state['lo'] = $row['c47'];
+                        }
+                        else {
+                            //underlying data change, row is gone
+                            unset($arr_state['lo']);
+                        }
+                    }
+                    //look for error type if not validatation
                     $result_where_not = $main->query($con, $select_where_not);
                     $result_where = $main->query($con, $select_where);
                     if (pg_num_rows($result_where_not) == 1) {
                         // retain state values, usually a key error
                         array_push($arr_messages, "Error: Record not updated. Duplicate value in input form on column \"" . $arr_columns[$unique_key]['name'] . "\".");
                         if ($input_update_log) {
-                            $message = "WHERE NOT EXISTS error updating record " . chr($row_join + 64) . $post_key . ".";
+                            $message = "WHERE NOT EXISTS error updating record " . chr($row_work + 64) . $post_key . ".";
                             $main->log($con, $message);
                         }
                     }
                     elseif (pg_num_rows($result_where) == 0) {
                         array_push($arr_messages, "Error: Record not updated. Missing or malformed related record or records.");
                         if ($input_update_log) {
-                            $message = "WHERE EXISTS error updating record " . chr($row_join + 64) . $post_key . ".";
+                            $message = "WHERE EXISTS error updating record " . chr($row_work + 64) . $post_key . ".";
                             $main->log($con, $message);
                         }
                     }
@@ -224,7 +244,7 @@ if (!function_exists('bb_data_table_row_input')):
                         // wierd error
                         array_push($arr_messages, "Error: Record not updated. Record archived or underlying data change possible.");
                         if ($input_update_log) {
-                            $message = "Error updating record " . chr($row_join + 64) . $post_key . ".";
+                            $message = "Error updating record " . chr($row_work + 64) . $post_key . ".";
                             $main->log($con, $message);
                         }
                     }
@@ -236,7 +256,7 @@ if (!function_exists('bb_data_table_row_input')):
                 // insert new row
                 // $row_type <> $row_join
                 $insert_clause = "row_type, key1, owner_name, updater_name";
-                $select_clause = $row_join . " as row_type, " . $post_key . " as key1, '" . $username . "' as owner_name, '" . $username . "' as updater_name";
+                $select_clause = $row_work . " as row_type, " . $post_key . " as key1, '" . $username . "' as owner_name, '" . $username . "' as updater_name";
                 foreach ($arr_columns as $key => $value) {
                     $col = $main->pad("c", $key);
                     $str = $arr_state[$col];
@@ -291,7 +311,7 @@ if (!function_exists('bb_data_table_row_input')):
                 $unique_key = 0;
 
                 $unique_value = isset($arr_state[$col_unique_key]) ? $arr_state[$col_unique_key] : "";
-                $main->unique_key(true, $select_where_not, $unique_key, $unique_value, $row_join, $post_key);
+                $main->unique_key(false, $select_where_not, $unique_key, $unique_value, $row_work, $post_key);
 
                 // if parent row has been deleted, multiuser situation, check on insert
                 $select_where_exists = "SELECT 1";
@@ -300,7 +320,7 @@ if (!function_exists('bb_data_table_row_input')):
                 }
 
                 /* EXECUTE QUERY */
-                $return_primary = isset($arr_columns[$row_join]['primary']) ? $main->pad("c", $arr_columns[$row_join]['primary']) : "c01";
+                $return_primary = isset($arr_columns[$row_work]['primary']) ? $main->pad("c", $arr_columns[$row_work]['primary']) : "c01";
                 $query = "INSERT INTO data_table (" . $insert_clause . ") SELECT " . $select_clause . $secure_clause . $archive_clause . " WHERE NOT EXISTS (" . $select_where_not . ") AND EXISTS (" . $select_where_exists . ") AND EXISTS (" . $select_where . ") RETURNING id, " . $return_primary . " as inserted_primary;";
                 /* STEP 1 */
                 // die($query);
@@ -322,7 +342,7 @@ if (!function_exists('bb_data_table_row_input')):
                     // Return message and log, recordkeeping
                     array_push($arr_messages, "Record Succesfully Inserted.");
                     if ($input_insert_log) {
-                        $message = "New " . chr($row_join + 64) . $row['id'] . " record entered.";
+                        $message = "New " . chr($row_work + 64) . $row['id'] . " record entered.";
                         $main->log($con, $message);
                     }
 
@@ -356,6 +376,8 @@ if (!function_exists('bb_data_table_row_input')):
                 }
                 else {
                     // bad insert
+                    // deal with lo, just unset lo
+                    unset($arr_state['lo']);
                     // check for key problem
                     $result_where_not = $main->query($con, $select_where_not);
                     $result_where = $main->query($con, $select_where);
@@ -363,14 +385,14 @@ if (!function_exists('bb_data_table_row_input')):
                         // retain state values
                         array_push($arr_messages, "Error: Record not updated. Duplicate value in input form on column \"" . $arr_columns[$unique_key]['name'] . "\".");
                         if ($input_insert_log) {
-                            $message = "WHERE NOT insert error on type " . chr($row_join + 64) . " record.";
+                            $message = "WHERE NOT insert error on type " . chr($row_work + 64) . " record.";
                             $main->log($con, $message);
                         }
                     }
                     elseif (pg_num_rows($result_where) == 0) {
                         array_push($arr_messages, "Error: Record not updated. Missing or malformed related record or records.");
                         if ($input_update_log) {
-                            $message = "WHERE EXISTS error updating record " . chr($row_join + 64) . $post_key . ".";
+                            $message = "WHERE EXISTS error updating record " . chr($row_work + 64) . $post_key . ".";
                             $main->log($con, $message);
                         }
                     }
@@ -379,7 +401,7 @@ if (!function_exists('bb_data_table_row_input')):
                         $arr_state = array();
                         array_push($arr_messages, "Error: Record not inserted. Parent record archived or underlying data change possible.");
                         if ($input_insert_log) {
-                            $message = "Insert error entering type " . chr($row_join + 64) . " record.";
+                            $message = "Insert error entering type " . chr($row_work + 64) . " record.";
                             $main->log($con, $message);
                         }
                     }

@@ -119,7 +119,7 @@ while ($row = pg_fetch_array($result)) {
 // set up standard tab and auxiliary header tabs
 echo "<div id=\"bb_mobile_header\">";
 echo "<label for=\"bb_show_menu\" id=\"bb_mobile_logo\">Brimbox</label>";
-$mobile_image = "<img src=\"" . $webpath . "/bb-config/mobile_image.png\">";
+$mobile_image = "<img src=\"" . $webpath . "/bb-config/mobile_menu_image.gif\">";
 echo "<label for=\"bb_show_menu\" id=\"bb_mobile_button\">" . $mobile_image . "</label>";
 echo "</div>";
 echo "<div id=\"bb_menu_header\">";

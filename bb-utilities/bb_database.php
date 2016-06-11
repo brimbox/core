@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -179,7 +178,7 @@ class bb_database extends bb_build {
         }
     }
 
-    function unique_key($edit_or_insert, &$select_where_not, $unique_key, $unique_value, $row_type, $post_key) {
+    function unique_key($edit_or_insert, &$select_where_not, $unique_key, $unique_value, $row_work, $post_key) {
         // Note -- empty string is allowed as single value, use required to eliminate the possibility of an empty string
         $select_where_not = "SELECT 1 WHERE 1 = 0";
         if ($unique_key) {
@@ -187,11 +186,11 @@ class bb_database extends bb_build {
             $unique_column = $this->pad("c", $unique_key);
             // edit
             if ($edit_or_insert) {
-                $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
+                $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_work . ") AND id NOT IN (" . $post_key . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
             }
             else {
                 // insert
-                $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_type . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
+                $select_where_not = "SELECT 1 FROM data_table WHERE row_type IN (" . $row_work . ") AND lower(" . $unique_column . ") IN (lower('" . $unique_value . "'))";
             }
         }
     }
