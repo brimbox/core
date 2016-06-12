@@ -118,7 +118,8 @@ while ($row = pg_fetch_array($result)) {
 /* ECHO TABS */
 // set up standard tab and auxiliary header tabs
 echo "<div id=\"bb_mobile_header\">";
-echo "<label for=\"bb_show_menu\" id=\"bb_mobile_logo\">Brimbox</label>";
+$page_title = PAGE_TITLE;
+echo "<label for=\"bb_show_menu\" id=\"bb_mobile_logo\">" . $page_title . "</label>";
 $mobile_image = "<img src=\"" . $webpath . "/bb-config/mobile_menu_image.gif\">";
 echo "<label for=\"bb_show_menu\" id=\"bb_mobile_button\">" . $mobile_image . "</label>";
 echo "</div>";
@@ -181,7 +182,7 @@ if (isset($interface_type) && ($interface_type == 'Auxiliary')) {
     echo "</ul>";
 
     // clean up before include
-    unset($arr_interface, $controller_message, $interface_type, $javascript, $key, $lineclass, $module_types, $module_work, $query, $result, $row, $slug_work, $submit_form_params, $value, $type);
+    unset($arr_interface, $controller_message, $interface_type, $javascript, $key, $lineclass, $module_types, $module_work, $query, $result, $row, $slug_work, $submit_form_params, $value, $type, $page_title);
     // module include this is where modules are included
     echo "<div id=\"bb_admin_content\">";
     // $path is reserved, this "include" includes the current module
@@ -195,7 +196,7 @@ if (isset($interface_type) && ($interface_type == 'Auxiliary')) {
 } // Standard and Hidden tabs
 else {
     // clean up before include
-    unset($arr_interface, $controller_message, $interface_type, $javascript, $key, $lineclass, $module_types, $module_work, $query, $result, $row, $slug_work, $submit_form_params, $value, $type);
+    unset($arr_interface, $controller_message, $interface_type, $javascript, $key, $lineclass, $module_types, $module_work, $query, $result, $row, $slug_work, $submit_form_params, $value, $type, $page_title);
     // module include this is where modules are included
     echo "<div id=\"bb_content\">";
     // $path is reserved, this "include" includes the current module
