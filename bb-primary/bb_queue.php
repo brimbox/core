@@ -133,10 +133,11 @@ if (!$mbox):
     // exit as gracefully as possible
     // warnings come out inline but notices appear at the end
     // imap error commented out in $main->get_mbox
-    echo "<form method=\"post\" name=\"queue_form\">";
-    echo "<p>Unable to connect to mailbox</p>";
-    echo "<input name=\"current_tab\" type=\"hidden\" value=\"queue\" />";
-    echo "</form>";
+    echo "<p class=\"message\" >Unable to connect to mailbox</p>";
+    $main->echo_form_begin();
+    $main->echo_module_vars();
+    $main->echo_form_end();
+
 else: // long else
     // delete email by UID (not message id)
     if ($main->button(3)) {
@@ -309,7 +310,9 @@ else: // long else
         $main->echo_clear();
     }
     imap_close($mbox);
-endif; // long colon if
-$main->echo_form_end();
-/* END FORM */
+    $main->echo_form_end();
+
+    /* END FORM */
+endif;
+
 ?>

@@ -34,11 +34,11 @@ define('DB_OWNER', 'owner');
 
 /* EMAIL SETTINGS, get this information from system administrator */
 // Email server
-define('EMAIL_SERVER', 'mail.brimbox.net');
+define('EMAIL_SERVER', 'incoming_server');
 // Email address
-define('EMAIL_ADDRESS', 'test@brimbox.net');
+define('EMAIL_ADDRESS', 'email_address');
 // Email password
-define('EMAIL_PASSWORD', 'brimbox123');
+define('EMAIL_PASSWORD', 'email_password');
 // Email configuration option (port and then flags separated by "/")
 // Might have to play around to find the fastest loading configuration
 // see http://php.net/manual/en/function.imap-open.php
