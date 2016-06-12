@@ -133,7 +133,7 @@ if (!$mbox):
     // exit as gracefully as possible
     // warnings come out inline but notices appear at the end
     // imap error commented out in $main->get_mbox
-    echo "<p class=\"message\">Unable to connect to mailbox</p>";
+    echo "<p class=\"message spaced\">Unable to connect to mailbox</p>";
     $main->echo_form_begin();
     $main->echo_module_vars();
     $main->echo_form_end();

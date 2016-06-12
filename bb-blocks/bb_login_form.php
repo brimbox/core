@@ -16,9 +16,14 @@
  * If not, see http://www.gnu.org/licenses/
 */
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><?php echo PAGE_TITLE; ?></title>
 <style>
 /* These are the login styles */
-/* You can customize this by dropping a file called login.css in the root of the Brimbox instance */
 #bb_index {
 	margin: auto;
 	position: absolute;
@@ -92,14 +97,6 @@
 	}
 }
 </style>
-
-<!DOCTYPE html>
-<html>
-
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?php echo PAGE_TITLE; ?></title>
 </head>
 
 <body>
