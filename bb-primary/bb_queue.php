@@ -64,7 +64,7 @@ function bb_clear_module()
 	
 	document.getElementById("clipboard").innerHTML = "";
 	frmobj.email_number.value = -1;
-	bb_submit_form(0);
+	bb_submit_form();
 	return false;
 	}
 //set the fields on the left
@@ -133,7 +133,7 @@ if (!$mbox):
     // exit as gracefully as possible
     // warnings come out inline but notices appear at the end
     // imap error commented out in $main->get_mbox
-    echo "<p class=\"message\" >Unable to connect to mailbox</p>";
+    echo "<p class=\"message\">Unable to connect to mailbox</p>";
     $main->echo_form_begin();
     $main->echo_module_vars();
     $main->echo_form_end();
@@ -266,21 +266,13 @@ else: // long else
             $var_subject = $arr_subject[0]->text;
         }
 
-        // Record Add, New or Edit
-        if ($row_type) {
-            $arr_columns = $main->columns($con, $row_type);
-        }
-
-        // Check input state
-        if ((!$post_record) && (!$row_type)) {
-            $arr_layouts = $main->layouts($con);
-            $default_row_type = $main->get_default_layout($arr_layouts);
-            $arr_state_input = $main->load($con, "bb_input");
-            $row_type = $main->state('row_type', $arr_state_input, $default_row_type);
-            if ($row_type > 0) {
-                $arr_columns = $main->columns($con, $row_type);
-            }
-        }
+        // get row_type and columns
+        $arr_layouts = $main->layouts($con);
+        $default_row_type = $main->get_default_layout($arr_layouts);
+        $arr_state_input = $main->load($con, "bb_input");
+        //row_join matches input dropdown
+        $row_type = $main->state('row_join', $arr_state_input, $default_row_type);
+        $arr_columns = $main->columns($con, $row_type);
 
         // subject is dependent on email number, no need to include in state
         echo "<input name=\"subject\" type=\"hidden\" value=\"" . $var_subject . "\" />";
@@ -295,7 +287,8 @@ else: // long else
         echo "</div>";
         $i = 1;
         // visable queue fields
-        echo "<div class=\"floatleft\"><ul class=\"nobullets noindent\">";
+        echo "<div class=\"floatleft\">";
+        echo "<ul class=\"nobullets noindent\">";
         if (!empty($arr_columns)) {
             foreach ($arr_columns as $key => $value) {
                 $col = $main->pad("c", $key);
@@ -305,7 +298,8 @@ else: // long else
                 $i++;
             }
         }
-        echo "</ul></div>";
+        echo "</ul>";
+        echo "</div>";
         echo "</div>";
         $main->echo_clear();
     }
