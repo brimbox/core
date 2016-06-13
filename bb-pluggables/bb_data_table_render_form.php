@@ -55,7 +55,12 @@ if (!function_exists('bb_data_table_render_form')):
         $row_work = $row_join ? $row_join : $default_row_type;
 
         $arr_columns = $main->columns($con, $row_work);
+        /* FILTER */
+        $arr_columns = $main->filter("bb_input_render_form_columns", $arr_columns);
+
         $arr_dropdowns = $main->dropdowns($con, $row_work);
+        /* FILTER */
+        $arr_dropdowns = $main->filter("bb_input_render_form_dropdowns", $arr_dropdowns);
 
         // get the error and regular messages, populated form redirect
         $arr_messages = $main->state('arr_messages', $arr_state, array());

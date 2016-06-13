@@ -395,7 +395,7 @@ $params = array(
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 
 $arr_definitions = array();
-
+/* FILTER */
 $arr_definitions = $main->filter("bb_column_names_definitions", $arr_definitions);
 
 $params = array(

@@ -33,7 +33,6 @@ include_once ("bb-config/bb_config.php");
 // start session based on db name
 session_name(DB_NAME);
 session_start();
-session_regenerate_id();
 
 if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller) ELSE (login) END */
 

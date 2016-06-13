@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -54,13 +53,16 @@ class bb_meta extends bb_validate {
         return $arr_columns;
     }
 
-    function alternative($con, $row_type, $definition, $key_type = false, $sort = true) {
+    function columns_alternative($con, $row_type, $definition, $key_type = false, $sort = true) {
         // get core column info
-        $arr_columns_core = $this->columns($con, $row_type, NULL);
-        // get alternative columns
-        $arr_columns_alt = $this->init($arr_columns_core['alternative'][$definition], array());
-        $arr_field_keys = array_keys($this->init($arr_columns_core['fields'], array()));
-        $arr_properties = $this->filter_keys($arr_columns_core, array_keys($this->init($arr_columns_core['properties'], array())), true, true);
+        $arr_columns_json = $this->get_json($con, "bb_column_names");
+        // get core and alternative columns
+        $arr_columns_core = $this->filter_keys($this->init($arr_columns_json[$row_type], array()), array(), false);
+        $arr_columns_alt = $this->filter_keys($this->init($arr_columns_json[$row_type]['alternative'][$definition], array()), array(), false);
+        $arr_properties = $this->filter_keys($arr_columns_json[$row_type], array_keys($this->init($arr_columns_json['properties'], array())), true, true);
+        //gte field defs
+        $arr_field_keys = array_keys($this->init($arr_columns_json['fields'], array()));
+        array_unshift($arr_field_keys, 'name');
         // loop to keep order
         $arr_columns = array();
         if (!empty($arr_columns_alt)) {
@@ -76,9 +78,6 @@ class bb_meta extends bb_validate {
             }
             if (!empty($arr_properties)) {
                 $arr_columns = $arr_columns + $arr_properties;
-                echo "<br><br>";
-                // print_r($arr_columns_alt);
-                
             }
         }
         $arr_columns = $this->filter_keys($arr_columns, array(), true, $key_type);
@@ -86,6 +85,25 @@ class bb_meta extends bb_validate {
             uasort($arr_columns, array($this, 'order_sort'));
         }
         return $arr_columns;
+    }
+
+    function columns_field_reduce($arr_columns, $field, $filter = array(), $keep_mode = true) {
+
+        if ($keep_mode) {
+            foreach ($arr_columns as $key => $value) {
+                if (in_array($value[$field], $filter)) {
+                    $arr[$key] = $value;
+                }
+            }
+        }
+        else {
+            foreach ($arr_columns as $key => $value) {
+                if (!in_array($value[$field], $filter)) {
+                    $arr[$key] = $value;
+                }
+            }
+        }
+        return $arr;
     }
 
     function column_properties($con, $row_type) {
@@ -179,7 +197,8 @@ class bb_meta extends bb_validate {
                 {
                     $arr = array_intersect_key($arr, array_flip($filter));
                 }
-                else // discard the keys in filter
+                else
+                // discard the keys in filter
                 {
                     $arr = array_diff_key($arr, array_flip($filter));
                 }
