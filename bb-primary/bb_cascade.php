@@ -48,7 +48,8 @@ if (!empty($POST['bb_row_type'])) {
     $row_type = $main->set('row_type', $arr_state, $POST['bb_row_type']);
     $post_key = $main->set('post_key', $arr_state, $POST['bb_post_key']);
 }
-else // default = nothing, or populate with input_state if coming from other page
+else
+// default = nothing, or populate with input_state if coming from other page
 {
     $offset = $main->process('offset', $module, $arr_state, 1);
     $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
@@ -70,7 +71,7 @@ $main->update($con, $module, $arr_state);
 // this is used to populate the record header link to parent record
 $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent")); // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 if ($parent_row_type) {
-    $arr_columns_props = $main->column_properties($con, $parent_row_type);
+    $arr_columns_props = $main->columns_properties($con, $parent_row_type);
     $leftjoin = $main->pad("c", $arr_columns_props['primary']);
 }
 else {

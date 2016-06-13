@@ -135,7 +135,7 @@ $col = $main->pad("c", $col_type);
 // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent"));
 if ($parent_row_type) {
-    $arr_columns_props = $main->column_properties($con, $parent_row_type);
+    $arr_columns_props = $main->columns_properties($con, $parent_row_type);
     $leftjoin = $main->pad("c", $arr_columns_props['primary']);
 }
 else {

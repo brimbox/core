@@ -1,6 +1,5 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
-
 /*
  * Copyright (C) Brimbox LLC
  *

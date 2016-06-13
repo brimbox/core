@@ -17,7 +17,6 @@
 */
 ?>
 <?php
-
 function getmsg($mbox, $mid) {
     // input $mbox = IMAP stream, $mid = message id
     // output all the following:

@@ -51,11 +51,11 @@ $POST = $main->retrieve($con);
 $arr_state = $main->load($con, $module);
 
 // POSTBACK HOOK
-// hook to handle entrance into input module
+// hook to handle entrance into input module creates and updtaes 4arr_state
 $main->hook("bb_input_module_postback");
 
 // hook to handle autofill on entrance
-// passes and initializes $arr_columns and $row
+// passes and initializes $arr_state
 $main->hook("bb_input_module_autofill");
 
 // save state, state is passed around as value
@@ -66,9 +66,7 @@ $main->update($con, $module, $arr_state);
 $main->echo_form_begin(array('enctype' => "multipart/form-data"));
 $main->echo_module_vars(); // global for all modules
 $main->echo_common_vars(); // common to standard interface
-/* DISPLAY INPUT FORM */
-// ENTRANCE HOOKS
-// $arr_columns passed by reference
+// Selector to display even if columns is empty
 $main->hook("bb_input_top_level_records");
 
 /* need arr_columns for test */
@@ -78,28 +76,19 @@ $arr_columns = $main->columns($con, $arr_state['row_join']);
 // render form
 if (!empty($arr_columns)):
 
-    // this when inserting child record
-    $main->hook("bb_input_parent_record");
-    // this to add quick child and sibling links
-    $main->hook("bb_input_quick_links");
-    // for hooking archive or security levels
-    $main->hook("bb_input_begin_archive_secure");
-    // for setting readonly and hidden values
-    $main->hook("bb_input_before_render");
+    // MAIN INPUT DISPLAY FORM
+    // for hooking before the form
+    //render selector and buttoms, parent links, and quick links
+    $main->hook("bb_input_before_render_form");
 
-    // MAIN DISPLAY FORM HOOK
+    // display inpout fields
     $main->hook("bb_input_data_table_render_form");
 
-    // EXIT HOOKS
-    // for hooking archive or security levels
-    $main->hook("bb_input_end_archive_secure");
-    // submit button
-    $main->hook("bb_input_submit_buttons");
-    // textarea load
-    $main->hook("bb_input_textarea_load");
+    // for hooking after the form
+    //render buttons, and render textarea load
+    $main->hook("bb_input_after_render_form");
 
 endif;
 
-// form end
 $main->echo_form_end();
 ?>

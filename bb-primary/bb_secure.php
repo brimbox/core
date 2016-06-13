@@ -86,7 +86,7 @@ else {
     // this is used to populate the record header link to parent record
     $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent")); // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
     if ($parent_row_type) {
-        $arr_columns_props = $main->column_properties($con, $parent_row_type);
+        $arr_columns_props = $main->columns_properties($con, $parent_row_type);
         $leftjoin = $main->pad("c", $arr_columns_props['primary']);
     }
     else {

@@ -65,7 +65,7 @@ if (!function_exists('bb_data_table_row_input')):
         if (!$errors) {
             // no errors
             // produce empty form since we are going to load the data
-            $arr_columns_props = $main->column_properties($con, $row_work);
+            $arr_columns_props = $main->columns_properties($con, $row_work);
 
             $unique_key = isset($arr_columns_props['unique']) ? $arr_columns_props['unique'] : 0;
             $arr_ts_vector_fts = array();
@@ -180,7 +180,7 @@ if (!function_exists('bb_data_table_row_input')):
                     // parent and inserted information
                     $parent_row_type = $arr_layouts[$row_join]['parent'];
                     // have to look it up
-                    $arr_columns_props_parent = $main->column_properties($con, $parent_row_type);
+                    $arr_columns_props_parent = $main->columns_properties($con, $parent_row_type);
                     $parent = isset($arr_columns_props_parent['primary']) ? $main->pad("c", $arr_columns_props_parent['primary']) : "c01";
                     $child = isset($arr_columns_props['primary']) ? $main->pad("c", $arr_columns_props['primary']) : "c01";
                     // query to find relationships
@@ -363,7 +363,7 @@ if (!function_exists('bb_data_table_row_input')):
                     // second query
                     $parent_row_type = $arr_layouts[$row_join]['parent'];
                     // have to look it up
-                    $arr_columns_props_parent = $main->column_properties($con, $parent_row_type);
+                    $arr_columns_props_parent = $main->columns_properties($con, $parent_row_type);
                     $parent = isset($arr_columns_props_parent['primary']) ? $main->pad("c", $arr_columns_props_parent['primary']) : "c01";
                     $query = "SELECT *, " . $parent . " as parent FROM data_table WHERE id = " . $post_key . ";";
                     $result = $main->query($con, $query);

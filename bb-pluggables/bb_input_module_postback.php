@@ -58,7 +58,7 @@ if (!function_exists('bb_input_module_postback')):
             // get the columns and dropdowns for given row_type
             $arr_columns = $main->columns($con, $row_join);
             $arr_dropdowns = $main->dropdowns($con, $row_join);
-            $arr_props = $main->column_properties($con, $row_join);
+            $arr_props = $main->columns_properties($con, $row_join);
 
             // get the record, either for edit or parent record info
             // first result
@@ -116,7 +116,7 @@ if (!function_exists('bb_input_module_postback')):
             elseif (pg_num_rows($result) == 1) {
                 $main->set('parent_id', $arr_state, $row['id']);
                 $main->set('parent_row_type', $arr_state, $row['row_type']);
-                $arr_props = $main->column_properties($con, $row['row_type']);
+                $arr_props = $main->columns_properties($con, $row['row_type']);
                 $col_type_primary = $arr_props['primary'];
                 $column_primary = $main->pad("c", $col_type_primary);
                 $main->set('parent_primary', $arr_state, $row[$column_primary]);

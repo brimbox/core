@@ -103,10 +103,10 @@ if ($interface == "bb_brimbox"):
     /* these are the input hook the are buried in the render form input function */
     /* note the use of include_once */
     $main->add_action('hooks', "bb_input_top_level_records", array('func' => "bb_input_module_hooks::top_level_records", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 50);
-    $main->add_action('hooks', "bb_input_parent_record", array('func' => "bb_input_module_hooks::parent_record", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 50);
-    $main->add_action('hooks', "bb_input_quick_links", array('func' => "bb_input_module_hooks::quick_links", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 50);
-    $main->add_action('hooks', "bb_input_submit_buttons", array('func' => "bb_input_module_hooks::submit_buttons", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 50);
-    $main->add_action('hooks', "bb_input_textarea_load", array('func' => "bb_input_module_hooks::textarea_load", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 50);
+    $main->add_action('hooks', "bb_input_before_render_form", array('func' => "bb_input_module_hooks::parent_record", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 10);
+    $main->add_action('hooks', "bb_input_before_render_form", array('func' => "bb_input_module_hooks::quick_links", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 20);
+    $main->add_action('hooks', "bb_input_after_render_form", array('func' => "bb_input_module_hooks::submit_buttons", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 10);
+    $main->add_action('hooks', "bb_input_after_render_form", array('func' => "bb_input_module_hooks::textarea_load", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 20);
 
     $main->add_action('filters', "bb_column_names_definitions", array('func' => 'test_definitions'), 50);
 

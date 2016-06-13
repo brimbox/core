@@ -178,7 +178,7 @@ if ($main->blank($message)) {
         // get the primary column and set $row['hdr'] based on primary header
         $parent_row_type = $arr_layouts[$row['row_type']]['parent'];
         if ($parent_row_type) {
-            $arr_columns_props = $main->column_properties($con, $parent_row_type);
+            $arr_columns_props = $main->columns_properties($con, $parent_row_type);
             $leftjoin = $main->pad("c", $arr_columns_props['primary']);
         }
         else {

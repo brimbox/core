@@ -239,7 +239,8 @@ if ($valid_id) // record_id
     $and_clause_3 = " 1 = 1 ";
     $and_clause_4 = " id = " . $id . " ";
 }
-else // value_1 or value_2
+else
+// value_1 or value_2
 {
     $test_1 = ( boolean )(!$main->blank($value_1) || ($radio_1 == 4));
     $test_2 = ( boolean )(!$main->blank($value_2) || ($radio_2 == 4));
@@ -293,7 +294,7 @@ else // value_1 or value_2
 $layout = $main->reduce($arr_layouts, $row_type);
 $parent_row_type = $layout['parent']; // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 if ($parent_row_type) {
-    $arr_columns_props = $main->column_properties($con, $parent_row_type);
+    $arr_columns_props = $main->columns_properties($con, $parent_row_type);
     $leftjoin = $main->pad("c", $arr_columns_props['primary']);
 }
 else {

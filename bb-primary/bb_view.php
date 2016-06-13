@@ -60,7 +60,8 @@ if (!empty($POST['bb_row_type'])) {
     $col1 = $main->set('col1', $arr_state, "create_date");
     $asc_desc = $main->set('asc_desc', $arr_state, "DESC");
 }
-else // get on postback, or populate with input_state if coming from other page
+else
+// get on postback, or populate with input_state if coming from other page
 {
     // local post_key and row_type
     $offset = $main->process('offset', $module, $arr_state, 1);
@@ -90,7 +91,7 @@ $arr_columns = $main->columns($con, $row_join);
 // this is used to populate the record header link to parent record
 $parent_row_type = $main->reduce($arr_layouts, array($row_join, "parent")); // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
 if ($parent_row_type) {
-    $arr_columns_props = $main->column_properties($con, $parent_row_type);
+    $arr_columns_props = $main->columns_properties($con, $parent_row_type);
     $leftjoin = $main->pad("c", $arr_columns_props['primary']);
 }
 else {

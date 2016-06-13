@@ -17,7 +17,6 @@
 */
 ?>
 <?php
-
 /* PHP FUNCTIONS */
 // get_modules (main function)
 // build_module_array

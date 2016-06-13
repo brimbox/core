@@ -21,7 +21,7 @@
 // layouts
 // columns
 // alternative
-// column_properties
+// columns_properties
 // lists
 // dropdowns
 // dropdown_properties
@@ -106,7 +106,7 @@ class bb_meta extends bb_validate {
         return $arr;
     }
 
-    function column_properties($con, $row_type) {
+    function columns_properties($con, $row_type) {
 
         $arr_columns_json = $this->get_json($con, "bb_column_names");
         $arr_props_keys = array_keys($arr_columns_json['properties']);

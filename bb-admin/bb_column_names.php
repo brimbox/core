@@ -136,7 +136,7 @@ $arr_alternative = $main->filter_keys($main->init($arr_columns_json[$row_type]['
 // save all the alternatives for updating the JSON
 $arr_alternative_full = $main->init($arr_columns_json[$row_type]['alternative'], array());
 // properties or string values
-$arr_props = $main->column_properties($con, $row_type);
+$arr_props = $main->columns_properties($con, $row_type);
 
 /* END INITIALIZE */
 

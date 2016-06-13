@@ -207,7 +207,8 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                             $main->query($con, $query);
                             array_push($arr_messages, "JSON table has been restored from backup.");
                         }
-                        else // advance file pointer
+                        else
+                        // advance file pointer
                         {
                             for ($i = 0;$i < $cnt;$i++) {
                                 // read in lines and do nothing
