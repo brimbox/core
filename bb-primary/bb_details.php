@@ -133,12 +133,11 @@ if ($post_key > 0) // a detail of a record
             $field_id = "details_" . $main->make_html_id($row_type, $key);
             if (in_array($key, $arr_notes)) {
                 // notes
-                $str_details = str_replace("\n", "<br>", htmlentities($row[$col2]));
                 echo "<label class = \"spaced left floatleft overflow medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities($value['name']) . ":</label>";
                 $main->echo_clear();
                 // double it up for emheight
                 echo "<div class=\"spaced border half pad_note\">";
-                echo "<div id=\"" . $field_id . "\" class=\"spaced emheight\">" . $str_details . "</div></div>";
+                echo "<div id=\"" . $field_id . "\" class=\"spaced minnote\">" . nl2br(htmlentities($row[$col2])) . "</div></div>";
                 $main->echo_clear();
             }
             elseif (in_array($key, $arr_file)) {

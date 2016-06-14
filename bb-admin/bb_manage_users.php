@@ -657,14 +657,12 @@ if (in_array($action, array(1, 2, 3, 4))):
         echo "</div>";
         echo "<div class=\"row\">";
         echo "<div class=\"middle cell\"\">IPs (cidr):</div>";
-        $ips_display = ($ips == "") ? "&nbsp" : str_replace("\n", "<br>", $ips);
-        echo "<div class=\"padded spaced border\">" . $ips_display . "</div>";
+        echo "<div class=\"padded spaced border minnote\">" . nl2br($ips) . "</div>";
         echo "<div class=\"middle cell\"></div>";
         echo "</div>";
         echo "<div class=\"row\">";
         echo "<div class=\"middle cell\"\">Notes:</div>";
-        $notes_display = ($notes == "") ? "&nbsp" : str_replace("\n", "<br>", htmlentities($notes));
-        echo "<div class=\"padded spaced border\">" . $notes_display . "</div>";
+        echo "<div class=\"padded spaced border minnote\">" . nl2br($notes) . "</div>";
         echo "<div class=\"middle cell\"></div>";
         echo "</div>";
     }
