@@ -306,7 +306,7 @@ if (!function_exists('bb_data_table_render_form')):
                 break;
             } // switch
             // filter to echo the field output
-            $field_output = $main->filter('bb_input_field_output', $field_output);
+            $field_output = $main->filter('bb_input_field_output', $field_output, $input, $key, $value);
             echo $field_output;
         }
 

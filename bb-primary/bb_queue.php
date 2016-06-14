@@ -92,15 +92,14 @@ function bb_set_field(col)
 }
 
 .email_div {
-	max-width: 600px;
-	width: 600px;
-	height: 300px;
+	width: 620px;
+	height: 400px;
 	resize: both;
 	overflow: scroll;
 }
 
 .email_viewer {
-	max-width: 600px;
+	max-width: 620px;
 }
 </style>
 <?php
@@ -282,7 +281,7 @@ else: // long else
         echo "<div id=\"clipboard\" class=\"padded left borderbottom\"></div>";
         echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_personal . " &lt;" . $var_email . "&gt;</div>";
         echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_subject . "</div>";
-        echo "<div class=\"padded left\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_date . "</div>";
+        echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_date . "</div>";
         echo "<div class=\"left email_div\" onMouseUp=\"bb_get_selected_text()\">" . $trans_htmlmsg . "</div>";
         echo "</div>";
         $i = 1;
