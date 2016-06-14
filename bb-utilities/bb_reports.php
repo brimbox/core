@@ -200,6 +200,7 @@ class bb_reports extends bb_forms {
         $return_rows_class = isset($arr['return_rows_class']) ? $arr['return_rows_class'] : "spaced colored bold";
 
         $limit = isset($arr['limit']) ? $arr['limit'] : 0;
+        $ucfirst = isset($arr['ucfirst']) ? $arr['ucfirst'] : false;
         $shade_rows = isset($arr['shade_rows']) ? $arr['shade_rows'] : false;
         $start_column = isset($arr['start_column']) ? $arr['start_column'] : 0;
 
@@ -269,13 +270,14 @@ class bb_reports extends bb_forms {
         // do header, $num_fields used in while loop
         $num_fields = pg_num_fields($result);
         for ($j = $start_column;$j < $num_fields;$j++) {
-            $field = htmlentities(pg_field_name($result, $j));
+            $field = pg_field_name($result, $j);
             $sort = $this->pad("s", $j, 2);
+            if ($ucfirst) $field = ucfirst($field);
             if (isset($arr[$sort])) {
-                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . $field . "</button></div>";
+                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . htmlentities($field) . "</button></div>";
             }
             else {
-                echo "<div class=\"cell " . $cell_header_class . "\">" . $field . "</div>";
+                echo "<div class=\"cell " . $cell_header_class . "\">" . htmlentities($field) . "</div>";
             }
         }
         echo "</div>";
@@ -362,6 +364,7 @@ class bb_reports extends bb_forms {
         $header = isset($arr['header']) ? $arr['header'] : true;
         $return_rows_class = isset($arr['return_rows_class']) ? $arr['return_rows_class'] : "spaced colored bold";
 
+        $ucfirst = isset($arr['ucfirst']) ? $arr['ucfirst'] : false;
         $shade_rows = isset($arr['shade_rows']) ? $arr['shade_rows'] : false;
         $start_column = isset($arr['start_column']) ? $arr['start_column'] : 0;
 
@@ -405,13 +408,14 @@ class bb_reports extends bb_forms {
         // do header, $num_fields used in while loop
         $num_fields = pg_num_fields($result);
         for ($j = $start_column;$j < $num_fields;$j++) {
-            $field = htmlentities(pg_field_name($result, $j));
+            $field = pg_field_name($result, $j);
+            if ($ucfirst) $field = ucfirst($field);
             $sort = $this->pad("s", $j, 2);
             if (isset($arr[$sort])) {
-                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link bold\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . $field . "</button></div>";
+                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link bold\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . htmlentities($field) . "</button></div>";
             }
             else {
-                echo "<div class=\"cell " . $cell_header_class . "\">" . $field . "</div>";
+                echo "<div class=\"cell " . $cell_header_class . "\">" . htmlentities($field) . "</div>";
             }
         }
         echo "</div>";
