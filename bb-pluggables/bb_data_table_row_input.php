@@ -72,9 +72,6 @@ if (!function_exists('bb_data_table_row_input')):
             $arr_ts_vector_ftg = array();
             $arr_select_where = array();
 
-            // additional character policy filter
-            $arr_state = $main->filter("bb_row_input_character_policy", $arr_state);
-
             // edit preexisting row
             if ($edit_or_insert) {
                 $update_clause = "updater_name = '" . pg_escape_string($username) . "'";

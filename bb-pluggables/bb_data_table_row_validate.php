@@ -56,7 +56,6 @@ if (!function_exists('bb_data_table_row_validate')):
         foreach ($arr_columns as $key => $value) {
             $col = $main->pad("c", $key);
             $field = $arr_state[$col];
-            $field = $main->filter("bb_input_custom_char_replace", $field);
 
             // start validation
             $type = $value['type']; // validation type
@@ -90,8 +89,7 @@ if (!function_exists('bb_data_table_row_validate')):
                     }
                 }
             }
-            $filtername = "bb_input_custom_validation";
-            $field = $main->filter($filtername, $field);
+            $field = $main->filter("bb_input_custom_validation", $field, $key, $value);
 
             $main->set($col, $arr_state, $field);
         }

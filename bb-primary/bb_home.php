@@ -20,7 +20,7 @@
 <?php
 // $main->check_permission("bb_brimbox", array(3,4,5));
 /* DATABASE STATS -- AUTOFILL HOOK */
-$main->hook("bb_home_infolinks", true);
+$main->hook("bb_home_infolinks");
 
 include ("bb-config/bb_home_extra.php");
 

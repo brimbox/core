@@ -106,8 +106,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("3_bb_
 
     /* AUTOLOAD HOOK */
     if ($main->button(4)) {
-        // not used by default
-        // $filepath = $main->filter("bb_db_database_autoload");
+        // not implemented
         include_once ($filepath);
     }
     /* END AUTOLOAD HOOK */

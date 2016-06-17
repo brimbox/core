@@ -84,10 +84,6 @@ if (!function_exists('bb_data_table_render_form')):
             // display 0 normal, 1 readonly, 2 hidden
             $display = isset($arr_columns[$key]['display']) ? $arr_columns[$key]['display'] : 0;
 
-            // filters
-            $filtername = "bb_input_" . $main->make_html_id($row_work, $key);
-            $field_id = "bb_input_" . $main->make_html_id($row_work, $key);
-
             switch ($display) {
 
                 case 0:
@@ -306,7 +302,7 @@ if (!function_exists('bb_data_table_render_form')):
                 break;
             } // switch
             // filter to echo the field output
-            $field_output = $main->filter('bb_input_field_output', $field_output, $input, $key, $value);
+            $field_output = $main->filter('bb_input_field_output', $field_output, $display, $input, $key, $value);
             echo $field_output;
         }
 

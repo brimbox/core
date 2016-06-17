@@ -39,7 +39,6 @@ $main->check_permission("5_bb_brimbox");
 <?php
 $arr_messages = array();
 $arr_options = array('1 day' => "Preserve 1 Day", '1 week' => "Preserve 1 Week", '1 month' => "Preserve 1 Month");
-$arr_options = $main->filter("truncate_array", $arr_options);
 
 end($arr_options);
 $default_truncate_option = key($arr_options);
@@ -125,6 +124,7 @@ $main->echo_form_begin();
 $main->echo_module_vars();
 
 // truncate_option select tag
+$arr_options = $main->filter("bb_log_truncate_options", $arr_options);
 $params = array('select_class' => "spaced", 'onchange' => "bb_reload()", 'usekey' => true);
 $main->array_to_select($arr_options, "truncate_option", $truncate_option, array(), $params);
 
