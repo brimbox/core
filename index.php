@@ -133,7 +133,7 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
 
         /* RECONCILE SLUG AND MODULE */
         // get module types for current user and interface
-        $module_types = array();
+        $module_types = array(0);
         foreach ($array_interface[$interface] as $key => $value) {
             if (in_array($userrole, $value['userroles'])) {
                 // (int) cast for security
@@ -156,7 +156,7 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
                       UNION ALL
                             SELECT 3 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table
                             WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1
-                      ORDER BY id, module_type, module_order LIMIT 1";
+                      ORDER BY id, module_type = 0 ASC, module_type ASC, module_order LIMIT 1";
         }
         else {
             $query = "SELECT id, module_name, module_slug FROM
@@ -165,7 +165,7 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
                       UNION ALL
                          SELECT 3 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table
                          WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1
-                      ORDER BY id, module_type, module_order LIMIT 1";
+                      ORDER BY id, module_type = 0 ASC, module_type ASC, module_order LIMIT 1";
         }
         $result = $main->query($con, $query);
         $row = pg_fetch_array($result);
@@ -191,6 +191,14 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
         // a custom controller will contain several standard include files, bb_javascript, bb_css, bb_less if desired
         include_once ($abspath . $array_header[$interface]['controller']);
 
+    else:
+
+        //bad userrole
+        session_destroy();
+        $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+        header($index_path);
+        die(); // important to stop script
+        
     endif;
 
 else: /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */
