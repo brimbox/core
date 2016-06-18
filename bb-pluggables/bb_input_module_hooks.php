@@ -116,7 +116,7 @@ if (!class_exists('bb_input_module_hooks')):
             $arr_columns = $main->columns($con, $row_work);
 
             // edit or Insert Record and primary parent column
-            $parent_string = $main->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.input(" . $parent_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
+            $parent_string = $main->blank($parent_primary) ? "" : " - Parent: <button class=\"link colored\" onclick=\"bb_links.join(0, " . $parent_id . "," . $parent_row_type . "," . $parent_row_type . ",'bb_input'); return false;\">" . $parent_primary . "</button>";
             echo "<p class=\"spaced\"><span class=\"bold\">" . $edit_or_insert_text . "</span>" . $parent_string . "</p>";
         }
 
