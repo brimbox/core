@@ -124,6 +124,9 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
         if (!$main->blank($POST['bb_userrole'])) {
             if (in_array($POST['bb_userrole'], explode(",", $_SESSION['userroles']))) {
                 $userrole = $_SESSION['userrole'] = $POST['bb_userrole'];
+                // get interface from userrole
+                list(, $interface) = explode("_", $_SESSION['userrole'], 2);
+                $_SESSION['interface'] = $interface;
             }
             else {
                 //bad userrole, could hack into
