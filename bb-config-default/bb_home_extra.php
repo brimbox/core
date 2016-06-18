@@ -29,7 +29,7 @@ $main->echo_form_end();
 
 <!-- Can simply include HTML content -->
 
-<div class=\"clear\"></div>
+<div class="clear"></div>
 
 <br>
 <br>

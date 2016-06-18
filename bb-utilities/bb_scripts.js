@@ -87,11 +87,21 @@ function bb_page_selector(e, of) {
 	return false;
 }
 
-function bb_logout_selector(i) {
+function bb_logout_selector() {
 	var frmobj = document.forms['bb_form'];
 	var frmele = frmobj.elements['bb_userrole'];
-	frmele.value = i;
+	//could be anything
+	frmele.value = '0_bb_locked';
 	bb_submit_form([ 0, 'bb_logout' ]);
+	return false;
+}
+
+function bb_userrole_switch(u,m) {
+	var frmobj = document.forms['bb_form'];
+	var frmele = frmobj.elements['bb_userrole'];
+	//could be anything
+	frmele.value = u;
+	bb_submit_form([ 0, m ]);
 	return false;
 }
 
