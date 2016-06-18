@@ -296,16 +296,40 @@ class bb_reports extends bb_forms {
                 $shaded = (($k % 2) && $shade_rows) ? "shaded" : "";
                 echo "<div class=\"row " . $shaded . " " . $row_class . "\">";
                 for ($j = $start_column;$j < $num_fields;$j++) {
-                    $key = $this->pad("c", $j, 2);
-                    // cell class
-                    $cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
-                    // date convert
+                    // deal with dates convert from database to interface
                     $key = $this->pad("d", $j, 2);
                     if (isset($arr[$key])) {
-                        $format = $arr[$key]; // consistant default
+                        $format = $arr[$key];
                         $row[$j] = $this->convert_date($row[$j], $format);
                     }
-                    echo "<div class=\"cell " . $cell . "\">" . htmlentities($row[$j]) . "</div>";
+                    //functions allow basically anything on the datafield
+                    //for a given row, usually $args_callback contains row
+                    //no htmlentities on functions, unless in function itself
+                    $key = $this->pad("f", $j, 2);
+                    if (isset($arr[$key])) {
+                        foreach ($arr[$key][1] as $var) {
+                            $args_callback[] = $ {
+                                $var
+                            };
+                        }
+                        $row[$j] = call_user_func_array($arr[$key][0], $args_callback);
+                        unset($args_callback);
+                    }
+                    else {
+                        $row[$j] = htmlentities($row[$j]);
+                    }
+                    // cell class
+                    $key = $this->pad("c", $j, 2);
+                    $cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
+                    //define the width of a cell, usually max-width
+                    $key = $this->pad("w", $j, 2);
+                    if (isset($arr[$key])) {
+                        $width = $arr[$key];
+                        echo "<div class=\"cell " . $cell . "\"><div class=\"" . $width . "\">" . $row[$j] . "</div></div>";
+                    }
+                    else {
+                        echo "<div class=\"cell " . $cell . "\">" . $row[$j] . "</div>";
+                    }
                 }
                 echo "</div>"; // end row
                 // increment $i & $k
@@ -322,9 +346,28 @@ class bb_reports extends bb_forms {
                 echo "<div class=\"row " . $row_class . "\">";
                 for ($j = $start_column;$j < $num_fields;$j++) {
                     // get $group array from $groupby
-                    // get cell class
-                    $key = $this->pad("c", $j, 2);
-                    $cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
+                    // deal with dates convert from database to interface
+                    $key = $this->pad("d", $j, 2);
+                    if (isset($arr[$key])) {
+                        $format = $arr[$key];
+                        $row[$j] = $this->convert_date($row[$j], $format);
+                    }
+                    //functions allow basically anything on the datafield
+                    //for a given row, usually $args_callback contains row
+                    //no htmlentities on functions
+                    $key = $this->pad("f", $j, 2);
+                    if (isset($arr[$key])) {
+                        foreach ($arr[$key][1] as $var) {
+                            $args_callback[] = $ {
+                                $var
+                            };
+                        }
+                        $row[$j] = call_user_func_array($arr[$key][0], $args_callback);
+                        unset($args_callback);
+                    }
+                    else {
+                        $row[$j] = htmlentities($row[$j]);
+                    }
                     // move cell around within row
                     $key = $this->pad("m", $j, 2);
                     if (isset($arr[$key])) {
@@ -333,14 +376,21 @@ class bb_reports extends bb_forms {
                     }
                     // populate cell of group by $row with text (for labeling)
                     $key = $this->pad("t", $j, 2);
-                    if (isset($arr[$key])) $row[$j] = $arr[$key];
-                    // convert dates
-                    $key = $this->pad("d", $j, 2);
                     if (isset($arr[$key])) {
-                        $format = $arr[$key]; // consistant default
-                        $row[$j] = $this->convert_date($row[$j], $format);
+                        $row[$j] = $arr[$key];
                     }
-                    echo "<div class=\"cell " . $cell . "\">" . htmlentities($row[$j]) . "</div>";
+                    // cell class
+                    $key = $this->pad("c", $j, 2);
+                    $cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
+                    //define the width of a cell, usually max-width
+                    $key = $this->pad("w", $j, 2);
+                    if (isset($arr[$key])) {
+                        $width = $arr[$key];
+                        echo "<div class=\"cell " . $cell . "\"><div class=\"" . $width . "\">" . $row[$j] . "</div></div>";
+                    }
+                    else {
+                        echo "<div class=\"cell " . $cell . "\">" . $row[$j] . "</div>";
+                    }
                 }
                 echo "</div>";
                 $i++;
@@ -431,15 +481,40 @@ class bb_reports extends bb_forms {
                 $shaded = (($k % 2) && $shade_rows) ? "shaded" : "";
                 echo "<div class=\"row " . $shaded . " " . $row_class . "\">";
                 for ($j = $start_column;$j < $num_fields;$j++) {
-                    $key = $this->pad("c", $j, 2);
-                    // cell class
-                    $cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
+                    // deal with dates convert from database to interface
                     $key = $this->pad("d", $j, 2);
                     if (isset($arr[$key])) {
-                        $format = $arr[$key]; // consistant default
+                        $format = $arr[$key];
                         $row[$j] = $this->convert_date($row[$j], $format);
                     }
-                    echo "<div class=\"cell " . $cell . "\">" . htmlentities($row[$j]) . "</div>";
+                    //functions allow basically anything on the datafield
+                    //for a given row, usually $args_callback contains row
+                    //no htmlentities on functions, unless in function itself
+                    $key = $this->pad("f", $j, 2);
+                    if (isset($arr[$key])) {
+                        foreach ($arr[$key][1] as $var) {
+                            $args_callback[] = $ {
+                                $var
+                            };
+                        }
+                        $row[$j] = call_user_func_array($arr[$key][0], $args_callback);
+                        unset($args_callback);
+                    }
+                    else {
+                        $row[$j] = htmlentities($row[$j]);
+                    }
+                    // cell class
+                    $key = $this->pad("c", $j, 2);
+                    $cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
+                    //define the width of a cell, usually max-width
+                    $key = $this->pad("w", $j, 2);
+                    if (isset($arr[$key])) {
+                        $width = $arr[$key];
+                        echo "<div class=\"cell " . $cell . "\"><div class=\"" . $width . "\">" . $row[$j] . "</div></div>";
+                    }
+                    else {
+                        echo "<div class=\"cell " . $cell . "\">" . $row[$j] . "</div>";
+                    }
                 }
                 echo "</div>"; // end row
                 // increment $i & $k
@@ -455,9 +530,28 @@ class bb_reports extends bb_forms {
                 echo "<div class=\"row " . $row_class . "\">";
                 for ($j = $start_column;$j < $num_fields;$j++) {
                     // get $group array from $groupby
-                    // get cell class
-                    $key = $this->pad("c", $j, 2);
-                    $cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
+                    // deal with dates convert from database to interface
+                    $key = $this->pad("d", $j, 2);
+                    if (isset($arr[$key])) {
+                        $format = $arr[$key];
+                        $row[$j] = $this->convert_date($row[$j], $format);
+                    }
+                    //functions allow basically anything on the datafield
+                    //for a given row, usually $args_callback contains row
+                    //no htmlentities on functions
+                    $key = $this->pad("f", $j, 2);
+                    if (isset($arr[$key])) {
+                        foreach ($arr[$key][1] as $var) {
+                            $args_callback[] = $ {
+                                $var
+                            };
+                        }
+                        $row[$j] = call_user_func_array($arr[$key][0], $args_callback);
+                        unset($args_callback);
+                    }
+                    else {
+                        $row[$j] = htmlentities($row[$j]);
+                    }
                     // move cell around within row
                     $key = $this->pad("m", $j, 2);
                     if (isset($arr[$key])) {
@@ -466,14 +560,21 @@ class bb_reports extends bb_forms {
                     }
                     // populate cell of group by $row with text (for labeling)
                     $key = $this->pad("t", $j, 2);
-                    if (isset($arr[$key])) $row[$j] = $arr[$key];
-                    // deal with dates
-                    $key = $this->pad("d", $j, 2);
                     if (isset($arr[$key])) {
-                        $format = $arr[$key];
-                        $row[$j] = $this->convert_date($row[$j], $format);
+                        $row[$j] = $arr[$key];
                     }
-                    echo "<div class=\"cell " . $cell . "\">" . htmlentities($row[$j]) . "</div>";
+                    // cell class
+                    $key = $this->pad("c", $j, 2);
+                    $cell = (isset($arr[$key])) ? $arr[$key] : $cell_class;
+                    //define the width of a cell, usually max-width
+                    $key = $this->pad("w", $j, 2);
+                    if (isset($arr[$key])) {
+                        $width = $arr[$key];
+                        echo "<div class=\"cell " . $cell . "\"><div class=\"" . $width . "\">" . $row[$j] . "</div></div>";
+                    }
+                    else {
+                        echo "<div class=\"cell " . $cell . "\">" . $row[$j] . "</div>";
+                    }
                 }
                 echo "</div>";
                 // start shade over for each new group

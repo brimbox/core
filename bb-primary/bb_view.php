@@ -51,7 +51,7 @@ $arr_state = $main->load($con, $module);
 
 // coming from an view link, set $arr_state
 // bb_row_type is empty if not set with javascript, empty works here
-if (!empty($POST['bb_row_type'])) {
+if (!empty($POST['bb_row_type']) && !$main->back($module)) {
     // global post_key and row_type
     $offset = $main->set('offset', $arr_state, 1);
     $row_type = $main->set('row_type', $arr_state, $POST['bb_row_type']); // parent

@@ -86,6 +86,15 @@ class bb_work extends bb_meta {
         else return false;
     }
 
+    function back($module) {
+        global $POST;
+
+        if ($POST['bb_module'] <> $module) {
+            return true;
+        }
+        return false;
+    }
+
     function check($name, $module) {
         // psuedo post var
         global $POST;
