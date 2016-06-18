@@ -118,18 +118,26 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
         /* GET $POST for userrole switch */
         $POST = $main->retrieve($con);
 
-        /* GET HEADER AND GLOBAL ARRAYS */
-        /* UNPAK ARRAY INTO SEPARATE UNIT */
-
-        if (file_exists("bb-extend/bb_parse_globals.php")) include_once ("bb-extend/bb_parse_globals.php");
-        else include_once ("bb-blocks/bb_parse_globals.php");
-
         //change userroles on the fly
         //relies on session userroles
         //change only change userroles if in $_SESSION['userroles']
-        if (!empty($POST['bb_userrole']) && in_array($POST['bb_userrole'], explode(",", $_SESSION['userroles']))) {
-            $userrole = $_SESSION['userrole'] = $POST['bb_userrole'];
+        if (!$main->blank($POST['bb_userrole'])) {
+            if (in_array($POST['bb_userrole'], explode(",", $_SESSION['userroles']))) {
+                $userrole = $_SESSION['userrole'] = $POST['bb_userrole'];
+            }
+            else {
+                //bad userrole, could hack into
+                session_destroy();
+                $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+                header($index_path);
+                die();
+            }
         }
+
+        /* GET HEADER AND GLOBAL ARRAYS */
+        /* UNPACK ARRAY INTO SEPARATE UNITS */
+        if (file_exists("bb-extend/bb_parse_globals.php")) include_once ("bb-extend/bb_parse_globals.php");
+        else include_once ("bb-blocks/bb_parse_globals.php");
 
         /* RECONCILE SLUG AND MODULE */
         // get module types for current user and interface
@@ -176,6 +184,7 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
         // this redirect has to happen after global array and hooks are loaded
         if (in_array($row['id'], array(2, 3))) {
             $index_path = "Location: " . dirname($_SERVER['PHP_SELF']) . "/" . $slug;
+            // 302 redirect
             header($index_path);
         }
 
@@ -193,11 +202,11 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
 
     else:
 
-        //bad userrole
+        //bad userrole, unlikely
         session_destroy();
         $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
         header($index_path);
-        die(); // important to stop script
+        die(); //stop script
         
     endif;
 
