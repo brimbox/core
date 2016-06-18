@@ -111,7 +111,7 @@ class bb_main extends bb_reports {
         }
         if (!$this->blank($row['hdr']) && ($link == 1)) {
             // calls javascript in bb_link
-            echo " / <button class = \"link italic\" onclick=\"bb_links.standard(" . ( int )$row['key1'] . "," . ( int )$row['row_type_left'] . ", '" . $target . "'); return false;\">";
+            echo " / <button class = \"link italic\" onclick=\"bb_links.standard(0, " . ( int )$row['key1'] . "," . ( int )$row['row_type_left'] . ", '" . $target . "'); return false;\">";
             echo htmlentities($row['hdr']) . "</button>";
         }
         elseif (!$this->blank($row['hdr']) && ($link == - 1)) {
