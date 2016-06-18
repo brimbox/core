@@ -355,13 +355,13 @@ class bb_main extends bb_reports {
 
     function include_file($filepaths, $type) {
         // assumes index file root
-        $filepaths = is_string($filepaths) ? array($filepaths) : $filepaths;
+        $filepaths = is_string($filepaths) ? array(0 => array('path' => $filepaths, 'version' => BRIMBOX_PROGRAM)) : $filepaths;
         foreach ($filepaths as $filepath) {
             if ($type == "css") {
-                echo "<link rel=StyleSheet href=\"" . $filepath . "\" type=\"text/css\" media=screen>";
+                echo "<link rel=StyleSheet href=\"" . $filepath['path'] . "?v=" . $filepath['version'] . "\" type=\"text/css\" media=screen>";
             }
             elseif ($type == "js") {
-                echo "<script type=\"text/javascript\" src=\"" . $filepath . "\"></script>";
+                echo "<script type=\"text/javascript\" src=\"" . $filepath['path'] . "?v=" . $filepath['version'] . "\"></script>";
             }
         }
     }

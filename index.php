@@ -72,6 +72,9 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
     // $type controller module type global
     /* END SESSION/CONTROLLER VARS */
 
+    //include version information
+    include_once ("bb-utilities/bb_version.php");
+
     // logout algorithm used for interface and userrole change
     // verfiy user
     if (isset($_SESSION['userrole'])) {

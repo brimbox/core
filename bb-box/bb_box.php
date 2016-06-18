@@ -23,7 +23,7 @@
 <title><?php echo PAGE_TITLE; ?></title>
 <?php
 /* STANDARD JAVASCRIPT INCLUDE */
-$arr_javascript[] = $webpath . "/bb-utilities/bb_scripts.js";
+$arr_javascript[] = array('path' => $webpath . "/bb-utilities/bb_scripts.js", 'version' => BRIMBOX_PROGRAM);
 //box javascript filter
 $arr_javascript = $main->filter("bb_box_javascript", $arr_javascript, $webpath);
 //javascript inlcude loop
@@ -33,9 +33,9 @@ $main->include_file($webpath . "/bb-config/bb_javascript.js", "js");
 
 /* STANDARD CSS INCLUDE */
 // standard style for customization
-$arr_css[] = $webpath . "/bb-utilities/bb_styles.css";
+$arr_css[] = array('path' => $webpath . "/bb-utilities/bb_styles.css", 'version' => BRIMBOX_PROGRAM);
 // styles for the box
-$arr_css[] = $webpath . "/bb-box/bb_box.css";
+$arr_css[] = array('path' => $webpath . "/bb-box/bb_box.css", 'version' => BRIMBOX_PROGRAM);
 //box css filter
 $arr_css = $main->filter("bb_box_css", $arr_css, $webpath);
 //css include loop

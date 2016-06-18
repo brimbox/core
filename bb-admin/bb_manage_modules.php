@@ -36,8 +36,6 @@ function bb_module_links(i,a)
 
 </script>
 <?php
-include_once ("bb-utilities/bb_version.php");
-
 // get $POST variable
 $POST = $main->retrieve($con);
 
