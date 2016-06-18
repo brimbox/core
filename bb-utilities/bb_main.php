@@ -681,7 +681,7 @@ class bb_main extends bb_reports {
             foreach ($arr_userroles as $value) {
                 // careful with the globals
                 $bold = ($value == $userrole) ? " bold" : "";
-                $params = array("class" => $class_button . $bold, "label" => $array_userroles[$value]['name'], "onclick" => "bb_logout_selector('" . $value . "'); return false;");
+                $params = array("class" => $class_button . $bold, "label" => $array_userroles[$value]['name'], "onclick" => "bb_userrole_switch('" . $value . "', '" . $array_userroles[$value]['home'] . "'); return false;");
                 $this->echo_script_button("role" . $value, $params);
                 $separator = ($i != $cnt) ? ", " : "";
                 echo $separator;

@@ -76,8 +76,19 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
     include_once ("bb-utilities/bb_version.php");
 
     // logout algorithm used for interface and userrole change
-    // verfiy user
-    if (isset($_SESSION['userrole'])) {
+    // verfiy userrole with login directed userroles
+    if (isset($_SESSION['userrole']) && in_array($_SESSION['userrole'], explode(",", $_SESSION['userroles']))):
+
+        /* LOGOUT */
+        // if logout, destroy session and force index
+        if ($module == "bb_logout") {
+            session_destroy();
+            $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
+            header($index_path);
+            die(); // important to stop script
+            
+        }
+
         /* INCLUDE CONSTANTS */
         include_once ("bb-config/bb_constants.php");
 
@@ -104,100 +115,83 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
         // die if locked user
         $main->locked($con, $username, $userrole);
 
-        // sets the module and submit
-        if ($module == "bb_logout") {
+        /* GET $POST for userrole switch */
+        $POST = $main->retrieve($con);
 
-            /* GET $POST for logout conditional */
-            $POST = $main->retrieve($con);
+        /* GET HEADER AND GLOBAL ARRAYS */
+        /* UNPAK ARRAY INTO SEPARATE UNIT */
 
-            // logout and change interface/userrole could be on different or many pages
-            // check for session poisoning, userroles string should not be altered
-            // $userroles variable should be protected and not used or altered anywhere
-            // non-integer or empty usertype will convert to 0
-            // any userrole starting with 0 logout
-            if ((( int )explode("_", $userrole, 2)) && in_array($POST['bb_userrole'], explode(",", $_SESSION['userroles']))) {
-                $_SESSION['userrole'] = $POST['bb_userrole'];
-                $_SESSION['module'] = ""; // send back to default landing page
-                $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-                header($index_path);
-                die(); // important to stop script
-                // if logout, destroy session and force index, invalid $userrrole or $usertpye
-                
-            }
-            else {
-                session_destroy();
-                $index_path = "Location: " . dirname($_SERVER['PHP_SELF']);
-                header($index_path);
-                die(); // important to stop script
-                
-            }
+        if (file_exists("bb-extend/bb_parse_globals.php")) include_once ("bb-extend/bb_parse_globals.php");
+        else include_once ("bb-blocks/bb_parse_globals.php");
+
+        //change userroles on the fly
+        //relies on session userroles
+        //change only change userroles if in $_SESSION['userroles']
+        if (!empty($POST['bb_userrole']) && in_array($POST['bb_userrole'], explode(",", $_SESSION['userroles']))) {
+            $userrole = $_SESSION['userrole'] = $POST['bb_userrole'];
         }
-    }
 
-    /* GET HEADER AND GLOBAL ARRAYS */
-    /* UNPAK ARRAY INTO SEPARATE UNIT */
+        /* RECONCILE SLUG AND MODULE */
+        // get module types for current user and interface
+        $module_types = array();
+        foreach ($array_interface[$interface] as $key => $value) {
+            if (in_array($userrole, $value['userroles'])) {
+                // (int) cast for security
+                array_push($module_types, $key);
+            }
+        };
+        // get modules type into string for query
+        $module_types = implode(",", array_unique($module_types));
 
-    if (file_exists("bb-extend/bb_parse_globals.php")) include_once ("bb-extend/bb_parse_globals.php");
-    else include_once ("bb-blocks/bb_parse_globals.php");
-
-    /* RECONCILE SLUG AND MODULE */
-    // get module types for current user and interface
-    $module_types = array();
-    foreach ($array_interface[$interface] as $key => $value) {
-        if (in_array($userrole, $value['userroles'])) {
-            // (int) cast for security
-            array_push($module_types, $key);
+        /* RECONCILE SLUG AND MODULE USING SQL */
+        $_SESSION['pretty_slugs'] = $pretty_slugs = $main->get_constant('BB_PRETTY_SLUGS', 0);
+        // get slug and module, in order of precedence, 1 good slug and module, 2 good slug (back button), 3 empty slug (on login)
+        if ($pretty_slugs == 1) {
+            $query = "SELECT id, module_name, module_slug FROM
+                           (SELECT 1 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table
+                            WHERE module_type IN (" . $module_types . ") AND replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string($slug) . "' AND module_name = '" . pg_escape_string($module) . "' AND interface = '" . pg_escape_string($interface) . "'
+                      UNION ALL
+                            SELECT 2 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table
+                            WHERE module_type IN (" . $module_types . ") AND replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string($slug) . "' AND interface = '" . pg_escape_string($interface) . "'
+                      UNION ALL
+                            SELECT 3 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table
+                            WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1
+                      ORDER BY id, module_type, module_order LIMIT 1";
         }
-    };
-    // get modules type into string for query
-    $module_types = implode(",", array_unique($module_types));
+        else {
+            $query = "SELECT id, module_name, module_slug FROM
+                        (SELECT 1 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table
+                         WHERE module_type IN (" . $module_types . ")
+                      UNION ALL
+                         SELECT 3 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table
+                         WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1
+                      ORDER BY id, module_type, module_order LIMIT 1";
+        }
+        $result = $main->query($con, $query);
+        $row = pg_fetch_array($result);
+        $module = $_SESSION['module'] = $row['module_name'];
+        $slug = $_SESSION['slug'] = $row['module_slug'];
 
-    /* RECONCILE SLUG AND MODULE USING SQL */
-    $_SESSION['pretty_slugs'] = $pretty_slugs = $main->get_constant('BB_PRETTY_SLUGS', 0);
-    // get slug and module, in order of precedence, 1 good slug and module, 2 good slug (back button), 3 empty slug (on login)
-    if ($pretty_slugs == 1) {
-        $query = "SELECT id, module_name, module_slug FROM
-                       (SELECT 1 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table
-                        WHERE replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string($slug) . "' AND module_name = '" . pg_escape_string($module) . "' AND interface = '" . pg_escape_string($interface) . "'
-                  UNION ALL
-                        SELECT 2 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table
-                        WHERE replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string($slug) . "' AND interface = '" . pg_escape_string($interface) . "'
-                  UNION ALL
-                        SELECT 3 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table
-                        WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1
-                  ORDER BY id, module_type, module_order LIMIT 1";
-    }
-    else {
-        $query = "SELECT id, module_name, module_slug FROM
-                    (SELECT 1 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table
-                  UNION ALL
-                     SELECT 3 as id, module_name, module_name as module_slug, module_type, module_order FROM modules_table
-                     WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1
-                  ORDER BY id, module_type, module_order LIMIT 1";
-    }
-    $result = $main->query($con, $query);
-    $row = pg_fetch_array($result);
-    $module = $_SESSION['module'] = $row['module_name'];
-    $slug = $_SESSION['slug'] = $row['module_slug'];
+        /* REDIRECT WITH DEFAULT SLUG AND MODULE ON LOGIN */
+        // this redirect has to happen after global array and hooks are loaded
+        if (in_array($row['id'], array(2, 3))) {
+            $index_path = "Location: " . dirname($_SERVER['PHP_SELF']) . "/" . $slug;
+            header($index_path);
+        }
 
-    /* REDIRECT WITH DEFAULT SLUG AND MODULE ON LOGIN */
-    // this redirect has to happen after global array and hooks are loaded
-    if (in_array($row['id'], array(2, 3))) {
-        $index_path = "Location: " . dirname($_SERVER['PHP_SELF']) . "/" . $slug;
-        header($index_path);
-    }
+        // cleanup
+        unset($key, $value, $module_types, $query, $result, $row, $index_path);
 
-    // cleanup
-    unset($key, $value, $module_types, $query, $result, $row, $index_path);
+        /* SET UP HOT STATE */
+        // hot state based in $interface
+        // one hot state per user/module
+        $main->hook("index_hot_state");
 
-    /* SET UP HOT STATE */
-    // hot state based in $interface
-    // one hot state per user/module
-    $main->hook("index_hot_state");
+        /* CONTROLLER INCLUDE */
+        // a custom controller will contain several standard include files, bb_javascript, bb_css, bb_less if desired
+        include_once ($abspath . $array_header[$interface]['controller']);
 
-    /* CONTROLLER INCLUDE */
-    // a custom controller will contain several standard include files, bb_javascript, bb_css, bb_less if desired
-    include_once ($abspath . $array_header[$interface]['controller']);
+    endif;
 
 else: /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */
 

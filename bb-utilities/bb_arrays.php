@@ -32,11 +32,11 @@ $main->add_value('header', array('name' => "Brimbox", 'controller' => "/bb-box/b
 
 // USERROLES HEADER ARRAYS
 // key is userrole
-$main->add_value('userroles', array('name' => 'Guest'), '1_bb_brimbox');
-$main->add_value('userroles', array('name' => 'Viewer'), '2_bb_brimbox');
-$main->add_value('userroles', array('name' => 'User'), '3_bb_brimbox');
-$main->add_value('userroles', array('name' => 'Superuser'), '4_bb_brimbox');
-$main->add_value('userroles', array('name' => 'Admin'), '5_bb_brimbox');
+$main->add_value('userroles', array('name' => 'Guest', 'home' => "bb_guest"), '1_bb_brimbox');
+$main->add_value('userroles', array('name' => 'Viewer', 'home' => "bb_viewer"), '2_bb_brimbox');
+$main->add_value('userroles', array('name' => 'User', 'home' => "bb_home"), '3_bb_brimbox');
+$main->add_value('userroles', array('name' => 'Superuser', 'home' => "bb_home"), '4_bb_brimbox');
+$main->add_value('userroles', array('name' => 'Admin', 'home' => "bb_home"), '5_bb_brimbox');
 
 // SECURITY HEADER ARRAYS
 // key is security type
