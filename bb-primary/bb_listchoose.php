@@ -32,8 +32,8 @@ $main->check_permission(array("3_bb_brimbox", "4_bb_brimbox", "5_bb_brimbox"));
 /* INITIALIZE */
 /* BEGIN STATE */
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get post_key
 $post_key = $main->init($POST['bb_post_key'], -1);

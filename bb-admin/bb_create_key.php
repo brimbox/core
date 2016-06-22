@@ -28,8 +28,8 @@ function bb_reload()
 <?php
 /* PRESERVE STATE */
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 $arr_notes = array("49", "50");
 

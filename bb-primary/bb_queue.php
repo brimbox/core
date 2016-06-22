@@ -105,8 +105,8 @@ function bb_set_field(col)
 <?php
 /* BEGIN QUEUE AND STATE POSTBACK */
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get state
 $arr_state = $main->load($con, $module);

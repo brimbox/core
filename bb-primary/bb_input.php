@@ -44,8 +44,8 @@ $main->check_permission(array("3_bb_brimbox", "4_bb_brimbox", "5_bb_brimbox"));
  * So again use $row_join -- on Insert
 */
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get $arr_state
 $arr_state = $main->load($con, $module);

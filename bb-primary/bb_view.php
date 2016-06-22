@@ -41,8 +41,8 @@ function bb_reload()
 $arr_layouts = $main->layouts($con);
 $default_row_type = $main->get_default_layout($arr_layouts);
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;

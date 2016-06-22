@@ -43,8 +43,8 @@ $arr_messages = array();
 
 /* LOOKUP AND STATE POSTBACK */
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get archive mode, default Off, show only zeros
 $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;

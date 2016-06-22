@@ -23,8 +23,8 @@ $main->check_permission(array("3_bb_brimbox", "4_bb_brimbox", "5_bb_brimbox"));
 /* INITIALIZE */
 $arr_messages = array();
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 $post_key = $main->init($POST['bb_post_key'], -1);
 $row_type = $main->init($POST['bb_row_type'], -1);

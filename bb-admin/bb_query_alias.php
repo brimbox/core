@@ -56,8 +56,8 @@ $row_limit = key($arr_limit);
 /* PRESERVE STATE */
 $arr_messages = array();
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get state from db
 $arr_state = $main->load($con, $module);

@@ -25,8 +25,8 @@ $arr_messages = array();
 
 $archive_log = $main->on_constant('BB_ARCHIVE_LOG');
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 $arr_archive = $array_security['row_archive'];
 

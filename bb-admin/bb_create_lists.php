@@ -50,8 +50,8 @@ $arr_layouts = $main->layouts($con);
 $default_row_type = $main->get_default_layout($arr_layouts);
 
 // hot state used for state
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get state from db
 $arr_state = $main->load($con, $module);

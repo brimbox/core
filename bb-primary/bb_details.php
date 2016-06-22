@@ -70,8 +70,8 @@ $arr_messages = array();
 
 /* START STATE AND DETAILS POSTBACK */
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get archive mode
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";

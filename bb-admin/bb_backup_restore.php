@@ -26,8 +26,8 @@ $arr_messages = array();
 $arr_layouts = $main->layouts($con);
 $row_type = $main->get_default_layout($arr_layouts);
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get state from db
 $arr_state = $main->load($con, $module);

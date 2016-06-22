@@ -25,8 +25,8 @@ $main->check_permission(array("3_bb_brimbox", "4_bb_brimbox", "5_bb_brimbox"));
 // error message pile
 $arr_messages = array();
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 $arr_security = $array_security['row_security'];
 

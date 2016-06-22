@@ -33,8 +33,8 @@ $arr_messages = array();
 
 /* PRESERVE STATE */
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // sorting function
 function cmp($a, $b) {

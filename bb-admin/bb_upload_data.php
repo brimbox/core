@@ -32,8 +32,8 @@ function bb_reload()
 <?php
 /* PRESERVE STATE */
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get state from db
 $arr_state = $main->load($con, $module);

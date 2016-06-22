@@ -116,8 +116,8 @@ $arr_messages = array();
 // deal with constants
 $maxinput = $main->get_constant('BB_STANDARD_LENGTH', 255);
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // start of code, get row_type
 $row_type = $main->post('row_type', $module, $default_row_type);

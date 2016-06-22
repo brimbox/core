@@ -36,8 +36,8 @@ function bb_module_links(i,a)
 
 </script>
 <?php
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get state from db
 $arr_state = $main->load($con, $module);

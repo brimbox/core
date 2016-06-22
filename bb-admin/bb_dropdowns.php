@@ -39,8 +39,8 @@ $delimiter = $main->get_constant('BB_MULTISELECT_DELIMITER', ",");
 
 $arr_properties = array('multiselect' => array('name' => 'Multiselect'));
 
-// get $POST variable
-$POST = $main->retrieve($con);
+// $POST brought in from controller
+
 
 // get state from db
 $arr_state = $main->load($con, $module);
