@@ -233,13 +233,9 @@ class bb_work extends bb_meta {
     function retrieve($con) {
 
         global $POST;
-        global $array_hot_state;
-        global $submit;
+        global $con;
 
         $POST = $this->keeper($con);
-
-        // check if module has hot state
-        if (isset($array_hot_state[$submit])) $this->hot_state($con);
 
         return $POST;
     }
@@ -262,6 +258,7 @@ class bb_work extends bb_meta {
         global $userrole;
         global $array_hot_state;
         global $submit;
+        global $POST;
 
         // check usertype set
         if (isset($array_hot_state[$submit][$userrole])) {

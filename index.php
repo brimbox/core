@@ -204,6 +204,9 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
         // one hot state per user/module
         $main->hook("index_hot_state");
 
+        /* hot_state is global, global arrays are in */
+        $main->hot_state($con);
+
         /* CONTROLLER INCLUDE */
         // a custom controller will contain several standard include files, bb_javascript, bb_css, bb_less if desired
         include_once ($abspath . $array_header[$interface]['controller']);
