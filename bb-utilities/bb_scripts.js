@@ -66,7 +66,7 @@ function bb_submit_form(params) {
 		// prepended
 		// to the name of the variable, for global form variables
 		rel_attrib = frmobj.elements[i].getAttribute('rel');
-		if (rel_attrib != 'ignore') {
+		if (rel_attrib != 'global') {
 			// rename form object with module name prefix
 			// this make global post variables have a unique name
 			frmobj.elements[i].name = module + "_" + frmobj.elements[i].name;

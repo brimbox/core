@@ -1,5 +1,6 @@
 <?php if (!defined('BASE_CHECK')) exit(); ?>
 <?php
+
 /*
  * Copyright (C) Brimbox LLC
  *
@@ -67,7 +68,7 @@ class bb_forms extends bb_links {
         $arr_module_variables = array('bb_module' => $module, 'bb_submit' => "", 'bb_button' => "", 'bb_userrole' => "", 'bb_object' => "");
 
         foreach ($arr_module_variables as $name => $value) {
-            $params = array('rel' => "ignore", 'type' => "hidden");
+            $params = array('rel' => "global", 'type' => "hidden");
             $this->echo_input($name, $value, $params);
         }
     }
@@ -81,7 +82,7 @@ class bb_forms extends bb_links {
         global $array_common_variables;
 
         foreach ($array_common_variables as $value) {
-            $params = array('rel' => "ignore", 'type' => "hidden");
+            $params = array('rel' => "global", 'type' => "hidden");
             $this->echo_input($value, "", $params);
         }
     }
