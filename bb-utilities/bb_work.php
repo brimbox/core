@@ -78,12 +78,12 @@ class bb_work extends bb_meta {
         return (isset($var)) ? $var : $default;
     }
 
-    function hot($var) {
+    function hot($check) {
 
         global $module;
         global $submit;
 
-        if (($module != $var) && ($submit == $var)) return true;
+        if (($module != $check) && ($submit == $check)) return true;
         else return false;
     }
 
@@ -217,27 +217,15 @@ class bb_work extends bb_meta {
         return $arr_state;
     }
 
-    function keeper($con, $key = "") {
+    function retrieve($con) {
 
-        global $module;
         global $keeper;
 
-        // get module number
         $query = "SELECT postdata FROM state_table WHERE id = " . $keeper . ";";
         $result = $this->query($con, $query);
         $row = pg_fetch_array($result);
 
         return json_decode($row['postdata'], true);
-    }
-
-    function retrieve($con) {
-
-        global $POST;
-        global $con;
-
-        $POST = $this->keeper($con);
-
-        return $POST;
     }
 
     function update($con, $module, $arr_state)

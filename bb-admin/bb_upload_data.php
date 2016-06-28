@@ -20,8 +20,8 @@ $main->check_permission(array("4_bb_brimbox", "5_bb_brimbox"));
 <script type="text/javascript">     
 function bb_reload()
     {
-    //change row_type, reload appropriate columns
-    //this goes off when row_type is changed    
+    //change row_join, reload appropriate columns
+    //this goes off when row_join is changed    
     var frmobj = document.forms["bb_form"];
     
     bb_submit_form(); //call javascript submit_form function
@@ -42,7 +42,7 @@ $arr_state = $main->load($con, $module);
 $arr_layouts = $main->layouts($con);
 $default_row_type = $main->get_default_layout($arr_layouts);
 
-$row_type = $main->state('row_type', $arr_state, $default_row_type);
+$row_join = $main->state('row_join', $arr_state, $default_row_type);
 $data_area = $main->state('data_area', $arr_state, "");
 $data_stats = $main->state('data_stats', $arr_state, "");
 $data_file = $main->state('data_file', $arr_state, "default");
@@ -55,8 +55,8 @@ $arr_messages_all = $main->state('arr_messages_all', $arr_state, array());
 // update state, back to db
 $main->update($con, $module, $arr_state);
 
-// get column names based on row_type/record types
-$arr_layout = $arr_layouts[$row_type];
+// get column names based on row_join/record types
+$arr_layout = $arr_layouts[$row_join];
 
 // button 1
 // get column names for layout
@@ -95,10 +95,10 @@ if (!empty($data_stats['inputted'])) {
 $main->echo_form_begin(array("enctype" => "multipart/form-data"));
 $main->echo_module_vars();;
 
-// upload row_type calls dummy function
+// upload row_join calls dummy function
 echo "<div class=\"spaced border floatleft padded\">";
 $params = array("class" => "spaced", "onchange" => "bb_reload()");
-$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+$main->layout_dropdown($arr_layouts, "row_join", $row_join, $params);
 $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Get Upload Header");
 $main->echo_button("get_header", $params);
 echo "</div>";

@@ -84,25 +84,25 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_
     $arr_guest_index = $arr_header['guest_index']['value'];
 
     // will handle postback
-    if ($main->changed('row_type', $submit, $arr_state, $default_row_type)) {
-        $row_type = $main->process('row_type', $submit, $arr_state, $default_row_type);
+    if ($main->changed('row_join', $submit, $arr_state, $default_row_type)) {
+        $row_join = $main->process('row_join', $submit, $arr_state, $default_row_type);
         $data_area = "";
         $data_file = "default";
         $edit_or_insert = 0;
     }
     else {
-        $row_type = $main->process('row_type', $submit, $arr_state, $default_row_type);
+        $row_join = $main->process('row_join', $submit, $arr_state, $default_row_type);
         $data_area = $main->process('data_area', $submit, $arr_state, "");
         $data_file = $main->process('data_file', $submit, $arr_state, "default");
         $edit_or_insert = $main->process('edit_or_insert', $submit, $arr_state, 0);
     }
 
-    // get column names based on row_type/record types
-    $parent_row_type = $layouts[$row_type]['parent']; // should be set
+    // get column names based on row_join/record types
+    $parent_row_type = $layouts[$row_join]['parent']; // should be set
     // need unreduced column
-    $arr_columns = $main->columns($con, $row_type);
+    $arr_columns = $main->columns($con, $row_join);
     // get dropdowns for validation
-    $arr_dropdowns = $main->dropdowns($con, $row_type);
+    $arr_dropdowns = $main->dropdowns($con, $row_join);
     // get has_link
     $has_link = $parent_row_type || $edit_or_insert ? true : false;
 
@@ -196,24 +196,24 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_
                 // INSERT RECORDS
                 if ($edit_or_insert == 0) {
                     if ($has_link) {
-                        $arr_pass['row_type'] = $row_type;
-                        $arr_pass['row_join'] = $parent_row_type;
+                        $arr_pass['row_join'] = $row_join;
+                        $arr_pass['row_type'] = $parent_row_type;
                         // convert every non-integer to be zero
                         // zero will cause INSERT to fail
                         $arr_pass['post_key'] = ( int )$arr_line[0];
                         $l = 1;
                     }
                     else {
-                        $arr_pass['row_type'] = $row_type;
-                        $arr_pass['row_join'] = 0;
+                        $arr_pass['row_join'] = $row_join;
+                        $arr_pass['row_type'] = 0;
                         $arr_pass['post_key'] = - 1;
                         $l = 0;
                     }
                 }
                 else {
                     $l = 1;
-                    $arr_pass['row_type'] = $row_type;
-                    $arr_pass['row_join'] = $row_type;
+                    $arr_pass['row_join'] = $row_join;
+                    $arr_pass['row_type'] = $row_join;
                     $arr_pass['post_key'] = ( int )$arr_line[0];
                 }
 
