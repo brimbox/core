@@ -607,7 +607,7 @@ class bb_main extends bb_reports {
         $userrole = $_SESSION['userrole'];
         $username = $_SESSION['username'];
         if (!is_array($userroles)) {
-            $userlevels = array($userroles);
+            $userroles = array($userroles);
         }
         // waterfall
         if (in_array($userrole, $userroles)) {
