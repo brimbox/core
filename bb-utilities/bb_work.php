@@ -193,7 +193,7 @@ class bb_work extends bb_meta {
 
         // will format value if valid, otherwise leaves $var untouched
         // check becomes false on valid type, true opn error
-        $check = call_user_func_array($array_validation[$type]['func'], array(&$var, $error);
+        $check = call_user_func_array($array_validation[$type]['func'], array(&$var, $error));
         $arr_state[$name] = $var;
 
         return $var;
