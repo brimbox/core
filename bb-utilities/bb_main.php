@@ -337,7 +337,7 @@ class bb_main extends bb_reports {
     }
 
     // function to convert dates to proper time zone and format
-    // convert from program time to user time
+    // convert from database time to user time
     function convert_date($date, $format = "Y-m-d") {
 
         $date = new DateTime($date, new DateTimeZone(DB_TIMEZONE));
@@ -345,7 +345,7 @@ class bb_main extends bb_reports {
         return $date->format($format);
     }
 
-    // convert from user time to program time
+    // convert from user time to database time
     function rconvert_date($date, $format = "Y-m-d") {
 
         $date = new DateTime($date, new DateTimeZone(USER_TIMEZONE));
@@ -357,10 +357,10 @@ class bb_main extends bb_reports {
         // assumes index file root
         $filepaths = is_string($filepaths) ? array(0 => array('path' => $filepaths, 'version' => BRIMBOX_PROGRAM)) : $filepaths;
         foreach ($filepaths as $filepath) {
-            if ($type == "css") {
+            if (!strcasecmp($type, "css")) {
                 echo "<link rel=StyleSheet href=\"" . $filepath['path'] . "?v=" . $filepath['version'] . "\" type=\"text/css\" media=screen>";
             }
-            elseif ($type == "js") {
+            elseif (!strcasecmp($type, "js")) {
                 echo "<script type=\"text/javascript\" src=\"" . $filepath['path'] . "?v=" . $filepath['version'] . "\"></script>";
             }
         }
@@ -370,9 +370,9 @@ class bb_main extends bb_reports {
     // directory recursion function
     function get_directory_tree($directory) {
 
-        $filter = array(".", "..", "Thumbs.db", ".svn");
+        $filter = array(".", "..");
         $dirs = array_diff(scandir($directory), $filter);
-        $dir_array = Array();
+        $dir_array = array();
         foreach ($dirs as $d) if (is_dir($directory . $d)) {
             $d = $d . "/";
             $dir_array[$d] = $this->get_directory_tree($directory . $d);
@@ -601,16 +601,16 @@ class bb_main extends bb_reports {
         }
     }
 
-    function validate_password($con, $passwd, $userlevels) {
+    function validate_password($con, $passwd, $userroles) {
         // waterfall
         // this will also check that session is set
         $userrole = $_SESSION['userrole'];
         $username = $_SESSION['username'];
-        if (!is_array($userlevels)) {
-            $userlevels = array($userlevels);
+        if (!is_array($userroles)) {
+            $userlevels = array($userroles);
         }
         // waterfall
-        if (in_array($userrole, $userlevels)) {
+        if (in_array($userrole, $userroles)) {
             $query = "SELECT * FROM users_table WHERE '" . $userrole . "' = ANY (userroles) AND UPPER(username) = UPPER('" . pg_escape_string($username) . "');";
             $result = $this->query($con, $query);
             if (pg_num_rows($result) == 1) {

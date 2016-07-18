@@ -87,25 +87,6 @@ class bb_meta extends bb_validate {
         return $arr_columns;
     }
 
-    function columns_field_reduce($arr_columns, $field, $filter = array(), $keep_mode = true) {
-
-        if ($keep_mode) {
-            foreach ($arr_columns as $key => $value) {
-                if (in_array($value[$field], $filter)) {
-                    $arr[$key] = $value;
-                }
-            }
-        }
-        else {
-            foreach ($arr_columns as $key => $value) {
-                if (!in_array($value[$field], $filter)) {
-                    $arr[$key] = $value;
-                }
-            }
-        }
-        return $arr;
-    }
-
     function columns_properties($con, $row_type) {
 
         $arr_columns_json = $this->get_json($con, "bb_column_names");

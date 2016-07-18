@@ -199,7 +199,7 @@ class bb_reports extends bb_forms {
         $page_link_class = isset($arr['page_link_class']) ? $arr['page_link_class'] : "link bold colored";
         $return_rows_class = isset($arr['return_rows_class']) ? $arr['return_rows_class'] : "spaced colored bold";
 
-        $limit = isset($arr['limit']) ? $arr['limit'] : 0;
+        $limit = isset($arr['limit']) ? $arr['limit'] : 10;
         $ucfirst = isset($arr['ucfirst']) ? $arr['ucfirst'] : false;
         $shade_rows = isset($arr['shade_rows']) ? $arr['shade_rows'] : false;
         $start_column = isset($arr['start_column']) ? $arr['start_column'] : 0;

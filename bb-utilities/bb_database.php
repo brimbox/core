@@ -145,7 +145,7 @@ class bb_database extends bb_build {
         }
     }
 
-    function process_related(&$arr_select_where, $arr_layouts_reduced, $value, $str) {
+    function process_related(&$arr_select_where, $arr_layouts, $value, $str) {
         // process related records/table
         if (isset($value)) {
             // set column part
@@ -159,7 +159,7 @@ class bb_database extends bb_build {
                     // check related
                     if ($value['relate'] == $row_type_relate) {
                         // layout defined, else bad
-                        if ($arr_layouts_reduced[$row_type_relate]['relate'] == 1) {
+                        if ($arr_layouts[$row_type_relate]['relate'] == 1) {
                             // good value
                             $arr_select_where[] = "(id = " . ( int )$post_key_relate . " AND row_type = " . ( int )$row_type_relate . ")";
                         }

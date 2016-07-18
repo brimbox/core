@@ -61,7 +61,7 @@ class bb_forms extends bb_links {
 
     function echo_module_vars() {
         // global make the most sense since these are global variables
-        global $module, $slug;
+        global $module;
 
         // should not be alter, how the controller works
         $arr_module_variables = array('bb_module' => $module, 'bb_submit' => "", 'bb_button' => "", 'bb_userrole' => "", 'bb_object' => "");
@@ -93,10 +93,9 @@ class bb_forms extends bb_links {
 
         // javascript parameters
         $number = isset($params['number']) ? $params['number'] : 0;
-        // no target attribute for button
         $target = isset($params['target']) ? "'" . $params['target'] . "'" : "undefined";
-        $slug = isset($params['slug']) ? "'" . $params['slug'] . "'" : "undefined";
         $passthis = isset($params['passthis']) ? "this" : "undefined";
+
         $javascript_params = "[$number, $target, $passthis]";
         unset($params['number'], $params['target'], $params['passthis']);
 
@@ -116,7 +115,7 @@ class bb_forms extends bb_links {
     function echo_script_button($name, $params = array()) {
         // function to output button
         $params = array('name' => $name) + $params;
-        $label = $params['label'];
+        $label = isset($params['label']) ? $params['label'] : "";
         unset($params['label']);
 
         $attributes = $this->attributes($params);
