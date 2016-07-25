@@ -522,25 +522,25 @@ if (in_array($action, array(1, 2, 3, 4))):
         $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Add User");
         $main->echo_button("add_user", $params);
         // Reset Button
-        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Form");
+        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Module");
         $main->echo_button("clear_form", $params);
     }
     elseif ($action == 2) {
-        $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Update Information");
+        $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Edit User");
         $main->echo_button("update_info", $params);
-        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Form");
+        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Module");
         $main->echo_button("clear_form", $params);
     }
     elseif ($action == 3) {
         $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => "Lock User");
         $main->echo_button("lock_user", $params);
-        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Form");
+        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Module");
         $main->echo_button("clear_form", $params);
     }
     elseif ($action == 4) {
         $params = array("class" => "spaced", "number" => 4, "target" => $module, "passthis" => true, "label" => "Delete User");
         $main->echo_button("delete_user", $params);
-        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Form");
+        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Module");
         $main->echo_button("clear_form", $params);
     }
 

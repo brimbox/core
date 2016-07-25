@@ -49,49 +49,47 @@ if (!function_exists('bb_input_redirect_postback')):
 
         // Button 1 - update or insert
         /* STANDARD POSTBACK FROM SUBMIT BUTTON */
-        if ($main->button(1)) {
-            // this bring the form into arr_state
-            $row_type = $main->process('row_type', $submit, $arr_state, 0);
-            $row_join = $main->process('row_join', $submit, $arr_state, $default_row_type);
-            $post_key = $main->process('post_key', $submit, $arr_state, 0);
+        // this bring the form into arr_state
+        $row_type = $main->process('row_type', $submit, $arr_state, 0);
+        $row_join = $main->process('row_join', $submit, $arr_state, $default_row_type);
+        $post_key = $main->process('post_key', $submit, $arr_state, 0);
 
-            $arr_columns = $main->columns($con, $row_join);
-            $arr_dropdowns = $main->dropdowns($con, $row_join);
+        $arr_columns = $main->columns($con, $row_join);
+        $arr_dropdowns = $main->dropdowns($con, $row_join);
 
-            // loop through columns
-            foreach ($arr_columns as $key => $value) {
-                $col = $main->pad("c", $key);
-                if (in_array($key, $arr_notes)) {
-                    $str = $main->purge_chars($main->post($col, $submit), false);
+        // loop through columns
+        foreach ($arr_columns as $key => $value) {
+            $col = $main->pad("c", $key);
+            if (in_array($key, $arr_notes)) {
+                $str = $main->purge_chars($main->post($col, $submit), false);
+            }
+            elseif (in_array($key, $arr_file)) {
+                // deal with remove and lo, present when doing files
+                $remove = $main->post('remove', $submit, 0);
+                $main->set("remove", $arr_state, $remove);
+                if (isset($_FILES[$main->name('c47', $submit) ]["tmp_name"])) {
+                    $str1 = $_FILES[$main->name($col, $submit) ]["name"];
                 }
-                elseif (in_array($key, $arr_file)) {
-                    // deal with remove and lo, present when doing files
-                    $remove = $main->post('remove', $submit, 0);
-                    $main->set("remove", $arr_state, $remove);
-                    if (isset($_FILES[$main->name('c47', $submit) ]["tmp_name"])) {
-                        $str1 = $_FILES[$main->name($col, $submit) ]["name"];
-                    }
-                    $str2 = $main->post("lo", $submit);
-                    $str = $main->blank($str1) ? $str2 : $str1;
-                    $str = $remove ? "" : $str;
-                    $main->set("lo", $arr_state, $str);
-                    $main->set($col, $arr_state, $str);
-                }
-                else {
-                    if (isset($arr_dropdowns[$key]['multiselect']) && $arr_dropdowns[$key]['multiselect']) {
-                        // will be an array
-                        $str = $main->post($col, $submit, array());
-                        $str = array_map(array($main, "purge_chars"), $str);
-                    }
-                    else {
-                        $str = $main->purge_chars($main->post($col, $submit));
-                    }
-                }
+                $str2 = $main->post("lo", $submit);
+                $str = $main->blank($str1) ? $str2 : $str1;
+                $str = $remove ? "" : $str;
+                $main->set("lo", $arr_state, $str);
                 $main->set($col, $arr_state, $str);
             }
-            $archive = $main->process('archive', $submit, $arr_state, 0);
-            $secure = $main->process('secure', $submit, $arr_state, 0);
+            else {
+                if (isset($arr_dropdowns[$key]['multiselect']) && $arr_dropdowns[$key]['multiselect']) {
+                    // will be an array
+                    $str = $main->post($col, $submit, array());
+                    $str = array_map(array($main, "purge_chars"), $str);
+                }
+                else {
+                    $str = $main->purge_chars($main->post($col, $submit));
+                }
+            }
+            $main->set($col, $arr_state, $str);
         }
+        $archive = $main->process('archive', $submit, $arr_state, 0);
+        $secure = $main->process('secure', $submit, $arr_state, 0);
     }
 
 endif;

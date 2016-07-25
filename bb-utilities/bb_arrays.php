@@ -75,13 +75,9 @@ $main->add_value('reports', array('type' => 3, 'name' => "Textarea"), 40);
 if ($interface == "bb_brimbox"):
 
     /* PRODUCES */
-
     // $array_hooks
-    // $array_filters
     // $array_common_variables
     // $array_links
-    // STANDARD HOOKS #
-    // use static classes or standard functions
     $main->add_action('hooks', 'index_hot_state', array('func' => "bb_index_hot_state", 'vars' => array("con", "main", "interface", "&array_hot_state"), 'file' => "/bb-pluggables/bb_index_hot_state.php"));
 
     $main->add_action('hooks', "bb_guest_infolinks", array('func' => 'bb_main::infolinks'));
@@ -91,7 +87,6 @@ if ($interface == "bb_brimbox"):
     /* these are the primary input and input redirect hooks */
     $main->add_action('hooks', "bb_input_module_postback", array('func' => "bb_input_module_postback", 'vars' => array("&arr_state"), 'file' => "/bb-pluggables/bb_input_module_postback.php"), 50);
     $main->add_action('hooks', "bb_input_module_autofill", array('func' => "bb_input_module_autofill", 'vars' => array("&arr_state"), 'file' => "/bb-pluggables/bb_input_module_autofill.php"), 50);
-    $main->add_action('hooks', "bb_input_data_table_render_form", array('func' => "bb_data_table_render_form", 'vars' => array("&arr_state"), 'file' => "/bb-pluggables/bb_data_table_render_form.php"), 50);
     $main->add_action('hooks', "bb_input_redirect_postback", array('func' => "bb_input_redirect_postback", 'vars' => array("&arr_state"), 'file' => "/bb-pluggables/bb_input_redirect_postback.php"), 50);
     $main->add_action('hooks', "bb_input_data_table_row_validate", array('func' => "bb_data_table_row_validate", 'vars' => array("&arr_state"), 'file' => "/bb-pluggables/bb_data_table_row_validate.php"), 50);
     $main->add_action('hooks', "bb_input_data_table_row_input", array('func' => "bb_data_table_row_input", 'vars' => array("&arr_state"), 'file' => "/bb-pluggables/bb_data_table_row_input.php"), 50);
@@ -104,6 +99,7 @@ if ($interface == "bb_brimbox"):
     /* note the use of include_once */
     $main->add_action('hooks', "bb_input_top_level_records", array('func' => "bb_input_module_hooks::top_level_records", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 50);
     $main->add_action('hooks', "bb_input_before_render_form", array('func' => "bb_input_module_hooks::parent_record", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 10);
+    $main->add_action('hooks', "bb_input_data_table_render_form", array('func' => "bb_data_table_render_form", 'vars' => array("&arr_state"), 'file' => "/bb-pluggables/bb_data_table_render_form.php"), 50);
     $main->add_action('hooks', "bb_input_before_render_form", array('func' => "bb_input_module_hooks::quick_links", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 20);
     $main->add_action('hooks', "bb_input_after_render_form", array('func' => "bb_input_module_hooks::submit_buttons", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 10);
     $main->add_action('hooks', "bb_input_after_render_form", array('func' => "bb_input_module_hooks::textarea_load", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 20);
@@ -118,17 +114,35 @@ if ($interface == "bb_brimbox"):
     // LINK VARS TO DEFINE RECORD LINKS #
     // use statis classes or standard functions
     // $row_type and $arr_layouts must be present $main->output_links($row, $arr_layouts, $userrole) call;
-    if (in_array($userrole, array("3_bb_brimbox", "4_bb_brimbox", "5_bb_brimbox"))) {
-        $main->add_value('links', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_details", 'text' => "Details")), 10);
-        $main->add_value('links', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_cascade", 'text' => "Cascade")), 20);
-        $main->add_value('links', array('func' => array($main, 'edit'), 'params' => array('target' => "bb_input", 'text' => "Edit")), 30);
-        $main->add_value('links', array('func' => array($main, 'relate'), 'params' => array('target' => "bb_input", 'text' => "Relate")), 40);
-        $main->add_value('links', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_listchoose", 'text' => "List")), 50);
-        $main->add_value('links', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_archive", 'text' => "Archive")), 60);
-        $main->add_value('links', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_delete", 'text' => "Delete")), 70);
-        $main->add_value('links', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_secure", 'text' => "Secure")), 80);
-        $main->add_value('links', array('func' => array($main, 'children'), 'params' => array('target_add' => "bb_input", 'text_add' => "Add", 'target_view' => "bb_view", 'text_view' => "View")), 90);
-    }
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_details", 'text' => "Details")), 10);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_cascade", 'text' => "Cascade")), 20);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'edit'), 'params' => array('target' => "bb_input", 'text' => "Edit")), 30);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'relate'), 'params' => array('target' => "bb_input", 'text' => "Relate")), 40);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_listchoose", 'text' => "List")), 50);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_archive", 'text' => "Archive")), 60);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_delete", 'text' => "Delete")), 70);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_secure", 'text' => "Secure")), 80);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'children'), 'params' => array('target_add' => "bb_input", 'text_add' => "Add", 'target_view' => "bb_view", 'text_view' => "View")), 90);
+
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_details", 'text' => "Details")), 10);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_cascade", 'text' => "Cascade")), 20);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'edit'), 'params' => array('target' => "bb_input", 'text' => "Edit")), 30);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'relate'), 'params' => array('target' => "bb_input", 'text' => "Relate")), 40);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_listchoose", 'text' => "List")), 50);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_archive", 'text' => "Archive")), 60);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_delete", 'text' => "Delete")), 70);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_secure", 'text' => "Secure")), 80);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'children'), 'params' => array('target_add' => "bb_input", 'text_add' => "Add", 'target_view' => "bb_view", 'text_view' => "View")), 90);
+
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_details", 'text' => "Details")), 10);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_cascade", 'text' => "Cascade")), 20);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'edit'), 'params' => array('target' => "bb_input", 'text' => "Edit")), 30);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'relate'), 'params' => array('target' => "bb_input", 'text' => "Relate")), 40);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_listchoose", 'text' => "List")), 50);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_archive", 'text' => "Archive")), 60);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_delete", 'text' => "Delete")), 70);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_secure", 'text' => "Secure")), 80);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'children'), 'params' => array('target_add' => "bb_input", 'text_add' => "Add", 'target_view' => "bb_view", 'text_view' => "View")), 90);
 
 endif; // interface bb_brimbox
 

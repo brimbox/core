@@ -89,12 +89,11 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("3_bb_
     /* END DEAL WITH CONSTANTS */
 
     /* POSTBACK HOOK */
-    // include codeblock
-    // hook to alter codeblock
-    $main->hook("bb_input_redirect_postback");
-
     // submit to database
     if ($main->button(1)) {
+        // hook to alter codeblock
+        $main->hook("bb_input_redirect_postback");
+
         // hook to alter codeblock
         $main->hook("bb_input_data_table_row_validate");
 

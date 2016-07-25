@@ -97,21 +97,22 @@ if (!function_exists('bb_data_table_render_form')):
                         $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . htmlentities($value['name']) . ": </label>";
                         if ($multiselect) {
                             $field_output.= "<select id=\"" . $field_id . "\" class = \"spaced pad_textbox\" name = \"" . $col . "[]\" size=\"5\" multiple onFocus=\"bb_remove_message(); return false;\">";
-                            foreach ($dropdown as $value) {
-                                $selected = is_int(array_search(strtolower($value), array_map('strtolower', $input))) ? "selected" : "";
-                                $field_output.= "<option value=\"" . htmlentities($value) . "\" " . $selected . ">" . htmlentities($value) . "&nbsp;</option>";
+                            foreach ($dropdown as $item) {
+                                $selected = is_int(array_search(strtolower($item), array_map('strtolower', $input))) ? "selected" : "";
+                                $field_output.= "<option value=\"" . htmlentities($item) . "\" " . $selected . ">" . htmlentities($item) . "&nbsp;</option>";
                             }
+                            $field_output.= "</select>";
                         }
                         else {
                             $field_output.= "<select id=\"" . $field_id . "\" class = \"spaced pad_textbox\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
-                            foreach ($dropdown as $value) {
-                                $selected = is_int(array_search(strtolower($value), array_map('strtolower', $input))) ? "selected" : "";
-                                $field_output.= "<option value=\"" . htmlentities($value) . "\" " . $selected . ">" . htmlentities($value) . "&nbsp;</option>";
+                            foreach ($dropdown as $item) {
+                                $selected = is_int(array_search(strtolower($item), array_map('strtolower', $input))) ? "selected" : "";
+                                $field_output.= "<option value=\"" . htmlentities($item) . "\" " . $selected . ">" . htmlentities($item) . "&nbsp;</option>";
                             }
                             $field_output.= "</select>";
-                            $field_output.= "<label class=\"error\">" . $error . "</label>";
-                            $field_output.= "</div>";
                         }
+                        $field_output.= "<label class=\"error\">" . $error . "</label>";
+                        $field_output.= "</div>";
                     }
                     elseif (in_array($key, $arr_relate)) {
                         // possible related record type, could be straight text
@@ -302,7 +303,7 @@ if (!function_exists('bb_data_table_render_form')):
                 break;
             } // switch
             // filter to echo the field output
-            $field_output = $main->filter('bb_input_field_output', $field_output, $display, $input, $key, $value);
+            $field_output = $main->filter('bb_input_field_output', $field_output, $input, $key, $value);
             echo $field_output;
         }
 

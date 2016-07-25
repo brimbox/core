@@ -839,7 +839,7 @@ class bb_main extends bb_reports {
         global $array_links;
 
         // not sorted by default
-        $arr_links = $array_links;
+        $arr_links = $array_links[$userrole];
         ksort($arr_links);
         foreach ($arr_links as $arr) {
             array_unshift($arr['params'], $arr_layouts);

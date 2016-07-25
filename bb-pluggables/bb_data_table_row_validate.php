@@ -89,8 +89,6 @@ if (!function_exists('bb_data_table_row_validate')):
                     }
                 }
             }
-            $field = $main->filter("bb_input_custom_validation", $field, $key, $value);
-
             $main->set($col, $arr_state, $field);
         }
         $main->set('arr_errors', $arr_state, $arr_errors);
