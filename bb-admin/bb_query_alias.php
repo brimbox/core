@@ -89,20 +89,15 @@ $substituter = $main->process("substituter", $module, $arr_state, "");
 // update state, back to db
 $main->update($con, $module, $arr_state);
 
-// build main query
-$tokenized = preg_split("/( |\(|\))/", $substituter, NULL, PREG_SPLIT_DELIM_CAPTURE);
-
 // build full query
 if ($main->button(-1)) {
+    $fullquery = $substituter;
     for ($i = 1;$i <= $number_sub_queries;$i++) {
-        foreach ($tokenized as $key => & $value) {
-            if (!strcasecmp($value, $arr_sub_queries[$i]['name'])) {
-                $value = "(" . $arr_sub_queries[$i]['subquery'] . ")";
-            }
-        }
+        $value = "(" . $arr_sub_queries[$i]['subquery'] . ")";
+        $fullquery = str_ireplace($arr_sub_queries[$i]['name'], $value, $fullquery);
     }
-    $fullquery = implode($tokenized);
-} // or run subquery
+}
+// or run subquery
 else {
     if ($button > 0) {
         $fullquery = $arr_sub_queries[$button]['subquery'];
