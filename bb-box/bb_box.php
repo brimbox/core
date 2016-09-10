@@ -20,6 +20,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?php echo PAGE_TITLE; ?></title>
 <?php
 /* STANDARD JAVASCRIPT INCLUDE */
@@ -32,8 +33,6 @@ $main->include_file($arr_javascript, "js");
 $main->include_file($webpath . "/bb-config/bb_javascript.js", "js");
 
 /* STANDARD CSS INCLUDE */
-// standard style for customization
-$arr_css[] = array('path' => $webpath . "/bb-utilities/bb_styles.css", 'version' => BRIMBOX_PROGRAM);
 // styles for the box
 $arr_css[] = array('path' => $webpath . "/bb-box/bb_box.css", 'version' => BRIMBOX_PROGRAM);
 //box css filter

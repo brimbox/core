@@ -147,7 +147,7 @@ class bb_main extends bb_reports {
                 // always skipped first time
                 if ($row2 != $row1) {
                     if ($pop) {
-                        echo "<div class = \"left\">" . $output . "</div><div class = \"clear\"></div>";
+                        echo "<div class = \"left\">" . $output . "</div><div class = \"rowclear\"></div>";
                     }
                     $output = ""; // reset row data
                     $pop = false; // start row again with pop = false

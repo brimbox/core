@@ -410,7 +410,6 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
         $less = new bb_less_substituter();
 
         $less->parse_less_file($abspath . "/bb-box/bb_box.less", $abspath . "/bb-box/bb_box.css");
-        $less->parse_less_file($abspath . "/bb-utilities/bb_styles.less", $abspath . "/bb-utilities/bb_styles.css");
 
         $arr_messages[] = "Interface CSS has been updated with LESS.";
     }

@@ -16,25 +16,35 @@
 
 /* CSS/LESS Document for parsing*/
 
+/* Default Colors */
 @bb_background_color : #FFFFFF;
 @bb_text_color : #181818;
+
+/* Text Colors */
 @bb_colored_text_color : #56006F;
 @bb_error_color : #FF0000;
 @bb_link_color : #56006F;
 @bb_message_color : #56006F;
+
+/* Shading Colors */
 @bb_even_color : #FFFFFF;
 @bb_odd_color : #F2EAFF;
 @bb_shaded_color : #F2EAFF;
 @bb_button_color  : #F2EAFF;
 @bb_button_text_color : #181818;
+
+/* Border and Divider Colors */
 @bb_border_color : #A070B6;
 @bb_divider_color : #A070B6;
 @bb_darkline_color : #CCBBDD;
+
+/* These are the Tab Colors */
 @bb_tab_text_color : #56006F;
 @bb_tab_background_color : #F2EAFF;
 @bb_tab_hover_color : #F6F0FF;
 @bb_tab_chosen_color : #FFFFFF;
 @bb_mobile_header_color : #A070B6;
+
 
 @import "../bb-config/bb_less.less";
 
@@ -46,7 +56,6 @@
 	margin: 0;
 	outline: 0;
 	padding: 0;
-	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
 }
@@ -64,6 +73,19 @@
 .clearfix {
 	*zoom: 1;
 }
+
+/* Responsive */
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+/*********** MENU **************/
 
 /* Header */
 #bb_header {
@@ -193,6 +215,147 @@
 	margin: 200px auto;
 }
 
+/******* END MENU **************/
+
+/****** GLOBAL STYLES **********/
+/* FONT */
+body, td, input, select, button, textarea {
+	font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
+	color: @bb_text_color;
+	line-height: 140%;
+}
+/* FORM OBJECTS */
+/* standard form objects, including HTML5 inputs */
+button, input, select, textarea {
+	padding: 1px;
+	border: 1px solid @bb_border_color;
+}
+/* immediately change radio, checkbox and image to no border */
+input[type="radio"], input[type="checkbox"], input[type="image"] {
+	border: none;
+}
+/* background of type = file */
+input[type="file"] {
+	background: white;
+}
+/* rounded objects */
+button, input, select {
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-o-border-radius: 2px;
+}
+
+button {
+	background-color: @bb_button_color;
+}
+
+/* link style button css */
+button.link {
+	color: @bb_link_color;
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer
+}
+
+button.link:hover {
+	text-decoration: underline;
+}
+
+button.link::-moz-focus-inner {
+	padding: 0;
+	border: 0
+}
+
+/* CLEAR  */
+div.clear, div.rowclear {
+	clear: both;
+}
+
+
+/**** STANDARD CSS DECLARATIONS ***/
+
+/* border colors in LESS */
+.border { border: 1px solid @bb_border_color; }
+.bordertop { border-top: 1px solid @bb_border_color; }
+.borderright { border-right: 1px solid @bb_border_color; }
+.borderbottom { border-bottom: 1px solid @bb_border_color; }
+.borderleft { border-left: 1px solid @bb_border_color; }
+/* divider colors in LESS */
+.divider { border-top: 1px solid @bb_divider_color; padding: 3px 0px 3px 0; }
+.darkline { border-top: 1px solid @bb_darkline_color; padding: 3px 0px 3px 0; }
+.noborder { border: 0; }
+/* alignment */
+.center { text-align: center; }
+.left { text-align: left; }
+.right { text-align: right; }
+.floatleft { float: left; }
+.floatright { float: right; }
+/* font classes */
+.bold { font-weight: bold; }
+.italic { font-style: italic; }
+.none { text-decoration: none; }
+.underline { text-decoration: underline; }
+.larger { font-size: 13px; letter-spacing: 0.3px; }
+/* font colors */
+.message { color: @bb_message_color; }
+.colored { color: @bb_colored_text_color; }
+.error { color: @bb_error_color; }
+.odd { background-color: @bb_odd_color; }
+.shaded { background-color: @bb_shaded_color; }
+.even { background-color: @bb_even_color; }
+/* rounding */
+.rounded { border-radius: 2px; -moz-border-radius: 2px; -webkit-border-radius: 2px; -o-border-radius: 2px; }
+/* spacing */
+.margin { margin: 1px 2px 1px 2px; }
+.rightmargin { margin-right: 7px; }
+.spaced { margin: 2px; }
+.spacerside { margin: 0 2px; }
+.spacertop { margin: 2px 0; }
+.padded { padding: 2px; }
+.holderup { margin: 2px 2px 5px 2px; }
+.holderdown { margin: 5px 2px 2px 2px; }
+.twice { padding: 4px; } .
+.double { margin: 4px; }
+.extra { padding: 2px 6px; }
+/* display */
+.inline { display: inline; }
+.block { display: block}
+.inlineblock { display: inline-block; }
+.overflow { white-space: nowrap; overflow: hidden; float: left; }
+.auto { overflow: auto; }
+/* lengths & sizes */
+.shorter { min-height: 1px; width: 50px; }
+.short { min-height: 1px; width: 100px; }
+.minshort { min-height: 1px; min-width: 100px; }
+.medium { min-height: 1px; width: 150px; }
+.minmedium { min-height: 1px; min-width: 150px; }
+.long { min-height: 1px; width: 200px; }
+.minlong { min-height: 1px; min-width: 200px; }
+.half { min-height: 1px; width: 50%; }
+.note { min-height: 1px; width: 90%; }
+.fill { min-height: 1px; width: 100%; }
+.notearea { height: 200px; width: 600px; }
+.thinarea { height: 400px; width: 800px; }
+.widearea { height: 600px; width: 1000px; }
+.textbox { width: 300px; }
+.emheight { min-height: 2em; }
+/* bullets and indent */
+.nobullets { list-style-type: none; }
+.noindent { margin: 0; padding: 0; }
+/* standard table (div) */
+.table { display: table; border-collapse: collapse }
+.row { display: table-row; }
+.cell { display: table-cell; }
+/* miscellaneous */
+.nowrap { white-space: nowrap; }
+.hidden { display: none; }
+.top { vertical-align: top; }
+.middle { vertical-align: middle; }
+.bottom { vertical-align: bottom; }
+
 /* Responsive Styles for Pads */
 @media screen and (max-width : 768px) {
 	body {
@@ -241,10 +404,7 @@
 
 /* Responsive Styles for Phones */
 @media screen and (max-width : 480px) {
-	body {
-		margin: 0 2px;
-	}
-
+	
 	/* Mobile Button and Header */
 	#bb_mobile_header {
 		display: block;
@@ -284,6 +444,7 @@
 		margin-left: 0;
 	}
 	#bb_menu li button {
+		font-size: 14px;
 		min-width: 140px;
 		text-align: center;
 		padding: 3px;
@@ -293,4 +454,41 @@
 	#bb_menu li, #bb_menu li button {
 		width: 100%;
 	}
+	
+	/* global adjustments */
+	body, td, input, select, button, textarea {
+		font-size: 14px;
+		font-family: Arial, Helvetica, sans-serif;
+		color: #181818;
+		line-height: 140%;
+	}
+	div.rowclear {
+		clear: none;
+	}
+}
+
+@media screen and (max-width : 768px) {
+	
+	/* pad display hierachies */
+	.pad_floatleft { float: left; }
+	.pad_floatright { float: right; }
+	.pad_block { display: block; }
+	.pad_left { text-align: left; }
+	.pad_right { text-align: right; }
+	.pad_center { text-align: center; }
+	.pad_textbox { width: 300px; }
+	.pad_note { width: 90%; }
+}
+
+@media screen and (max-width : 480px) {
+
+	/* mobile display hierachies */
+	.mobile_floatleft { float: left; }
+	.mobile_floatright { float: right; }
+	.mobile_block { display: block; }
+	.mobile_left { text-align: left; }
+	.mobile_right { text-align: right; }
+	.mobile_center { text-align: center; }
+	.mobile_textbox { width: 300px; }
+	.mobile_note { width: 90%; }
 }

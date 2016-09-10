@@ -177,7 +177,7 @@ bb_reports.paginate_table = function(n, p, s, o) {
 	document.bb_form.page.value = p;
 	document.bb_form.sort.value = s;
 	document.bb_form.order.value = o;
-	bb_submit_form(n);
+	bb_submit_form([n]);
 	return false;
 }
 bb_reports.sort_order = function(n, s, o) {
@@ -186,7 +186,7 @@ bb_reports.sort_order = function(n, s, o) {
 	// offset previously incremented, offset 0 if next link not chosen
 	document.bb_form.sort.value = s;
 	document.bb_form.order.value = o;
-	bb_submit_form(n);
+	bb_submit_form([n]);
 	return false;
 }
 

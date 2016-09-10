@@ -25,7 +25,6 @@ function bb_reload()
     {
     //set var form links and the add_new_user button on initial page
     var frmobj = document.forms["bb_form"];
-
     bb_submit_form();
     return false;
     }
@@ -49,22 +48,17 @@ function bb_reload()
 }
 </style>
 <?php
-$arr_limit = array("50" => "50", "100" => "100", "500" => "500", "1000" => "1000", "0" => "All");
-
-$row_limit = key($arr_limit);
+$arr_pagination = array(10, 25, 50, 100, 500, 1000);
 
 /* PRESERVE STATE */
 $arr_messages = array();
-
-// $POST brought in from controller
-
 
 // get state from db
 $arr_state = $main->load($con, $module);
 
 // check that there are enough form areas for sub_queries
 $number_sub_queries = $main->process("number_sub_queries", $module, $arr_state, 1);
-$row_limit = $main->process("row_limit", $module, $arr_state, 50);
+$pagination = $main->process("pagination", $module, $arr_state, 50);
 
 // process the form
 $arr_sub_queries = array();
@@ -81,13 +75,12 @@ for ($i = 1;$i <= 10;$i++) {
     }
 }
 
-$current['report_type'] = 2;
-
+$current = $main->report_post($arr_state, $module, $module);
 // process the form
 $substituter = $main->process("substituter", $module, $arr_state, "");
 
 // update state, back to db
-$main->update($con, $module, $arr_state);
+$main->update($con, $module, $arr_state);;
 
 // build full query
 if ($main->button(-1)) {
@@ -107,9 +100,10 @@ else {
 // display query
 if (isset($fullquery)) {
     if (substr(strtoupper(trim($fullquery)), 0, 6) == "SELECT") {
-        $limit_string = ($row_limit > 0) ? " LIMIT " . $row_limit : "";
-        @$result = pg_query($con, $fullquery . $limit_string);
-        $settings[2][0] = array('start_column' => 0, 'ignore' => true, 'shade_rows' => true, 'title' => 'Query Results');
+        @$result = pg_query($con, $fullquery);
+        $settings[1][0] = array('ignore' => true, 'limit' => $pagination, 'shade_rows' => true, 'title' => 'Query Results');
+        $settings[2][0] = array('ignore' => true, 'shade_rows' => true, 'title' => 'Query Results');
+        $settings[3][0] = array('rows' => 60, 'columns' => 80, 'title' => 'Query Results');
         if ($result === false) {
             array_push($arr_messages, pg_last_error($con));
         }
@@ -130,6 +124,9 @@ echo "</div>";
 $main->echo_form_begin();
 $main->echo_module_vars();
 
+// echo form report vars for report functions
+$main->echo_report_vars();
+
 $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Submit Full Query");
 $main->echo_button("submit_query", $params);
 
@@ -143,12 +140,16 @@ echo "<div class=\"spaced floatleft\"><span>Number of Subqueries: </span>";
 $main->array_to_select($arr_number, "number_sub_queries", $number_sub_queries, array(), $params);
 echo "</div>";
 
-$params = array("select_class" => "spaced", "usekey" => true, "onchange" => "bb_reload()");
+$params = array("select_class" => "spaced", "onchange" => "bb_reload()");
 
-echo "<div class=\"spaced floatleft\"><span>Limit Return Rows: </span>";
-$main->array_to_select($arr_limit, "row_limit", $row_limit, array(), $params);
+echo "<div class=\"spaced floatleft\"><span>Pagination: </span>";
+$main->array_to_select($arr_pagination, "pagination", $pagination, array(), $params);
 echo "</div>";
 
+// report type dropdown, use $pass as resuable parameters variable
+$main->echo_tag("label", "Report Type:  ", array('class' => "padded"));
+$params = array("class" => "margin");
+$main->report_type($current['report_type'], $params);
 $main->echo_clear();
 
 // loop through subqueries
@@ -182,7 +183,6 @@ if ($number_sub_queries > 0) {
 
 // echo report
 if (isset($result)) {
-    $main->echo_report_vars();
     // output report
     if ($result) {
         $main->output_report($result, $current, $settings);

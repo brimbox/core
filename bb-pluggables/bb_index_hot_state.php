@@ -23,9 +23,11 @@ if (!function_exists('bb_index_hot_state')):
     // array that updates state when tabs are switched without postback
     function bb_index_hot_state($con, $main, $interface, &$array_hot_state) {
 
+        global $POST;
+
         // Hot State for Details
-        if ($main->check("link_values", "bb_details")) {
-            $array_hot_state['5_bb_brimbox']['bb_details'] = $array_hot_state['4_bb_brimbox']['bb_details'] = $array_hot_state['3_bb_brimbox']['bb_details'] = array("link_values");
+        if ($main->hot("bb_details")) {
+            $array_hot_state['bb_details']['5_bb_brimbox'] = $array_hot_state['bb_details']['4_bb_brimbox'] = $array_hot_state['bb_details']['3_bb_brimbox'] = array("link_values");
         }
 
         // Hot State for Search
@@ -36,7 +38,6 @@ if (!function_exists('bb_index_hot_state')):
         // Hot state for Import
         if ($main->hot("bb_input")) {
             $arr = array(); // work array
-            $POST = $main->retrieve($con);
             $row_join = $main->post('row_join', 'bb_input', 0);
             if ($main->check("security", "bb_input")) array_push($arr, "security");
             if ($main->check("archive", "bb_input")) array_push($arr, "archive");
@@ -68,6 +69,22 @@ if (!function_exists('bb_index_hot_state')):
             // unset any variable used in global, unset $POST for organization
             
         }
+
+        if ($main->hot("bb_query_alias")) {
+            $arr = array("number_sub_queries", "row_limit", "substituter");
+            $number_sub_queries = $main->post('number_sub_queries', 'bb_query_alias', 0);
+            for ($i = 1;$i <= 10;$i++) {
+                if ($i <= $number_sub_queries) {
+                    array_push($arr, $main->pad("s", $i));
+                    array_push($arr, $main->pad("q", $i));
+                }
+            }
+            // work array
+            $array_hot_state['bb_query_alias']['5_bb_brimbox'] = $array_hot_state['bb_query_alias']['4_bb_brimbox'] = $arr;
+            // unset any variable used in global, unset $POST for organization
+            
+        }
+
     }
 
 endif;
