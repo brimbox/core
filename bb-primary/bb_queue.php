@@ -83,25 +83,29 @@ function bb_set_field(col)
 	return false;
 	}
 </script>
-<style>
-/* MODULE CSS */
-.email_container {
+<?php
+$queue_module_css = "<style>
+.email_inbox_list {
 	overflow-y: scroll;
 	height: 200px;
 	resize: both;
 }
-
-.email_div {
-	width: 620px;
+.email_container, .email_body {
+	max-width: 600px;
+}
+.email_body {
 	height: 400px;
 	resize: both;
 	overflow: scroll;
 }
-
-.email_viewer {
-	max-width: 620px;
+.email_body img {
+	width: auto;
 }
-</style>
+</style>";
+//email css
+$queue_module_css = $main->filter("bb_queue_module_css", $queue_module_css);
+echo $queue_module_css;
+?>
 <?php
 /* BEGIN QUEUE AND STATE POSTBACK */
 
@@ -192,7 +196,7 @@ else: // long else
 
         // this is the email list container -- start container
         echo "<div class=\"floatleft spaced\">"; // buttons
-        echo "<div class=\"border spaced border email_container\">";
+        echo "<div class=\"border spaced border email_inbox_list\">";
         echo "<div class=\"spaced padded table\">";
         for ($i = $nbr;$i >= 1;$i--) {
             $header = imap_header($mbox, $i);
@@ -252,8 +256,9 @@ else: // long else
     // return selected message
     if ($email_number != - 1) {
         $header = imap_header($mbox, $email_number);
-        $msg = getmsg($mbox, $email_number);
-        $trans_htmlmsg = iconv($msg->charset, "UTF-8//TRANSLIT//IGNORE", $msg->htmlmsg);
+        //$trans_htmlmsg = iconv($msg->charset, "UTF-8//TRANSLIT//IGNORE", $msg->htmlmsg);
+        $read_email = new bb_read_email();
+        $trans_htmlmsg = $read_email->get_body($mbox, $email_number);
         $var_personal = isset($header->from[0]->personal) ? ( string )$header->from[0]->personal : "";
         $var_email = $header->from[0]->mailbox . "@" . $header->from[0]->host;
         $var_date = date('Y-m-d h:i A', strtotime($header->date));
@@ -277,12 +282,12 @@ else: // long else
         echo "<input name=\"subject\" type=\"hidden\" value=\"" . $var_subject . "\" />";
 
         echo "<div class=\"spaced floatleft\">";
-        echo "<div class=\"spaced floatleft email_viewer border\" >";
+        echo "<div class=\"spaced floatleft border email_container\" >";
         echo "<div id=\"clipboard\" class=\"padded left borderbottom\"></div>";
         echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_personal . " &lt;" . $var_email . "&gt;</div>";
         echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_subject . "</div>";
         echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_date . "</div>";
-        echo "<div class=\"left email_div\" onMouseUp=\"bb_get_selected_text()\">" . $trans_htmlmsg . "</div>";
+        echo "<div class=\"left email_body\" onMouseUp=\"bb_get_selected_text()\">" . $trans_htmlmsg . "</div>";
         echo "</div>";
         $i = 1;
         // visable queue fields
