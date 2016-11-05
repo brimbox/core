@@ -157,6 +157,7 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
         /* RECONCILE SLUG AND MODULE USING SQL */
         $_SESSION['pretty_slugs'] = $pretty_slugs = $main->get_constant('BB_PRETTY_SLUGS', 0);
         // get slug and module, in order of precedence, 1 good slug and module, 2 good slug (back button), 3 empty slug (on login)
+        //slug is also processed from module name in post.php
         if ($pretty_slugs == 1) {
             //pretty slugs on for standard install
             $query = "SELECT id, module_name, module_slug FROM
@@ -167,6 +168,19 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
                             WHERE module_type IN (" . $module_types . ") AND replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') = '" . pg_escape_string($slug) . "' AND interface = '" . pg_escape_string($interface) . "'
                       UNION ALL
                             SELECT 3 as id, module_name, replace(substr(module_name, strpos(module_name, '_') + 1), '_', '-') as module_slug, module_type, module_order FROM modules_table
+                            WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1
+                      ORDER BY id, module_type = 0 ASC, module_type ASC, module_order LIMIT 1";
+        }
+        elseif ($pretty_slugs == 2) {
+            //hyphenated slugs
+            $query = "SELECT id, module_name, module_slug FROM
+                           (SELECT 1 as id, module_name, replace(module_name, '_', '-') as module_slug, module_type, module_order FROM modules_table
+                            WHERE module_type IN (" . $module_types . ") AND replace(module_name, '_', '-') = '" . pg_escape_string($slug) . "' AND module_name = '" . pg_escape_string($module) . "' AND interface = '" . pg_escape_string($interface) . "'
+                      UNION ALL
+                            SELECT 2 as id, module_name, replace(module_name, '_', '-') as module_slug, module_type, module_order FROM modules_table
+                            WHERE module_type IN (" . $module_types . ") AND replace(module_name, '_', '-') = '" . pg_escape_string($slug) . "' AND interface = '" . pg_escape_string($interface) . "'
+                      UNION ALL
+                            SELECT 3 as id, module_name, replace(module_name, '_', '-') as module_slug, module_type, module_order FROM modules_table
                             WHERE module_type IN (" . $module_types . ") AND interface = '" . pg_escape_string($interface) . "') T1
                       ORDER BY id, module_type = 0 ASC, module_type ASC, module_order LIMIT 1";
         }

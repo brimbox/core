@@ -71,7 +71,7 @@ if (!function_exists('bb_index_hot_state')):
         }
 
         if ($main->hot("bb_query_alias")) {
-            $arr = array("number_sub_queries", "row_limit", "substituter");
+            $arr = array("substituter");
             $number_sub_queries = $main->post('number_sub_queries', 'bb_query_alias', 0);
             for ($i = 1;$i <= 10;$i++) {
                 if ($i <= $number_sub_queries) {

@@ -67,7 +67,7 @@ class bb_read_email {
     }
 
     function get_mime_type($structure) {
-        $primaryMimetype = ["TEXT", "MULTIPART", "MESSAGE", "APPLICATION", "AUDIO", "IMAGE", "VIDEO", "OTHER"];
+        $primaryMimetype = array("TEXT", "MULTIPART", "MESSAGE", "APPLICATION", "AUDIO", "IMAGE", "VIDEO", "OTHER");
 
         if ($structure->subtype) {
             return $primaryMimetype[(int)$structure->type] . "/" . $structure->subtype;

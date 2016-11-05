@@ -35,13 +35,18 @@ if (isset($_SESSION['username'])):
     $_SESSION['button'] = $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
     $_SESSION['module'] = $module = isset($_POST['bb_module']) ? $_POST['bb_module'] : "";
 
+    //corresponds with index slug query
     if ($_SESSION['pretty_slugs'] == 1) {
         list(, $slug) = explode("_", $module, 2);
         $_SESSION['slug'] = $slug = str_replace("_", "-", $slug);
     }
+    elseif ($_SESSION['pretty_slugs'] == 2) {
+        $_SESSION['slug'] = $slug = str_replace("_", "-", $module);
+    }
     else {
         $_SESSION['slug'] = $slug = $module;
     }
+
     $_SESSION['submit'] = $submit = isset($_POST['bb_submit']) ? $_POST['bb_submit'] : "";
 
     // include build class object

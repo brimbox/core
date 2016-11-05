@@ -53,12 +53,17 @@ $arr_pagination = array(10, 25, 50, 100, 500, 1000);
 /* PRESERVE STATE */
 $arr_messages = array();
 
+$arr_layouts = $main->layouts($con);
+
 // get state from db
 $arr_state = $main->load($con, $module);
 
 // check that there are enough form areas for sub_queries
 $number_sub_queries = $main->process("number_sub_queries", $module, $arr_state, 1);
 $pagination = $main->process("pagination", $module, $arr_state, 50);
+$row_type = $main->process("row_type", $module, $arr_state, 0);
+
+$arr_columns = $main->columns($con, $row_type);
 
 // process the form
 $arr_sub_queries = array();
@@ -132,6 +137,11 @@ $main->echo_button("submit_query", $params);
 
 $main->echo_clear();
 
+echo "<div class=\"spaced floatleft\"><span>Show Columns: </span>";
+$params = array("onchange" => "bb_reload()", "empty" => "true");
+$main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
+echo "</div>";
+
 for ($i = 0;$i <= 10;$i++) {
     $arr_number[] = $i;
 }
@@ -141,7 +151,6 @@ $main->array_to_select($arr_number, "number_sub_queries", $number_sub_queries, a
 echo "</div>";
 
 $params = array("select_class" => "spaced", "onchange" => "bb_reload()");
-
 echo "<div class=\"spaced floatleft\"><span>Pagination: </span>";
 $main->array_to_select($arr_pagination, "pagination", $pagination, array(), $params);
 echo "</div>";
@@ -152,7 +161,20 @@ $params = array("class" => "margin");
 $main->report_type($current['report_type'], $params);
 $main->echo_clear();
 
+if ($row_type > 0) {
+    echo "<div class=\"floatleft padded spaced border\">";
+    ksort($arr_columns);
+    foreach ($arr_columns as $key => $value) {
+        echo $main->pad("c", $key);
+        echo "=>";
+        echo $value['name'];
+        echo "<br>";
+    }
+    echo "</div>";
+}
+
 // loop through subqueries
+echo "<div class=\"floatleft\">";
 if ($number_sub_queries > 0) {
     echo "<div class=\"table spaced\" >";
     echo "<div class=\"row\"><div class=\"padded border cell\"></div><div class=\"padded border cell\">SubQuery Alias</div><div class=\"padded border cell\">SubQuery Value</div></div>";
@@ -177,8 +199,8 @@ if ($number_sub_queries > 0) {
     echo "<div class=\"top\">";
     if (isset($fullquery)) {
         $main->echo_textarea("fullquery", $fullquery, array('class' => "spaced return_textarea", 'rows' => 5, 'readonly' => true));
-        echo "</div>";
     }
+    echo "</div>";
 }
 
 // echo report
@@ -188,6 +210,7 @@ if (isset($result)) {
         $main->output_report($result, $current, $settings);
     }
 }
+echo "</div>";
 
 $main->echo_form_end();
 /* END FORM */
