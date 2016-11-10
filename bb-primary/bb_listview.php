@@ -131,6 +131,7 @@ $return_rows = $main->get_constant('BB_RETURN_ROWS', 4);
 $pagination = $main->get_constant('BB_PAGINATION', 5);
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
+$element = "offset";
 
 // list numbers should always be positive
 if ($list_number > 0) {
@@ -171,7 +172,7 @@ if ($list_number > 0) {
 // uses $offset variable from previous script
 // also uses $count_rows variable and $return_rows global
 // creates logic to make prev and next links etc
-$main->page_selector("offset", $offset, $count_rows, $return_rows, $pagination);
+$main->hook("bb_listview_pagination");
 
 ?>
 

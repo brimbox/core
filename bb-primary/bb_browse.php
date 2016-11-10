@@ -173,6 +173,8 @@ $return_rows = $main->get_constant('BB_RETURN_ROWS', 4);
 $pagination = $main->get_constant('BB_PAGINATION', 5);
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
+$element = "offset";
+
 $esc_lt = pg_escape_string($letter);
 $esc_col1 = pg_escape_string($col);
 
@@ -202,7 +204,7 @@ while ($row = pg_fetch_array($result)) {
 }
 
 // record selector at bottom
-$main->page_selector("offset", $offset, $count_rows, $return_rows, $pagination);
+$main->hook("bb_browse_pagination");
 
 /**
  * * END BROWSE OUTPUT **

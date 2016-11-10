@@ -625,7 +625,7 @@ class bb_main extends bb_reports {
 
     function logout_link($class = "bold link underline", $label = "Logout") {
 
-        $params = array("class" => $class, "passthis" => true, "label" => $label, "onclick" => "bb_logout_selector('0_bb_brimbox')");
+        $params = array("class" => $class, "label" => $label, "onclick" => "bb_logout_selector('0_bb_brimbox')");
         $this->echo_script_button("logout", $params);
     }
 
@@ -691,16 +691,10 @@ class bb_main extends bb_reports {
     }
 
     function infolinks() {
-
-        echo "<div class=\"floatright\">";
-        $this->logout_link();
-        echo "</div>";
-
         echo "<div class=\"floatleft\">";
         $this->database_stats();
         $this->archive_link();
         $this->replicate_link();
-        $this->userrole_switch();
         echo "</div>";
         echo "<div class=\"clear\"></div>";
     }

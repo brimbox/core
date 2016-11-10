@@ -104,6 +104,13 @@ if ($interface == "bb_brimbox"):
     $main->add_action('hooks', "bb_input_after_render_form", array('func' => "bb_input_module_hooks::submit_buttons", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 10);
     $main->add_action('hooks', "bb_input_after_render_form", array('func' => "bb_input_module_hooks::textarea_load", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 20);
 
+    /* standard pagination hooks linked from $main */
+    $main->add_action('hooks', "bb_browse_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
+    $main->add_action('hooks', "bb_cascade_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
+    $main->add_action('hooks', "bb_listview_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
+    $main->add_action('hooks', "bb_lookup_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
+    $main->add_action('hooks', "bb_search_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
+
     // COMMON VARS SHARED WITH OTHER TABS #
     // will not be processed through the form posting engine
     $main->add_value('common_variables', "bb_row_type");

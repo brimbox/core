@@ -4,7 +4,7 @@
  * Copyright (C) Kermit Will Richardson, Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * it under the terms of the GNU General Public License Version 3 (GNU GPL v3)
  * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -21,8 +21,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?php echo PAGE_TITLE; ?></title>
 <?php
+$title = PAGE_TITLE;
+$title = $main->filter("bb_box_page_title", $title, $module);
+echo "<title>" . $title . "</title>";
+
 /* STANDARD JAVASCRIPT INCLUDE */
 $arr_javascript[] = array('path' => $webpath . "/bb-utilities/bb_scripts.js", 'version' => BRIMBOX_PROGRAM);
 //box javascript filter
@@ -47,24 +50,23 @@ $main->include_file($webpath . "/bb-config/bb_css.css", "css");
 <body id="bb_brimbox">
 <?php
 /* PROCESSING IMAGE */
-if (!$main->blank($image)) {
+$processing_image = $main->filter("bb_box_processing_image", $processing_image);
+if (!$main->blank($processing_image)) {
     // seems to flush nicely without explicitly flushing the output buffer
-    echo "<div id=\"bb_processor\"><img src=\"" . $image . "\"></div>";
-    echo "<script>window.onload = function () { document.getElementById(\"bb_processor\").style.display = \"none\"; }</script>";
+    echo "<div id=\"bb_processing\"><img src=\"" . $webpath . $processing_image . "\"></div>";
+    echo "<script>window.onload = function () { document.getElementById('bb_processor').style.display = 'none'; }</script>";
 }
 
 /* CONTROLLER IMAGE AND MESSAGE */
 // echo tabs and links for each module
 echo "<div id=\"bb_header\">";
 // header image
-$controller_image = "<img src=\"" . $webpath . "/bb-config/controller_image.gif\">";
+$controller_image = "<div class=\"table fill\"><div class=\"row\"><div class=\"cell\"><img class=\"floatleft\" src=\"" . $webpath . "/bb-config/controller_image.gif\"></div>
+                     <div class=\"cell middle\"><div class=\"floatright extra double\"><button name=\"logout\" class=\"bold link underline\" onclick=\"bb_logout_selector('0_bb_brimbox')\">Logout</button></div></div></div></div>";
+$controller_image = $main->filter("bb_box_controller_image", $controller_image, $module);
 if (!$main->blank($controller_image)) {
-    echo "<div id=\"controller_image\">" . $controller_image . "</div>";
-}
-// global message for all users
-$controller_message = "";
-if (!$main->blank($controller_message)) {
-    echo "<div id=\"controller_message\">" . $controller_message . "</div>";
+    echo "<div id=\"bb_controller_image\">" . $controller_image . "</div>";
+    $main->echo_clear();
 }
 
 /* CONTROLLER ARRAY */
@@ -117,8 +119,9 @@ while ($row = pg_fetch_array($result)) {
 /* ECHO TABS */
 // set up standard tab and auxiliary header tabs
 echo "<div id=\"bb_mobile_header\">";
-$page_title = PAGE_TITLE;
-echo "<label for=\"bb_show_menu\" id=\"bb_mobile_logo\">" . $page_title . "</label>";
+$mobile_title = $title;
+$mobile_title = $main->filter("bb_box_mobile_title", $mobile_title, $module);
+echo "<label for=\"bb_show_menu\" id=\"bb_mobile_logo\">" . $mobile_title . "</label>";
 $mobile_image = "<img src=\"" . $webpath . "/bb-config/mobile_menu_image.gif\">";
 echo "<label for=\"bb_show_menu\" id=\"bb_mobile_button\">" . $mobile_image . "</label>";
 echo "</div>";
@@ -155,6 +158,8 @@ foreach ($arr_interface as $key => $value) {
         }
     }
 }
+//mobile Logout Link
+echo "<li class=\"hidden mobile_display\"><button onclick=\"bb_logout_selector('0_bb_brimbox')\">Logout</button></li>";
 echo "</ul>";
 echo "</div>";
 /* END ECHO TABS */
@@ -181,7 +186,7 @@ if (isset($interface_type) && ($interface_type == 'Auxiliary')) {
     echo "</ul>";
 
     // clean up before include
-    unset($arr_interface, $controller_message, $interface_type, $javascript, $key, $lineclass, $module_types, $module_work, $query, $result, $row, $slug_work, $submit_form_params, $value, $type, $page_title);
+    unset($arr_interface, $controller_message, $interface_type, $key, $value, $module_types, $module_work, $slug_work, $query, $result, $row, $submit_form_params, $type, $arr_css, $arr_javascript, $controller_image, $processing_image, $title, $mobile_title);
     // module include this is where modules are included
     echo "<div id=\"bb_admin_content\">";
     // $path is reserved, this "include" includes the current module
@@ -195,7 +200,7 @@ if (isset($interface_type) && ($interface_type == 'Auxiliary')) {
 } // Standard and Hidden tabs
 else {
     // clean up before include
-    unset($arr_interface, $controller_message, $interface_type, $javascript, $key, $lineclass, $module_types, $module_work, $query, $result, $row, $slug_work, $submit_form_params, $value, $type, $page_title);
+    unset($arr_interface, $controller_message, $interface_type, $key, $value, $module_types, $module_work, $slug_work, $query, $result, $row, $submit_form_params, $type, $arr_css, $arr_javascript, $controller_image, $processing_image, $title, $mobile_title);
     // module include this is where modules are included
     echo "<div id=\"bb_content\">";
     // $path is reserved, this "include" includes the current module

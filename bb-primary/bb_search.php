@@ -128,10 +128,11 @@ $main->echo_form_end();
 $return_rows = $main->get_constant('BB_RETURN_ROWS', 4);
 $pagination = $main->get_constant('BB_PAGINATION', 5);
 $count_rows = 0;
+$lower_limit = ($offset - 1) * $return_rows;
+$element = "offset";
 
 // search array successfully parsed
 if ($main->blank($message)) {
-    $lower_limit = (($offset - 1) * $return_rows);
     $escaped_search_parsed = pg_escape_string($search_parsed); // search array is decoded
     $and_clause = ($row_type == 0) ? " 1=1 " : " row_type = " . $row_type . " ";
 
@@ -205,5 +206,5 @@ echo "<div class=\"center\">";
 $main->echo_messages($arr_messages);
 echo "</div>";
 
-$main->page_selector("offset", $offset, $count_rows, $return_rows, $pagination);
+$main->hook("bb_search_pagination");
 ?>

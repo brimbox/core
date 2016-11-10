@@ -102,6 +102,7 @@ $return_rows = $main->get_constant('BB_RETURN_ROWS', 4);
 $pagination = $main->get_constant('BB_PAGINATION', 5);
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
+$element = "offset";
 
 // this if includes for return_rows -- repeated on page selector
 if ($post_key > 0) // cascade children of record
@@ -169,6 +170,6 @@ if ($post_key > 0) // cascade children of record
 // also uses $count_rows variable and $return_rows global from script #2
 // sets the return variable for query depth with javascript
 // creates logic to make prev and next links etc
-$main->page_selector("offset", $offset, $count_rows, $return_rows, $pagination);
+$main->hook("bb_cascade_pagination");
 
 ?>

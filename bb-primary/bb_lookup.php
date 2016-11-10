@@ -219,6 +219,7 @@ $return_rows = $main->get_constant('BB_RETURN_ROWS', 4);
 $pagination = $main->get_constant('BB_PAGINATION', 5);
 $count_rows = 0;
 $lower_limit = ($offset - 1) * $return_rows;
+$element = "offset";
 
 /* BUILD QUERY */
 // set and clauses defaults, $and_clause_3 assures no return values if empty
@@ -328,7 +329,7 @@ while ($row = pg_fetch_array($result)) {
 }
 
 // record selector at bottom
-$main->page_selector("offset", $offset, $count_rows, $return_rows, $pagination);
+$main->hook("bb_lookup_pagination");
 
 /**
  * * END LOOKUP OUTPUT **
