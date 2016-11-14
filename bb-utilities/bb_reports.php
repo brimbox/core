@@ -274,10 +274,10 @@ class bb_reports extends bb_forms {
             $sort = $this->pad("s", $j, 2);
             if ($ucfirst) $field = ucfirst($field);
             if (isset($arr[$sort])) {
-                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . htmlentities($field) . "</button></div>";
+                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . __($field) . "</button></div>";
             }
             else {
-                echo "<div class=\"cell " . $cell_header_class . "\">" . htmlentities($field) . "</div>";
+                echo "<div class=\"cell " . $cell_header_class . "\">" . __($field) . "</div>";
             }
         }
         echo "</div>";
@@ -316,7 +316,8 @@ class bb_reports extends bb_forms {
                         unset($args_callback);
                     }
                     else {
-                        $row[$j] = htmlentities($row[$j]);
+                        //process cell for utf8 and htmlentities
+                        $row[$j] = __($row[$j]);
                     }
                     // cell class
                     $key = $this->pad("c", $j, 2);
@@ -354,7 +355,7 @@ class bb_reports extends bb_forms {
                     }
                     //functions allow basically anything on the datafield
                     //for a given row, usually $args_callback contains row
-                    //no htmlentities on functions
+                    //no __ on functions
                     $key = $this->pad("f", $j, 2);
                     if (isset($arr[$key])) {
                         foreach ($arr[$key][1] as $var) {
@@ -366,7 +367,8 @@ class bb_reports extends bb_forms {
                         unset($args_callback);
                     }
                     else {
-                        $row[$j] = htmlentities($row[$j]);
+                        //process cell for utf8 and htmlentities
+                        $row[$j] = __($row[$j]);
                     }
                     // move cell around within row
                     $key = $this->pad("m", $j, 2);
@@ -462,10 +464,10 @@ class bb_reports extends bb_forms {
             if ($ucfirst) $field = ucfirst($field);
             $sort = $this->pad("s", $j, 2);
             if (isset($arr[$sort])) {
-                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link bold\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . htmlentities($field) . "</button></div>";
+                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link bold\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . __($field) . "</button></div>";
             }
             else {
-                echo "<div class=\"cell " . $cell_header_class . "\">" . htmlentities($field) . "</div>";
+                echo "<div class=\"cell " . $cell_header_class . "\">" . __($field) . "</div>";
             }
         }
         echo "</div>";
@@ -501,7 +503,8 @@ class bb_reports extends bb_forms {
                         unset($args_callback);
                     }
                     else {
-                        $row[$j] = htmlentities($row[$j]);
+                        //process cell for utf8 and htmlentities
+                        $row[$j] = __($row[$j]);
                     }
                     // cell class
                     $key = $this->pad("c", $j, 2);
@@ -550,7 +553,7 @@ class bb_reports extends bb_forms {
                         unset($args_callback);
                     }
                     else {
-                        $row[$j] = htmlentities($row[$j]);
+                        $row[$j] = __($row[$j]);
                     }
                     // move cell around within row
                     $key = $this->pad("m", $j, 2);
@@ -701,8 +704,8 @@ class bb_reports extends bb_forms {
 
         for ($j = 0;$j < $num_fields;$j++) {
             $field = pg_field_name($result, $j);
-            echo "<div class=\"clear\"><label class=\"" . $label_class . "\">" . htmlentities(ucfirst($field)) . ":</label>";
-            echo "<label class=\"" . $value_class . "\">" . htmlentities($row[$j]) . "</label>";
+            echo "<div class=\"clear\"><label class=\"" . $label_class . "\">" . __(ucfirst($field)) . ":</label>";
+            echo "<label class=\"" . $value_class . "\">" . __($row[$j]) . "</label>";
             echo "</div>";
         }
     }
@@ -716,10 +719,10 @@ class bb_reports extends bb_forms {
 
         echo "<select " . $attributes . ">";
         foreach ($prepend as $value) {
-            echo "<option value=\"" . htmlentities($value) . "\" " . ($selected == $value ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
+            echo "<option value=\"" . __($value) . "\" " . ($selected == $value ? "selected" : "") . ">" . __($value) . "&nbsp;</option>";
         }
         while ($row = pg_fetch_array($result)) {
-            echo "<option value=\"" . htmlentities($row[0]) . "\" " . ($selected == $row[0] ? "selected" : "") . ">" . htmlentities($row[0]) . "&nbsp;</option>";
+            echo "<option value=\"" . __($row[0]) . "\" " . ($selected == $row[0] ? "selected" : "") . ">" . __($row[0]) . "&nbsp;</option>";
         }
         echo "</select>";
         pg_result_seek($result, 0);
@@ -739,7 +742,7 @@ class bb_reports extends bb_forms {
         echo "<select " . $attributes . ">";
         foreach ($arr as $key => $value) {
             $key = $usekey ? $key : $value;
-            echo "<option value=\"" . htmlentities($key) . "\" " . ($selected == $key ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
+            echo "<option value=\"" . __($key) . "\" " . ($selected == $key ? "selected" : "") . ">" . __($value) . "&nbsp;</option>";
         }
         echo "</select>";
     }
