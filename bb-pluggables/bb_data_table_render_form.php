@@ -151,7 +151,7 @@ if (!function_exists('bb_data_table_render_form')):
                     else {
                         // standard input/textbox
                         $field_output = "<div class=\"clear\">";
-                        $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . $value['name'] . ": </label>";
+                        $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . $input . "\" onFocus=\"bb_remove_message(); return false;\" />";
                         $field_output.= "<label class=\"error spaced\">" . $error . "</label>";
                         $field_output.= "</div>";
