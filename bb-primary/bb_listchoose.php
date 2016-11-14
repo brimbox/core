@@ -128,7 +128,7 @@ echo "<select class=\"listchoose_box\" name = \"add_names[]\" multiple>";
 foreach ($arr_lists as $key => $value) {
     $i = $key - 1; // start string at 0
     if (( int )substr($list_string, $i, 1) == 0) {
-        echo "<option value=\"" . $key . "\">" . htmlentities($value['name']) . "</option>";
+        echo "<option value=\"" . $key . "\">" . __($value['name']) . "</option>";
     }
 }
 echo "</select>";
@@ -145,7 +145,7 @@ echo "<select class=\"listchoose_box\" name=\"remove_names[]\" multiple>";
 foreach ($arr_lists as $key => $value) {
     $i = $key - 1; // start string at 0
     if (( int )substr($list_string, $i, 1) == 1) {
-        echo "<option value=\"" . $key . "\">" . htmlentities($value['name']) . "</option>";
+        echo "<option value=\"" . $key . "\">" . __($value['name']) . "</option>";
     }
 }
 echo "</select>";

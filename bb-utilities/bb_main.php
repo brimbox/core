@@ -68,6 +68,8 @@
 // validate_dropdown
 // document
 // make_html_id
+//REGULAR FUNCTIONS AFTER CLASS
+// __() Format variable and translate
 class bb_main extends bb_reports {
 
     // this quickly returns the query header stats including count and current time...
@@ -112,12 +114,12 @@ class bb_main extends bb_reports {
         if (!$this->blank($row['hdr']) && ($link == 1)) {
             // calls javascript in bb_link
             echo " / <button class = \"link italic\" onclick=\"bb_links.standard(0, " . ( int )$row['key1'] . "," . ( int )$row['row_type_left'] . ", '" . $target . "'); return false;\">";
-            echo htmlentities($row['hdr']) . "</button>";
+            echo __($row['hdr']) . "</button>";
         }
         elseif (!$this->blank($row['hdr']) && ($link == - 1)) {
             // non linked row
             echo " / <span class = \"colored italic\">";
-            echo htmlentities($row['hdr']) . "</span>";
+            echo __($row['hdr']) . "</span>";
         }
         echo "</div>";
         // else link 0 no output
@@ -162,7 +164,7 @@ class bb_main extends bb_reports {
                         
                     }
                     // prepare row, if row has data also echo the empty cell spots
-                    $output.= "<div class = \"overflow " . $value['length'] . "\">" . htmlentities($row[$col2]) . "</div>";
+                    $output.= "<div class = \"overflow " . $value['length'] . "\">" . __($row[$col2]) . "</div>";
                 }
                 $row2 = $row1;
             }
@@ -248,7 +250,7 @@ class bb_main extends bb_reports {
             // not secure is $value['secure'] < $check OR $check = 0 (default no check)
             $secure = ($check && ($value['secure'] >= $check)) ? true : false;
             if (!$secure) {
-                echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . htmlentities($value['plural']) . "&nbsp;</option>";
+                echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . __($value['plural']) . "&nbsp;</option>";
             }
         }
         echo "</select>";
@@ -278,7 +280,7 @@ class bb_main extends bb_reports {
             // not secure is $value['secure'] < $check OR $check = 0 (default no check)
             $secure = ($check && ($value['secure'] >= $check)) ? true : false;
             if (!$secure) {
-                echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
+                echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . __($value['name']) . "&nbsp;</option>";
             }
         }
         echo "</select>";
@@ -304,7 +306,7 @@ class bb_main extends bb_reports {
             $archive = ($check && ($value['archive'] >= $check)) ? true : false;
             if (!$archive) {
                 $archive_flag = ($value['archive']) ? str_repeat('*', $value['archive']) : "";
-                echo "<option value=\"" . $key . "\"" . ($key == $list_number ? " selected " : "") . ">" . htmlentities($value['name']) . $archive_flag . "&nbsp;</option>";
+                echo "<option value=\"" . $key . "\"" . ($key == $list_number ? " selected " : "") . ">" . __($value['name']) . $archive_flag . "&nbsp;</option>";
             }
         }
         echo "</select>";
@@ -499,27 +501,20 @@ class bb_main extends bb_reports {
 
     function purge_chars($str, $eol = true, $quotes = false) {
 
-        if ($eol) {
-            // changes a bunch of control chars to single spaces
-            $pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
-            $str = preg_replace($pattern, " ", $str);
-            // purge new line with nothing, default purge
-            
-        }
-        else {
-            // changes a bunch of control chars to single spaces except for new lines
-            $pattern = "/[\\t\\0\\x0B\\x0C\\r]+/";
-            $str = trim(preg_replace($pattern, " ", $str));
-            // trim around eols
-            $pattern = "/ {0,}(\\n{1}) {0,}/";
-            $str = preg_replace($pattern, "\n", $str);
-        }
-        if ($quotes) {
-            // purge double quotes
-            $str = str_replace('"', "", $str);
-        }
-        // trim again because truncate could leave ending space, then try to encode
-        $str = utf8_encode(trim($str));
+        // replace chars with a space
+        $pattern = "\\t\\0\\x0B\\x0C\\r";
+        if ($eol) $pattern = $pattern . "\\n";
+        $pattern = $this->filter("bb_main_purge_chars_space", $pattern, $eol);
+        $str = preg_replace("/[" . $pattern . "]+/", " ", $str);
+
+        // replace chars without a space
+        if ($quotes) $pattern = $pattern = "\\\"";
+        $pattern = $this->filter("bb_main_purge_chars_nospace", $pattern, $eol);
+        $str = preg_replace("/[" . $pattern . "]+/", "", $str);
+
+        // trim hooked in
+        $str = $this->filter("bb_main_purge_chars_trim", $str);
+
         return $str;
     }
 
@@ -981,5 +976,20 @@ class bb_main extends bb_reports {
         }
     }
 } // end class
+
+?>
+<?php
+//standard convert to utf output
+function __($var) {
+    if (is_string($var)) {
+        $var = htmlentities(utf8_decode($var));
+    }
+    elseif (is_array($var)) {
+        foreach ($var as & $value) {
+            $value = htmlentities(utf8_decode($value));
+        }
+    }
+    return $var;
+}
 
 ?>

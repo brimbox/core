@@ -125,7 +125,7 @@ if ($post_key > 0) // a detail of a record
 
         // call to function that outputs details
         $layout = $main->reduce($arr_layouts, $row_type);
-        echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . htmlentities(( string )$layout['singular']) . "</p>";
+        echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . __(( string )$layout['singular']) . "</p>";
         /* return the details */
         echo "<div id=\"bb_details_fields\">";
         foreach ($arr_columns as $key => $value) {
@@ -133,17 +133,17 @@ if ($post_key > 0) // a detail of a record
             $field_id = "details_" . $main->make_html_id($row_type, $key);
             if (in_array($key, $arr_notes)) {
                 // notes
-                echo "<label class = \"spaced left floatleft overflow medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities($value['name']) . ":</label>";
+                echo "<label class = \"spaced left floatleft overflow medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . __($value['name']) . ":</label>";
                 $main->echo_clear();
                 // double it up for emheight
                 echo "<div class=\"spaced border half pad_note\">";
-                echo "<div id=\"" . $field_id . "\" class=\"spaced minnote\">" . nl2br(htmlentities($row[$col2])) . "</div></div>";
+                echo "<div id=\"" . $field_id . "\" class=\"spaced minnote\">" . nl2br(__($row[$col2])) . "</div></div>";
                 $main->echo_clear();
             }
             elseif (in_array($key, $arr_file)) {
                 // files
-                echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities($value['name']) . ":</label>";
-                echo "<button id=\"" . $field_id . "\" class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . htmlentities($row[$col2]) . "</button>";
+                echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . __($value['name']) . ":</label>";
+                echo "<button id=\"" . $field_id . "\" class=\"link spaced left floatleft\" onclick=\"bb_submit_object('bb-links/bb_object_file_link.php'," . $post_key . ")\">" . __($row[$col2]) . "</button>";
                 $main->echo_clear();
             }
             elseif (in_array($key, $arr_relate) && $value['relate']) {
@@ -151,15 +151,15 @@ if ($post_key > 0) // a detail of a record
                 $relate_post_key = $main->relate_post_key($row[$col2]);
                 $relate['id'] = $relate_post_key;
                 $relate['row_type'] = $relate_row_type;
-                echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities($value['name']) . ":</label>";
+                echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . __($value['name']) . ":</label>";
                 $main->standard($relate, $arr_layouts, "bb_cascade", $row[$col2], array('id' => $field_id, 'class' => "link spaced left floatleft"));
                 $main->echo_clear();
             }
             else
             // regular
             {
-                echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . htmlentities($value['name']) . ":</label>";
-                echo "<div id=\"" . $field_id . "\" class=\"spaced left floatleft\">" . htmlentities($row[$col2]) . "</div>";
+                echo "<label class=\"spaced right overflow floatleft medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . __($value['name']) . ":</label>";
+                echo "<div id=\"" . $field_id . "\" class=\"spaced left floatleft\">" . __($row[$col2]) . "</div>";
                 $main->echo_clear();
             }
         }
@@ -276,16 +276,16 @@ if ($post_key > 0) // a detail of a record
             }
             else {
                 // linked
-                array_push($arr_messages, "Record(s) " . htmlentities($str_linked) . " were linked to record " . $letter . ( string )$post_key);
+                array_push($arr_messages, "Record(s) " . __($str_linked) . " were linked to record " . $letter . ( string )$post_key);
                 $link_values = "";
             }
             // not linked
             if (!empty($arr_not_linked)) {
-                array_push($arr_messages, "Record(s) " . htmlentities($str_not_linked) . " were not linked.");
+                array_push($arr_messages, "Record(s) " . __($str_not_linked) . " were not linked.");
                 $link_values = "";
             }
             if (!empty($arr_not_valid_value)) {
-                array_push($arr_messages, "Value(s) " . htmlentities($str_not_valid_value) . " were not valid records and were not linked.");
+                array_push($arr_messages, "Value(s) " . __($str_not_valid_value) . " were not valid records and were not linked.");
                 $link_values = "";
             }
         } // not empty link row type
@@ -304,7 +304,7 @@ if (($post_key > 0) && ($cnt_rows == 1)) {
     echo "<br>";
     $main->echo_clear();
     echo "<p class =\"spaced\">Link these records to this record</p>";
-    echo "<input type=\"text\" name=\"link_values\" class =\"spaced\" size=\"50\" value=\"" . htmlentities($link_values) . "\" />";
+    echo "<input type=\"text\" name=\"link_values\" class =\"spaced\" size=\"50\" value=\"" . __($link_values) . "\" />";
     $main->echo_clear();
     echo "<div class = \"spaced\">";
     $main->echo_messages($arr_messages);

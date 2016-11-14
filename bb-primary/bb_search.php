@@ -92,7 +92,7 @@ $main->echo_module_vars();
 
 echo "<div class=\"center\">";
 // search vars
-echo "<input type=\"text\" name=\"search\" class = \"spaced\" size=\"35\" value = \"" . htmlentities($search) . "\"/>";
+echo "<input type=\"text\" name=\"search\" class = \"spaced\" size=\"35\" value = \"" . __($search) . "\"/>";
 $params = array("all" => true);
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";

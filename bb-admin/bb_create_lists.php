@@ -289,12 +289,12 @@ foreach ($arr_definitions as $key => $value) {
             echo "<div class=\"row padded\">";
             echo "<div class=\"spaced padded cell\">List Number: </div>";
             echo "<div class=\"padded cell\">";
-            $main->echo_input("identifier_update", htmlentities($arr_create_lists['update']['identifier']), array('type' => 'text', 'class' => 'spaced textbox', 'readonly' => true));
+            $main->echo_input("identifier_update", __($arr_create_lists['update']['identifier']), array('type' => 'text', 'class' => 'spaced textbox', 'readonly' => true));
             echo "</div></div>";
             echo "<div class=\"row padded\">";
             echo "<div class=\"spaced padded top cell\">List Name: </div>";
             echo "<div class=\"padded cell\">";
-            $main->echo_input("name_update", htmlentities($arr_create_lists['update']['name']), array('type' => 'text', 'class' => 'spaced textbox'));
+            $main->echo_input("name_update", __($arr_create_lists['update']['name']), array('type' => 'text', 'class' => 'spaced textbox'));
             echo "</div></div>";
             echo "<div class=\"row padded\">";
             echo "<div class=\"spaced padded cell\">Description: </div>";

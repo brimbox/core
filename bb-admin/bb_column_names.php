@@ -444,12 +444,12 @@ for ($m = 1;$m <= 50;$m++) {
     // columns by row
     echo "<div class=\"row\">";
     // layout and column number
-    echo "<div class = \"extra middle cell\">" . htmlentities($layout_name) . " " . str_pad(( string )$m, 2, "0", STR_PAD_LEFT) . "</div>";
+    echo "<div class = \"extra middle cell\">" . __($layout_name) . " " . str_pad(( string )$m, 2, "0", STR_PAD_LEFT) . "</div>";
 
     // name, alternative is readonly, always use core array
     $readonly = $core ? "" : "readonly";
     $formvalue = $main->init($arr_columns[$m]['name'], "");
-    echo "<div class = \"extra middle cell\"><input name=\"name_" . $m . "\" type=\"text\" value=\"" . htmlentities($formvalue) . "\" size=\"25\" maxlength=\"" . $maxinput . "\" " . $readonly . "/></div>";
+    echo "<div class = \"extra middle cell\"><input name=\"name_" . $m . "\" type=\"text\" value=\"" . __($formvalue) . "\" size=\"25\" maxlength=\"" . $maxinput . "\" " . $readonly . "/></div>";
 
     foreach ($arr_fields as $key => $value) {
         switch ($key) {
@@ -475,7 +475,7 @@ for ($m = 1;$m <= 50;$m++) {
                 echo "<div class = \"extra middle cell\"><select name = \"length_" . $m . "\">";
                 foreach ($arr_column_css_class as $key2 => $value2) {
                     $selected = ($key2 == $formvalue) ? "selected" : "";
-                    echo "<option value=\"" . $key2 . "\" " . $selected . ">" . htmlentities($value2) . "</option>";
+                    echo "<option value=\"" . $key2 . "\" " . $selected . ">" . __($value2) . "</option>";
                 }
                 echo "</select></div>";
             break;
@@ -556,7 +556,7 @@ for ($m = 1;$m <= 50;$m++) {
                     echo "<div class = \"extra middle cell\"><select name=\"secure_" . $m . "\">";
                     foreach ($arr_column_security as $key2 => $value2) {
                         $selected = ($key2 == $formvalue) ? "selected" : "";
-                        echo "<option value = \"" . $key2 . "\" " . $selected . ">" . htmlentities($value2) . "&nbsp;</option>";
+                        echo "<option value = \"" . $key2 . "\" " . $selected . ">" . __($value2) . "&nbsp;</option>";
                     }
                     echo "</select></div>";
                 }
@@ -581,7 +581,7 @@ for ($m = 1;$m <= 50;$m++) {
                     foreach ($arr_layouts as $key2 => $value2) {
                         $selected = ($key2 == $formvalue) ? "selected" : "";
                         if ($value2['relate']) {
-                            echo "<option value = \"" . $key2 . "\" " . $selected . ">" . htmlentities(chr($key2 + 64) . $key2) . "&nbsp;</option>";
+                            echo "<option value = \"" . $key2 . "\" " . $selected . ">" . __(chr($key2 + 64) . $key2) . "&nbsp;</option>";
                         }
                     }
                     echo "</select></div>";

@@ -58,15 +58,15 @@ if (!empty($arr_details)):
     foreach ($arr_details as $key => $value) {
         $name = ucwords(str_replace("_", " ", $key));
         if ($key != "description") {
-            echo "<label class=\"margin padded right overflow floatleft medium shaded\">" . htmlentities($name) . ":</label>";
-            echo "<label class=\"margin padded left floatleft\">" . htmlentities($value) . "</label>";
+            echo "<label class=\"margin padded right overflow floatleft medium shaded\">" . __($name) . ":</label>";
+            echo "<label class=\"margin padded left floatleft\">" . __($value) . "</label>";
             $main->echo_clear();
         }
     }
     if (isset($arr_details['description'])) {
-        echo "<label class = \"margin padded left floatleft overflow medium shaded\">" . htmlentities($name) . ":</label>";
+        echo "<label class = \"margin padded left floatleft overflow medium shaded\">" . __($name) . ":</label>";
         $main->echo_clear();
-        echo "<textarea class=\"margin\" cols=\"80\" rows=\"6\" readonly=\"readonly\">" . htmlentities($value) . "</textarea>";
+        echo "<textarea class=\"margin\" cols=\"80\" rows=\"6\" readonly=\"readonly\">" . __($value) . "</textarea>";
         $main->echo_clear();
     }
     echo "</div>";

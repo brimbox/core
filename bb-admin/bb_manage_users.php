@@ -487,9 +487,9 @@ if ($action == 0) {
         $username_work = $row['username'];
         $email_work = $row['email'];
         $userroles_work = explode(",", $row['userroles']);
-        echo "<div class=\"extra middle cell\">" . htmlentities($username_work) . "</div>";
-        echo "<div class=\"extra middle cell\">" . htmlentities($email_work) . "</div>";
-        echo "<div class=\"extra middle cell\">" . htmlentities($name) . "</div>";
+        echo "<div class=\"extra middle cell\">" . __($username_work) . "</div>";
+        echo "<div class=\"extra middle cell\">" . __($email_work) . "</div>";
+        echo "<div class=\"extra middle cell\">" . __($name) . "</div>";
         echo "<div class=\"extra middle cell\">";
         $arr_display = array();
         foreach ($userroles_work as $value) {
@@ -581,7 +581,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "<div class=\"row\">";
     echo "<div class=\"middle cell\">Username:</div>";
     echo "<div class=\"middle cell\">";
-    $main->echo_input("username_work", htmlentities($username_work), array('type' => "text", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
+    $main->echo_input("username_work", __($username_work), array('type' => "text", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
     echo "<div class=\"error middle cell\"> " . (isset($arr_error['username_work']) ? $arr_error['username_work'] : "") . "</div>";
     echo "</div>";
@@ -589,7 +589,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "<div class=\"row\">";
     echo "<div class=\"middle cell\">Email:</div>";
     echo "<div class=\"middle cell\">";
-    $main->echo_input("email_work", htmlentities($email_work), array('type' => "text", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
+    $main->echo_input("email_work", __($email_work), array('type' => "text", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
     echo "<div class=\"error middle cell\"> " . (isset($arr_error['email_work']) ? $arr_error['email_work'] : "") . "</div>";
     echo "</div>";
@@ -618,7 +618,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "<div class=\"row\">";
     echo "<div class=\"middle cell\">First Name:</div>";
     echo "<div class=\"middle cell\">";
-    $main->echo_input("fname", htmlentities($fname), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
+    $main->echo_input("fname", __($fname), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
     echo "<div class=\"error middle cell\"> " . (isset($arr_error['fname']) ? $arr_error['fname'] : "") . "</div>";
     echo "</div>";
@@ -626,7 +626,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "<div class=\"row\">";
     echo "<div class=\"middle cell\">Middle Initial:</div>";
     echo "<div class=\"middle cell\">";
-    $main->echo_input("minit", htmlentities($minit), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
+    $main->echo_input("minit", __($minit), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
     echo "<div class=\"middle cell\"></div>";
     echo "</div>";
@@ -634,7 +634,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "<div class=\"row\">";
     echo "<div class=\"middle cell\"\">Last Name:</div>";
     echo "<div class=\"middle cell\">";
-    $main->echo_input("lname", htmlentities($lname), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
+    $main->echo_input("lname", __($lname), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
     echo "<div class=\"error middle cell\"> " . (isset($arr_error['lname']) ? $arr_error['lname'] : "") . "</div>";
     echo "</div>";

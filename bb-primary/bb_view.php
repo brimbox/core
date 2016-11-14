@@ -114,7 +114,7 @@ echo "<option value=\"modify_date\" " . ($col1 == "modify_date" ? "selected" : "
 // build field options for column names
 foreach ($arr_columns as $key => $value) {
     $col = $main->pad("c", $key);
-    echo "<option value=\"" . $col . "\" " . ($col == $col1 ? "selected" : "") . ">" . htmlentities($value['name']) . "&nbsp;</option>";
+    echo "<option value=\"" . $col . "\" " . ($col == $col1 ? "selected" : "") . ">" . __($value['name']) . "&nbsp;</option>";
 }
 echo "</select>";
 // dropdown for ascending or descending

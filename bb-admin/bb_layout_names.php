@@ -190,7 +190,7 @@ for ($i = 1;$i <= $number_layouts;$i++) {
 
     // singular
     echo "<div class=\"extra middle cell\">";
-    $value = isset($arr_layouts[$i]) ? htmlentities($arr_layouts[$i]['singular']) : "";
+    $value = isset($arr_layouts[$i]) ? __($arr_layouts[$i]['singular']) : "";
     $main->echo_input("singular_" . $i, $value, array(
         'type' => "input",
         'maxlength' => $maxinput
@@ -199,7 +199,7 @@ for ($i = 1;$i <= $number_layouts;$i++) {
 
     // plural
     echo "<div class=\"extra middle cell\">";
-    $value = isset($arr_layouts[$i]) ? htmlentities($arr_layouts[$i]['plural']) : "";
+    $value = isset($arr_layouts[$i]) ? __($arr_layouts[$i]['plural']) : "";
     $main->echo_input("plural_" . $i, $value, array(
         'type' => "input",
         'maxlength' => $maxinput
@@ -262,7 +262,7 @@ for ($i = 1;$i <= $number_layouts;$i++) {
                         if (isset($arr_layouts[$i]['secure'])) {
                             $selected = ($arr_layouts[$i]['secure'] == $key) ? "selected" : "";
                         }
-                        echo "<option value = \"" . $key . "\" " . $selected . ">" . htmlentities($value) . "&nbsp;</option>";
+                        echo "<option value = \"" . $key . "\" " . $selected . ">" . __($value) . "&nbsp;</option>";
                     }
                     echo "</select>";
                     echo "</div>";

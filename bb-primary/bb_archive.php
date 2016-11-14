@@ -150,7 +150,7 @@ if (!$main->button(1)) {
         $main->echo_button("archive_cascade", $params);
         echo "<select name=\"setbit\" class=\"spaced\"\">";
         foreach ($arr_archive as $key => $value) {
-            echo "<option value=\"" . $key . "\" " . ($key == $setbit ? "selected" : "") . ">" . htmlentities($value) . "&nbsp;</option>";
+            echo "<option value=\"" . $key . "\" " . ($key == $setbit ? "selected" : "") . ">" . __($value) . "&nbsp;</option>";
         }
         echo "</select>";
     }

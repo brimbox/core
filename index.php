@@ -24,6 +24,9 @@ header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
+header('Content-type: text/html; charset=utf-8');
+ini_set("default_charset", 'utf-8');
+
 // constant to verify include files are not accessed directly
 define('BASE_CHECK', true);
 // need DB_NAME from bb_config, must not have html output including blank spaces
