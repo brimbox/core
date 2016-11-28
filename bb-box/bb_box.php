@@ -22,7 +22,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php
 $title = PAGE_TITLE;
-$title = $main->filter("bb_box_page_title", $title, $module);
+$title = $main->filter("bb_box_page_title", $title);
 echo "<title>" . $title . "</title>";
 
 /* STANDARD JAVASCRIPT INCLUDE */
@@ -53,7 +53,7 @@ $processing_image = $main->filter("bb_box_processing_image", $processing_image);
 if (!$main->blank($processing_image)) {
     // seems to flush nicely without explicitly flushing the output buffer
     echo "<div id=\"bb_processing\"><img src=\"" . $webpath . $processing_image . "\"></div>";
-    echo "<script>window.onload = function () { document.getElementById('bb_processor').style.display = 'none'; }</script>";
+    echo "<script>window.onload = function () { document.getElementById('bb_processing').style.display = 'none'; }</script>";
 }
 
 /* CONTROLLER IMAGE AND MESSAGE */
@@ -62,7 +62,7 @@ echo "<div id=\"bb_header\">";
 // header image
 $controller_image = "<div class=\"table fill\"><div class=\"row\"><div class=\"cell\"><img class=\"floatleft\" src=\"" . $webpath . "/bb-config/controller_image.gif\"></div>
                      <div class=\"cell middle\"><div class=\"floatright extra double\"><button name=\"logout\" class=\"bold link underline\" onclick=\"bb_logout_selector('0_bb_brimbox')\">Logout</button></div></div></div></div>";
-$controller_image = $main->filter("bb_box_controller_image", $controller_image, $module);
+$controller_image = $main->filter("bb_box_controller_image", $controller_image);
 if (!$main->blank($controller_image)) {
     echo "<div id=\"bb_controller_image\">" . $controller_image . "</div>";
     $main->echo_clear();

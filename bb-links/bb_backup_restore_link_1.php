@@ -58,28 +58,6 @@ if (!$valid_password) {
     die("Invalid Password");
 }
 
-// xml can be loaded with new line chars, which cause problems
-// used on xml, rest of table should already be clean
-function purge_chars($str, $eol = true) {
-
-    if ($eol) {
-        // changes a bunch of control chars to single spaces
-        $pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
-        $str = preg_replace($pattern, " ", $str);
-    }
-    else {
-        // changes a bunch of control chars to single spaces except for new lines
-        $pattern = "/[\\t\\0\\x0B\\x0C\\r]+/";
-        $str = trim(preg_replace($pattern, " ", $str)); // trim this one twice here
-        // clean up eol spaces
-        $pattern = "/ {0,}(\\n{1}) {0,}/";
-        $str = preg_replace($pattern, "\n", $str);
-    }
-    // trim again because truncate could leave ending space, then try to encode
-    $str = utf8_encode(trim($str));
-    return $str;
-}
-
 function encrypt_line($str, $passwd, $iv, $type) {
 
     switch ($type) {
@@ -251,12 +229,9 @@ echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 while ($row = pg_fetch_row($result)) {
     // we absolutely don't want backup file messed up
     // slow but necessary
-    for ($i = 4;$i <= 51;$i++) {
-        $row[$i] = purge_chars($row[$i]);
+    for ($i = 4;$i <= 53;$i++) {
+        $row[$i] = str_replace("\t", "", $row[$i]);
     }
-    // do not purge \n
-    $row[52] = purge_chars($row[52], false);
-    $row[53] = purge_chars($row[53], false);
 
     $str = implode("\t", $row);
     $str = encrypt_line($str, $passwd, $iv, $type) . $eol;

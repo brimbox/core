@@ -110,6 +110,7 @@ if ($interface == "bb_brimbox"):
     $main->add_action('hooks', "bb_listview_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
     $main->add_action('hooks', "bb_lookup_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
     $main->add_action('hooks', "bb_search_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
+    $main->add_action('hooks', "bb_view_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
 
     $main->add_action('filters', "bb_main_purge_chars_trim", array('func' => 'trim'));
 

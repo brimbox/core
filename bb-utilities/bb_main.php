@@ -68,7 +68,7 @@
 // validate_dropdown
 // document
 // make_html_id
-//REGULAR FUNCTIONS AFTER CLASS
+//REGULAR PHP FUNCTIONS AFTER CLASS
 // __() Format variable and translate
 class bb_main extends bb_reports {
 
@@ -501,18 +501,20 @@ class bb_main extends bb_reports {
 
     function purge_chars($str, $eol = true, $quotes = false) {
 
-        // replace chars with a space
+        // replace chars with a space, eol is false for note fields
         $pattern = "\\t\\0\\x0B\\x0C\\r";
         if ($eol) $pattern = $pattern . "\\n";
-        $pattern = $this->filter("bb_main_purge_chars_space", $pattern, $eol);
-        $str = preg_replace("/[" . $pattern . "]+/", " ", $str);
+        $pattern = "[" . $pattern . "]+";
+        $pattern = $this->filter("bb_main_purge_chars_space", $pattern, $eol, $quotes);
+        $str = preg_replace("/" . $pattern . "/", " ", $str);
 
-        // replace chars without a space
+        // remove chars, quotes are purged in meta data like column names
         if ($quotes) $pattern = $pattern = "\\\"";
-        $pattern = $this->filter("bb_main_purge_chars_nospace", $pattern, $eol);
-        $str = preg_replace("/[" . $pattern . "]+/", "", $str);
+        $pattern = "[" . $pattern . "]+";
+        $pattern = $this->filter("bb_main_purge_chars_nospace", $pattern, $eol, $quotes);
+        $str = preg_replace("/" . $pattern . "/", "", $str);
 
-        // trim hooked in
+        // PHP trim hooked in by default
         $str = $this->filter("bb_main_purge_chars_trim", $str);
 
         return $str;
@@ -757,18 +759,17 @@ class bb_main extends bb_reports {
 
     function cleanup_database_data($con) {
 
-        for ($i = 1;$i <= 48;$i++) {
-            $col = "c" . str_pad($i, 2, "0", STR_PAD_LEFT);
+        for ($col_type = 1;$col_type <= 50;$col_type++) {
+            $col = "c" . str_pad($col_type, 2, "0", STR_PAD_LEFT);
+            if ($i <= 48) {
+                $query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r\\n]+', ' ', 'g' )) WHERE " . $col . " <> '';";
+            }
+            else {
+                $query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(col, E' {0,}\\n{1} {0,}', E'\n', 'g' )) " . "FROM (SELECT id, regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r]+', ' ', 'g' ) as col FROM data_table WHERE " . $col . " <> '') T1 WHERE data_table.id = T1.id;";
+            }
             // POSIX regex, no null because db text fields cannot have nulls
             // change tabs, form feeds, new lines, returns and vertical tabs to space and trim
-            $query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r\\n]+', ' ', 'g' )) WHERE " . $col . " <> '';";
-            $this->query($con, $query);
-        }
-        for ($i = 49;$i <= 50;$i++) {
-            $col = "c" . str_pad($i, 2, "0", STR_PAD_LEFT);
-            // POSIX regex, no null because db text fields cannot have nulls
-            // replace all tab, form feeds and return with a space and then remove all space from end of line keeping new lines
-            $query = "UPDATE data_table SET " . $col . " =  trim(both FROM regexp_replace(col, E' {0,}\\n{1} {0,}', E'\n', 'g' )) " . "FROM (SELECT id, regexp_replace(" . $col . ", E'[\\t\\x0B\\x0C\\r]+', ' ', 'g' ) as col FROM data_table WHERE " . $col . " <> '') T1 WHERE data_table.id = T1.id;";
+            $query = $main->filter("bb_main_cleanup_database_data", $query, $col_type);
             $this->query($con, $query);
         }
     }
@@ -979,7 +980,10 @@ class bb_main extends bb_reports {
 
 ?>
 <?php
+/* Regular Functions */
+
 //standard convert to utf output
+//this will eventially lead to translation
 function __($var) {
     if (is_string($var)) {
         $var = htmlentities(utf8_decode($var));
