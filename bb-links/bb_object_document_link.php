@@ -3,7 +3,7 @@
  * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * it under the terms of the GNU General Public License Version 3 (GNU GPL v3)
  * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,7 +20,6 @@ include ("../bb-config/bb_config.php"); // need DB_NAME
 // userrole not passed in from controller
 session_name(DB_NAME);
 session_start();
-session_regenerate_id();
 
 if (isset($_SESSION['username'])):
 

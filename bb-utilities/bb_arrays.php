@@ -4,7 +4,7 @@
  * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * it under the terms of the GNU General Public License Version 3 (GNU GPL v3)
  * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -112,7 +112,7 @@ if ($interface == "bb_brimbox"):
     $main->add_action('hooks', "bb_search_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
     $main->add_action('hooks', "bb_view_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
 
-    $main->add_action('filters', "bb_main_purge_chars_trim", array('func' => 'trim'));
+    $main->add_action('filters', "bb_main_purge_chars_format", array('func' => 'trim'), 50);
 
     // COMMON VARS SHARED WITH OTHER TABS #
     // will not be processed through the form posting engine

@@ -4,7 +4,7 @@
  * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * it under the terms of the GNU General Public License Version 3 (GNU GPL v3)
  * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -43,6 +43,7 @@ class bb_forms extends bb_links {
 
         $params['name'] = isset($params['name']) ? $params['name'] : "bb_form";
         $params['method'] = isset($params['method']) ? $params['method'] : "post";
+        $params['accept-charset'] = isset($params['accept-charset']) ? $params['accept-charset'] : "UTF-8";
 
         // can do a custom post page
         if (!isset($params['action'])) {

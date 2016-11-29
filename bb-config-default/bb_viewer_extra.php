@@ -18,6 +18,8 @@
 ?>
 <?php
 /* BEGIN REQUIRED FORM */
+$POST = $main->retrieve($con);
+
 $main->echo_form_begin();
 $main->echo_module_vars();
 

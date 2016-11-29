@@ -6,7 +6,7 @@
  * The GNU GPL v3 license does not grant licensee any rights in the trademarks, service marks,
  * or logos of any Contributor except as may be necessary to comply with the notice requirements
  * of the GNU GPL v3 license. The GNU GPL v3 license does not grant licensee permission to copy,
- * modify, or distribute this program’s documentation for any purpose.
+ * modify, or distribute this programs documentation for any purpose.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of

@@ -18,12 +18,17 @@
 ?>
 <?php
 /* BEGIN REQUIRED FORM */
+
+// get $POST variable
+$POST = $main->retrieve($con);
+
 $main->echo_form_begin();
 $main->echo_module_vars();
 
 /* In case you need to put a quick link on the home page */
 $main->echo_common_vars();
 $main->echo_form_end();
+
 /* END FORM */
 ?>
 

@@ -3,7 +3,7 @@
  * Copyright (C) Kermit Will Richardson, Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * it under the terms of the GNU General Public License Version 3 (Â“GNU GPL v3Â”)
  * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,

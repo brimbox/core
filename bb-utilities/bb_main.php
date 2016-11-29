@@ -4,7 +4,7 @@
  * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * it under the terms of the GNU General Public License Version 3 (GNU GPL v3)
  * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -473,7 +473,7 @@ class bb_main extends bb_reports {
 
     // function to strip tabs and new lines from string
     function custom_trim_string($str, $length, $eol = true, $quotes = false) {
-
+        /* DEPRACATED DO NOT USE */
         if ($eol) {
             // changes a bunch of control chars to single spaces
             $pattern = "/[\\t\\0\\x0B\\x0C\\r\\n]+/";
@@ -515,7 +515,7 @@ class bb_main extends bb_reports {
         $str = preg_replace("/" . $pattern . "/", "", $str);
 
         // PHP trim hooked in by default
-        $str = $this->filter("bb_main_purge_chars_trim", $str);
+        $str = $this->filter("bb_main_purge_chars_format", $str);
 
         return $str;
     }
@@ -986,11 +986,11 @@ class bb_main extends bb_reports {
 //this will eventially lead to translation
 function __($var) {
     if (is_string($var)) {
-        $var = htmlentities(utf8_decode($var));
+        $var = htmlentities($var, ENT_COMPAT | ENT_HTML401, "UTF-8");
     }
     elseif (is_array($var)) {
         foreach ($var as & $value) {
-            $value = htmlentities(utf8_decode($value));
+            $value = htmlentities($value, ENT_COMPAT | ENT_HTML401, "UTF-8");
         }
     }
     return $var;
