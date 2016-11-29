@@ -50,10 +50,10 @@ $main->include_file($webpath . "/bb-config/bb_css.css", "css");
 <body id="bb_brimbox">
 <?php
 /* PROCESSING IMAGE */
-$processing_image = $main->filter("bb_box_processing_image", $processing_image);
+$processing_image = $main->filter("bb_box_processing_image", $processing_image, $webpath);
 if (!$main->blank($processing_image)) {
     // seems to flush nicely without explicitly flushing the output buffer
-    echo "<div id=\"bb_processing\"><img src=\"" . $webpath . $processing_image . "\"></div>";
+    echo "<div id=\"bb_processing\"><img src=\"" . $processing_image . "\"></div>";
     echo "<script>window.onload = function () { document.getElementById('bb_processing').style.display = 'none'; }</script>";
 }
 
@@ -63,7 +63,7 @@ echo "<div id=\"bb_header\">";
 // header image
 $controller_image = "<div class=\"table fill\"><div class=\"row\"><div class=\"cell\"><img class=\"floatleft\" src=\"" . $webpath . "/bb-config/controller_image.gif\"></div>
                      <div class=\"cell middle\"><div class=\"floatright extra double\"><button name=\"logout\" class=\"bold link underline\" onclick=\"bb_logout_selector('0_bb_brimbox')\">Logout</button></div></div></div></div>";
-$controller_image = $main->filter("bb_box_controller_image", $controller_image);
+$controller_image = $main->filter("bb_box_controller_image", $controller_image, $webpath);
 if (!$main->blank($controller_image)) {
     echo "<div id=\"bb_controller_image\">" . $controller_image . "</div>";
     $main->echo_clear();

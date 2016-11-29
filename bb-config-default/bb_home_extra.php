@@ -4,7 +4,7 @@
  * Copyright (C) Brimbox LLC
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 3 (“GNU GPL v3”)
+ * it under the terms of the GNU General Public License Version 3 (GNU GPL v3)
  * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -18,9 +18,6 @@
 ?>
 <?php
 /* BEGIN REQUIRED FORM */
-
-// get $POST variable
-$POST = $main->retrieve($con);
 
 $main->echo_form_begin();
 $main->echo_module_vars();
