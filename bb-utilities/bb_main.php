@@ -504,15 +504,15 @@ class bb_main extends bb_reports {
         // replace chars with a space, eol is false for note fields
         $pattern = "\\t\\0\\x0B\\x0C\\r";
         if ($eol) $pattern = $pattern . "\\n";
-        $pattern = "[" . $pattern . "]+";
+        $pattern = "/[" . $pattern . "]+/";
         $pattern = $this->filter("bb_main_purge_chars_space", $pattern, $eol, $quotes);
-        $str = preg_replace("/" . $pattern . "/", " ", $str);
+        $str = preg_replace($pattern, " ", $str);
 
         // remove chars, quotes are purged in meta data like column names
         if ($quotes) $pattern = $pattern = "\\\"";
-        $pattern = "[" . $pattern . "]+";
+        $pattern = "/[" . $pattern . "]+/";
         $pattern = $this->filter("bb_main_purge_chars_nospace", $pattern, $eol, $quotes);
-        $str = preg_replace("/" . $pattern . "/", "", $str);
+        $str = preg_replace($pattern, "", $str);
 
         // PHP trim hooked in by default
         $str = $this->filter("bb_main_purge_chars_format", $str);
