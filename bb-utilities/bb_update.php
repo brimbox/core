@@ -21,7 +21,4 @@ $less = new bb_less_substituter();
 
 $less->parse_less_file($abspath . "/bb-box/bb_box.less", $abspath . "/bb-box/bb_box.css");
 
-@unlink($abspath . "/bb-utilities/bb_styles.less");
-@unlink($abspath . "/bb-utilities/bb_styles.css");
-
 ?>
