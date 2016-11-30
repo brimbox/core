@@ -694,6 +694,7 @@ class bb_main extends bb_reports {
         $this->database_stats();
         $this->archive_link();
         $this->replicate_link();
+        $this->userrole_switch();
         echo "</div>";
         echo "<div class=\"clear\"></div>";
     }

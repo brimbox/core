@@ -198,7 +198,7 @@ class bb_database extends bb_build {
     // get the row_type from a related field
     function relate_check($related) {
 
-        if (preg_match("/^[A-Z]\d+:.*/", $related)) {
+        if (preg_match("/^[A-Z]\d+:.*/u", $related)) {
             return true;
         }
         return false;
@@ -207,19 +207,19 @@ class bb_database extends bb_build {
     // get the row_type from a related field
     function relate_row_type($related) {
 
-        return ord(substr($related, 0, 1)) - 64;
+        return ord(mb_substr($related, 0, 1)) - 64;
     }
 
     // get post_key or id from related field
     function relate_post_key($related) {
 
-        return substr($related, 1, strpos($related, ":") - 1);
+        return mb_substr($related, 1, mb_strpos($related, ":") - 1);
     }
 
     // gets primary string from related field
     function relate_value($related) {
 
-        return substr($related, strpos($related, ":") + 1);
+        return mb_substr($related, mb_strpos($related, ":") + 1);
     }
 } // end class
 
