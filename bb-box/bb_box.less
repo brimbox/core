@@ -319,7 +319,7 @@ div.clear, div.rowclear {
 .padded { padding: 2px; }
 .holderup { margin: 2px 2px 5px 2px; }
 .holderdown { margin: 5px 2px 2px 2px; }
-.twice { padding: 4px; } .
+.twice { padding: 4px; } 
 .double { margin: 4px; }
 .extra { padding: 2px 6px; }
 /* display */
@@ -408,6 +408,10 @@ div.clear, div.rowclear {
 @media screen and (max-width : 480px) {
 	
 	/* Mobile Button and Header */
+	#bb_controller_image {
+		display: none;
+    }
+
 	#bb_mobile_header {
 		display: block;
 		padding: 8px;
@@ -485,6 +489,7 @@ div.clear, div.rowclear {
 @media screen and (max-width : 480px) {
 
 	/* mobile display hierachies */
+	.mobile_display { display: block; }
 	.mobile_floatleft { float: left; }
 	.mobile_floatright { float: right; }
 	.mobile_block { display: block; }
