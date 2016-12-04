@@ -109,12 +109,10 @@ class bb_main extends bb_reports {
         // archive or secure > 0
         if ($mark) {
             if ($row['archive'] > 0) {
-                $str.= str_repeat('*', $row['archive']);
-                $str.= "<span class=\"error bold\">" . $str . "</span>";
+                $str.= "<span class=\"error bold\">" . str_repeat('*', $row['archive']) . "</span>";
             }
             if ($row['secure'] > 0) {
-                $str = str_repeat('+', $row['secure']);
-                $str.= "<span class=\"error bold\">" . $str . "</span>";
+                $str.= "<span class=\"error bold\">" . str_repeat('+', $row['secure']) . "</span>";
             }
         }
         if (!$this->blank($row['hdr']) && ($link == 1)) {
