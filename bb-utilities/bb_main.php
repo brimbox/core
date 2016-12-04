@@ -346,7 +346,7 @@ class bb_main extends bb_reports {
 
     function list_dropdown($arr_lists, $name, $list_number, $params = array()) {
 
-        return $this->get_list_dropdown($arr_lists, $name, $list_number, $params);
+        echo $this->get_list_dropdown($arr_lists, $name, $list_number, $params);
     }
 
     // pad a number to a column name
