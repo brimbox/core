@@ -93,15 +93,14 @@ if (!function_exists('bb_data_table_render_form')):
                         $multiselect = $main->init($arr_dropdown['multiselect'], 0);
                         $dropdown = $main->filter_keys($arr_dropdown);
                         $input = is_array($input) ? $input : array($input); // convert to array
-                        $field_output = "<div class=\"clear\">";
-                        $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
+                        $field_output = "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         if ($multiselect) {
-                            $field_output.= "<select id=\"" . $field_id . "\" class = \"spaced pad_textbox\" name = \"" . $col . "[]\" size=\"5\" multiple onFocus=\"bb_remove_message(); return false;\">";
+                            $field_output.= "<div id=\"" . $field_id . "\" class = \"floatleft spaced padded multiheight scrolly border pad_textbox\" onFocus=\"bb_remove_message(); return false;\">";
                             foreach ($dropdown as $item) {
-                                $selected = is_int(array_search(strtolower($item), array_map('strtolower', $input))) ? "selected" : "";
-                                $field_output.= "<option value=\"" . $item . "\" " . $selected . ">" . $item . "&nbsp;</option>";
+                                $checked = is_int(array_search(strtolower($item), array_map('strtolower', $input))) ? "checked" : "";
+                                $field_output.= "<input type=\"checkbox\" name = \"" . $col . "[]\" class=\"multihighlight\" value=\"" . $item . "\" " . $checked . "> <label>" . $item . "</label><br>";
                             }
-                            $field_output.= "</select>";
+                            $field_output.= "</div>";
                         }
                         else {
                             $field_output.= "<select id=\"" . $field_id . "\" class = \"spaced pad_textbox\" name = \"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">";
@@ -112,25 +111,22 @@ if (!function_exists('bb_data_table_render_form')):
                             $field_output.= "</select>";
                         }
                         $field_output.= "<label class=\"error\">" . $error . "</label>";
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     elseif (in_array($key, $arr_relate)) {
                         // possible related record type, could be straight text
-                        $field_output = "<div class = \"clear\">";
-                        $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
+                        $field_output = "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . $input . "\" onFocus=\"bb_remove_message(); return false;\" />";
                         $field_output.= "<label class=\"error\">" . $error . "</label>";
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     elseif (in_array($key, $arr_file)) {
                         // file type
                         $lo = isset($arr_state['lo']) ? $arr_state['lo'] : "";
-                        $field_output = "<div class = \"clear\">";
-                        $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
+                        $field_output = "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "\" class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \"" . __($lo) . "\" readonly/>";
                         $field_output.= "<label class=\"error\">" . $error . "</label>";
-                        $field_output.= "</div>";
-                        $field_output.= "<div class = \"clear\">";
+                        $field_output.= "<div class = \"clear\"></div>";
                         $field_output.= "<input id=\"" . $field_id . "\" class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\"/>";
                         if (!$value['required']) {
                             $field_output.= "<span class = \"spaced border rounded padded shaded\">";
@@ -138,23 +134,21 @@ if (!function_exists('bb_data_table_render_form')):
                             $field_output.= "<input type=\"checkbox\" name=\"remove\" class=\"middle holderup\" />";
                             $field_output.= "</span>";
                         }
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     elseif (in_array($key, $arr_notes)) {
                         // note type, will be textarea
-                        $field_output = "<div class=\"clear\">";
-                        $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
+                        $field_output = "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                         $field_output.= "<div class=\"clear\"></div>";
                         $field_output.= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea pad_notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" onFocus=\"bb_remove_message(); return false;\">" . $input . "</textarea>";
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     else {
                         // standard input/textbox
-                        $field_output = "<div class=\"clear\">";
-                        $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
+                        $field_output = "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . $input . "\" onFocus=\"bb_remove_message(); return false;\" />";
                         $field_output.= "<label class=\"error spaced\">" . $error . "</label>";
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
 
                 break;
@@ -167,8 +161,7 @@ if (!function_exists('bb_data_table_render_form')):
                         $multiselect = $main->init($arr_dropdown['multiselect'], 0);
                         $dropdown = $main->filter_keys($arr_dropdown);
                         $input = is_array($input) ? $input : array($input); // convert to array
-                        $field_output = "<div class=\"clear\">";
-                        $field_output.= "<label class = \"spaced padded floatleft right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
+                        $field_output = "<label class = \"spaced padded floatleft right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         if ($multiselect) {
                             foreach ($input as $value) {
                                 $field_output.= "<input type=\"hidden\" name=\"" . $col . "[]\" value=\"" . __($value) . "\" />";
@@ -183,26 +176,23 @@ if (!function_exists('bb_data_table_render_form')):
                             }
                             $field_output.= "</select>";
                             $field_output.= "<label class=\"error\">" . $error . "</label>";
-                            $field_output.= "</div>";
+                            $field_output.= "<div class=\"clear\"></div>";
                         }
                     }
                     elseif (in_array($key, $arr_relate)) {
                         // possible related record type, could be straight text
-                        $field_output = "<div class = \"clear\">";
-                        $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
+                        $field_output = "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . __($input) . "\" onFocus=\"bb_remove_message(); return false;\" readonly/>";
                         $field_output.= "<label class=\"error\">" . $error . "</label>";
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     elseif (in_array($key, $arr_file)) {
                         // file type
                         $lo = isset($arr_state['lo']) ? $arr_state['lo'] : "";
-                        $field_output = "<div class = \"clear\">";
-                        $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
+                        $field_output = "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "_lo\" class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \"" . __($lo) . "\" readonly/>";
                         $field_output.= "<label class=\"error\">" . $error . "</label>";
-                        $field_output.= "</div>";
-                        $field_output.= "<div class = \"clear\">";
+                        $field_output.= "<div class = \"clear\"></div>";
                         $field_output.= "<input id=\"" . $field_id . "\" class=\"spaced textbox\" type=\"file\" name=\"" . $col . "\"  disabled/>";
                         if (!$value['required']) {
                             $field_output.= "<span class = \"spaced border rounded padded shaded\">";
@@ -210,23 +200,21 @@ if (!function_exists('bb_data_table_render_form')):
                             $field_output.= "<input type=\"checkbox\" name=\"remove\" class=\"middle holderup\" />";
                             $field_output.= "</span>";
                         }
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     elseif (in_array($key, $arr_notes)) {
                         // note type, will be textarea
-                        $field_output = "<div class=\"clear\">";
-                        $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
+                        $field_output = "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                         $field_output.= "<div class=\"clear\"></div>";
                         $field_output.= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea pad_notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" onFocus=\"bb_remove_message(); return false;\" readonly>" . $input . "</textarea>";
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     else {
                         // standard input/textbox
-                        $field_output = "<div class=\"clear\">";
-                        $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
+                        $field_output = "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . $input . "\" onFocus=\"bb_remove_message(); return false;\" readonly/>";
                         $field_output.= "<label class=\"error spaced\">" . $error . "</label>";
-                        $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
 
                 break;
@@ -239,7 +227,7 @@ if (!function_exists('bb_data_table_render_form')):
                         $multiselect = $main->init($arr_dropdown['multiselect'], 0);
                         $dropdown = $main->filter_keys($arr_dropdown);
                         $input = is_array($input) ? $input : array($input); // convert to array
-                        $field_output = "<div class=\"clear hidden\">";
+                        $field_output = "<div class=\"hidden\">";
                         $field_output.= "<label class = \"spaced padded floatleft right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         if ($multiselect) {
                             foreach ($input as $value) {
@@ -256,25 +244,26 @@ if (!function_exists('bb_data_table_render_form')):
                             $field_output.= "</select>";
                             $field_output.= "<label class=\"error\">" . $error . "</label>";
                             $field_output.= "</div>";
+                            $field_output.= "<div class=\"clear\"></div>";
                         }
                     }
                     elseif (in_array($key, $arr_relate)) {
                         // possible related record type, could be straight text
-                        $field_output = "<div class = \"clear hidden\">";
+                        $field_output = "<div class = \"hidden\">";
                         $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . $input . "\" onFocus=\"bb_remove_message(); return false;\" readonly/>";
                         $field_output.= "<label class=\"error\">" . $error . "</label>";
                         $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     elseif (in_array($key, $arr_file)) {
                         // file type
                         $lo = isset($arr_state['lo']) ? $arr_state['lo'] : "";
-                        $field_output = "<div class = \"clear hidden\">";
+                        $field_output = "<div class = \"hidden\">";
                         $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "_lo\" class = \"spaced padded textbox noborder\" name=\"lo\" type=\"text\" value = \"" . __($lo) . "\" readonly/>";
                         $field_output.= "<label class=\"error\">" . $error . "</label>";
-                        $field_output.= "</div>";
-                        $field_output.= "<div class = \"clear\">";
+                        $field_output.= "<div class = \"clear\"></div>";
                         $field_output.= "<input id=\"" . $field_id . "\" class=\"spaced textbox hidden\" type=\"file\" name=\"" . $col . "\"  disabled/>";
                         if (!$value['required']) {
                             $field_output.= "<span class = \"spaced border rounded padded shaded\">";
@@ -283,24 +272,28 @@ if (!function_exists('bb_data_table_render_form')):
                             $field_output.= "</span>";
                         }
                         $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     elseif (in_array($key, $arr_notes)) {
                         // note type, will be textarea
-                        $field_output = "<div class=\"clear hidden\">";
+                        $field_output = "<div class=\"hidden\">";
                         $field_output.= "<label class = \"spaced padded left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label><label class=\"error spaced padded floatleft left overflow\">" . $error . "</label>";
                         $field_output.= "<div class=\"clear\"></div>";
                         $field_output.= "<textarea id=\"" . $field_id . "\" class=\"spaced notearea pad_notearea\" maxlength=\"" . $maxnote . "\" name=\"" . $col . "\" onFocus=\"bb_remove_message(); return false;\" readonly>" . $input . "</textarea>";
                         $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                     else {
                         // standard input/textbox
-                        $field_output = "<div class=\"clear hidden\">";
+                        $field_output = "<div class=\"hidden\">";
                         $field_output.= "<label class = \"spaced padded right pad_left overflow medium pad_textbox shaded\" for=\"" . $col . "\">" . __($value['name']) . ": </label>";
                         $field_output.= "<input id=\"" . $field_id . "\" class = \"spaced textbox\" maxlength=\"" . $maxinput . "\" name=\"" . $col . "\" type=\"text\" value = \"" . $input . "\" onFocus=\"bb_remove_message(); return false;\" readonly/>";
                         $field_output.= "<label class=\"error spaced\">" . $error . "</label>";
                         $field_output.= "</div>";
+                        $field_output.= "<div class=\"clear\"></div>";
                     }
                 break;
+
             } // switch
             // filter to echo the field output
             $field_output = $main->filter('bb_input_field_output', $field_output, $input, $key, $value);

@@ -62,7 +62,7 @@ if (!$main->blank($processing_image)) {
 echo "<div id=\"bb_header\">";
 // header image
 $controller_image = "<div class=\"table fill\"><div class=\"row\"><div class=\"cell\"><img class=\"floatleft\" src=\"" . $webpath . "/bb-config/controller_image.gif\"></div>
-                     <div class=\"cell middle\"><div class=\"floatright extra double\"><button name=\"logout\" class=\"bold link underline\" onclick=\"bb_logout_selector('0_bb_brimbox')\">Logout</button></div></div></div></div>";
+                     <div class=\"cell middle\"><div class=\"floatright extra double\">" . $main->get_logout_link() . "</div></div></div></div>";
 $controller_image = $main->filter("bb_box_controller_image", $controller_image, $webpath);
 if (!$main->blank($controller_image)) {
     echo "<div id=\"bb_controller_image\">" . $controller_image . "</div>";

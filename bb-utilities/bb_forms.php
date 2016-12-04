@@ -36,7 +36,7 @@
 //
 class bb_forms extends bb_links {
 
-    function echo_form_begin($params = array()) {
+    function get_form_begin($params = array()) {
 
         global $module;
         global $path;
@@ -57,10 +57,14 @@ class bb_forms extends bb_links {
 
         $attributes = $this->attributes($params);
 
-        echo "<form " . $attributes . ">";
+        return "<form " . $attributes . ">";
     }
 
-    function echo_module_vars() {
+    function echo_form_begin($params = array()) {
+        echo $this->get_form_begin($params);
+    }
+
+    function get_module_vars() {
         // global make the most sense since these are global variables
         global $module;
 
@@ -69,11 +73,16 @@ class bb_forms extends bb_links {
 
         foreach ($arr_module_variables as $name => $value) {
             $params = array('rel' => "global", 'type' => "hidden");
-            $this->echo_input($name, $value, $params);
+            $str.= $this->get_input($name, $value, $params);
         }
+        return $str;
     }
 
-    function echo_common_vars() {
+    function echo_module_vars() {
+        echo $this->get_module_vars();
+    }
+
+    function get_common_vars() {
         // echos common variables to support links
         // bb_post_key is the record id or drill down record key (two uses)
         // bb_row_type is the type of the primary record, or the parent record
@@ -83,11 +92,16 @@ class bb_forms extends bb_links {
 
         foreach ($array_common_variables as $value) {
             $params = array('rel' => "global", 'type' => "hidden");
-            $this->echo_input($value, "", $params);
+            $str.= $this->get_input($value, "", $params);
         }
+        return $str;
     }
 
-    function echo_button($name, $params = array()) {
+    function echo_common_vars() {
+        echo $this->get_common_vars();
+    }
+
+    function get_button($name, $params = array()) {
 
         /* function to output button */
         $params = array('name' => $name) + $params;
@@ -110,10 +124,14 @@ class bb_forms extends bb_links {
         // implode attributes
         $attributes = $this->attributes($params);
 
-        echo "<button " . $attributes . ">" . $label . "</button>";
+        return "<button " . $attributes . ">" . $label . "</button>";
     }
 
-    function echo_script_button($name, $params = array()) {
+    function echo_button($name, $params = array()) {
+        echo $this->get_button($name, $params);
+    }
+
+    function get_script_button($name, $params = array()) {
         // function to output button
         $params = array('name' => $name) + $params;
         $label = isset($params['label']) ? $params['label'] : "";
@@ -121,10 +139,14 @@ class bb_forms extends bb_links {
 
         $attributes = $this->attributes($params);
 
-        echo "<button " . $attributes . ">" . $label . "</button>";
+        return "<button " . $attributes . ">" . $label . "</button>";
     }
 
-    function echo_input($name, $value = "", $params = array()) {
+    function echo_script_button($name, $params = array()) {
+        echo $this->get_script_button($name, $params);
+    }
+
+    function get_input($name, $value = "", $params = array()) {
         // function to output input html object
         // string params
         $params = array('name' => $name) + $params + array('value' => $value);
@@ -142,12 +164,16 @@ class bb_forms extends bb_links {
             $params['type'] = "hidden";
             $params['value'] = 0;
             $attributes_hidden = $this->attributes($params);
-            echo "<input " . $attributes_hidden . "/>";
+            $hidden = "<input " . $attributes_hidden . "/>";
         }
-        echo "<input " . $attributes_input . $attr_item . "/>";
+        return $hidden . "<input " . $attributes_input . $attr_item . "/>";
     }
 
-    function echo_textarea($name, $value = "", $params = array()) {
+    function echo_input($name, $value = "", $params = array()) {
+        echo $this->get_input($name, $value, $params);
+    }
+
+    function get_textarea($name, $value = "", $params = array()) {
         // function to output button
         $params = array('name' => $name) + $params;
 
@@ -157,7 +183,11 @@ class bb_forms extends bb_links {
 
         $attributes = $this->attributes($params);
 
-        echo "<textarea " . $attributes . $readonly . ">" . $value . "</textarea>";
+        return "<textarea " . $attributes . $readonly . ">" . $value . "</textarea>";
+    }
+
+    function echo_textarea($name, $value = "", $params = array()) {
+        echo $this->get_textarea($name, $value, $params);
     }
 
     function attributes($params) {
@@ -169,21 +199,33 @@ class bb_forms extends bb_links {
         return implode(" ", $arr_implode);
     }
 
-    function echo_clear() {
+    function get_clear() {
+        return "<div class=\"clear\"></div>";
+    }
 
-        echo "<div class=\"clear\"></div>";
+    function echo_clear() {
+        echo $this->get_clear();
+    }
+
+    function get_tag($tag, $content = "", $params = array()) {
+
+        $attributes = $this->attributes($params);
+        return "<" . $tag . " " . $attributes . ">" . $content . "</" . $tag . ">";
     }
 
     function echo_tag($tag, $content = "", $params = array()) {
+        echo $this->get_tag($tag, $content, $params);
+    }
 
-        $attributes = $this->attributes($params);
-        echo "<" . $tag . " " . $attributes . ">" . $content . "</" . $tag . ">";
+    function get_form_end() {
+        // end form tag, why not
+        return "</form>";
     }
 
     function echo_form_end() {
-        // end form tag, why not
-        echo "</form>";
+        echo $this->get_form_end();
     }
+
 } // end class
 
 ?>

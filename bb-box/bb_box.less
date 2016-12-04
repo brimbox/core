@@ -30,6 +30,7 @@
 @bb_even_color : #FFFFFF;
 @bb_odd_color : #F2EAFF;
 @bb_shaded_color : #F2EAFF;
+@bb_shaded_multiselect : #F2EAFF;
 @bb_button_color  : #F2EAFF;
 @bb_button_text_color : #181818;
 
@@ -45,6 +46,8 @@
 @bb_tab_chosen_color : #FFFFFF;
 @bb_mobile_header_color : #A070B6;
 
+@bb_font_size_standard : 12px;
+@bb_font_size_larger : 13px;
 
 @import "../bb-config/bb_less.less";
 
@@ -113,11 +116,10 @@ img {
 /* Menu Links */
 #bb_menu li button {
 	display: block;
-	font-size: 13px;
+	font-size: @bb_font_size_larger;
 	letter-spacing: 0.3px;
 	padding: 3px 6px 2px 6px;
 	text-align: center;
-	font-size: 13px;
 	letter-spacing: 0.3px;
 	cursor: pointer;
 	border-style: solid;
@@ -222,7 +224,7 @@ img {
 /****** GLOBAL STYLES **********/
 /* FONT */
 body, td, input, select, button, textarea {
-	font-size: 12px;
+	font-size: @bb_font_size_standard;
 	font-family: Arial, Helvetica, sans-serif;
 	color: @bb_text_color;
 	line-height: 140%;
@@ -276,6 +278,9 @@ div.clear, div.rowclear {
 	clear: both;
 }
 
+input[type=checkbox]:checked.multihighlight + label {
+  background-color: @bb_shaded_multiselect;
+} 
 
 /**** STANDARD CSS DECLARATIONS ***/
 
@@ -300,7 +305,7 @@ div.clear, div.rowclear {
 .italic { font-style: italic; }
 .none { text-decoration: none; }
 .underline { text-decoration: underline; }
-.larger { font-size: 13px; letter-spacing: 0.3px; }
+.larger { font-size: @bb_font_size_larger; letter-spacing: 0.3px; }
 /* font colors */
 .message { color: @bb_message_color; }
 .colored { color: @bb_colored_text_color; }
@@ -343,6 +348,8 @@ div.clear, div.rowclear {
 .thinarea { height: 400px; width: 800px; }
 .widearea { height: 600px; width: 1000px; }
 .textbox { width: 300px; }
+.multiheight {max-height: 75px; }
+.scrolly {overflow-y: scroll}
 .emheight { min-height: 2em; }
 /* bullets and indent */
 .nobullets { list-style-type: none; }

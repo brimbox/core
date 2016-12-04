@@ -73,14 +73,14 @@
 class bb_main extends bb_reports {
 
     // this quickly returns the query header stats including count and current time...
-    function return_stats($result) {
+    function get_return_stats($result, &$str) {
         // count of rows is held in query, must have a "count(*) OVER () as cnt" column in query
         // in the standard modules $cntrows['cnt'] or $cntrows[0] will work
         // cannot use pg_num_rows because that returns the count according to OFFSET, as defined by $return_rows
         $cntrows = pg_fetch_array($result);
         if ($cntrows['cnt'] > 0) {
             date_default_timezone_set(USER_TIMEZONE);
-            echo "<div class = \"spaced left\">Rows: " . $cntrows['cnt'] . " Date: " . date('Y-m-d h:i A', time()) . "</div>";
+            $str = "<div class = \"spaced left\">Rows: " . $cntrows['cnt'] . " Date: " . date('Y-m-d h:i A', time()) . "</div>";
         }
         // reset back to zero
         pg_result_seek($result, 0);
@@ -88,56 +88,69 @@ class bb_main extends bb_reports {
         return $cntrows;
     }
 
+    function return_stats($result) {
+        $cntrows = $this->get_return_stats($result, $str);
+        echo $str;
+        return $cntrows;
+    }
+
     // this function returns a record header with a view_details link for each record returned
-    function return_header($row, $target, $params = array()) {
+    function get_return_header($row, $target, $params = array()) {
         // params for customization
         $link = isset($params['link']) ? $params['link'] : 1;
         $mark = isset($params['mark']) ? $params['mark'] : 1;
 
-        echo "<div class = \"italic\">";
+        $str = "<div class = \"italic\">";
         $row_type = $row['row_type'];
         $row_type_left = $row['row_type_left'];
         // do not return link, (ie cascade)
-        echo "<div class=\"inlineblock rightmargin\">";
-        echo "<span class=\"bold colored\">" . chr($row_type + 64) . $row['id'] . "</span>";
+        $str.= "<div class=\"inlineblock rightmargin\">";
+        $str.= "<span class=\"bold colored\">" . chr($row_type + 64) . $row['id'] . "</span>";
         // archive or secure > 0
         if ($mark) {
             if ($row['archive'] > 0) {
-                $str = str_repeat('*', $row['archive']);
-                echo "<span class=\"error bold\">" . $str . "</span>";
+                $str.= str_repeat('*', $row['archive']);
+                $str.= "<span class=\"error bold\">" . $str . "</span>";
             }
             if ($row['secure'] > 0) {
                 $str = str_repeat('+', $row['secure']);
-                echo "<span class=\"error bold\">" . $str . "</span>";
+                $str.= "<span class=\"error bold\">" . $str . "</span>";
             }
         }
         if (!$this->blank($row['hdr']) && ($link == 1)) {
             // calls javascript in bb_link
-            echo " / <button class = \"link italic\" onclick=\"bb_links.standard(0, " . ( int )$row['key1'] . "," . ( int )$row['row_type_left'] . ", '" . $target . "'); return false;\">";
-            echo __($row['hdr']) . "</button>";
+            $str.= " / <button class = \"link italic\" onclick=\"bb_links.standard(0, " . ( int )$row['key1'] . "," . ( int )$row['row_type_left'] . ", '" . $target . "'); return false;\">";
+            $str.= __($row['hdr']) . "</button>";
         }
         elseif (!$this->blank($row['hdr']) && ($link == - 1)) {
             // non linked row
-            echo " / <span class = \"colored italic\">";
-            echo __($row['hdr']) . "</span>";
+            $str.= " / <span class = \"colored italic\">";
+            $str.= __($row['hdr']) . "</span>";
         }
-        echo "</div>";
+        $str.= "</div>";
         // else link 0 no output
-        echo "<div class=\"inlineblock rightmargin\">Created: " . $this->convert_date($row['create_date'], "Y-m-d h:i A") . "</div>";
-        echo "<div class=\"inlineblock rightmargin\">Modified: " . $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
-        echo "</div>";
+        $str.= "<div class=\"inlineblock rightmargin\">Created: " . $this->convert_date($row['create_date'], "Y-m-d h:i A") . "</div>";
+        $str.= "<div class=\"inlineblock rightmargin\">Modified: " . $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
+        $str.= "</div>";
+
+        return $str;
+    }
+
+    function return_header($row, $target, $params = array()) {
+        echo $this->get_return_header($row, $target, $params);
     }
     // function
     // this outputs a record of data, returning the total number of rows, which is found in the cnt column
     // $row1 is the row number, and $row2 is the catch to see when the row changes
     // $col2 is the actual name of the columns from the xml, $row[$col2] is $row['c03']
     // $child is the visable name of the column the user name of the column
-    function return_rows($row, $arr_columns, $params = array()) {
+    function get_return_rows($row, $arr_columns, $params = array(), &$str) {
         // params for customization
         $check = isset($params['check']) ? $params['check'] : 0;
 
         // you could always feed this function only non-secured columns
         $row2 = 1; // to catch row number change
+        $str = ""; //string for output
         $output = ""; // string with row data in it
         $secure = false; // must be check = true and secure = 1 to secure column
         $pop = false; // to catch empty rows, pop = true for non-empty rows
@@ -149,7 +162,7 @@ class bb_main extends bb_reports {
                 // always skipped first time
                 if ($row2 != $row1) {
                     if ($pop) {
-                        echo "<div class = \"left\">" . $output . "</div><div class = \"rowclear\"></div>";
+                        $str.= "<div class = \"left\">" . $output . "</div><div class = \"rowclear\"></div>";
                     }
                     $output = ""; // reset row data
                     $pop = false; // start row again with pop = false
@@ -171,10 +184,16 @@ class bb_main extends bb_reports {
         }
         // echo the last row if populated
         if ($pop) {
-            echo "<div class = \"left\">" . $output . "</div><div class = \"clear\"></div>";
+            $str.= "<div class = \"left\">" . $output . "</div><div class = \"clear\"></div>";
         }
 
         return $row['cnt'];
+    }
+
+    function return_rows($row, $arr_columns, $params = array()) {
+        $cntrows = $this->get_return_rows($row, $arr_columns, $params, $str);
+        echo $str;
+        return $cntrows;
     }
 
     function get_default_layout($arr_layouts, $check = 0) {
@@ -228,7 +247,7 @@ class bb_main extends bb_reports {
 
     // this returns a standard header combo for selecting record type
     // for this function the javascript function reload_on_layout() is uniquely tailored to the calling module
-    function layout_dropdown($arr_layouts, $name, $row_type, $params = array()) {
+    function get_layout_dropdown($arr_layouts, $name, $row_type, $params = array()) {
 
         $params = array('name' => $name) + $params;
 
@@ -239,24 +258,30 @@ class bb_main extends bb_reports {
 
         $attributes = $this->attributes($params);
 
-        echo "<select " . $attributes . ">";
+        $str = "<select " . $attributes . ">";
         if ($empty) {
-            echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
+            $str.= "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
         }
         if ($all) {
-            echo "<option value=\"0\" " . (0 == $row_type ? "selected" : "") . ">All&nbsp;</option>";
+            $str.= "<option value=\"0\" " . (0 == $row_type ? "selected" : "") . ">All&nbsp;</option>";
         }
         foreach ($arr_layouts as $key => $value) {
             // not secure is $value['secure'] < $check OR $check = 0 (default no check)
             $secure = ($check && ($value['secure'] >= $check)) ? true : false;
             if (!$secure) {
-                echo "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . __($value['plural']) . "&nbsp;</option>";
+                $str.= "<option value=\"" . $key . "\" " . ($key == $row_type ? "selected" : "") . ">" . __($value['plural']) . "&nbsp;</option>";
             }
         }
-        echo "</select>";
+        $str.= "</select>";
+
+        return $str;
     }
 
-    function column_dropdown($arr_column, $name, $col_type, $params = array()) {
+    function layout_dropdown($arr_layouts, $name, $row_type, $params = array()) {
+        echo $this->get_layout_dropdown($arr_layouts, $name, $row_type, $params);
+    }
+
+    function get_column_dropdown($arr_column, $name, $col_type, $params = array()) {
 
         $params = array('name' => $name) + $params;
 
@@ -268,25 +293,32 @@ class bb_main extends bb_reports {
         $attributes = $this->attributes($params);
 
         // Security there should be no way to get column with secured row_type
-        echo "<select " . $attributes . ">";
+        $str = "<select " . $attributes . ">";
         // build field options for column names
         if ($empty) {
-            echo "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
+            $str.= "<option value=\"-1\" " . (-1 == $row_type ? "selected" : "") . "></option>";
         }
         if ($all) {
-            echo "<option value=\"0\" " . (0 == $col_type ? "selected" : "") . ">All&nbsp;</option>";
+            $str.= "<option value=\"0\" " . (0 == $col_type ? "selected" : "") . ">All&nbsp;</option>";
         }
         foreach ($arr_column as $key => $value) {
             // not secure is $value['secure'] < $check OR $check = 0 (default no check)
             $secure = ($check && ($value['secure'] >= $check)) ? true : false;
             if (!$secure) {
-                echo "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . __($value['name']) . "&nbsp;</option>";
+                $str.= "<option value=\"" . $key . "\" " . ($key == $col_type ? "selected" : "") . ">" . __($value['name']) . "&nbsp;</option>";
             }
         }
-        echo "</select>";
+        $str.= "</select>";
+
+        return $str;
     }
 
-    function list_dropdown($arr_lists, $name, $list_number, $params = array()) {
+    function column_dropdown($arr_column, $name, $col_type, $params = array()) {
+
+        echo $this->get_column_dropdown($arr_column, $name, $col_type, $params);
+    }
+
+    function get_list_dropdown($arr_lists, $name, $list_number, $params = array()) {
         // Security there should be no way to get secured column or row
         $params = array('name' => $name) + $params;
 
@@ -296,20 +328,27 @@ class bb_main extends bb_reports {
 
         $attributes = $this->attributes($params);
 
-        echo "<select " . $attributes . ">";
+        $str.= "<select " . $attributes . ">";
         // list combo
         if ($empty) {
-            echo "<option value=\"-1\" " . (-1 == $list_number ? "selected" : "") . "></option>";
+            $str.= "<option value=\"-1\" " . (-1 == $list_number ? "selected" : "") . "></option>";
         }
         foreach ($arr_lists as $key => $value) {
             // either 1 or 0 for archive
             $archive = ($check && ($value['archive'] >= $check)) ? true : false;
             if (!$archive) {
                 $archive_flag = ($value['archive']) ? str_repeat('*', $value['archive']) : "";
-                echo "<option value=\"" . $key . "\"" . ($key == $list_number ? " selected " : "") . ">" . __($value['name']) . $archive_flag . "&nbsp;</option>";
+                $str.= "<option value=\"" . $key . "\"" . ($key == $list_number ? " selected " : "") . ">" . __($value['name']) . $archive_flag . "&nbsp;</option>";
             }
         }
-        echo "</select>";
+        $str.= "</select>";
+
+        return $str;
+    }
+
+    function list_dropdown($arr_lists, $name, $list_number, $params = array()) {
+
+        return $this->get_list_dropdown($arr_lists, $name, $list_number, $params);
     }
 
     // pad a number to a column name
@@ -355,17 +394,24 @@ class bb_main extends bb_reports {
         return $date->format($format);
     }
 
-    function include_file($filepaths, $type) {
+    function get_include_file($filepaths, $type) {
         // assumes index file root
         $filepaths = is_string($filepaths) ? array(0 => array('path' => $filepaths, 'version' => BRIMBOX_PROGRAM)) : $filepaths;
         foreach ($filepaths as $filepath) {
             if (!strcasecmp($type, "css")) {
-                echo "<link rel=StyleSheet href=\"" . $filepath['path'] . "?v=" . $filepath['version'] . "\" type=\"text/css\" media=screen>";
+                $str.= "<link rel=StyleSheet href=\"" . $filepath['path'] . "?v=" . $filepath['version'] . "\" type=\"text/css\" media=screen>";
             }
             elseif (!strcasecmp($type, "js")) {
-                echo "<script type=\"text/javascript\" src=\"" . $filepath['path'] . "?v=" . $filepath['version'] . "\"></script>";
+                $str.= "<script type=\"text/javascript\" src=\"" . $filepath['path'] . "?v=" . $filepath['version'] . "\"></script>";
             }
         }
+
+        return $str;
+    }
+
+    function include_file($filepaths, $type) {
+
+        echo $this->get_include_file($filepaths, $type);
     }
 
     // function to get all paths in a directory
@@ -622,18 +668,22 @@ class bb_main extends bb_reports {
         return false;
     }
 
-    function logout_link($class = "bold link underline", $label = "Logout") {
+    function get_logout_link($class = "bold link underline", $label = "Logout") {
 
         $params = array("class" => $class, "label" => $label, "onclick" => "bb_logout_selector('0_bb_brimbox')");
-        $this->echo_script_button("logout", $params);
+        return $this->get_script_button("logout", $params);
     }
 
-    function archive_link($class_button = "link underline bold", $class_span = "bold") {
+    function logout_link($class = "bold link underline", $label = "Logout") {
+        echo $this->get_logout_link($class, $label);
+    }
+
+    function get_archive_link($class_button = "link underline bold", $class_span = "bold") {
         // careful not to use -1 on on pages with archive link
         global $button;
         global $module;
         // on postback toggle
-        if (bb_work::button(-1)) {
+        if ($this->button(-1)) {
             if ($_SESSION['archive'] == 0) {
                 $_SESSION['archive'] = 1;
             }
@@ -644,29 +694,47 @@ class bb_main extends bb_reports {
 
         $label = ($_SESSION['archive'] == 0) ? "On" : "Off";
 
-        echo "<span class=\"" . $class_span . "\">Archive mode is: ";
+        $str = "<span class=\"" . $class_span . "\">Archive mode is: ";
         $params = array("class" => $class_button, "number" => - 1, "target" => $module, "passthis" => true, "label" => $label);
-        bb_forms::echo_button("archive", $params);
-        echo "</span>";
+        $str.= $this->get_button("archive", $params);
+        $str.= "</span>";
+
+        return $str;
+    }
+
+    function archive_link($class_button = "link underline bold", $class_span = "bold") {
+        echo $this->get_archive_link($class_button, $class_span);
+    }
+
+    function get_database_stats($class_div = "bold", $class_span = "colored") {
+
+        $str = "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
+        $str.= "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['username'] . "</span></div>";
+        $str.= "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
+        $str.= "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
+        $str.= "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
+
+        return $str;
     }
 
     function database_stats($class_div = "bold", $class_span = "colored") {
+        echo $this->get_database_stats($class_div, $class_span);
+    }
 
-        echo "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['username'] . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
-        echo "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
+    function get_replicate_link($class_div = "bold", $class_link = "colored") {
+
+        $str = "<div class=\"" . $class_div . "\">To open in new window: ";
+        $str.= "<a class=\"" . $class_link . "\" href=\"" . dirname($_SERVER['PHP_SELF']) . "\" target=\"_blank\">Click here</a>";
+        $str.= "</div>";
+
+        return $str;
     }
 
     function replicate_link($class_div = "bold", $class_link = "colored") {
-
-        echo "<div class=\"" . $class_div . "\">To open in new window: ";
-        echo "<a class=\"" . $class_link . "\" href=\"" . dirname($_SERVER['PHP_SELF']) . "\" target=\"_blank\">Click here</a>";
-        echo "</div>";
+        echo $this->get_replicate_link($class_div, $class_link);
     }
 
-    function userrole_switch($class_span = "bold", $class_button = "link underline") {
+    function get_userrole_switch($class_span = "bold", $class_button = "link underline") {
 
         global $array_userroles;
         global $userroles;
@@ -675,28 +743,39 @@ class bb_main extends bb_reports {
         $arr_userroles = explode(",", $userroles);
         $cnt = count($arr_userroles);
         if ($cnt > 1) {
-            echo "<span class=\"" . $class_span . "\">Current userrole is: </span>";
+            $str = "<span class=\"" . $class_span . "\">Current userrole is: </span>";
             $i = 1;
             foreach ($arr_userroles as $value) {
                 // careful with the globals
                 $bold = ($value == $userrole) ? " bold" : "";
                 $params = array("class" => $class_button . $bold, "label" => $array_userroles[$value]['name'], "onclick" => "bb_userrole_switch('" . $value . "', '" . $array_userroles[$value]['home'] . "'); return false;");
-                $this->echo_script_button("role" . $value, $params);
+                $str.= $this->get_script_button("role" . $value, $params);
                 $separator = ($i != $cnt) ? ", " : "";
-                echo $separator;
+                $str.= $separator;
                 $i++;
             }
         }
+        return $str;
+    }
+
+    function userrole_switch($class_span = "bold", $class_button = "link underline") {
+        echo $this->get_userrole_switch($class_span, $class_button);
+    }
+
+    function get_infolinks() {
+        $str = "<div class=\"floatleft\">";
+        $str.= $this->get_database_stats();
+        $str.= $this->get_archive_link();
+        $str.= $this->get_replicate_link();
+        $str.= $this->get_userrole_switch();
+        $str.= "</div>";
+        $str.= $this->get_clear();
+
+        return $str;
     }
 
     function infolinks() {
-        echo "<div class=\"floatleft\">";
-        $this->database_stats();
-        $this->archive_link();
-        $this->replicate_link();
-        $this->userrole_switch();
-        echo "</div>";
-        echo "<div class=\"clear\"></div>";
+        echo $this->get_infolinks();
     }
 
     function build_indexes($con, $row_type = 0) {
@@ -772,7 +851,7 @@ class bb_main extends bb_reports {
             }
             // POSIX regex, no null because db text fields cannot have nulls
             // change tabs, form feeds, new lines, returns and vertical tabs to space and trim
-            $query = $main->filter("bb_main_cleanup_database_data", $query, $col_type);
+            $query = $this->filter("bb_main_cleanup_database_data", $query, $col_type);
             $this->query($con, $query);
         }
     }

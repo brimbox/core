@@ -95,7 +95,6 @@ img {
 	letter-spacing: 0.3px;
 	padding: 3px 6px 2px 6px;
 	text-align: center;
-	font-size: 13px;
 	letter-spacing: 0.3px;
 	cursor: pointer;
 	border-style: solid;
@@ -254,6 +253,10 @@ div.clear, div.rowclear {
 	clear: both;
 }
 
+input[type=checkbox]:checked.multihighlight + label {
+  background-color: #F2EAFF;
+} 
+
 /**** STANDARD CSS DECLARATIONS ***/
 
 /* border colors in LESS */
@@ -320,6 +323,8 @@ div.clear, div.rowclear {
 .thinarea { height: 400px; width: 800px; }
 .widearea { height: 600px; width: 1000px; }
 .textbox { width: 300px; }
+.multiheight {max-height: 75px; }
+.scrolly {overflow-y: scroll}
 .emheight { min-height: 2em; }
 /* bullets and indent */
 .nobullets { list-style-type: none; }
