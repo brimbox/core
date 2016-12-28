@@ -57,9 +57,6 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
     // need connection
     $con = $main->connect();
 
-    // get connection
-    $con = $main->connect();
-
     // load global arrays
     if (file_exists($abspath . "/bb-extend/bb_parse_globals.php")) include_once ($abspath . "/bb-extend/bb_parse_globals.php");
     else include_once ($abspath . "/bb-blocks/bb_parse_globals.php");

@@ -44,6 +44,7 @@
  * 1.27 added docs table and renamed functions to start with bb
  * 1.28 text fields instead of varchar
  * 2.0 module_slug and module_url added
+ * 2.3 added row to insert and changed trigger on modify date
 */
 
 /*
@@ -401,7 +402,9 @@ CREATE INDEX data_table_idx_key2
   (key2);
 -- Trigger: ts1_modify_date on data_table
 CREATE TRIGGER ts1_modify_date
-  BEFORE UPDATE
+  BEFORE UPDATE OF
+  key1, c01, c02, c03, c04, c05, c06, c07, c08, c09, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26, c27, c28, c29, c30,
+  c31, c32, c33, c34, c35, c36, c37, c38, c39, c40, c41, c42, c43, c44, c45, c46, c47, c48,  c49, c50, list_string
   ON data_table
   FOR EACH ROW
   EXECUTE PROCEDURE bb_modify_date();
@@ -609,6 +612,8 @@ INSERT INTO modules_table(module_order, module_path, module_name, friendly_name,
 VALUES (6, 'bb-admin/bb_manage_modules.php', 'bb_manage_modules', 'Manage Modules', 'bb_brimbox', 5, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module for uploading modules and installing program updates."}');
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
 VALUES (7, 'bb-admin/bb_backup_restore.php', 'bb_backup_restore', 'Backup and Restore', 'bb_brimbox', 5, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the module for backing up, cleansing, and restoring an encrypted brimbox database."}');
+INSERT INTO modules_table (module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
+VALUES (8, 'bb-admin/bb_translate.php', 'bb_translate', 'Translation', 'bb_brimbox', 5, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the module for translating Brimbox text, defining existing text strings with alternative or foreign text."}'); 
 EOT;
 if ($do_modules_table) {
     $result = pg_query($con, $query);

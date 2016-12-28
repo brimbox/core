@@ -115,7 +115,7 @@
 						type="password" /></td>
 				</tr>
 			</table>
-			<button id="bb_submit" name="bb_submit" type="submit" value="submit" />
+			<button id="bb_submit" name="bb_submit" type="submit" value="submit">
 			Login
 			</button>
 			<div id="bb_message"><?php if (isset($message)) echo $message; ?></div>

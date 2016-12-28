@@ -48,6 +48,9 @@
 
 @bb_font_size_standard : 12px;
 @bb_font_size_larger : 13px;
+@bb_mobile_font_standard : 14px;
+@bb_mobile_font_larger : 14px;
+
 
 @import "../bb-config/bb_less.less";
 
@@ -457,7 +460,7 @@ input[type=checkbox]:checked.multihighlight + label {
 		margin-left: 0;
 	}
 	#bb_menu li button {
-		font-size: 14px;
+		font-size: @bb_mobile_font_larger;
 		min-width: 140px;
 		text-align: center;
 		padding: 3px;
@@ -470,7 +473,7 @@ input[type=checkbox]:checked.multihighlight + label {
 	
 	/* global adjustments */
 	body, td, input, select, button, textarea {
-		font-size: 14px;
+		font-size: @bb_mobile_font_standard;
 		font-family: Arial, Helvetica, sans-serif;
 		color: #181818;
 		line-height: 140%;
