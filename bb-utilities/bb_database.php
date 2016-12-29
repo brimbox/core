@@ -26,6 +26,7 @@
 // get_mbox
 // get_json
 // update_json
+// process_json
 // get_next_node
 // full_text
 // process_related
@@ -85,17 +86,78 @@ class bb_database extends bb_build {
 
         $result = $this->query($con, $query);
 
+        if ($row = pg_fetch_array($result)) {
+            $json = $row['jsondata'];
+            return json_decode($json, true);
+        }
+        return false;
+    }
+
+    function update_json($con, $lookup, $arr) {
+
+        //save the nomenclatrue
+        if (is_array($lookup) && is_string($arr)) {
+            $swap = $lookup;
+            $lookup = $arr;
+            $arr = $swap;
+        }
+
+        // update xml_table with a whole xml object
+        $query = "UPDATE json_table SET jsondata = '" . pg_escape_string(json_encode($arr)) . "' WHERE lookup = '" . $lookup . "';";
+
+        $result = $this->query($con, $query);
+
+        if (!pg_affected_rows($result)) return false;
+
+        return $arr;
+    }
+
+    function process_json($con, $lookup, $arr = array()) {
+
+        $lookup = pg_escape_string($lookup);
+        $jsondata = pg_escape_string(json_encode($arr));
+
+        $table_expression = " WITH
+            select_query AS (
+                SELECT jsondata
+                FROM json_table
+                WHERE lookup = '$lookup'
+            ), update_query as (
+                UPDATE json_table
+                SET jsondata = '$jsondata'
+                WHERE lookup = '$lookup'
+                RETURNING jsondata
+            ), insert_query AS (
+                INSERT INTO json_table (lookup, jsondata)
+                SELECT '$lookup', '$jsondata'
+                WHERE NOT EXISTS (SELECT 1 FROM select_query)
+                RETURNING jsondata
+            ) ";
+
+        //get a json value if exists otherwise insert the json value with lookup
+        if (empty($arr)) {
+            $query = $table_expression . "SELECT jsondata
+                  FROM select_query 
+                  UNION ALL
+                  SELECT jsondata
+                  FROM insert_query";
+
+        }
+        //update a json value if exists other wise insert json_value
+        elseif (!empty($arr)) {
+            $query = $table_expression . "SELECT jsondata
+                  FROM update_query 
+                  UNION ALL
+                  SELECT jsondata
+                  FROM insert_query";
+        }
+
+        $result = $this->query($con, $query);
+
         $row = pg_fetch_array($result);
         $json = $row['jsondata'];
 
         return json_decode($json, true);
-    }
-
-    function update_json($con, $arr, $lookup) {
-        // update xml_table with a whole xml object
-        $query = "UPDATE json_table SET jsondata = '" . pg_escape_string(json_encode($arr)) . "' WHERE lookup = '" . $lookup . "';";
-
-        $this->query($con, $query);
     }
 
     function get_next_node($arr, $limit) {

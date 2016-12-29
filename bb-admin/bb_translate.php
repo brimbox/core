@@ -32,6 +32,10 @@ echo "<div class=\"spaced\">";
 $main->echo_messages($arr_messages);
 echo "</div>";
 
+$arr = array(0 => "tester two");
+$arr2 = $main->process_json($con, "bb_test_translate");
+var_dump($arr2);
+
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin(array("enctype" => "multipart/form-data"));
 $main->echo_module_vars();
