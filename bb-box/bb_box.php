@@ -22,9 +22,12 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php
+//Page Title
 $title = PAGE_TITLE;
 $title = $main->filter("bb_box_page_title", $title);
 echo "<title>" . $title . "</title>";
+//Translation Array
+$bb_box_translate = $main->get_json($con, "bb_box_translate");
 
 /* STANDARD JAVASCRIPT INCLUDE */
 $arr_javascript[] = array('path' => $webpath . "/bb-utilities/bb_scripts.js", 'version' => BRIMBOX_PROGRAM);
@@ -139,7 +142,7 @@ foreach ($arr_interface as $key => $value) {
         foreach ($arr_controller[$key] as $module_work => $value_work) {
             $selected = ($module == $module_work) ? "chosen" : "";
             $submit_form_params = "[0,'$module_work', this]";
-            echo "<li><button class=\"" . $selected . "\" onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value_work['friendly_name'] . "</button></li>";
+            echo "<li><button class=\"" . $selected . "\" onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . __t($value_work['friendly_name'], "bb_box") . "</button></li>";
         }
     }
     elseif ($value['interface_type'] == 'Auxiliary') {
@@ -154,7 +157,7 @@ foreach ($arr_interface as $key => $value) {
                 $module_work = key($arr_controller[$key]);
                 $submit_form_params = "[0,'$module_work', this]";
             }
-            echo "<li><button class=\"" . $selected . "\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value['module_type_name'] . "</button></li>";
+            echo "<li><button class=\"" . $selected . "\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . __t($value['module_type_name'], "bb_box") . "</button></li>";
         }
     }
 }
@@ -181,7 +184,7 @@ if (isset($interface_type) && ($interface_type == 'Auxiliary')) {
     foreach ($arr_controller[$type] as $module_work => $value) {
         $selected = ($module == $module_work) ? "chosen" : "";
         $submit_form_params = "[0,'$module_work', this]";
-        echo "<li><button class=\"" . $selected . "\" name=\"" . $module_work . "_name\" value=\"" . $module_work . "_value\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . $value['friendly_name'] . "</button></li>";
+        echo "<li><button class=\"" . $selected . "\" name=\"" . $module_work . "_name\" value=\"" . $module_work . "_value\"  onclick=\"bb_submit_form(" . $submit_form_params . ")\">" . __t($value['friendly_name'], "bb_box") . "</button></li>";
     }
     echo "</ul>";
 

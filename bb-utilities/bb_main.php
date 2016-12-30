@@ -1056,24 +1056,60 @@ class bb_main extends bb_reports {
             return chr($row_type + 96) . $row_type;
         }
     }
+
+    function pretty_slugs($module, $pretty_slugs) {
+
+        //corresponds with index slug query
+        if ($_SESSION['pretty_slugs'] == 1) {
+            list(, $slug) = explode("_", $module, 2);
+            $slug = str_replace("_", "-", $slug);
+        }
+        elseif ($_SESSION['pretty_slugs'] == 2) {
+            $slug = str_replace("_", "-", $module);
+        }
+        else {
+            $slug = $module;
+        }
+
+        return $slug;
+
+    }
 } // end class
 
 ?>
 <?php
 /* Regular Functions */
-
-//standard convert to utf output
-//this will eventially lead to translation
+//this is where translation happens
 function __($var) {
-    if (is_string($var)) {
-        $var = htmlentities($var, ENT_COMPAT | ENT_HTML401, "UTF-8");
-    }
-    elseif (is_array($var)) {
-        foreach ($var as & $value) {
-            $value = htmlentities($value, ENT_COMPAT | ENT_HTML401, "UTF-8");
-        }
-    }
-    return $var;
+
+    return htmlentities($var, ENT_COMPAT | ENT_HTML401, "UTF-8");
+}
+
+function __e($var) {
+
+    echo __($var);
+}
+
+function __t($var, $module, $substitute = array()) {
+
+    global $ {
+        $module . "_translate"
+    };
+
+    $translate = $ {
+        $module . "_translate"
+    };
+    if (isset($translate[$var]) && $translate[$var] !== "") $var = $translate[$var];
+
+    array_unshift($substitute, $var);
+    $var = call_user_func_array('sprintf', $substitute);
+
+    return htmlentities($var, ENT_COMPAT | ENT_HTML401, "UTF-8");
+}
+
+function __te($var, $module, $substitute = array()) {
+
+    echo __t($var, $module, $substitute = array());
 }
 
 ?>

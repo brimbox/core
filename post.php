@@ -36,6 +36,8 @@ if (isset($_SESSION['username'])):
     $_SESSION['module'] = $module = isset($_POST['bb_module']) ? $_POST['bb_module'] : "";
 
     //corresponds with index slug query
+    //corresponds with function $main->pretty_slugs()
+    //USE function $main->pretty_slugs() when $main is present
     if ($_SESSION['pretty_slugs'] == 1) {
         list(, $slug) = explode("_", $module, 2);
         $_SESSION['slug'] = $slug = str_replace("_", "-", $slug);

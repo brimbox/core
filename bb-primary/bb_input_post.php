@@ -33,17 +33,11 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("3_bb_
     $webpath = $_SESSION['webpath'];
     $keeper = $_SESSION['keeper'];
     $abspath = $_SESSION['abspath'];
+    $pretty_slugs = $_SESSION['pretty_slugs'];
 
     // set by javascript submit form (bb_submit_form())
     $_SESSION['button'] = $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
     $_SESSION['module'] = $module = isset($_POST['bb_module']) ? $_POST['bb_module'] : "";
-    if ($_SESSION['pretty_slugs'] == 1) {
-        list(, $slug) = explode("_", $module, 2);
-        $_SESSION['slug'] = $slug = str_replace("_", "-", $slug);
-    }
-    else {
-        $_SESSION['slug'] = $slug = $module;
-    }
     $_SESSION['submit'] = $submit = isset($_POST['bb_submit']) ? $_POST['bb_submit'] : "";
 
     // constants include -- some constants are used
@@ -53,10 +47,12 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("3_bb_
     if (file_exists($abspath . "/bb-extend/bb_include_main_class.php")) include_once ($abspath . "/bb-extend/bb_include_main_class.php");
     else include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
 
-    // main object for hooks
+    // $main object for hooks
     $main = new bb_main();
     // need connection
     $con = $main->connect();
+    // get slug once $main is set
+    $_SESSION['slug'] = $slug = $main->pretty_slugs($module, $pretty_slugs);
 
     // load global arrays
     if (file_exists($abspath . "/bb-extend/bb_parse_globals.php")) include_once ($abspath . "/bb-extend/bb_parse_globals.php");

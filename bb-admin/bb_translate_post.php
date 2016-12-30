@@ -33,17 +33,11 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
     $webpath = $_SESSION['webpath'];
     $keeper = $_SESSION['keeper'];
     $abspath = $_SESSION['abspath'];
+    $pretty_slugs = $_SESSION['pretty_slugs'];
 
     // set by javascript submit form (bb_submit_form())
     $_SESSION['button'] = $button = isset($_POST['bb_button']) ? $_POST['bb_button'] : 0;
     $_SESSION['module'] = $module = isset($_POST['bb_module']) ? $_POST['bb_module'] : "";
-    if ($_SESSION['pretty_slugs'] == 1) {
-        list(, $slug) = explode("_", $module, 2);
-        $_SESSION['slug'] = $slug = str_replace("_", "-", $slug);
-    }
-    else {
-        $_SESSION['slug'] = $slug = $module;
-    }
     $_SESSION['submit'] = $submit = isset($_POST['bb_submit']) ? $_POST['bb_submit'] : "";
 
     // constants include -- some constants are used
@@ -52,10 +46,12 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
     if (file_exists($abspath . "/bb-extend/bb_include_main_class.php")) include_once ($abspath . "/bb-extend/bb_include_main_class.php");
     else include_once ($abspath . "/bb-blocks/bb_include_main_class.php");
 
-    // main object for hooks
+    // $main object brought in
     $main = new bb_main();
     // need connection
     $con = $main->connect();
+    // get slug once $main is set
+    $_SESSION['slug'] = $slug = $main->pretty_slugs($module, $pretty_slugs);
 
     // load global arrays
     if (file_exists($abspath . "/bb-extend/bb_parse_globals.php")) include_once ($abspath . "/bb-extend/bb_parse_globals.php");
@@ -66,6 +62,8 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
 
     // get $arr_state
     $arr_state = $main->load($con, $submit);
+
+    $translation = $main->process('translation', $module, $arr_state, "");
 
     $arr_messages = array();
 
@@ -80,8 +78,12 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                     $line = str_replace("#", " ", $line);
                     $arr_comment = array_filter(explode(" ", $line));
                     if ($key = array_search("bbpo", $arr_comment)) {
+                        if (isset($arr_po)) {
+                            $main->process_json($con, $translate . "_translate", $arr_po);
+                        }
                         unset($msgid, $msgstr);
                         $module = $arr_comment[$key + 1];
+                        $arr_po = $main->process_json($con, $translate . "_translate");
                     }
                 }
                 elseif (preg_match("/^msgid/", $line)) {
@@ -92,14 +94,31 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                     $arr_msgstr = array_filter(explode(" ", $line));
                     $msgstr = trim($arr_msgstr[1], "\"");
                 }
+
                 if (isset($module) && isset($msgid) && isset($msgstr)) {
-                    echo $module . "-" . $msgid . "-" . $msgstr . "<br>";
+                    $arr_po[$msgid] = $msgstr;
                     unset($msgid, $msgstr);
                 }
+            }
+            if (isset($arr_po)) {
+                $main->process_json($con, $translate . "_translate", $arr_po);
             }
         }
         else {
             $arr_messages[] = "Must specify file name.";
+        }
+    }
+
+    if ($main->button(2)) {
+        $addkey = $main->post('addkey', $module, "");
+        $addvalue = $main->post('addvalue', $module, "");
+
+        echo $translate;
+
+        if (!$main->blank($addkey) && !$main->blank($addvalue) && !$main->blank($translation)) {
+            $arr_po = $main->process_json($con, $translation . "_translate");
+            $arr_po[$addkey] = $addvalue;
+            $main->process_json($con, $translation . "_translate", $arr_po);
         }
     }
 
