@@ -75,14 +75,14 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_
             $arr_params = array($filedata, $filename, $username, 0);
             $result = $main->query_params($con, $query, $arr_params);
             if (pg_affected_rows($result) == 1) {
-                array_push($arr_messages, "Document has been stored.");
+                array_push($arr_messages, __t("Document has been stored.", $module));
             }
             else {
-                array_push($arr_messages, "Error: Document not stored. Possible duplicate file name.");
+                array_push($arr_messages, __t("Error: Document not stored. Possible duplicate file name.", $module));
             }
         }
         else {
-            array_push($arr_messages, "Error: Must provide file to be uploaded.");
+            array_push($arr_messages, __t("Error: Must provide file to be uploaded.", $module));
         }
     }
 
@@ -97,15 +97,15 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_
                 $arr_params = array($filedata, $filename, $username);
                 $result = $main->query_params($con, $query, $arr_params);
                 if (pg_affected_rows($result) == 1) {
-                    array_push($arr_messages, "Document has been updated.");
+                    array_push($arr_messages, __t("Document has been updated.", $module));
                 }
             }
             else {
-                array_push($arr_messages, "Error: Must specify file to be updated.");
+                array_push($arr_messages, __t("Error: Must specify file to be updated.", $module));
             }
         }
         else {
-            array_push($arr_messages, "Error: Must provide file to be uploaded.");
+            array_push($arr_messages, __t("Error: Must provide file to be uploaded.", $module));
         }
     }
 
@@ -114,10 +114,10 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_
         if ($delete_id > 0) {
             $query = "DELETE FROM docs_table WHERE id = " . $delete_id . ";";
             $main->query($con, $query);
-            array_push($arr_messages, "Document has been deleted.");
+            array_push($arr_messages, __t("Document has been deleted.", $module));
         }
         else {
-            array_push($arr_messages, "Error: Unable to delete.");
+            array_push($arr_messages, __t("Error: Unable to delete.", $module));
         }
     }
 

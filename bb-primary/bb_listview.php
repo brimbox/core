@@ -106,7 +106,7 @@ $main->echo_form_begin();
 $main->echo_module_vars();
 
 echo "<div class=\"cell padded middle\">";
-echo "<label class=\"spaced\">Choose List: </label>";
+echo "<label class=\"spaced\">" . __t("Choose List:", $module) . "</label>";
 $params = array("class" => "spaced", "onchange" => "bb_reload()");
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 $params = array("class" => "spaced", "onchange" => "bb_reload()");

@@ -98,7 +98,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
 
             if (pg_affected_rows($result) == 0) {
                 // will do nothing if error
-                array_push($arr_messages, "Error: No changes have been made.");
+                array_push($arr_messages, __t("Error: No changes have been made.", $module));
             }
             else {
                 array_push($arr_messages, $message);
@@ -122,10 +122,10 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                 $query = "UPDATE modules_table SET module_order = T1.order " . "FROM (SELECT row_number() OVER (PARTITION BY interface, module_type ORDER BY module_order) " . "as order, id FROM modules_table) T1 " . "WHERE modules_table.id = T1.id;";
                 $main->query($con, $query);
 
-                array_push($arr_messages, "Module has been deleted.");
+                array_push($arr_messages, __t("Module has been deleted.", $module));
             }
             else {
-                array_push($arr_messages, "Error: No changes have been made.");
+                array_push($arr_messages, __t("Error: No changes have been made.", $module));
             }
 
             // reorder modules without deleted module
@@ -153,7 +153,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
         $valid_password = $main->validate_password($con, $main->post("install_passwd", $module), "5_bb_brimbox");
         if (!$valid_password) {
             // bad password
-            array_push($arr_messages, "Error: Invalid or missing password.");
+            array_push($arr_messages, __t("Error: Invalid or missing password.", $module));
         }
         else {
             $main->empty_directory($abspath . "/bb-temp/");
@@ -167,10 +167,10 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                         $zip->close();
                         $main->copy_directory($abspath . "/bb-temp/update/", $abspath . "/");
                         include ($abspath . "/bb-utilities/bb_update.php");
-                        array_push($arr_messages, "Brimbox core update has been updated.");
+                        array_push($arr_messages, __t("Brimbox core update has been updated.", $module));
                     }
                     else {
-                        array_push($arr_messages, "Error: Unable to open zip archive.");
+                        array_push($arr_messages, __t("Error: Unable to open zip archive.", $module));
                     }
                 }
                 elseif (substr($_FILES[$main->name('update_file', $module) ]["name"], 0, 12) == "brimbox-root") {
@@ -180,18 +180,18 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                         $zip->extractTo($abspath . "/bb-temp/");
                         $zip->close();
                         $main->copy_directory($abspath . "/bb-temp/root/", $abspath . "/");
-                        array_push($arr_messages, "Brimbox root file has been installed.");
+                        array_push($arr_messages, __t("Brimbox root file has been installed.", $module));
                     }
                     else {
-                        array_push($arr_messages, "Error: Unable to open zip archive.");
+                        array_push($arr_messages, __t("Error: Unable to open zip archive.", $module));
                     }
                 }
                 else {
-                    $arr_messages[] = "Error: Does not appear to be a Brimbox core update or root install file.";
+                    $arr_messages[] = __t("Error: Does not appear to be a Brimbox core update or root install file.", $module);
                 }
             }
             else {
-                $arr_messages[] = "Error: Must specify Brimbox core update or root install file name.";
+                $arr_messages[] = __t("Error: Must specify Brimbox core update or root install file name.", $module);
             }
             $main->empty_directory($abspath . "/bb-temp/");
         }
@@ -211,11 +211,11 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                 $zip->close();
             }
             else {
-                $arr_messages[] = "Error: Unable to open zip archive.";
+                $arr_messages[] = __t("Error: Unable to open zip archive.", $module);
             }
         }
         else {
-            $arr_messages[] = "Error: Must specify module file name.";
+            $arr_messages[] = __t("Error: Must specify module file name.", $module);
         }
 
         // process header with extra class $manage
@@ -245,7 +245,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
             }
             // array should be blank if no PHP files
             if (empty($arr_modules)) {
-                $arr_messages[] = "Error: Module zip file did not contain any valid Brimbox Module headers.";
+                $arr_messages[] = __t("Error: Module zip file did not contain any valid Brimbox Module headers.", $module);
             }
         }
 
@@ -309,7 +309,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                 // install or update modules
                 // if update or insert worked
                 if (pg_affected_rows($result) == 0) {
-                    $arr_messages[] = "Error: Module " . $arr_module['@module_name'] . " has not been installed.";
+                    $arr_messages[] = __t("Error: Module %s has not been installed.", $module, array($arr_module['@module_name']));
                 }
                 else {
                     // good install or update
@@ -355,7 +355,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
             }
             else {
                 // catch for missing id in post (vs id in table)
-                $arr_messages[] = "Error: There has been a change in the modules since last refresh. Order not changed.";
+                $arr_messages[] = __t("Error: There has been a change in the modules since last refresh. Order not changed.", $module);
                 break;
             }
         }
@@ -367,7 +367,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                     if ($key1 != 0) {
                         // ignore hidden values and hooks
                         if (count($arr2) != count(array_unique($arr2))) {
-                            $arr_messages[] = "Error: There are duplicate values in the order choices.";
+                            $arr_messages[] = __t("Error: There are duplicate values in the order choices.", $module);
                         }
                     }
                 }
@@ -391,10 +391,10 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
             $result = $main->query($con, $query);
 
             if (pg_affected_rows($result) == 0) {
-                $arr_messages[] = "Error: Module order was not updated. There was a change in the table.";
+                $arr_messages[] = __t("Error: Module order was not updated. There was a change in the table.", $module);
             }
             else {
-                $arr_messages[] = "Module order has been updated.";
+                $arr_messages[] = __t("Module order has been updated.", $module);
             }
         }
     } // end set order
@@ -406,7 +406,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
 
         $less->parse_less_file($abspath . "/bb-box/bb_box.less", $abspath . "/bb-box/bb_box.css");
 
-        $arr_messages[] = "Interface CSS has been updated with LESS.";
+        $arr_messages[] = __t("Interface CSS has been updated with LESS.", $module);
     }
 
     /* END SET ORDER */

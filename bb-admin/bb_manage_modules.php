@@ -37,8 +37,6 @@ function bb_module_links(i,a)
 </script>
 <?php
 // $POST brought in from controller
-
-
 // get state from db
 $arr_state = $main->load($con, $module);
 
@@ -49,7 +47,7 @@ unset($arr_state['arr_details']);
 
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin(array("enctype" => "multipart/form-data"));
-$main->echo_module_vars();;
+$main->echo_module_vars();
 
 // if details is clicked bascially another page
 if (!empty($arr_details)):
@@ -76,7 +74,7 @@ else:
     $query = "SELECT T1.*, T2.cnt FROM modules_table T1 " . "INNER JOIN (SELECT interface, module_type, count(module_type) as cnt FROM modules_table GROUP BY interface, module_type) T2 " . "ON T1.module_type = T2.module_type AND T1.interface = T2.interface ORDER BY T1.interface, T1.module_type, T1.module_order;";
     $result = $main->query($con, $query);
 
-    echo "<p class=\"spaced bold larger\">Manage Modules</p>";
+    echo "<p class=\"spaced bold larger\">" . __t("Manage Modules", $module) . "</p>";
 
     echo "<div class=\"padded\">";
     $main->echo_messages($arr_messages);
@@ -86,17 +84,16 @@ else:
     // check password
     echo "<div class=\"cell spaced bottom border padded floatleft\">";
     echo "<div class=\"spaced border padded floatleft\">";
-    echo "<label class=\"spaced\">Program Version: " . BRIMBOX_PROGRAM . "</label>";
-    echo "<label class=\"spaced\"> -- Database Version: " . BRIMBOX_DATABASE . "</label>";
+    echo "<label class=\"spaced\">" . __t("Program Version:", $module) . " " . BRIMBOX_PROGRAM . "</label>";
     echo "</div>";
     $main->echo_clear();
     // update brimbox
     echo "<input class=\"spaced\" type=\"file\" name=\"update_file\" id=\"file\" />";
-    $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Update Brimbox / Root Access");
+    $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Update Brimbox / Root Access", $module));
     $main->echo_button("submit_update", $params);
     $main->echo_clear();
     echo "<div class=\"spaced padded floatleft\">";
-    echo "<div class=\"spaced floatleft\">Admin Password: ";
+    echo "<div class=\"spaced floatleft\">" . __t("Admin Password:") . " ";
     echo "<input class=\"spaced\" type=\"password\" name=\"install_passwd\"/></div>";
     echo "</div>";
     $main->echo_clear();
@@ -106,11 +103,11 @@ else:
     echo "<div class=\"cell spaced bottom border padded floatleft\">";
     // install module
     echo "<input class=\"spaced\" type=\"file\" name=\"module_file\" id=\"file\" />";
-    $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Install / Update Module(s)");
+    $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Install / Update Module(s)", $module));
     $main->echo_button("submit_module", $params);
 
     echo "<span class = \"spaced border padded rounded shaded\">";
-    echo "<label class=\"padded\">Install Activated: </label>";
+    echo "<label class=\"padded\">" . __t("Install Activated:") . " </label>";
     $main->echo_input("install_activated", 1, array('type' => 'checkbox', 'class' => 'middle', 'checked' => true));
     echo "</span>";
     echo "</div>";
@@ -120,7 +117,7 @@ else:
     // submit order button
     echo "<div class=\"spaced border padded floatleft\">";
     echo "<div class=\"spaced padded floatright\">";
-    $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => "Set Module Order");
+    $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => __t("Set Module Order", $module));
     $main->echo_button("set_module_order", $params);
     echo "</div>";
     echo "</div>";
@@ -128,7 +125,7 @@ else:
     // submit order button
     echo "<div class=\"spaced border padded floatleft\">";
     echo "<div class=\"spaced padded floatright\">";
-    $params = array("class" => "spaced", "number" => 4, "target" => $module, "passthis" => true, "label" => "Build Custom CSS");
+    $params = array("class" => "spaced", "number" => 4, "target" => $module, "passthis" => true, "label" => __t("Build Custom CSS", $module));
     $main->echo_button("build_custom_css", $params);
     echo "</div>";
     echo "</div>";
@@ -145,15 +142,15 @@ else:
     echo "<div class=\"table spaced border\">";
     // table header
     echo "<div class=\"row shaded\">";
-    echo "<div class=\"underline extra bold middle cell\">Path</div>";
-    echo "<div class=\"underline extra bold middle cell\">Module Name</div>";
-    echo "<div class=\"underline extra bold middle cell\">Friendly Name</div>";
-    echo "<div class=\"underline extra bold middle cell\">Interface: Type</div>";
-    echo "<div class=\"underline extra bold middle cell\">Version</div>";
-    echo "<div class=\"underline extra bold middle cell\">Order</div>";
-    echo "<div class=\"underline extra bold middle cell\">Action</div>";
-    echo "<div class=\"underline extra bold middle cell\">Delete</div>";
-    echo "<div class=\"underline extra bold middle cell\">Details</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Path", $module) . "</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Module Name", $module) . "</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Friendly Name", $module) . "</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Interface: Type", $module) . "</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Version", $module) . "</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Order", $module) . "</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Action", $module) . "</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Delete", $module) . "</div>";
+    echo "<div class=\"underline extra bold middle cell\">" . __t("Details", $module) . "</div>";
     echo "</div>";
 
     // table rows
@@ -162,10 +159,10 @@ else:
         // Hidden, functions and globals defined permanently
         switch ($row['module_type']) {
             case 0:
-                $module_type = "Hidden";
+                $module_type = __t("Hidden", $module);
             break;
             case -1:
-                $module_type = "Functions";
+                $module_type = __t("Functions", $module);
             break;
             default:
                 // user defined
@@ -213,24 +210,24 @@ else:
             case 3:
             case 5:
                 // optional modules are always 0
-                $str_standard = "<button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . "," . ( int )$row['standard_module'] . ")\">Activate</button>";
+                $str_standard = "<button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . "," . ( int )$row['standard_module'] . ")\">" . __t("Activate", $module) . "</button>";
             break;
             case 4:
             case 6:
                 // standard modules uninstalled
-                $str_standard = "<button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . "," . ( int )$row['standard_module'] . ")\">Deactivate</button>";
+                $str_standard = "<button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . "," . ( int )$row['standard_module'] . ")\">" . __t("Deactivate", $module) . "</button>";
             break;
         }
         echo "<div class=\"extra middle cell\">" . $str_standard . "</div>";
 
         if (( int )$row['standard_module'] == 3 || ( int )$row['standard_module'] == 1) {
-            echo "<div class=\"extra middle cell\"><button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . ", -2)\">Delete</button></div>";
+            echo "<div class=\"extra middle cell\"><button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . ", -2)\">" . __t("Delete", $module) . "</button></div>";
         }
         else {
             echo "<div class=\"extra middle cell\"></div>";
         }
 
-        echo "<div class=\"extra middle cell\"><button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . ", -1)\">Details</button></div>";
+        echo "<div class=\"extra middle cell\"><button class=\"link\" onclick=\"bb_module_links(" . $row['id'] . ", -1)\">" . __t("Details", $module) . "</button></div>";
         echo "</div>"; // end row
         $i++;
     }

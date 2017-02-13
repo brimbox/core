@@ -44,6 +44,7 @@ if (!function_exists('bb_data_table_row_input')):
         $arr_layouts = $main->layouts($con);
         $default_row_type = $main->get_default_layout($arr_layouts);
         $arr_header = $main->get_json($con, "bb_interface_enable");
+        $alphabet = $main->get_alphabet();
 
         // INSERT or UPDATE database row
         $arr_messages = array(); // empty array
@@ -61,6 +62,8 @@ if (!function_exists('bb_data_table_row_input')):
 
         $arr_columns = $main->columns($con, $row_work);
         $arr_dropdowns = $main->dropdowns($con, $row_work);
+
+        $alpha = mb_substr($alphabet, $row_work - 1, 1);
 
         if (!$errors) {
             // no errors
@@ -164,9 +167,9 @@ if (!function_exists('bb_data_table_row_input')):
                         }
                     }
                     // Return message and log, recordkeeping
-                    array_push($arr_messages, "Record Succesfully Edited.");
+                    array_push($arr_messages, __t("Record succesfully edited.", $submit));
                     if ($input_update_log) {
-                        $message = "Record " . chr($row_work + 64) . $post_key . " updated.";
+                        $message = __t("Record %s%d updated.", $submit, array($alpha, $post_key));
                         $main->log($con, $message);
                     }
                     // put fundemental variables into state
@@ -222,16 +225,16 @@ if (!function_exists('bb_data_table_row_input')):
                     $result_where = $main->query($con, $select_where);
                     if (pg_num_rows($result_where_not) == 1) {
                         // retain state values, usually a key error
-                        array_push($arr_messages, "Error: Record not updated. Duplicate value in input form on column \"" . $arr_columns[$unique_key]['name'] . "\".");
+                        array_push($arr_messages, __t("Error: Record not edited. Duplicate key in input form on column \"%s\".", $submit, array($arr_columns[$unique_key]['name'])));
                         if ($input_update_log) {
-                            $message = "WHERE NOT EXISTS error updating record " . chr($row_work + 64) . $post_key . ".";
+                            $message = __t("Duplicate key error updating record %s%d.", $submit, array($alpha, $post_key));
                             $main->log($con, $message);
                         }
                     }
                     elseif (pg_num_rows($result_where) == 0) {
-                        array_push($arr_messages, "Error: Record not updated. Missing or malformed related record or records.");
+                        array_push($arr_messages, __t("Error: Record not edited. Missing or malformed related record or records.", $submit));
                         if ($input_update_log) {
-                            $message = "WHERE EXISTS error updating record " . chr($row_work + 64) . $post_key . ".";
+                            $message = __t("Missing or malformed related record error updating record %s%d.", $submit, array($alpha, $post_key));
                             $main->log($con, $message);
                         }
                     }
@@ -239,9 +242,9 @@ if (!function_exists('bb_data_table_row_input')):
                         // dispose of $arr_state and update state
                         $arr_state = array();
                         // wierd error
-                        array_push($arr_messages, "Error: Record not updated. Record archived or underlying data change possible.");
+                        array_push($arr_messages, __t("Error: Record not edited. Record archived, deleted or underlying data change possible.", $submit));
                         if ($input_update_log) {
-                            $message = "Error updating record " . chr($row_work + 64) . $post_key . ".";
+                            $message = __t("Error updating record %s%d. Record archived, deleted or changed.", $submit, array($alpha, $post_key));
                             $main->log($con, $message);
                         }
                     }
@@ -337,9 +340,9 @@ if (!function_exists('bb_data_table_row_input')):
                         }
                     }
                     // Return message and log, recordkeeping
-                    array_push($arr_messages, "Record Succesfully Inserted.");
+                    array_push($arr_messages, __t("Record Succesfully Inserted.", $submit));
                     if ($input_insert_log) {
-                        $message = "New " . chr($row_work + 64) . $row['id'] . " record entered.";
+                        $message = __t("New record %s%d entered.", $submit, array($alpha, $row['id']));
                         $main->log($con, $message);
                     }
 
@@ -380,25 +383,25 @@ if (!function_exists('bb_data_table_row_input')):
                     $result_where = $main->query($con, $select_where);
                     if (pg_num_rows($result_where_not) == 1) {
                         // retain state values
-                        array_push($arr_messages, "Error: Record not updated. Duplicate value in input form on column \"" . $arr_columns[$unique_key]['name'] . "\".");
+                        array_push($arr_messages, __t("Error: Record not inserted. Duplicate key in input form on column \"%s\".", $submit, array($arr_columns[$unique_key]['name'])));
                         if ($input_insert_log) {
-                            $message = "WHERE NOT insert error on type " . chr($row_work + 64) . " record.";
+                            $message = __t("Duplicate key error on record insert.", $submit);
                             $main->log($con, $message);
                         }
                     }
                     elseif (pg_num_rows($result_where) == 0) {
-                        array_push($arr_messages, "Error: Record not updated. Missing or malformed related record or records.");
+                        array_push($arr_messages, __t("Error: Record not inserted. Missing or malformed related record or records.", $submit));
                         if ($input_update_log) {
-                            $message = "WHERE EXISTS error updating record " . chr($row_work + 64) . $post_key . ".";
+                            $message = __t("Missing or malformed related record error inserting record.", $submit);
                             $main->log($con, $message);
                         }
                     }
                     else {
                         // dispose of $arr_state and update state
                         $arr_state = array();
-                        array_push($arr_messages, "Error: Record not inserted. Parent record archived or underlying data change possible.");
+                        array_push($arr_messages, __t("Error: Record not inserted. Parent record missing or underlying data change possible.", $submit));
                         if ($input_insert_log) {
-                            $message = "Insert error entering type " . chr($row_work + 64) . " record.";
+                            $message = __t("Insert error entering type %s record.", $submit, array($alpha));
                             $main->log($con, $message);
                         }
                     }

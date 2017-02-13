@@ -65,7 +65,7 @@ $arr_layout = $arr_layouts[$row_join];
 // button 3
 // post data to database
 // title
-echo "<p class=\"spaced bold larger\">Upload Data</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Upload Data", $module) . "</p>";
 if (count($arr_messages) > 0) {
     echo "<div class=\"spaced\">";
     $main->echo_messages($arr_messages);
@@ -73,21 +73,23 @@ if (count($arr_messages) > 0) {
 }
 if (!empty($data_stats['not_validated'])) {
     echo "<div class=\"spaced\">";
-    echo "<p>" . $data_stats['not_validated'] . " row(s) rejected because data validation errors.</p>";
+    $arr_printf = array($data_stats['not_validated']);
+    echo "<p>" . __t("%d row(s) rejected because data validation errors.", $module, $arr_printf) . "</p>";
     $main->echo_messages($arr_errors_all);
     echo "</div>";
 }
 if (!empty($data_stats['not_inputted'])) {
     echo "<div class=\"spaced\">";
-    echo "<p>" . $data_stats['not_inputted'] . " row(s) rejected by insert algorithm.</p>";
+    $arr_printf = array($data_stats['not_inputted']);
+    echo "<p>" . __t("%d row(s) rejected by insert algorithm.", $module, $arr_printf) . "</p>";
     $main->echo_messages($arr_messages_all);
     echo "</div>";
 }
 if (!empty($data_stats['inputted'])) {
     echo "<div class=\"spaced\">";
-    if ($edit_or_insert == 0) echo "<p>" . $data_stats['inputted'] . " row(s) inserted into database.</p>";
-    if ($edit_or_insert == 1) echo "<p>" . $data_stats['inputted'] . " database row(s) edited.</p>";
-    if ($edit_or_insert == 2) echo "<p>" . $data_stats['inputted'] . " database row(s) updated.</p>";
+    $arr_printf = array($data_stats['inputted']);
+    if ($edit_or_insert == 0) echo "<p>" . __t("%d row(s) inserted into database.", $module, $arr_printf) . "</p>";
+    if ($edit_or_insert == 1) echo "<p>" . __t("%d database row(s) updated.", $module, $arr_printf) . "</p>";
     echo "</div>";
 }
 
@@ -99,19 +101,19 @@ $main->echo_module_vars();;
 echo "<div class=\"spaced border floatleft padded\">";
 $params = array("class" => "spaced", "onchange" => "bb_reload()");
 $main->layout_dropdown($arr_layouts, "row_join", $row_join, $params);
-$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Get Upload Header");
+$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Get Upload Header", $module));
 $main->echo_button("get_header", $params);
 echo "</div>";
 $main->echo_clear();
 echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_file\" id=\"file\" />";
-$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Upload File");
+$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Upload File", $module));
 $main->echo_button("submit_file", $params);
 $label = "Post " . $arr_layout['plural'];
 $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => $label);
 $main->echo_button("submit_data", $params);
-$arr_select = array(0 => "Insert", 1 => "Update");
+$arr_select = array(0 => __t("Insert", $module), 1 => __t("Update", $module));
 $main->array_to_select($arr_select, "edit_or_insert", $edit_or_insert, array(), array('usekey' => true, 'class' => "spaced"));
 echo "</div>";
 $main->echo_clear();

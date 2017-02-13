@@ -36,7 +36,7 @@ class bb_validate extends bb_database {
     function validate_numeric(&$field, $error = false) {
         // validate numeric
         if (!is_numeric($field)) {
-            $return_value = $error ? "Error: Must be numeric." : true;
+            $return_value = $error ? __t("Error: Must be numeric.", "bb_main") : true;
         }
         else {
             $return_value = false;
@@ -50,7 +50,7 @@ class bb_validate extends bb_database {
         $new_value = strtotime($field);
         // blank is valid, handled at top if must be populated
         if ($new_value == false) {
-            $return_value = $error ? "Error: Value is not a valid date." : true;
+            $return_value = $error ? __t("Error: Value is not a valid date.", "bb_main") : true;
         }
         else {
             // reformat value
@@ -63,7 +63,7 @@ class bb_validate extends bb_database {
     function validate_email(&$field, $error = false) {
         // validate email
         if (filter_var($field, FILTER_VALIDATE_EMAIL) == false) {
-            $return_value = $error ? "Error: Value is not a valid email." : true;
+            $return_value = $error ? __t("Error: Value is not a valid email.", "bb_main") : true;
         }
         else {
             $return_value = false;
@@ -74,7 +74,7 @@ class bb_validate extends bb_database {
     function validate_money(&$field, $error = false) {
         // validate money
         if (!is_numeric($field)) {
-            $return_value = $error ? "Error: Value must be monetary." : true;
+            $return_value = $error ? __t("Error: Value must be monetary.", "bb_main") : true;
         }
         else {
             $field = round($field, 2);
@@ -87,7 +87,7 @@ class bb_validate extends bb_database {
     function validate_yesno(&$field, $error = false) {
         // validate yes or no
         if (!in_array(strtolower($field), array("yes", "no"))) {
-            $return_value = $error ? "Error: Value must be Yes or No." : true;
+            $return_value = $error ? __t("Error: Value must be Yes or No.", "bb_main") : true;
         }
         else {
             $field = ucfirst($field);

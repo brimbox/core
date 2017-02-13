@@ -51,6 +51,7 @@ function bb_reload()
 // find default row_type, $arr_layouts must have one layout set
 $arr_layouts = $main->layouts($con);
 $default_row_type = $main->get_default_layout($arr_layouts);
+$alphabet = $main->get_alphabet();
 
 /* BROWSE AND STATE POSTBACK */
 
@@ -62,7 +63,7 @@ $mode = ($archive == 0) ? "1 = 1" : "archive < " . $archive;
 $arr_state = $main->load($con, $module);
 
 // process variables from state and postback
-$letter = $main->process('letter', $module, $arr_state, "A");
+$letter = $main->process('letter', $module, $arr_state, mb_substr($alphabet, 0, 1));
 $offset = $main->process('offset', $module, $arr_state, 1);
 
 // must get post while preserving row_type state to reset col_type when row_type changes
@@ -98,9 +99,9 @@ $main->echo_module_vars();
 echo "<div class=\"inlineblock padded larger\">"; // font size
 // do alpha and numeric links
 // this area make the alphabetic and numeric links including the posting javascript
-for ($i = 65;$i <= 90;$i++) // alpha
+for ($i = 0;$i < mb_strlen($alphabet);$i++) // alpha
 {
-    $alpha_number = chr($i);
+    $alpha_number = mb_substr($alphabet, $i, 1);
 
     // underline and bold chosen letter
     $class = ($alpha_number == $letter) ? "link bold underline" : "link";

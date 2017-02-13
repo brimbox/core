@@ -46,7 +46,7 @@ $arr_messages = $main->process('arr_messages', $module, $arr_state, array());
 $main->update($con, $module, $arr_state);
 
 // title
-echo "<p class=\"spaced bold larger\">Upload Documents</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Upload Documents", $module) . "</p>";
 
 $arr_messages = array_unique($arr_messages);
 echo "<div class=\"spaced\">";
@@ -60,7 +60,7 @@ $main->echo_module_vars();
 echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_file\" id=\"file\" />";
-$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Upload File");
+$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Upload File", $module));
 $main->echo_button("submit_file", $params);
 echo " | ";
 /* POPULATE SELECT */
@@ -74,7 +74,7 @@ while ($row = pg_fetch_array($result)) {
 // update select dropdown
 $params = array("select_class" => "spaced", 'usekey' => true);
 $main->array_to_select($arr_result, "update_id", $update_id, array(), $params);
-$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Update File");
+$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Update File", $module));
 $main->echo_button("update_file", $params);
 // hidden input for delete
 echo "<input name=\"delete_id\" type=\"hidden\" value=\"\" />";

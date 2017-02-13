@@ -114,9 +114,9 @@ $main->echo_module_vars();
 // select add box
 echo "<div class=\"table\">";
 echo "<div class=\"row\">";
-echo "<div class=\"cell padded\"><p class = \"bold colored\">Record Not In List(s)</p></div>";
+echo "<div class=\"cell padded\"><p class = \"bold colored\">" . __t("Record Not In List(s)", $module) . "</p></div>";
 echo "<div class=\"cell padded\"></div>";
-echo "<div class=\"cell padded\"><p class = \"bold colored\">Record In List(s)</p></div>";
+echo "<div class=\"cell padded\"><p class = \"bold colored\">" . __t("Record In List(s)", $module) . "</p></div>";
 echo "</div>";
 
 // row
@@ -134,7 +134,7 @@ foreach ($arr_lists as $key => $value) {
 echo "</select>";
 echo "</div>"; // cell
 echo "<div class=\"cell padded middle\">";
-$params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => "<< Move >>");
+$params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => __t("<< Move >>", $module));
 $main->echo_button("move_list", $params);
 echo "</div>"; // cell
 // select remove box -- multiselect

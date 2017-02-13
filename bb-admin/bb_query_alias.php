@@ -106,20 +106,20 @@ else {
 if (isset($fullquery)) {
     if (substr(strtoupper(trim($fullquery)), 0, 6) == "SELECT") {
         @$result = pg_query($con, $fullquery);
-        $settings[1][0] = array('ignore' => true, 'limit' => $pagination, 'shade_rows' => true, 'title' => 'Query Results');
-        $settings[2][0] = array('ignore' => true, 'shade_rows' => true, 'title' => 'Query Results');
-        $settings[3][0] = array('rows' => 60, 'columns' => 80, 'title' => 'Query Results');
+        $settings[1][0] = array('ignore' => true, 'limit' => $pagination, 'shade_rows' => true, 'title' => __t('Query Results', $module));
+        $settings[2][0] = array('ignore' => true, 'shade_rows' => true, 'title' => __t('Query Results', $module));
+        $settings[3][0] = array('rows' => 60, 'columns' => 80, 'title' => __t('Query Results', $module));
         if ($result === false) {
             array_push($arr_messages, pg_last_error($con));
         }
     }
     else {
-        array_push($arr_messages, "Error: Only SELECT queries are allowed to execute");
+        array_push($arr_messages, __t("Error: Only SELECT queries are allowed to execute.", $module));
     }
 }
 
 // title
-echo "<p class=\"spaced bold larger\">Query Alias</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Query Alias", $module) . "</p>";
 
 echo "<div class=\"spaced\">";
 $main->echo_messages($arr_messages);
@@ -132,12 +132,12 @@ $main->echo_module_vars();
 // echo form report vars for report functions
 $main->echo_report_vars();
 
-$params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Submit Full Query");
+$params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => __t("Submit Full Query", $module));
 $main->echo_button("submit_query", $params);
 
 $main->echo_clear();
 
-echo "<div class=\"spaced floatleft\"><span>Show Columns: </span>";
+echo "<div class=\"spaced floatleft\"><span>" . __t("Show Columns:", $module) . "</span>";
 $params = array("onchange" => "bb_reload()", "empty" => "true");
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "</div>";
@@ -146,17 +146,17 @@ for ($i = 0;$i <= 10;$i++) {
     $arr_number[] = $i;
 }
 $params = array("select_class" => "spaced", "onchange" => "bb_reload()");
-echo "<div class=\"spaced floatleft\"><span>Number of Subqueries: </span>";
+echo "<div class=\"spaced floatleft\"><span>" . __t("Number of Subqueries:", $module) . " </span>";
 $main->array_to_select($arr_number, "number_sub_queries", $number_sub_queries, array(), $params);
 echo "</div>";
 
 $params = array("select_class" => "spaced", "onchange" => "bb_reload()");
-echo "<div class=\"spaced floatleft\"><span>Pagination: </span>";
+echo "<div class=\"spaced floatleft\"><span>" . __("Pagination:", $module) . " </span>";
 $main->array_to_select($arr_pagination, "pagination", $pagination, array(), $params);
 echo "</div>";
 
 // report type dropdown, use $pass as resuable parameters variable
-$main->echo_tag("label", "Report Type:  ", array('class' => "padded"));
+$main->echo_tag("label", __t("Report Type:", $module) . " ", array('class' => "padded"));
 $params = array("class" => "margin");
 $main->report_type($current['report_type'], $params);
 $main->echo_clear();
@@ -177,10 +177,10 @@ if ($row_type > 0) {
 echo "<div class=\"floatleft\">";
 if ($number_sub_queries > 0) {
     echo "<div class=\"table spaced\" >";
-    echo "<div class=\"row\"><div class=\"padded border cell\"></div><div class=\"padded border cell\">SubQuery Alias</div><div class=\"padded border cell\">SubQuery Value</div></div>";
+    echo "<div class=\"row\"><div class=\"padded border cell\"></div><div class=\"padded border cell\">" . __t("SubQuery Alias", $module) . "</div><div class=\"padded border cell\">" . __t("SubQuery Value", $module) . "</div></div>";
     for ($i = 1;$i <= $number_sub_queries;$i++) {
         echo "<div class=\"row\"><div class=\"padded border top cell\">";
-        $params = array("class" => "spaced", "number" => $i, "target" => $module, "passthis" => true, "label" => "Submit SubQuery");
+        $params = array("class" => "spaced", "number" => $i, "target" => $module, "passthis" => true, "label" => __t("Submit SubQuery", $module));
         $main->echo_button("submit_subquery_" . $i, $params);
         echo "</div><div class=\"padded border top cell\">";
         $name = $main->pad("s", $i);

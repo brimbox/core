@@ -32,47 +32,47 @@ function bb_reload()
 
 $arr_fields = array(
     'row' => array(
-        'name' => 'Row',
+        'name' => __t('Row', $module) ,
         'alternative' => true
     ) ,
     'length' => array(
-        'name' => 'Length',
+        'name' => __t('Length', $module) ,
         'alternative' => true
     ) ,
     'order' => array(
-        'name' => 'Order',
+        'name' => __t('Order', $module) ,
         'alternative' => true
     ) ,
     'type' => array(
-        'name' => 'Type'
+        'name' => __t('Type', $module)
     ) ,
     'display' => array(
-        'name' => 'Display',
+        'name' => __t('Display', $module) ,
         'alternative' => true
     ) ,
     'required' => array(
-        'name' => 'Required'
+        'name' => __t('Required', $module)
     ) ,
     'secure' => array(
-        'name' => 'Secure'
+        'name' => __t('Secure', $module)
     ) ,
     'search' => array(
-        'name' => 'Search'
+        'name' => __t('Search', $module)
     ) ,
     'relate' => array(
-        'name' => 'Relate'
+        'name' => __t('Relate', $module)
     )
 );
 
 $arr_properties = array(
     'primary' => array(
-        'name' => 'Primary'
+        'name' => __t('Primary', $module)
     ) ,
     'count' => array(
-        'name' => 'Count'
+        'name' => __t('Count', $module)
     ) ,
     'unique' => array(
-        'name' => 'Unique'
+        'name' => __t('Unique', $module)
     )
 );
 
@@ -143,7 +143,7 @@ $arr_props = $main->columns_properties($con, $row_type);
 /* REFRESH */
 
 if ($main->button(1)) {
-    $message = "Columns have been refreshed.";
+    $message = __t("Columns have been refreshed.", $module);
 }
 
 /* END REFRESH */
@@ -197,13 +197,13 @@ if ($main->button(2)) {
     $arr_order = array(); // check for strict ascending order
     $arr_related = array(); // check related layouts for integrity
     $arr_errors = array(
-        0 => "Error: Row settings contain a blank value when column name is set.",
-        1 => "Error: Column order contains a blank value when column name is set.",
-        2 => "Error: Row values must start at 1 and be strictly ascending when column name is set, records can have multiple columns per row.",
-        3 => "Error: Column order must start at 1, be unique, and be strictly ascending when column name is set.",
-        4 => "Error: Column names must be unique.",
-        5 => "Error: Can only relate a table to a table once.",
-        6 => "Error: Cannot relate a table to itself."
+        0 => __t("Error: Row settings contain a blank value when column name is set.", $module) ,
+        1 => __t("Error: Column order contains a blank value when column name is set.") ,
+        2 => __t("Error: Row values must start at 1 and be strictly ascending when column name is set, records can have multiple columns per row.", $module) ,
+        3 => __t("Error: Column order must start at 1, be unique, and be strictly ascending when column name is set.", $module) ,
+        4 => __t("Error: Column names must be unique.", $module) ,
+        5 => __t("Error: Can only relate a table to a table once.", $module) ,
+        6 => __t("Error: Cannot relate a table to itself.", $module)
     );
 
     // FILTER
@@ -354,7 +354,7 @@ if ($main->button(2)) {
         $main->update_json($con, $arr_columns_json, "bb_column_names"); // submit json
         // update full text indexes for that column $row_type > 0;
         $main->build_indexes($con, $row_type);
-        array_push($arr_messages, "Columns have been updated and search index has been rebuilt for this layout.");
+        array_push($arr_messages, __t("Columns have been updated and search index has been rebuilt for this layout.", $module));
     }
 
     /* END UPDATE DATABASE */
@@ -369,14 +369,14 @@ if ($main->button(3)) {
     // full text update
     $main->build_indexes($con, 0);
     // rebuild indexes
-    array_push($arr_messages, "All data table indexes have been rebuilt.");
+    array_push($arr_messages, __t("All data table indexes have been rebuilt.", $module));
 }
 
 /* END REBUILD INDEXES */
 
 /* BEGIN REQUIRED FORM - HTML OUTPUT */
 // module header
-echo "<p class=\"spaced bold larger\">Column Names</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Column Names", $module) . "</p>";
 
 $main->echo_form_begin();
 $main->echo_module_vars();
@@ -433,8 +433,8 @@ if (!$core) {
 // display table head
 echo "<div class=\"table spaced border\">";
 echo "<div class=\"row\">";
-echo "<div class=\"bold underline extra shaded middle cell\">Column</div>";
-echo "<div class=\"bold underline extra shaded middle cell\">Name</div>";
+echo "<div class=\"bold underline extra shaded middle cell\">" . __t("Column", $module) . "</div>";
+echo "<div class=\"bold underline extra shaded middle cell\">" . __t("Name", $module) . "</div>";
 foreach ($arr_fields as $key => $value) {
     echo "<div class=\"bold underline extra shaded middle cell\">" . $value['name'] . "</div>";
 }
@@ -467,10 +467,10 @@ for ($m = 1;$m <= 50;$m++) {
             case "length":
                 $formvalue = $main->init($arr_columns[$m]['length'], "");
                 $arr_column_css_class = array(
-                    "short" => "Short",
-                    "medium" => "Medium",
-                    "long" => "Long",
-                    "note" => "Note"
+                    "short" => __t("Short", $module) ,
+                    "medium" => __t("Medium", $module) ,
+                    "long" => __t("Long", $module) ,
+                    "note" => __t("Note", $module)
                 );
                 echo "<div class = \"extra middle cell\"><select name = \"length_" . $m . "\">";
                 foreach ($arr_column_css_class as $key2 => $value2) {
@@ -492,13 +492,13 @@ for ($m = 1;$m <= 50;$m++) {
             break;
             case "type":
                 if (in_array($m, $arr_notes)) {
-                    echo "<div class = \"colored extra center middle cell\">Note</div>";
+                    echo "<div class = \"colored extra center middle cell\">" . __t("Note", $module) . "</div>";
                 }
                 elseif (in_array($m, $arr_reserved)) {
-                    echo "<div class = \"colored extra center middle cell\">Reserved</div>";
+                    echo "<div class = \"colored extra center middle cell\">" . __t("Reserved", $module) . "</div>";
                 }
                 elseif (in_array($m, $arr_file)) {
-                    echo "<div class = \"colored extra center middle cell\">File</div>";
+                    echo "<div class = \"colored extra center middle cell\">" . __t("File", $module) . "</div>";
                 }
                 else {
                     $formvalue = $main->init($arr_columns[$m]['type'], "");
@@ -517,8 +517,8 @@ for ($m = 1;$m <= 50;$m++) {
                 echo "<select name = \"display_" . $m . "\">";
                 $arr_display = array(
                     0 => "",
-                    1 => "Readonly",
-                    2 => "Hidden"
+                    1 => __t("Readonly", $module) ,
+                    2 => __t("Hidden", $module)
                 );
                 foreach ($arr_display as $key2 => $value2) {
                     $selected = ($key2 == $formvalue) ? "selected" : "";
@@ -603,21 +603,21 @@ $params = array(
     "class" => "spaced",
     "number" => 2,
     "passthis" => true,
-    "label" => "Submit Columns"
+    "label" => __t("Submit Columns", $module)
 );
 $main->echo_button("submit_columnnames", $params);
 $params = array(
     "class" => "spaced",
     "number" => 1,
     "passthis" => true,
-    "label" => "Refresh Columns"
+    "label" => __t("Refresh Columns", $module)
 );
 $main->echo_button("refresh_columnnames", $params);
 $params = array(
     "class" => "spaced",
     "number" => 3,
     "passthis" => true,
-    "label" => "Rebuild Indexes"
+    "label" => __t("Rebuild Indexes", $module)
 );
 $main->echo_button("rebuild_indexes", $params);
 $main->echo_form_end();

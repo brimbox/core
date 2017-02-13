@@ -69,7 +69,10 @@
 // document
 // make_html_id
 //REGULAR PHP FUNCTIONS AFTER CLASS
-// __() Format variable and translate
+// __() Format variable to utf-8 htmlentites
+// __e() Echo formatted variable
+// __t() Translate and format variable
+// __te() Echo translated variable
 class bb_main extends bb_reports {
 
     // this quickly returns the query header stats including count and current time...
@@ -80,7 +83,7 @@ class bb_main extends bb_reports {
         $cntrows = pg_fetch_array($result);
         if ($cntrows['cnt'] > 0) {
             date_default_timezone_set(USER_TIMEZONE);
-            $str = "<div class = \"spaced left\">Rows: " . $cntrows['cnt'] . " Date: " . date('Y-m-d h:i A', time()) . "</div>";
+            $str = "<div class = \"spaced left\">" . __t("Rows:", "bb_main") . " " . $cntrows['cnt'] . " " . __t("Date:", "bb_main") . " " . date('Y-m-d h:i A', time()) . "</div>";
         }
         // reset back to zero
         pg_result_seek($result, 0);
@@ -105,7 +108,8 @@ class bb_main extends bb_reports {
         $row_type_left = $row['row_type_left'];
         // do not return link, (ie cascade)
         $str.= "<div class=\"inlineblock rightmargin\">";
-        $str.= "<span class=\"bold colored\">" . chr($row_type + 64) . $row['id'] . "</span>";
+        $alphabet = $this->get_alphabet();
+        $str.= "<span class=\"bold colored\">" . mb_substr($alphabet, $row_type - 1, 1) . $row['id'] . "</span>";
         // archive or secure > 0
         if ($mark) {
             if ($row['archive'] > 0) {
@@ -127,8 +131,8 @@ class bb_main extends bb_reports {
         }
         $str.= "</div>";
         // else link 0 no output
-        $str.= "<div class=\"inlineblock rightmargin\">Created: " . $this->convert_date($row['create_date'], "Y-m-d h:i A") . "</div>";
-        $str.= "<div class=\"inlineblock rightmargin\">Modified: " . $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
+        $str.= "<div class=\"inlineblock rightmargin\">" . __t("Created:", "bb_main") . " " . $this->convert_date($row['create_date'], "Y-m-d h:i A") . "</div>";
+        $str.= "<div class=\"inlineblock rightmargin\">" . __t("Modified:", "bb_main") . " " . $this->convert_date($row['modify_date'], "Y-m-d h:i A") . "</div>";
         $str.= "</div>";
 
         return $str;
@@ -192,6 +196,13 @@ class bb_main extends bb_reports {
         $cntrows = $this->get_return_rows($row, $arr_columns, $params, $str);
         echo $str;
         return $cntrows;
+    }
+
+    function get_alphabet() {
+
+        $alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $alphabet = $this->filter('bb_main_get_alphabet', $alphabet);
+        return $alphabet;
     }
 
     function get_default_layout($arr_layouts, $check = 0) {
@@ -575,7 +586,8 @@ class bb_main extends bb_reports {
             }
             if (is_array($messages)) {
                 foreach ($messages as $message) {
-                    if (preg_match("/^Error:|^Warning:|^Caution:/i", $message)) {
+                    $pattern = "/^" . __t("Error:", "bb_main") . "|^" . __t("Warning:", "bb_main") . "|^" . __t("Caution:", "bb_main") . "/i";
+                    if (preg_match($pattern, $message)) {
                         $class = "error";
                     }
                     else {
@@ -613,7 +625,7 @@ class bb_main extends bb_reports {
         if (isset($_SESSION['username'])) {
             $arr_userroles = is_array($userroles) ? $userroles : array($userroles);
             if (!in_array($_SESSION['userrole'], $arr_userroles)) {
-                echo "Insufficient Permission.";
+                __te("Insufficient Permission.", "bb_main");
                 session_destroy();
                 die();
             }
@@ -622,14 +634,14 @@ class bb_main extends bb_reports {
             if (!strcasecmp(ADMIN_ONLY, "YES") && SINGLE_USER_ONLY == '') {
                 $arr_userroles = explode(",", $_SESSION['userroles']);
                 if (!in_array("5_bb_brimbox", $arr_userroles)) {
-                    echo "Program switched to Admin Only mode.";
+                    __te("Program switched to Admin Only mode.", "bb_main");
                     session_destroy();
                     die();
                 }
             }
             elseif (SINGLE_USER_ONLY != '') {
                 if (strcasecmp($_SESSION['username'], SINGLE_USER_ONLY)) {
-                    echo "Program switched to Single User mode.";
+                    __te("Program switched to Single User mode.", "bb_main");
                     session_destroy();
                     die();
                 }
@@ -668,11 +680,11 @@ class bb_main extends bb_reports {
 
     function get_logout_link($class = "bold link underline", $label = "Logout") {
 
-        $params = array("class" => $class, "label" => $label, "onclick" => "bb_logout_selector('0_bb_brimbox')");
+        $params = array("class" => $class, "label" => __t($label, "bb_main"), "onclick" => "bb_logout_selector('0_bb_brimbox')");
         return $this->get_script_button("logout", $params);
     }
 
-    function logout_link($class = "bold link underline", $label = "Logout") {
+    function logout_link($class = "bold link underline", $label) {
         echo $this->get_logout_link($class, $label);
     }
 
@@ -690,9 +702,9 @@ class bb_main extends bb_reports {
             }
         }
 
-        $label = ($_SESSION['archive'] == 0) ? "On" : "Off";
+        $label = ($_SESSION['archive'] == 0) ? __t("On", "bb_main") : __t("Off", "bb_main");
 
-        $str = "<span class=\"" . $class_span . "\">Archive mode is: ";
+        $str = "<span class=\"" . $class_span . "\">" . __t("Archive mode is:", "bb_main") . " ";
         $params = array("class" => $class_button, "number" => - 1, "target" => $module, "passthis" => true, "label" => $label);
         $str.= $this->get_button("archive", $params);
         $str.= "</span>";
@@ -706,11 +718,11 @@ class bb_main extends bb_reports {
 
     function get_database_stats($class_div = "bold", $class_span = "colored") {
 
-        $str = "<div class=\"" . $class_div . "\">Hello <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
-        $str.= "<div class=\"" . $class_div . "\">You are logged in as: <span class=\"" . $class_span . "\">" . $_SESSION['username'] . "</span></div>";
-        $str.= "<div class=\"" . $class_div . "\">You are using database: <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
-        $str.= "<div class=\"" . $class_div . "\">This database is known as: <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
-        $str.= "<div class=\"" . $class_div . "\">This database email address is: <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
+        $str = "<div class=\"" . $class_div . "\">" . __t("Hello", "bb_main") . " <span class=\"" . $class_span . "\">" . $_SESSION['name'] . "</span></div>";
+        $str.= "<div class=\"" . $class_div . "\">" . __t("You are logged in as:", "bb_main") . " <span class=\"" . $class_span . "\">" . $_SESSION['username'] . "</span></div>";
+        $str.= "<div class=\"" . $class_div . "\">" . __t("You are using database:", "bb_main") . " <span class=\"" . $class_span . "\">" . DB_NAME . "</span></div>";
+        $str.= "<div class=\"" . $class_div . "\">" . __t("This database is known as:", "bb_main") . " <span class=\"" . $class_span . "\">" . DB_FRIENDLY_NAME . "</span></div>";
+        $str.= "<div class=\"" . $class_div . "\">" . __t("This database email address is:", "bb_main") . " <span class=\"" . $class_span . "\">" . EMAIL_ADDRESS . "</span></div>";
 
         return $str;
     }
@@ -721,8 +733,8 @@ class bb_main extends bb_reports {
 
     function get_replicate_link($class_div = "bold", $class_link = "colored") {
 
-        $str = "<div class=\"" . $class_div . "\">To open in new window: ";
-        $str.= "<a class=\"" . $class_link . "\" href=\"" . dirname($_SERVER['PHP_SELF']) . "\" target=\"_blank\">Click here</a>";
+        $str = "<div class=\"" . $class_div . "\">" . __t("To open in new window:", "bb_main") . " ";
+        $str.= "<a class=\"" . $class_link . "\" href=\"" . dirname($_SERVER['PHP_SELF']) . "\" target=\"_blank\">" . __t("Click here", "bb_main") . "</a>";
         $str.= "</div>";
 
         return $str;
@@ -741,7 +753,7 @@ class bb_main extends bb_reports {
         $arr_userroles = explode(",", $userroles);
         $cnt = count($arr_userroles);
         if ($cnt > 1) {
-            $str = "<span class=\"" . $class_span . "\">Current userrole is: </span>";
+            $str = "<span class=\"" . $class_span . "\">" . __t("Current userrole is:", "bb_main") . " </span>";
             $i = 1;
             foreach ($arr_userroles as $value) {
                 // careful with the globals
@@ -961,9 +973,9 @@ class bb_main extends bb_reports {
         if ($top > $bottom) {
             // skip only one page
             // echo page selector out...
-            echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','1')\">First</button>&nbsp;&nbsp;&nbsp;";
+            echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','1')\">" . __t("First", "bb_main") . "</button>&nbsp;&nbsp;&nbsp;";
             if ($offset > 1) {
-                echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . ($offset - 1) . "')\">Prev</button>&nbsp;&nbsp;&nbsp;";
+                echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . ($offset - 1) . "')\">" . __t("Prev", "bb_main") . "</button>&nbsp;&nbsp;&nbsp;";
             }
             for ($i = $bottom;$i <= $top;$i++) {
                 if ($i == $offset) {
@@ -976,9 +988,9 @@ class bb_main extends bb_reports {
                 echo $i . "</button>&nbsp;&nbsp;&nbsp;";
             }
             if ($offset < $max_return) {
-                echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . ($offset + 1) . "')\">Next</button>&nbsp;&nbsp;&nbsp;";
+                echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . ($offset + 1) . "')\">" . __t("Next", "bb_main") . "</button>&nbsp;&nbsp;&nbsp;";
             }
-            echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . $max_return . "')\">Last</button>";
+            echo "<button class=\"link none\" onclick=\"bb_page_selector('" . $element . "','" . $max_return . "')\">" . __t("Last", "bb_main") . "</button>";
         }
         echo "</div>";
         echo "<br>";
@@ -1080,16 +1092,19 @@ class bb_main extends bb_reports {
 <?php
 /* Regular Functions */
 //this is where translation happens
+//string only
 function __($var) {
 
     return htmlentities($var, ENT_COMPAT | ENT_HTML401, "UTF-8");
 }
 
+//string only
 function __e($var) {
 
     echo __($var);
 }
 
+//string only
 function __t($var, $module, $substitute = array()) {
 
     global $ {
@@ -1104,12 +1119,20 @@ function __t($var, $module, $substitute = array()) {
     array_unshift($substitute, $var);
     $var = call_user_func_array('sprintf', $substitute);
 
-    return htmlentities($var, ENT_COMPAT | ENT_HTML401, "UTF-8");
+    return __($var);
 }
 
+//string only
 function __te($var, $module, $substitute = array()) {
 
     echo __t($var, $module, $substitute = array());
+}
+
+//option, string or array
+function __a($var) {
+
+    if (is_string($var)) return __($var);
+    elseif (is_array($var)) return array_map('__', $var);
 }
 
 ?>

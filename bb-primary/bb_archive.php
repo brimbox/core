@@ -45,37 +45,40 @@ if ($main->button(1)) {
     $query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) UPDATE data_table SET archive = " . $setbit . " WHERE id IN (SELECT id FROM t);";
     $result = $main->query($con, $query);
     $cnt_affected = pg_affected_rows($result);
+    $alphabet = $main->get_alphabet();
     if ($cnt_affected > 0) {
-        if ($archive_log) {
-            $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children archived.";
-            $main->log($con, $message);
-        }
+        $alphabet = $main->get_alphabet();
+        $alpha = mb_substr($alphabet, $row_type - 1, 1);
         if (empty($arr_archive)) {
             if ($setbit) {
-                array_push($arr_messages, "This Cascade Archive archived " . $cnt_affected . " rows.");
+                array_push($arr_messages, __t("This Cascade Archive archived %d rows.", $module, array($cnt_affected)));
                 if ($archive_log) {
-                    $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children archived.";
+                    $arr_count = array($alpha, $post_key, $cnt_affected - 1);
+                    $message = __t("Record %s%d and %d children archived.", $module, $arr_count);
                     $main->log($con, $message);
                 }
             }
             elseif (!$setbit) {
-                array_push($arr_messages, "This Retrieve Cascade retrieved " . $cnt_affected . " rows.");
+                array_push($arr_messages, __t("This Retrieve Cascade retrieved %d rows.", $module, array($cnt_affected)));
                 if ($archive_log) {
-                    $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children retrieved.";
+                    $arr_count = array($alpha, $post_key, $cnt_affected - 1);
+                    $message = __t("Record %s%d and %d children retrieved.", $module, $arr_count);
                     $main->log($con, $message);
                 }
             }
         }
         else {
-            array_push($arr_messages, "This Cascade set " . $cnt_affected . " rows to archive level \"" . $arr_archive[$setbit] . "\".");
+            $arr_count = array($cnt_affected, $arr_archive[$setbit]);
+            array_push($arr_messages, "This Cascade set %d rows to archive level \"%s\".");
             if ($archive_log) {
-                $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children set to archive level " . $arr_archive[$setbit] . ".";
+                $arr_count = array($alpha, $post_key, $cnt_affected - 1, $arr_archive[$setbit]);
+                $message = __t("Record %s%d and %d children set to archive level %s.", $module, $arr_count);
                 $main->log($con, $message);
             }
         }
     }
     else {
-        array_push($arr_messages, "Error: There may have been an underlying data change.");
+        array_push($arr_messages, __t("Error: There may have been an underlying data change.", $module));
     }
 } /* END CASCADE */
 
@@ -87,12 +90,17 @@ else
     $result = $main->query($con, $query);
     $cnt_cascade = pg_num_rows($result);
 
-    if ($cnt_cascade > 1) {
-        array_push($arr_messages, "This record has " . ($cnt_cascade - 1) . " child records.");
-        array_push($arr_messages, "<br>Clicking \"Archive Cascade\", \"Archive Retreive\", or \"Set Archive To\" will archive this record and all its child records.");
+    if ($cnt_cascade == 1) {
+        array_push($arr_messages, __t("This record does not have child records.", $module));
+        array_push($arr_messages, __t("Clicking \"Archive Cascade\", \"Archive Retreive\", or \"Set Archive To\" will archive or retrieve this record.", $module));
     }
-    else {
-        array_push($arr_messages, "<br>This record does not have child records.");
+    elseif ($cnt_cascade == 2) {
+        array_push($arr_messages, __t("This record has 1 child record.", $module));
+        array_push($arr_messages, __t("Clicking \"Archive Cascade\", \"Archive Retreive\", or \"Set Archive To\" will archive or retrieve this record and its child record.", $module));
+    }
+    elseif ($cnt_cascade > 2) {
+        array_push($arr_messages, __t("This record has %d child records.", $module, array($cnt_cascade - 1)));
+        array_push($arr_messages, __t("Clicking \"Archive Cascade\", \"Archive Retreive\", or \"Set Archive To\" will archive or retrieve this record and all its child records.", $module));
     }
 
     $arr_layouts = $main->layouts($con);
@@ -140,17 +148,17 @@ $main->echo_module_vars();
 if (!$main->button(1)) {
     if (empty($arr_archive)) {
         $button_value = ($setbit == 0) ? 1 : 0; // set value is value to set secure to
-        $button_text = ($setbit == 0) ? "Archive Cascade" : "Retrieve Cascade";
+        $button_text = ($setbit == 0) ? __t("Archive Cascade", $module) : __t("Retrieve Cascade", $module);
         $params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => $button_text);
         $main->echo_button("archive_cascade", $params);
         echo "<input type = \"hidden\"  name = \"setbit\" value = \"" . $button_value . "\">";
     }
     else {
-        $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Set Archive To");
+        $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Set Archive To", $module));
         $main->echo_button("archive_cascade", $params);
         echo "<select name=\"setbit\" class=\"spaced\"\">";
         foreach ($arr_archive as $key => $value) {
-            echo "<option value=\"" . $key . "\" " . ($key == $setbit ? "selected" : "") . ">" . __($value) . "&nbsp;</option>";
+            echo "<option value=\"" . __($key) . "\" " . ($key == $setbit ? "selected" : "") . ">" . __($value) . "&nbsp;</option>";
         }
         echo "</select>";
     }

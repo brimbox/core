@@ -105,12 +105,12 @@ else {
 $main->echo_form_begin();
 $main->echo_module_vars();
 
-echo "<span class=\"spaced\">Order By:</span>";
+echo "<span class=\"spaced\">" . __t("Order By:", $module) . "</span>";
 echo "<select name=\"col1\" class=\"spaced\" onchange=\"bb_reload()\">";
 // can't use automatic column function because of create and modify date
 // order on create or modify date, use actual column names in this output
-echo "<option value=\"create_date\" " . ($col1 == "create_date" ? "selected" : "") . ">Created&nbsp;</option>";
-echo "<option value=\"modify_date\" " . ($col1 == "modify_date" ? "selected" : "") . ">Modified&nbsp;</option>";
+echo "<option value=\"create_date\" " . ($col1 == "create_date" ? "selected" : "") . ">" . __t("Created", $module) . "&nbsp;</option>";
+echo "<option value=\"modify_date\" " . ($col1 == "modify_date" ? "selected" : "") . ">" . __t("Modified", $module) . "&nbsp;</option>";
 // build field options for column names
 foreach ($arr_columns as $key => $value) {
     $col = $main->pad("c", $key);
@@ -120,8 +120,8 @@ echo "</select>";
 // dropdown for ascending or descending
 echo "<select name=\"asc_desc\" class=\"spaced\" onchange=\"bb_reload()\">";
 // build field options for column names
-echo "<option value=\"ASC\" " . ($asc_desc == "ASC" ? "selected" : "") . ">Ascending&nbsp;</option>";
-echo "<option value=\"DESC\" " . ($asc_desc == "DESC" ? "selected" : "") . ">Descending&nbsp;</option>";
+echo "<option value=\"ASC\" " . ($asc_desc == "ASC" ? "selected" : "") . ">" . __t("Ascending", $module) . "&nbsp;</option>";
+echo "<option value=\"DESC\" " . ($asc_desc == "DESC" ? "selected" : "") . ">" . __t("Descending", $module) . "&nbsp;</option>";
 echo "</select>";
 
 // local POST variables

@@ -251,10 +251,12 @@ class bb_reports extends bb_forms {
                 echo "<div class=\"" . $page_selector_class . "\">";
                 echo "&laquo;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $prev . ",'" . $sort . "','" . $order . "')\">Previous</button>&nbsp;--&nbsp;";
                 if ($count_rows != $count_data) {
-                    echo "<label>Showing " . $min . "-" . $max . " of " . $count_rows . " Total Rows, including " . $count_data . " Data Rows</label>";
+                    $arr_counts = array($min, $max, $count_rows, $count_data);
+                    echo "<label>" . __t("Showing %d-%d of %d Total Rows, including %d Data Rows", "bb_main", $arr_counts) . "</label>";
                 }
                 else {
-                    echo "<label>Showing rows " . $min . "-" . $max . " of " . $count_rows . "</label>";
+                    $arr_counts = array($min, $max, $count_rows);
+                    echo "<label>" . __t("Showing rows %d-%d of %d", "bb_main", $arr_counts) . "</label>";
                 }
                 echo "&nbsp;--&nbsp;<button class = \"" . $page_link_class . "\" onclick=\"bb_reports.paginate_table(" . $number . "," . $next . ",'" . $sort . "','" . $order . "')\">Next</button>&raquo;</div>";
             }
@@ -448,10 +450,12 @@ class bb_reports extends bb_forms {
         // output row_count
         if ($header) {
             if ($count && !$ignore && ($count_rows != $count_data)) {
-                echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows, including " . $count_data . " Data Rows</label></div>";
+                $arr_counts = array($count_rows, $count_data);
+                echo "<div class=\"" . $return_rows_class . "\"><label>" . __t("Returned %d Rows, including %d Data Rows", "bb_main", $arr_counts) . "</label></div>";
             }
             else {
-                echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label></div>";
+                $arr_counts = array($count_rows);
+                echo "<div class=\"" . $return_rows_class . "\"><label>" . __t("Returned %d Rows", "bb_main", $arr_counts) . "</label></div>";
             }
         }
         // start table
@@ -674,9 +678,10 @@ class bb_reports extends bb_forms {
         }
         // output header
         if ($header) {
-            echo "<div class=\"" . $return_rows_class . "\"><label>Returned " . $count_rows . " Rows</label> -- ";
-            echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"select_textarea\" value=\"select_textarea\" onclick=\"bb_reports.select_textarea();\">Select Textarea</button> -- ";
-            echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"clear_textarea\" value=\"clear_textarea\" onclick=\"bb_reports.clear_textarea();\">Clear Textarea</button><br>";
+            $arr_counts($count_rows);
+            echo "<div class=\"" . $return_rows_class . "\"><label>" . __t("Returned %d Rows", "bb_main", $arr_counts) . "</label> -- ";
+            echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"select_textarea\" value=\"select_textarea\" onclick=\"bb_reports.select_textarea();\">" . __t("Select Textarea", "bb_main") . "</button> -- ";
+            echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"clear_textarea\" value=\"clear_textarea\" onclick=\"bb_reports.clear_textarea();\">" . __t("Clear Textarea", "bb_main") . "</button><br>";
             echo "</div>";
         }
         echo "<textarea id=\"txtarea\" class=\"" . $textarea_class . "\" name=\"txtarea\" rows=\"" . $rows . "\" cols=\"" . $columns . "\"  wrap=\"off\">" . $data_out . "</textarea>";

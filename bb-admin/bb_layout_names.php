@@ -28,6 +28,8 @@ $number_layouts = $main->get_constant('BB_NUMBER_LAYOUTS', 12);
 $arr_layouts = $main->get_json($con, "bb_layout_names"); // do not reduce
 // security
 $arr_layout_security = $array_security['layout_security'];
+//get alphabet
+$alphabet = $main->get_alphabet();
 
 $arr_messages = array();
 
@@ -47,19 +49,19 @@ function cmp($a, $b) {
 
 $arr_layouts_fields = array(
     'parent' => array(
-        'name' => "Parent"
+        'name' => __t("Parent", $module)
     ) ,
     'order' => array(
-        'name' => "Order"
+        'name' => __t("Order", $module)
     ) ,
     'secure' => array(
-        'name' => "Secure"
+        'name' => __t("Secure", $module)
     ) ,
     'autoload' => array(
-        'name' => "Autoload"
+        'name' => __t("Autoload", $module)
     ) ,
     'relate' => array(
-        'name' => "Relate"
+        'name' => __t("Relate", $module)
     )
 );
 
@@ -119,25 +121,25 @@ if ($main->button(1)) {
         // one layout populated
         // check for distinct values in singular or plural, use $main->array_iunique so check is not case sensitive
         if ((count($arr_singular) != count($main->array_iunique($arr_singular))) || (count($arr_plural) != count($main->array_iunique($arr_plural)))) {
-            array_push($arr_messages, "Error: Layouts must have distinct singular and plural names.");
+            array_push($arr_messages, __t("Error: Layouts must have distinct singular and plural names.", $module));
         }
 
         // check that count is in order
         sort($arr_order);
         if (($arr_order[0] != 1) || (count($arr_order) != count(array_unique($arr_order))) || ($arr_order[count($arr_order) - 1] != count($arr_order))) {
-            array_push($arr_messages, "Error: Layouts order must start at 1 and be strictly ascending.");
+            array_push($arr_messages, __t("Error: Layouts order must start at 1 and be strictly ascending.", $module));
         }
 
         // check for circular relationships
         $relationship = true;
         if (count($arr_parent) != count(array_unique($arr_parent))) {
-            array_push($arr_messages, "Error: Circular or self-referential relationship between layouts.");
+            array_push($arr_messages, __t("Error: Circular or self-referential relationship between layouts.", $module));
         }
     }
 
     else {
         // must have one layout populated
-        array_push($arr_messages, "Error: Singular and plural must be populated for at least one layout.");
+        array_push($arr_messages, __t("Error: Singular and plural must be populated for at least one layout.", $module));
     }
 
     // all conditions go
@@ -146,24 +148,24 @@ if ($main->button(1)) {
         // sort on order and update JSON, layouts are stored sorted by order, not row_type
         uasort($arr_layouts, 'cmp');
         $main->update_json($con, $arr_layouts, "bb_layout_names");
-        array_push($arr_messages, "Layouts have been updated.");
+        array_push($arr_messages, __t("Layouts have been updated.", $module));
     }
 } // submit
 if ($main->button(2)) {
     // revert to json in database
     $arr_layouts = $main->get_json($con, "bb_layout_names");
-    array_push($arr_messages, "Layouts have been refreshed from database.");
+    array_push($arr_messages, __t("Layouts have been refreshed from database.", $module));
 }
 
 if ($main->button(3)) {
     // vaccum database
     $query = "VACUUM;";
     $main->query($con, $query);
-    array_push($arr_messages, "Database has been vacuumed.");
+    array_push($arr_messages, __t("Database has been vacuumed.", $module));
 }
 
 /* START REQUIRED FORM */
-echo "<p class=\"spaced bold larger\">Layout Names</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Layout Names", $module) . "</p>";
 
 echo "<div class=\"padded\">";
 $main->echo_messages($arr_messages);
@@ -175,17 +177,20 @@ $main->echo_module_vars();;
 echo "<div class=\"table spaced border\">";
 echo "<div class=\"row\">";
 echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">&nbsp;</label></div>";
-echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">Singular</label></div>";
-echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">Plural</label></div>";
+echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">" . __t("Singular", $module) . "</label></div>";
+echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">" . __t("Plural", $module) . "</label></div>";
 foreach ($arr_layouts_fields as $key => $value) {
     echo "<div class=\"bold underline shaded extra middle cell \"><label class=\"padded\">" . $value['name'] . "</label></div>";
 }
 echo "</div>";
-for ($i = 1;$i <= $number_layouts;$i++) {
+for ($i = 0;$i <= $number_layouts - 1;$i++) {
+
+    $alpha = mb_substr($alphabet, $i, 1);
+
     echo "<div class=\"row\">"; // begin row
     // label
     echo "<div class=\"extra middle cell\">";
-    echo "<label>Layout " . chr($i + 64) . $i . "</label>";
+    echo "<label>" . __t("Layout", $module) . " " . $alpha . "</label>";
     echo "</div>";
 
     // singular
@@ -310,7 +315,7 @@ $params = array(
     "number" => 1,
     "target" => $module,
     "passthis" => true,
-    "label" => "Submit Layouts"
+    "label" => __t("Submit Layouts", $module)
 );
 $main->echo_button("layout_submit", $params);
 $params = array(
@@ -318,7 +323,7 @@ $params = array(
     "number" => 2,
     "target" => $module,
     "passthis" => true,
-    "label" => "Refresh Layouts"
+    "label" => __t("Refresh Layouts", $module)
 );
 $main->echo_button("refresh_layout", $params);
 $params = array(
@@ -326,7 +331,7 @@ $params = array(
     "number" => 3,
     "target" => $module,
     "passthis" => true,
-    "label" => "Vacuum Database"
+    "label" => __t("Vacuum Database", $module)
 );
 $main->echo_button("vacuum_database", $params);
 

@@ -598,6 +598,8 @@ INSERT INTO modules_table(module_order, module_path, module_name, friendly_name,
 VALUES (4, 'bb-admin/bb_upload_docs.php', 'bb_upload_docs', 'Upload Documents', 'bb_brimbox', 4, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module used for uploading documents, usually support documents, to the database."}');
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
 VALUES (5, 'bb-admin/bb_query_alias.php', 'bb_query_alias', 'Query Alias', 'bb_brimbox', 4, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module used for constructing SELECT gueries, as would be used in reports."}');
+INSERT INTO modules_table (module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
+VALUES (6, 'bb-admin/bb_translate.php', 'bb_translate', 'Translation', 'bb_brimbox', 4, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the module for translating Brimbox text, defining existing text strings with alternative or foreign text."}'); 
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
 VALUES (1, 'bb-admin/bb_manage_users.php', 'bb_manage_users', 'Manage Users', 'bb_brimbox', 5, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module used for managing users and their permissions."}');
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
@@ -612,8 +614,6 @@ INSERT INTO modules_table(module_order, module_path, module_name, friendly_name,
 VALUES (6, 'bb-admin/bb_manage_modules.php', 'bb_manage_modules', 'Manage Modules', 'bb_brimbox', 5, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the admin module for uploading modules and installing program updates."}');
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
 VALUES (7, 'bb-admin/bb_backup_restore.php', 'bb_backup_restore', 'Backup and Restore', 'bb_brimbox', 5, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the module for backing up, cleansing, and restoring an encrypted brimbox database."}');
-INSERT INTO modules_table (module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
-VALUES (8, 'bb-admin/bb_translate.php', 'bb_translate', 'Translation', 'bb_brimbox', 5, 'Core', 6, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the module for translating Brimbox text, defining existing text strings with alternative or foreign text."}'); 
 EOT;
 if ($do_modules_table) {
     $result = pg_query($con, $query);

@@ -75,6 +75,7 @@ $arr_messages = array();
 
 // get archive mode
 $mode = ($archive == 1) ? " 1 = 1 " : " archive IN (0)";
+$alphabet = $main->get_alphabet();
 
 // get state
 $arr_state = $main->load($con, $module);
@@ -107,7 +108,7 @@ $text_str = "";
 if ($post_key > 0) // a detail of a record
 {
     // post_key is an int, row_type to find record id
-    $letter = strtoupper(chr($row_type + 96));
+    $alpha = mb_substr($alphabet, $row_type - 1, 1);
     $query = "SELECT count(*) OVER () as cnt, * FROM data_table WHERE id = " . $post_key . ";";
     // echo "<p>" . $query . "</p>";
     $result = $main->query($con, $query);
@@ -125,7 +126,7 @@ if ($post_key > 0) // a detail of a record
 
         // call to function that outputs details
         $layout = $main->reduce($arr_layouts, $row_type);
-        echo "<p class =\"spaced\">Record: " . $letter . $post_key . " - " . __(( string )$layout['singular']) . "</p>";
+        echo "<p class =\"spaced\">" . __t("Record: %s%d:", $module, array($alpha, $post_key)) . " " . __($layout['singular']) . "</p>";
         /* return the details */
         echo "<div id=\"bb_details_fields\">";
         foreach ($arr_columns as $key => $value) {
@@ -184,7 +185,7 @@ if ($post_key > 0) // a detail of a record
         $link_values = preg_replace('/\s+/', '', $link_values);
         if (empty($link_values)) // check if link_values is empty
         {
-            array_push($arr_messages, "Error: No values supplied.");
+            array_push($arr_messages, __t("Error: No values supplied.", $module));
         }
         else
         // check to see if record is linkable
@@ -195,7 +196,7 @@ if ($post_key > 0) // a detail of a record
                 }
             }
             if (empty($arr_link_row_type)) {
-                array_push($arr_messages, "Error: Cannot link records to this type of record.");
+                array_push($arr_messages, __t("Error: Cannot link records to this type of record.", $module));
             }
         }
 
@@ -271,21 +272,21 @@ if ($post_key > 0) // a detail of a record
             // messages
             // none linked
             if (empty($arr_linked)) {
-                array_push($arr_messages, "No Records were linked.");
+                array_push($arr_messages, __("No Records were linked.", $module));
                 $link_values = "";
             }
             else {
                 // linked
-                array_push($arr_messages, "Record(s) " . __($str_linked) . " were linked to record " . $letter . ( string )$post_key);
+                array_push($arr_messages, __t("Record(s) %s were linked to record %s%d.", $module, array($str_linked, $alpha, $post_key)));
                 $link_values = "";
             }
             // not linked
             if (!empty($arr_not_linked)) {
-                array_push($arr_messages, "Record(s) " . __($str_not_linked) . " were not linked.");
+                array_push($arr_messages, __t("Record(s) %s were not linked.", $module, array($str_not_linked)));
                 $link_values = "";
             }
             if (!empty($arr_not_valid_value)) {
-                array_push($arr_messages, "Value(s) " . __($str_not_valid_value) . " were not valid records and were not linked.");
+                array_push($arr_messages, __t("Value(s) %s were not valid records and were not linked.", $module, array($str_not_valid_value)));
                 $link_values = "";
             }
         } // not empty link row type
@@ -303,19 +304,19 @@ if (($post_key > 0) && ($cnt_rows == 1)) {
     $main->echo_clear();
     echo "<br>";
     $main->echo_clear();
-    echo "<p class =\"spaced\">Link these records to this record</p>";
+    echo "<p class =\"spaced\">" . __t("Link these records to this record.", $module) . "</p>";
     echo "<input type=\"text\" name=\"link_values\" class =\"spaced\" size=\"50\" value=\"" . __($link_values) . "\" />";
     $main->echo_clear();
     echo "<div class = \"spaced\">";
     $main->echo_messages($arr_messages);
     echo "</div>";
-    $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Link Values");
+    $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Link Values", $module));
     $main->echo_button("link_button", $params);
     $main->echo_clear();
     echo "<br>";
     $main->echo_textarea("dump_area", $text_str, array('class' => "spaced dump_textarea"));
     $main->echo_clear();
-    $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Dump Data");
+    $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Dump Data", $module));
     $main->echo_button("dump_button", $params);
     $params = array("class" => "spaced", "onclick" => "bb_clear_textarea();", "label" => "Clear");
     $main->echo_script_button("dump_clear", $params);

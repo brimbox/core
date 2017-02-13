@@ -78,7 +78,7 @@ class bb_manage_modules {
         // no syntax errors
         if (!preg_match("/^No syntax errors/", trim($output))) {
             // will exit here on good check
-            return "Error: Syntax error in file " . $path . ".";;
+            return __t("Error: Syntax error in file %s.", $module, array($path));
         }
 
         // strip all the /* */ comments out of file
@@ -110,7 +110,7 @@ class bb_manage_modules {
                         $arr_pair = explode("=", trim($value), 2);
                         // trim and put into key/value pairs
                         if (isset($arr_module[trim(strtolower($arr_pair[0])) ])) {
-                            return "Error: Duplicate module variable in " . $path . ". Module declarations must be unique.";
+                            return __t("Error: Duplicate module variable in %s. Module declarations must be unique.", $module, array($path));
                         }
                         else {
                             $arr_module[trim(strtolower($arr_pair[0])) ] = trim($arr_pair[1]);
@@ -143,7 +143,7 @@ class bb_manage_modules {
         $pattern_version_ignore = "/[^A-Za-x_]/";
         if (preg_match($pattern_name, $arr_module['@module_name'])) {
             // any other files should contain the principle php file name + _extra, or _css or _javascript etc
-            return "Error: Module name in " . $path . " must contain only alphanumeric characters, dashes, or underscores.";
+            return __t("Error: Module name in %s must contain only alphanumeric characters, dashes, or underscores.", $module, array($path));
         }
 
         // check that file name matches module name
@@ -151,24 +151,24 @@ class bb_manage_modules {
         if (!preg_match($pattern, $arr_module['@module_path'])) {
             // module name must be the same as principle php file name wihtout the .php extension
             // any other files should contain the principle php file name + extra, or _css or javascript etc
-            return "Error: Module name " . $path . " does not match file name. Module name must be the file name (without the extension).";
+            return __t("Error: Module name %s does not match file name. Module name must be the file name (without the extension).", $module, array($path));
         }
 
         // check for the required variables
         $arr_keys = array_keys($arr_module);
         $arr_intersect = array_intersect($this->arr_required, $arr_keys);
         if (count($arr_intersect) != count($this->arr_required)) {
-            return "Error: Required module variable missing in " . $path . ". Certain module variables are required in the module definition.";
+            return __t("Error: Required module variable missing in %s. Certain module variables are required in the module definition.", $module, array($path));
         }
 
         // interface must be properly named
         if (preg_match($pattern_name, $arr_module['@interface'])) {
-            return "Error: Interface name in " . $path . " must contain only alphanumeric characters or underscores.";
+            return __t("Error: Interface name in %s must contain only alphanumeric characters or underscores.", $module, array($path));
         }
 
         // version must be properly named
         if (preg_match($pattern_version_update, $arr_module['@module_version']) && preg_match($pattern_version_ignore, $arr_module['@module_version'])) {
-            return "Error: Version in " . $path . " must numeric with dots and dashes, or alphabetic with underscores.";
+            return __t("Error: Version in %s must numeric with dots and dashes, or alphabetic with underscores.", $module, array($path));
         }
 
         // checks json declarations, will ignore all declarations not starting with @json
@@ -177,11 +177,11 @@ class bb_manage_modules {
             if (preg_match($pattern_1, $key)) {
                 $pattern_2 = "/^" . $arr_module['@module_name'] . ".*/";
                 if (!preg_match($pattern_2, substr($key, 6))) {
-                    return "Error: Invalid JSON lookup specification in " . $path . ". Lookup value must start with module name.";
+                    return __t("Error: Invalid JSON lookup specification in %s. Lookup value must start with module name.", $module, array($path));
                 }
                 // check for valid JSON
                 if (!json_decode($value) && ($value != "[]")) {
-                    return "Error: Invalid JSON markup in " . $path . " module header. Please properly form your JSON in module declaration.";
+                    return __t("Error: Invalid JSON markup in %s module header. Please properly form your JSON in module declaration.", $module, array($path));
                 }
             }
         }
@@ -195,7 +195,7 @@ class bb_manage_modules {
                 $arr_keys = array_unique(array_merge($arr_keys, array(0, -1, -2, -3)));
                 if (!in_array($arr_module['@module_type'], $arr_keys)) {
                     print_r($arr_keys);
-                    return "Error: Invalid module type supplied in " . $path . " module header. Module type must correspond to module type keys global array.";
+                    return __t("Error: Invalid module type supplied in %s module header. Module type must correspond to module type keys global array.", $module, array($path));
                 }
             }
             else {
@@ -203,7 +203,7 @@ class bb_manage_modules {
                 unset($arr_values[0], $arr_values[-1], $arr_values[-2], $arr_values[-3]);
                 $arr_values = array_map('strtolower', $arr_values + array(0 => "hidden", -1 => "global", -2 => "function", -3 => "header"));
                 if (!in_array(strtolower($arr_module['@module_type']), $arr_values)) {
-                    return "Error: Invalid module type supplied in " . $path . " module header. Module type must correspond to module type keys global array.";
+                    return __t("Error: Invalid module type supplied in %s module header. Module type must correspond to module type keys global array.", $module, array($path));
                 }
                 // module type set to numeric value for insert/update
                 $arr_module['@module_type'] = array_search(strtolower($arr_module['@module_type']), $arr_values);

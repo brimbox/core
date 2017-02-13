@@ -108,11 +108,11 @@ if (!$main->blank($record_id)) {
             $valid_id = true;
         }
         else {
-            array_push($arr_messages, "Record ID integer supplied is too large. Please supply a valid Record ID.");
+            array_push($arr_messages, __t("Record ID integer supplied is too large. Please supply a valid Record ID.", $module));
         }
     }
     else {
-        array_push($arr_messages, "Record ID not in correct format. Must be formatted as a letter following by an integer.");
+        array_push($arr_messages, __t("Record ID not in correct format. Must be formatted as a letter following by an integer.", $module));
     }
 }
 /* END PROCESS RECORD ID */
@@ -132,17 +132,17 @@ echo "<div class=\"table\">";
 echo "<div class=\"row\">";
 
 echo "<div class=\"spaced border middle cell\">";
-$params = array("class" => "spaced nowrap", "onclick" => "bb_reload()", "label" => "Submit Lookup");
+$params = array("class" => "spaced nowrap", "onclick" => "bb_reload()", "label" => __t("Submit Lookup", $module));
 $main->echo_script_button("lookup_button", $params);
 echo "</div>";
 
 echo "<div class=\"spaced border cell\">";
-echo "<div class=\"spaced\">Record ID</div>";
+echo "<div class=\"spaced\">" . __t("Record ID", $module) . "</div>";
 echo "<div class=\"spaced\"><input type =\"text\" class =\"short\" name = \"record_id\" value = \"" . $record_id . "\"></div>";
 echo "</div>";
 
 echo "<div class=\"border cell\">";
-echo "<div class=\"spaced\">Layout</div>";
+echo "<div class=\"spaced\">" . __t("Layout", $module) . "</div>";
 echo "<div class=\"spaced\">";
 $params = array("onchange" => "bb_reload()");
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
@@ -150,15 +150,15 @@ echo "</div>";
 echo "</div>";
 
 echo "<div class=\"border cell\">";
-echo "<div class=\"spaced\">First Lookup Column</div>";
+echo "<div class=\"spaced\">" . __t("First Lookup Column", $module) . "</div>";
 echo "<div class=\"spaced inlineblock\">";
 echo "<input type=\"text\" name = \"value_1\" value = \"" . $value_1 . "\">";
 echo "</div>";
 echo "<div class=\"spaced nowrap inlineblock\">";
-echo "<span>Begins:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"1\"" . ($radio_1 == 1 ? "checked" : "") . " >";
-echo "<span> Exact:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"2\"" . ($radio_1 == 2 ? "checked" : "") . ">";
-echo "<span> Like:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"3\"" . ($radio_1 == 3 ? "checked" : "") . ">";
-echo "<span> Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
+echo "<span>" . __t("Begins:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"1\"" . ($radio_1 == 1 ? "checked" : "") . " >";
+echo "<span> " . __t("Exact:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"2\"" . ($radio_1 == 2 ? "checked" : "") . ">";
+echo "<span> " . __t("Like:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"3\"" . ($radio_1 == 3 ? "checked" : "") . ">";
+echo "<span> " . __t("Empty:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
 echo "</div>";
 echo "&nbsp;";
 echo "<div class=\"spaced inlineblock\">";
@@ -167,15 +167,15 @@ echo "</div>";
 echo "</div>";
 
 echo "<div class=\"border cell\">";
-echo "<div class=\"spaced\">Second Lookup Column</div>";
+echo "<div class=\"spaced\">" . __t("Second Lookup Column", $module) . "</div>";
 echo "<div class=\"spaced inlineblock\">";
 echo "<input type=\"text\" name = \"value_2\" value = \"" . $value_2 . "\">";
 echo "</div>";
 echo "<div class=\"spaced nowrap inlineblock\">";
-echo "<span>Begins:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"1\"" . ($radio_2 == 1 ? "checked" : "") . " >";
-echo "<span> Exact:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"2\"" . ($radio_2 == 2 ? "checked" : "") . ">";
-echo "<span> Like:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"3\"" . ($radio_2 == 3 ? "checked" : "") . ">";
-echo "<span> Empty:</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"4\"" . ($radio_2 == 4 ? "checked" : "") . ">";
+echo "<span>" . __t("Begins:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"1\"" . ($radio_2 == 1 ? "checked" : "") . " >";
+echo "<span> " . __t("Exact:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"2\"" . ($radio_2 == 2 ? "checked" : "") . ">";
+echo "<span> " . __t("Like:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"3\"" . ($radio_2 == 3 ? "checked" : "") . ">";
+echo "<span> " . __t("Empty:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"4\"" . ($radio_2 == 4 ? "checked" : "") . ">";
 echo "</div>";
 echo "&nbsp;";
 echo "<div class=\"spaced inlineblock\">";
@@ -192,7 +192,7 @@ if ($main->on_constant('BB_ARCHIVE_INTERWORKING')) {
     echo "<div class=\"border middle cell\">";
     echo "<span class = \"spaced border nowrap rounded padded shaded\">";
     $main->echo_input("archive_flag", 1, array('type' => 'checkbox', 'class' => 'middle padded', 'checked' => $checked));
-    echo "<label class=\"padded\">Check Archives</label>";
+    echo "<label class=\"padded\">" . __t("Check Archives", $module) . "</label>";
     echo "</span><br>";
     echo "</span>";
     echo "</div>";

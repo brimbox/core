@@ -38,7 +38,7 @@ $main->check_permission("5_bb_brimbox");
 ?>
 <?php
 $arr_messages = array();
-$arr_options = array('1 day' => "Preserve 1 Day", '1 week' => "Preserve 1 Week", '1 month' => "Preserve 1 Month");
+$arr_options = array('1 day' => __t("Preserve 1 Day", $module), '1 week' => __t("Preserve 1 Week", $module), '1 month' => __t("Preserve 1 Month"));
 
 end($arr_options);
 $default_truncate_option = key($arr_options);
@@ -64,7 +64,8 @@ if ($main->button(1)) {
     $query = "DELETE FROM log_table WHERE change_date + interval '" . $truncate_option . "' < now();";
     $result = $main->query($con, $query);
     $num_rows = pg_affected_rows($result);
-    array_push($arr_messages, $num_rows . " rows deleted from log table.");
+    $arr_printf = array($num_rows);
+    array_push($arr_messages, __t("%d rows deleted from log table.", $module, $arr_printf));
 }
 
 if ($main->button(2)) {
@@ -73,7 +74,8 @@ if ($main->button(2)) {
     $query = "DELETE FROM state_table WHERE change_date + interval '" . $truncate_option . "' < now();";
     $result = $main->query($con, $query);
     $num_rows = pg_affected_rows($result);
-    array_push($arr_messages, $num_rows . " rows deleted from state table.");
+    $arr_printf = array($num_rows);
+    array_push($arr_messages, __t("%d rows deleted from state table.", $module, $arr_printf));
 }
 
 // get all logins, order by date DESC
@@ -81,24 +83,24 @@ $query = "SELECT * FROM log_table ORDER BY change_date DESC;";
 $result = $main->query($con, $query);
 
 // title
-echo "<p class=\"spaced bold larger\">Manage Log and State Tables</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Manage Log and State Tables") . "</p>";
 
 echo "<div class=\"padded\">";
 $main->echo_messages($arr_messages);
 echo "</div>";
 
 // div container with scroll bar
-echo "<div class=\"spaced padded bold\">Log Table</div>";
+echo "<div class=\"spaced padded bold\">" . __t("Log Table", $module) . "</div>";
 echo "<div class=\"spaced padded border manage_log_wrap\">";
 echo "<div class=\"table padded\">";
 
 // table header
 echo "<div class=\"row shaded\">";
-echo "<div class=\"bold underline extra middle cell\">Username</div>";
-echo "<div class=\"bold underline extra middle cell\">Email</div>";
-echo "<div class=\"bold underline extra middle cell\">IP Address/Bits</div>";
-echo "<div class=\"bold underline extra middle cell\">Log Date/Time</div>";
-echo "<div class=\"bold underline extra middle cell\">Action</div>";
+echo "<div class=\"bold underline extra middle cell\">" . __t("Username", $module) . "</div>";
+echo "<div class=\"bold underline extra middle cell\">" . __t("Email", $module) . "</div>";
+echo "<div class=\"bold underline extra middle cell\">" . __t("IP Address/Bits", $module) . "</div>";
+echo "<div class=\"bold underline extra middle cell\">" . __t("Log Date/Time", $module) . "</div>";
+echo "<div class=\"bold underline extra middle cell\">" . __t("Action", $module) . "</div>";
 echo "</div>";
 
 // table rows
@@ -129,10 +131,10 @@ $params = array('select_class' => "spaced", 'onchange' => "bb_reload()", 'usekey
 $main->array_to_select($arr_options, "truncate_option", $truncate_option, array(), $params);
 
 // submit button
-$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Truncate Log Table");
+$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Truncate Log Table", $module));
 $main->echo_button("truncate_log", $params);
 
-$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Truncate State Table");
+$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Truncate State Table", $module));
 $main->echo_button("truncate_state", $params);
 
 $main->echo_form_end();

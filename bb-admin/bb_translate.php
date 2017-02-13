@@ -17,7 +17,7 @@
 */
 ?>
 <?php
-$main->check_permission("5_bb_brimbox");
+$main->check_permission(array("4_bb_brimbox", "5_bb_brimbox"));
 ?>
 <script>
 function bb_reload()
@@ -29,11 +29,11 @@ function bb_reload()
 </script>
 <?php
 // get state from db
-$arr_prepend_po = array("", 'bb_box' => "Box Controller", 'bb_main' => "Main Functions");
+$arr_prepend_po = array("" => "", 'bb_box' => __t("Box Controller", $module), 'bb_main' => __t("Main Functions", $module));
 
 $arr_state = $main->load($con, $module);
 
-$translation = $main->state('translation', $arr_state);
+$translation = $main->process('translation', $module, $arr_state, "");
 $arr_messages = $main->process('arr_messages', $module, $arr_state, array());
 unset($arr_state['arr_messages']);
 
@@ -41,7 +41,7 @@ unset($arr_state['arr_messages']);
 $arr_po = $main->get_json($con, $translation . "_translate");
 if (!$arr_po) $arr_po = array();
 
-echo "<p class=\"spaced bold larger\">Translation Upload</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Translation Population and Upload", $module) . "</p>";
 
 echo "<div class=\"spaced\">";
 $main->echo_messages($arr_messages);
@@ -60,38 +60,61 @@ while ($row = pg_fetch_array($result)) {
     $arr_modules_po[$row['module_name']] = $row['friendly_name'];
 }
 
+asort($arr_modules_po);
 $main->array_to_select($arr_modules_po, "translation", $translation, $arr_prepend_po, array('usekey' => true, 'onchange' => "bb_reload()"));
 
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_translation\" id=\"file\"/>";
-$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Upload Translation .po file");
+$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Upload Translation .po file", $module));
 $main->echo_button("submit_translation", $params);
 
-echo "<table class=\"border\">";
-echo "<tr colspan=\"2\"><td>";
-$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Add Translation");
+echo "<div class=\"border\">";
+echo "<div class=\"floatleft\">";
+$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Add Translation", $module));
 $main->echo_button("submit_translation", $params);
-echo "</td></tr><tr><td>";
-$main->echo_input('addkey', "", array('class' => "border spaced"));
-echo "</td><td>";
-$main->echo_input('addvalue', "", array('class' => "border spaced"));
-echo "</td></tr>";
+echo "</div>";
+$main->echo_clear();
+echo "<div class=\"floatleft\">";
+$main->echo_textarea('addkey', "", array('class' => "border spaced textarea", 'placeholder' => __t("Original", $module)));
+echo "</div>";
+echo "<div class=\"floatleft\">";
+$main->echo_textarea('addvalue', "", array('class' => "border spaced textarea", 'placeholder' => __t("Translation", $module)));
+echo "</div>";
+$main->echo_clear();
 
 if (count($arr_po) > 0) {
-    echo "<tr colspan=\"2\"><td>";
-    $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => "Update Translations");
+    echo "<div class=\"floatleft\">";
+    $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => __t("Update Translations", $module));
     $main->echo_button("update_translation", $params);
-    echo "</td></tr>";
+    echo "</div>";
+    $main->echo_clear();
 }
 
+$i = 0;
 foreach ($arr_po as $key => $value) {
-    echo "<tr><td>";
-    $main->echo_input('key', $key, array('class' => "border spaced"));
-    echo "</td><td>";
-    $main->echo_input('addtrans', $value, array('class' => "border spaced"));
-    echo "</td></tr>";
-}
-echo "</table>";
+    $i++;
+    echo "<div class=\"floatleft\">";
+    if (strlen($key) <= 50) {
+        $main->echo_input("key" . $i, __($key), array('class' => "border spaced textbox"));
+        echo "</div>";
+        echo "<div class=\"floatleft\">";
+        $main->echo_input("value" . $i, __($value), array('class' => "border spaced textbox"));
+        echo "</div>";
+        $main->echo_clear();
+    }
+    else {
+        echo "<div class=\"floatleft\">";
+        $main->echo_textarea("key" . $i, __($key), array('class' => "border spaced textarea"));
+        echo "</div>";
+        echo "<div class=\"floatleft\">";
+        $main->echo_textarea("value" . $i, __($value), array('class' => "border spaced textarea"));
+        echo "</div>";
+        $main->echo_clear();
+    }
 
+}
+echo "</div>";
+
+$main->echo_input("count", $i, array('type' => "hidden"));
 $main->echo_form_end();
 ?>
 

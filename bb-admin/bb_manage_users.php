@@ -111,10 +111,10 @@ function check_is_empty($value, $index, &$arr_error, $error_message) {
 function check_password($passwd_work, $repasswd_work, &$arr_error) {
 
     if (!preg_match("/^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*$/", $passwd_work)) {
-        $arr_error['passwd_work'] = "Must contain an uppercase, lowercase, and number and be at least 8 characters.";
+        $arr_error['passwd_work'] = __t("Must contain an uppercase, lowercase, and number and be at least 8 characters.", $module);
     }
     if ($passwd_work != $repasswd_work) {
-        $arr_error['repasswd_work'] = "Passwords do not match.";
+        $arr_error['repasswd_work'] = __t("Passwords do not match.", $module);
     }
 }
 
@@ -122,9 +122,14 @@ function check_ips($con, $ips_esc, &$ips, &$arr_error) {
     // It's not a good idea to use the database to check for errors
     // but in this case compatibility and integrity it makes sense
     // rely on postgres to check for errors in cidr list
+    global $module;
+    global $ {
+        $module . '_translate'
+    };
+
     @$result = pg_query($con, "SELECT array_to_string('" . $ips_esc . "'::cidr[],'\n') as ips");
     if (!$result) {
-        $arr_error['ips'] = "Invalid cidr in list.";
+        $arr_error['ips'] = __t("Invalid \"cidr%s\" in list", $module, array("2.3"));
     }
     else {
         $row = pg_fetch_array($result);
@@ -216,28 +221,28 @@ if ($main->button(array(1, 2))) {
 if ($main->button(1)) {
     $action = 1; // in case of validation error
     // email work
-    check_is_empty($username_work, "username_work", $arr_error, "Username cannot be empty.");
+    check_is_empty($username_work, "username_work", $arr_error, __t("Username cannot be empty.", $module));
     // non-empty email
     if (!isset($arr_error['email_work'])) {
         // username must be 5 characters or more
         if (strlen($username_work) < 5) {
-            $arr_error['username_work'] = "Username must be 5 characters or longer.";
+            $arr_error['username_work'] = __t("Username must be 5 characters or longer.", $module);
         }
     }
-    check_is_empty($email_work, "email_work", $arr_error, "Email cannot be empty.");
+    check_is_empty($email_work, "email_work", $arr_error, __t("Email cannot be empty.", $module));
     // non-empty email
     if (!isset($arr_error['email_work'])) {
         // check for valid email or that email matches username
         if (!filter_var($email_work, FILTER_VALIDATE_EMAIL) && ($username_work !== $email_work)) {
-            $arr_error['email_work'] = "Email is not valid.";
+            $arr_error['email_work'] = __t("Email is not valid.", $module);
         }
     }
     // password
     check_password($passwd_work, $repasswd_work, $arr_error);
     // names
     // check that they are non-empty
-    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty");
-    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty");
+    check_is_empty($fname, "fname", $arr_error, __t("Firstname cannot be empty.", $module));
+    check_is_empty($lname, "lname", $arr_error, __t("Lastname cannot be empty.", $module));
     // ips
     $ips_esc = empty($arr_ips) ? "{0.0.0.0/0,0:0:0:0:0:0:0:0/0}" : pg_escape_string("{" . implode(",", $arr_ips) . "}");
     check_ips($con, $ips_esc, $ips, $arr_error);
@@ -252,12 +257,14 @@ if ($main->button(1)) {
 
         if (pg_affected_rows($result) == 0) {
             // only get here with good email
-            array_push($arr_messages, "Error: Username \"" . $username_work . "\" or email \"" . $email_work . "\" already exists for another user.");
+            $arr_printf = array($username_work, $email_work);
+            array_push($arr_messages, __t("Error: Username \"%s\" or email \"%s\" already exists for another user.", $module, $arr_printf));
         }
         else {
             // since action is zero, only email_work needs to be blanked
             $email_work = "";
-            array_push($arr_messages, "User \"" . $username_work . "\" has been added.");
+            $arr_prinf = array($username_work);
+            array_push($arr_messages, __t("User \"%s\" has been added.", $module, $arr_printf));
             $action = 0; // success
             
         }
@@ -270,21 +277,21 @@ if ($main->button(2)) {
     // postback update
     // updates based on id
     $action = 2; // in case of validation error
-    check_is_empty($username_work, "username_work", $arr_error, "Username cannot be empty.");
+    check_is_empty($username_work, "username_work", $arr_error, __t("Username cannot be empty.", $module));
     if (!isset($arr_error['email_work'])) {
         // non-empty email
         // username must be 5 characters or more
         if (strlen($username_work) < 5) {
             // check for valid email
-            $arr_error['username_work'] = "Username must be 5 characters or longer.";
+            $arr_error['username_work'] = __t("Username must be 5 characters or longer.", $module);
         }
     }
-    check_is_empty($email_work, "email_work", $arr_error, "Email cannot be empty.");
+    check_is_empty($email_work, "email_work", $arr_error, __t("Email cannot be empty.", $module));
     if (!isset($arr_error['email_work'])) {
         // non-empty email
         // check for valid email or that email matches username
         if (!filter_var($email_work, FILTER_VALIDATE_EMAIL) && ($username_work !== $email_work)) {
-            $arr_error['email_work'] = "Email is not valid.";
+            $arr_error['email_work'] = __t("Email is not valid.", $module);
         }
     }
 
@@ -298,8 +305,8 @@ if ($main->button(2)) {
         $query_add_clause = ", hash = '" . hash('sha512', $passwd_work . $salt) . "', salt = '" . $salt . "'";
     }
     // names
-    check_is_empty($fname, "fname", $arr_error, "Firstname cannot be empty");
-    check_is_empty($lname, "lname", $arr_error, "Lastname cannot be empty");
+    check_is_empty($fname, "fname", $arr_error, __t("Firstname cannot be empty", $module));
+    check_is_empty($lname, "lname", $arr_error, __t("Lastname cannot be empty", $module));
     // ips
     $ips_esc = empty($arr_ips) ? "{0.0.0.0/0,0:0:0:0:0:0:0:0/0}" : pg_escape_string("{" . implode(",", $arr_ips) . "}");
     check_ips($con, $ips_esc, $ips, $arr_error);
@@ -313,11 +320,12 @@ if ($main->button(2)) {
 
         if (pg_affected_rows($result) == 0) {
             // only get here with good email
-            array_push($arr_messages, "Error: Cannot update, username or email duplicated or underlying data change possible.");
+            array_push($arr_messages, __t("Error: Cannot update, username or email duplicated or underlying data change possible.", $module));
         }
         else {
             // since action is zero, only email needs to be blanked
-            array_push($arr_messages, "User \"" . $username_work . "\" information has been updated.");
+            $arr_printf = array($username_work);
+            array_push($arr_messages, __t("User \"%s\" information has been updated.", $module, $arr_printf));
             // dispose of state
             $arr_state = array();
             $action = $main->set('action', $arr_state, 0);
@@ -342,7 +350,7 @@ if ($main->button(3)) {
 
     if ($cnt == 0) {
         // only get here with good email
-        array_push($arr_messages, "Error: Login record not found in database.");
+        array_push($arr_messages, __t("Error: Login record not found in database.", $module));
     }
     else {
         // since action is zero, only email needs to be blanked
@@ -370,7 +378,7 @@ if ($main->button(4)) {
 
     if ($cnt == 0) {
         // only get here with good email
-        array_push($arr_messages, "Error: Login record not found in database.");
+        array_push($arr_messages, __t("Error: Login record not found in database.", $module));
     }
     else {
         // since action is zero, only email needs to be blanked
@@ -397,7 +405,7 @@ if (in_array($action, array(0, 1, 2, 3, 4))) {
 }
 
 /* HTML OUTPUT */
-echo "<p class=\"spaced bold larger\">Manage Users</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Manage Users", $module) . "</p>";
 
 echo "<div class=\"padded\">";
 $main->echo_messages($arr_messages);
@@ -433,15 +441,15 @@ if ($action == 0) {
     $result = $main->query($con, $query);
 
     echo "<div class=\"floatleft\">";
-    echo "<button class=\"floatleft spaced\" name=\"add_new_user\" onclick=\"bb_set_hidden(0,1)\">Add New User</button>";
+    echo "<button class=\"floatleft spaced\" name=\"add_new_user\" onclick=\"bb_set_hidden(0,1)\">" . __t("Add New User", $module) . "</button>";
 
     // floatright in reverse order
     echo "<div class=\"table floatright\">";
     echo "<div class=\"row\">";
-    echo "<div class=\"padded cell\">Filter By: </div>";
+    echo "<div class=\"padded cell\">" . __t("Filter By:", $module) . " </div>";
     echo "<div class=\"padded cell\">";
     echo "<select name=\"filterrole\" onChange=\"bb_reload()\">";
-    echo "<option value=\"all\">All</option>";
+    echo "<option value=\"all\">" . __t("All", $module) . "</option>";
     foreach ($arr_userroles_loop as $arr_userrole_loop) {
         $key = $arr_userrole_loop['userrole_value'];
         $value = $arr_userrole_loop['userrole_name'];
@@ -454,7 +462,7 @@ if ($action == 0) {
     echo "<div class=\"padded cell\"> Sort By: </div>";
     echo "<div class=\"padded cell\">";
     echo "<select name=\"usersort\" onChange=\"bb_reload()\">";
-    $arr_usersort = array('lname' => "Last Name", 'fname' => "First Name", 'username' => "Username", 'email' => "Email");
+    $arr_usersort = array('lname' => __t("Last Name", $module), 'fname' => __t("First Name", $module), 'username' => __t("Username", $module), 'email' => __t("Email", $module));
     foreach ($arr_usersort as $key => $value) {
         $selected = ($usersort == $key) ? "selected" : "";
         echo "<option value=\"" . $key . "\" " . $selected . ">" . $value . "&nbsp;</option>";
@@ -468,10 +476,10 @@ if ($action == 0) {
     // user table
     echo "<div class=\"table spaced border\">";
     echo "<div class=\"row shaded\">";
-    echo "<div class=\"extra middle bold cell\">Username</div>";
-    echo "<div class=\"extra middle bold cell\">Email</div>";
-    echo "<div class=\"extra middle bold cell\">Full Name</div>";
-    echo "<div class=\"extra middle bold cell\">Userrole</div>";
+    echo "<div class=\"extra middle bold cell\">" . __t("Username", $module) . "</div>";
+    echo "<div class=\"extra middle bold cell\">" . __t("Email", $module) . "</div>";
+    echo "<div class=\"extra middle bold cell\">" . __t("Full Name", $module) . "</div>";
+    echo "<div class=\"extra middle bold cell\">" . __t("Userrole", $module) . "</div>";
     echo "<div class=\"cell\"></div>";
     echo "<div class=\"cell\"></div>";
     echo "<div class=\"cell\"></div>";
@@ -498,9 +506,9 @@ if ($action == 0) {
         }
         echo implode(", ", $arr_display);
         echo "</div>";
-        echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",2); return false;\">Edit</button></div>";
-        echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",3); return false;\">Lock</button></div>";
-        echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",4); return false;\">Delete</button></div>";
+        echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",2); return false;\">" . __t("Edit", $module) . "</button></div>";
+        echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",3); return false;\">" . __t("Lock", $module) . "</button></div>";
+        echo "<div class=\"extra right middle cell\"><button class=\"link\" onclick=\"bb_set_hidden(" . $id . ",4); return false;\">" . __t("Delete", $module) . "</button></div>";
         echo "</div>";
         $i++;
     }
@@ -519,28 +527,28 @@ if (in_array($action, array(1, 2, 3, 4))):
 
     // buttons
     if ($action == 1) {
-        $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Add User");
+        $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Add User", $module));
         $main->echo_button("add_user", $params);
         // Reset Button
-        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Module");
+        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => __t("Reset Module", $module));
         $main->echo_button("clear_form", $params);
     }
     elseif ($action == 2) {
-        $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Edit User");
+        $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Edit User", $module));
         $main->echo_button("update_info", $params);
-        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Module");
+        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => __t("Reset Module", $module));
         $main->echo_button("clear_form", $params);
     }
     elseif ($action == 3) {
-        $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => "Lock User");
+        $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => __t("Lock User", $module));
         $main->echo_button("lock_user", $params);
-        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Module");
+        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => __t("Reset Module", $module));
         $main->echo_button("clear_form", $params);
     }
     elseif ($action == 4) {
-        $params = array("class" => "spaced", "number" => 4, "target" => $module, "passthis" => true, "label" => "Delete User");
+        $params = array("class" => "spaced", "number" => 4, "target" => $module, "passthis" => true, "label" => __t("Delete User", $module));
         $main->echo_button("delete_user", $params);
-        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => "Reset Module");
+        $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => __t("Reset Module", $module));
         $main->echo_button("clear_form", $params);
     }
 
@@ -579,7 +587,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "<div class=\"table spaced\">";
 
     echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">Username:</div>";
+    echo "<div class=\"middle cell\">" . __t("Username:", $module) . "</div>";
     echo "<div class=\"middle cell\">";
     $main->echo_input("username_work", __($username_work), array('type' => "text", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
@@ -587,7 +595,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "</div>";
 
     echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">Email:</div>";
+    echo "<div class=\"middle cell\">" . __t("Email:", $module) . "</div>";
     echo "<div class=\"middle cell\">";
     $main->echo_input("email_work", __($email_work), array('type' => "text", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
@@ -596,7 +604,7 @@ if (in_array($action, array(1, 2, 3, 4))):
 
     // passwords, md5 so never repopulate, no readonly, has error msgs
     echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">Password:</div>";
+    echo "<div class=\"middle cell\">" . __t("Password:", $module) . "</div>";
     echo "<div class=\"middle cell\">";
     $handler = "onKeyUp=\"bb_check_passwd(this.value,'passwd_work')\"";
     $main->echo_input("passwd_work", "", array('type' => 'password', 'class' => 'spaced long', 'handler' => $handler, 'maxlength' => $maxinput));
@@ -605,7 +613,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "</div>";
 
     echo "<div class=\"row spaced\">";
-    echo "<div class=\"middle cell\">Re-Enter Password:</div>";
+    echo "<div class=\"middle cell\">" . __t("Re-Enter Password:", $module) . "</div>";
     echo "<div class=\"middle cell\">";
     $handler = "onKeyUp=\"bb_check_passwd(this.value,'repasswd_work')\"";
     $main->echo_input("repasswd_work", "", array('type' => 'password', 'class' => 'spaced long', 'handler' => $handler, 'maxlength' => $maxinput));
@@ -616,7 +624,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     // names, readonly for delete, has first and last name error messages for edit
     // delete will have no error msgs but is tested anyway
     echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">First Name:</div>";
+    echo "<div class=\"middle cell\">" . __t("First Name:", $module) . "</div>";
     echo "<div class=\"middle cell\">";
     $main->echo_input("fname", __($fname), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
@@ -624,7 +632,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "</div>";
 
     echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">Middle Initial:</div>";
+    echo "<div class=\"middle cell\">" . __t("Middle Initial:", $module) . "</div>";
     echo "<div class=\"middle cell\">";
     $main->echo_input("minit", __($minit), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
@@ -632,7 +640,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     echo "</div>";
 
     echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\"\">Last Name:</div>";
+    echo "<div class=\"middle cell\"\">" . __t("Last Name:", $module) . "</div>";
     echo "<div class=\"middle cell\">";
     $main->echo_input("lname", __($lname), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
@@ -643,7 +651,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     if (in_array($action, array(3, 4))) {
         // display roles
         echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\"\">Roles:</div>";
+        echo "<div class=\"middle cell\"\">" . __t("Roles:", $module) . "</div>";
         echo "<div class=\"middle cell\">";
         echo "<div class=\"padded spaced border\">";
         $arr_display = array();
@@ -656,12 +664,12 @@ if (in_array($action, array(1, 2, 3, 4))):
         echo "<div class=\"middle cell\"></div>";
         echo "</div>";
         echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\"\">IPs (cidr):</div>";
+        echo "<div class=\"middle cell\"\">" . __t("IPs (cidr):", $module) . "</div>";
         echo "<div class=\"padded spaced border minnote\">" . nl2br($ips) . "</div>";
         echo "<div class=\"middle cell\"></div>";
         echo "</div>";
         echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\"\">Notes:</div>";
+        echo "<div class=\"middle cell\"\">" . __t("Notes:", $module) . "</div>";
         echo "<div class=\"padded spaced border minnote\">" . nl2br($notes) . "</div>";
         echo "<div class=\"middle cell\"></div>";
         echo "</div>";
@@ -671,7 +679,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     if (in_array($action, array(1, 2))) {
         // default role select
         echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\"\">Default Role:</div>";
+        echo "<div class=\"middle cell\"\">" . __t("Default Role:", $module) . "</div>";
         echo "<div class=\"middle cell\"><select name=\"userrole_default\" id=\"select_default\"  class=\"spaced\" />";
         // if add user
         if (in_array($action, array(1)) && empty($userroles_work)) {
@@ -689,7 +697,7 @@ if (in_array($action, array(1, 2, 3, 4))):
 
         // userroles select
         echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\">Roles:</div>";
+        echo "<div class=\"middle cell\">" . __t("Roles:", $module) . "</div>";
         echo "<div class=\"middle cell\">";
         echo "<div class=\"spaced border padded\">";
         // unset locked value
@@ -712,7 +720,7 @@ if (in_array($action, array(1, 2, 3, 4))):
 
         // id addresses textarea
         echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\">IP Addresses or Ranges (cidr):</div>";
+        echo "<div class=\"middle cell\">" . __t("IP Addresses or Ranges (cidr):", $module) . "</div>";
         echo "<div class=\"cell\">";
         $main->echo_textarea("ips", $ips, array('class' => "spaced", 'rows' => 7, 'cols' => 27));
         echo "</div>";
@@ -720,7 +728,7 @@ if (in_array($action, array(1, 2, 3, 4))):
         echo "</div>";
 
         echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\">Notes:</div>";
+        echo "<div class=\"middle cell\">" . __t("Notes:", $module) . "</div>";
         echo "<div class=\"cell\">";
         $main->echo_textarea("notes", $notes, array('class' => "spaced", 'rows' => 8, 'cols' => 35));
         echo "</div>";
@@ -729,7 +737,7 @@ if (in_array($action, array(1, 2, 3, 4))):
     }
 
     echo "</div>"; // end table
-    if (in_array($action, array(1, 2))) echo "<p class=\"spaced italic\">Password must contain numbers, uppercase and lowercase letters, and length must be 8 or greater.</p>";
+    if (in_array($action, array(1, 2))) echo "<p class=\"spaced italic\">" . __t("Password must contain numbers, uppercase and lowercase letters, and length must be 8 or greater.", $module) . "</p>";
 
 endif;
 

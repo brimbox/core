@@ -97,11 +97,11 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
         // submit_file
         $valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
         if (!$valid_password) {
-            array_push($arr_messages, "Invalid Password.");
+            array_push($arr_messages, __t("Invalid Password.", $module));
         }
         else {
             $main->cleanup_database_data($con);
-            array_push($arr_messages, "Database Data has been cleaned of unwanted tabs and new lines.");
+            array_push($arr_messages, __t("Database Data has been cleaned of unwanted tabs and new lines.", $module));
         }
     }
     // CLEAN DATABASE COLUMN
@@ -109,11 +109,11 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
         // clean_up_columns
         $valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
         if (!$valid_password) {
-            array_push($arr_messages, "Invalid Password.");
+            array_push($arr_messages, __t("Invalid Password.", $module));
         }
         else {
             $main->cleanup_database_columns($con);
-            array_push($arr_messages, "Unused database columns have been emptied and cleaned.");
+            array_push($arr_messages, __t("Unused database columns have been emptied and cleaned.", $module));
         }
     }
 
@@ -122,11 +122,11 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
         // clean_up_columns
         $valid_password = $main->validate_password($con, $main->post("backup_passwd", $module), "5_bb_brimbox");
         if (!$valid_password) {
-            array_push($arr_messages, "Invalid Password.");
+            array_push($arr_messages, __t("Invalid Password.", $module));
         }
         else {
             $main->cleanup_database_layouts($con);
-            array_push($arr_messages, "Unused database layouts have been removed.");
+            array_push($arr_messages, __t("Unused database layouts have been removed."));
         }
     }
 
@@ -136,7 +136,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
         // admin password
         $valid_password = $main->validate_password($con, $main->post("admin_passwd_1", $module), "5_bb_brimbox");
         if (!$valid_password) {
-            $arr_messages[] = "Error: Admin password not verified.";
+            $arr_messages[] = __t("Error: Admin password not verified.", $module);
         }
         else {
             // file must be populated
@@ -197,7 +197,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                             // install triggers indexes etc
                             $query = $json_after_eot;
                             $main->query($con, $query);
-                            array_push($arr_messages, "JSON table has been restored from backup.");
+                            array_push($arr_messages, __t("JSON table has been restored from backup.", $module));
                         }
                         else
                         // advance file pointer
@@ -231,7 +231,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                             }
                             $query = $users_after_eot;
                             $main->query($con, $query);
-                            array_push($arr_messages, "Users table has been restored from backup.");
+                            array_push($arr_messages, __("Users table has been restored from backup."));
                         }
                         else {
                             for ($i = 0;$i < $cnt;$i++) {
@@ -261,7 +261,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                             }
                             $query = $modules_after_eot;
                             $main->query($con, $query);
-                            array_push($arr_messages, "Modules table has been restored from backup.");
+                            array_push($arr_messages, __t("Modules table has been restored from backup.", $module));
                         }
                         else {
                             for ($i = 0;$i < $cnt;$i++) {
@@ -290,7 +290,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                             }
                             $query = $log_after_eot;
                             $main->query($con, $query);
-                            array_push($arr_messages, "Log table has been restored from backup.");
+                            array_push($arr_messages, __("Log table has been restored from backup."));
                         }
                         else {
                             for ($i = 0;$i < $cnt;$i++) {
@@ -347,7 +347,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                             $query = $data_after_eot;
                             $main->query($con, $query);
 
-                            array_push($arr_messages, "Data table has been restored from backup.");
+                            array_push($arr_messages, __t("Data table has been restored from backup."));
                         }
                         else {
                             // close file if not restoring data table
@@ -356,17 +356,17 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                     }
                     else {
                         // bad password
-                        array_push($arr_messages, "Error: Password for backup file not verified.");
+                        array_push($arr_messages, __("Error: Password for backup file not verified."));
                     }
                 }
                 else {
                     // bad first line
-                    array_push($arr_messages, "Error: File is not a valid backup file.");
+                    array_push($arr_messages, __t("Error: File is not a valid backup file."));
                 }
             }
             else {
                 // no file at all
-                array_push($arr_messages, "Error: Must choose backup file.");
+                array_push($arr_messages, __t("Error: Must choose backup file."));
             }
         } // check admin password
         
@@ -377,7 +377,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
     if ($main->button(5)) {
         // submit_file
         $main->build_indexes($con, 0);
-        array_push($arr_messages, "Indexes have been rebuilt.");
+        array_push($arr_messages, __t("Indexes have been rebuilt."));
     }
 
     if ($main->button(6)) {
@@ -385,7 +385,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
         // admin password
         $valid_password = $main->validate_password($con, $main->post("admin_passwd_2", $module), "5_bb_brimbox");
         if (!$valid_password) {
-            $arr_messages[] = "Error: Admin password not verified.";
+            $arr_messages[] = __t("Error: Admin password not verified.");
         }
         else {
             // file must be populated
@@ -457,17 +457,17 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                     }
                     else {
                         // bad password
-                        array_push($arr_messages, "Error: Password for backup file not verified.");
+                        array_push($arr_messages, __t("Error: Password for backup file not verified."));
                     }
                 }
                 else {
                     // bad first line
-                    array_push($arr_messages, "Error: File is not a valid backup file.");
+                    array_push($arr_messages, __t("Error: File is not a valid backup file."));
                 }
             }
             else {
                 // no file at all
-                array_push($arr_messages, "Error: Must choose backup file.");
+                array_push($arr_messages, __t("Error: Must choose backup file."));
             }
         }
     }

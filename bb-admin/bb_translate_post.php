@@ -72,37 +72,67 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
     if ($main->button(1)) {
         if (is_uploaded_file($_FILES[$main->name("upload_translation", $module) ]["tmp_name"])) {
             $fp = fopen($_FILES[$main->name("upload_translation", $module) ]['tmp_name'], 'rb');
+            $catch = false;
             while (($line = fgets($fp)) !== false) {
                 $line = trim($line);
                 if (preg_match("/^#/", $line)) {
+                    //all comments
                     $line = str_replace("#", " ", $line);
                     $arr_comment = array_filter(explode(" ", $line));
+                    unset($msgid, $msgstr);
+                    //bbpo comment
                     if ($key = array_search("bbpo", $arr_comment)) {
-                        if (isset($arr_po)) {
-                            $main->process_json($con, $translate . "_translate", $arr_po);
+                        if ($catch) {
+                            $translate_previous = $translate;
                         }
-                        unset($msgid, $msgstr);
-                        $module = $arr_comment[$key + 1];
-                        $arr_po = $main->process_json($con, $translate . "_translate");
+                        $catch = true;
+                        $translate = $arr_comment[$key + 1];
+                        if (isset($ {
+                            'arr_po_' . $translate_previous
+                        })) {
+                            ksort($ {
+                                'arr_po_' . $translate_previous
+                            });
+                            $main->process_json($con, $translate_previous . "_translate", $ {
+                                'arr_po_' . $translate_previous
+                            });
+                        }
+                        $ {
+                            'arr_po_' . $translate
+                        } = $main->process_json($con, $translate . "_translate");
                     }
                 }
+                //msgid
                 elseif (preg_match("/^msgid/", $line)) {
-                    $arr_msgid = array_filter(explode(" ", $line));
-                    $msgid = trim($arr_msgid[1], "\"");
+                    $arr_msgid = preg_split("/[ ]+/", $line, 2);
+                    $msgid = preg_replace('/(^[\"]|[\"]$)/', '', $arr_msgid[1]);
                 }
+                //msgstr
                 elseif (isset($msgid) && preg_match("/^msgstr/", $line)) {
-                    $arr_msgstr = array_filter(explode(" ", $line));
-                    $msgstr = trim($arr_msgstr[1], "\"");
+                    $arr_msgstr = preg_split("/[ ]+/", $line, 2);
+                    $msgstr = preg_replace('/(^[\"]|[\"]$)/', '', $arr_msgstr[1]);
                 }
-
-                if (isset($module) && isset($msgid) && isset($msgstr)) {
-                    $arr_po[$msgid] = $msgstr;
+                //update array
+                if (isset($translate) && isset($msgid) && isset($msgstr) && $main->blank($ {
+                    'arr_po_' . $translate
+                }
+                [$msgid])) {
+                    $ {
+                        'arr_po_' . $translate
+                    }
+                    [$msgid] = $msgstr;
                     unset($msgid, $msgstr);
                 }
             }
-            if (isset($arr_po)) {
-                $main->process_json($con, $translate . "_translate", $arr_po);
-            }
+            //trailing array
+            if (isset($ {
+                'arr_po_' . $translate
+            })) ksort($ {
+                'arr_po_' . $translate
+            });
+            $main->process_json($con, $translate . "_translate", $ {
+                'arr_po_' . $translate
+            });
         }
         else {
             $arr_messages[] = "Must specify file name.";
@@ -110,14 +140,32 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
     }
 
     if ($main->button(2)) {
+
         $addkey = $main->post('addkey', $module, "");
         $addvalue = $main->post('addvalue', $module, "");
 
-        echo $translate;
-
-        if (!$main->blank($addkey) && !$main->blank($addvalue) && !$main->blank($translation)) {
+        if (!$main->blank($addkey) && !$main->blank($translation)) {
             $arr_po = $main->process_json($con, $translation . "_translate");
             $arr_po[$addkey] = $addvalue;
+            $main->process_json($con, $translation . "_translate", $arr_po);
+            ksort($arr_po);
+        }
+    }
+
+    if ($main->button(3)) {
+
+        $count = $main->post('count', $module, "");
+
+        if (!$main->blank($translation)) {
+            $arr_po = array();
+            for ($i = 1;$i <= $count;$i++) {
+                $addkey = $main->post('key' . $i, $module, "");
+                $addvalue = $main->post('value' . $i, $module, "");
+                if (!$main->blank($addkey)) {
+                    $arr_po[$addkey] = $addvalue;
+                }
+            }
+            ksort($arr_po);
             $main->process_json($con, $translation . "_translate", $arr_po);
         }
     }

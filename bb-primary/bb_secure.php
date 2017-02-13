@@ -71,12 +71,17 @@ else {
     $result = $main->query($con, $query);
     $cnt_cascade = pg_num_rows($result);
 
-    if ($cnt_cascade > 1) {
-        array_push($arr_messages, "This record has " . ($cnt_cascade - 1) . " child records.");
-        array_push($arr_messages, "<br>Clicking \"Secure Cascade\", \"Unsecure Cascade\", or \"Set Security To\" will secure this record and all its child records.");
+    if ($cnt_cascade == 1) {
+        array_push($arr_messages, __t("This record does not have child records.", $module));
+        array_push($arr_messages, __t("Clicking \"Secure Cascade\", \"Unsecure Cascade\", or \"Set Security To\" will alter the security of this record.", $module));
     }
-    else {
-        array_push($arr_messages, "<br>This record does not have child records.");
+    elseif ($cnt_cascade == 2) {
+        array_push($arr_messages, __t("This record has 1 child record.", $module));
+        array_push($arr_messages, __t("Clicking \"Secure Cascade\", \"Unsecure Cascade\", or \"Set Security To\" will alter the security of this record and its child record.", $module));
+    }
+    elseif ($cnt_cascade > 2) {
+        array_push($arr_messages, __t("This record has %d child records.", $module, array($cnt_cascade - 1)));
+        array_push($arr_messages, __t("Clicking \"Secure Cascade\", \"Unsecure Cascade\", or \"Set Security To\" will alter the security of this record and all its child records.", $module));
     }
 
     $arr_layouts = $main->layouts($con);
@@ -126,13 +131,13 @@ $main->echo_module_vars();
 if (!$main->button(1)) {
     if (empty($arr_security)) {
         $button_value = ($setbit == 0) ? 1 : 0; // set value is value to set secure to
-        $button_text = ($setbit == 0) ? "Secure Cascade" : "Unsecure Cascade";
+        $button_text = ($setbit == 0) ? __t("Secure Cascade", $module) : __t("Unsecure Cascade", $module);
         $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => $button_text);
         $main->echo_button("secure_cascade", $params);
         echo "<input type = \"hidden\"  name = \"setbit\" value = \"" . $button_value . "\">";
     }
     else {
-        $params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => "Set Security To");
+        $params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => __t("Set Security To", $module));
         $main->echo_button("secure_cascade", $params);
         echo "<select name=\"setbit\" class=\"spaced\"\">";
         foreach ($arr_security as $key => $value) {

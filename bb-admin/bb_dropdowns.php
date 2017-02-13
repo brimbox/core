@@ -37,7 +37,7 @@ $arr_notes = array("49", "50");
 
 $delimiter = $main->get_constant('BB_MULTISELECT_DELIMITER', ",");
 
-$arr_properties = array('multiselect' => array('name' => 'Multiselect'));
+$arr_properties = array('multiselect' => array('name' => __t('Multiselect', $module)));
 
 // $POST brought in from controller
 
@@ -126,18 +126,21 @@ if ($main->button(1)) {
         $arr_display = array_filter($arr_display); // remove empty rows
         $arr_display = array_unique($arr_display); // unique
         sort($arr_display); // sort
-        array_push($arr_messages, "Column " . $col_text . " has a dropdown list.");
-        array_push($arr_messages, "Textarea populated from both preexisting dropdown list and the database.");
+        $arr_printf = array($col_text);
+        array_push($arr_messages, __t("Column %s has a dropdown list.", $module, $arr_printf));
+        array_push($arr_messages, __t("Textarea populated from both preexisting dropdown list and the database.", $module));
     }
     elseif (!empty($arr_dropdown) && ($all_values == 1)) {
         // values from dropdown not alphabetized
         $arr_display = $arr_dropdown;
-        array_push($arr_messages, "Column " . $col_text . " has a dropdown list.");
-        array_push($arr_messages, "Textarea populated from preexisting dropdown list.");
+        $arr_printf = array($col_text);
+        array_push($arr_messages, __t("Column %d has a dropdown list.", $module));
+        array_push($arr_messages, __t("Textarea populated from preexisting dropdown list.", $module));
     }
     else {
         // values from db alphabetized
-        array_push($arr_messages, "Column " . $col_text . " does not have a preexisting dropdown list.");
+        $arr_printf = array($col_text);
+        array_push($arr_messages, __t("Column %s does not have a preexisting dropdown list.", $module));
         $arr_display = array_filter($arr_query);
     }
     $dropdown = implode("\r\n", $arr_display);
@@ -150,13 +153,14 @@ if ($main->button(2)) {
     $arr_txt = array_filter($arr_txt); // remove empty rows
     $arr_txt = array_map(array($main, "purge_chars"), $arr_txt);
     if (in_array($col_type, $arr_notes)) {
-        array_push($arr_messages, "Error: Cannot create a dropdown on a note column.");
+        array_push($arr_messages, __t("Error: Cannot create a dropdown on a note column.", $module));
     }
     elseif (count($arr_txt) == 0) {
-        array_push($arr_messages, "Error: Cannot populate an empty dropdown.");
+        array_push($arr_messages, __t("Error: Cannot populate an empty dropdown.", $module));
     }
     elseif (preg_grep("/[" . preg_quote($delimiter) . "]/", $arr_txt) && $multiselect) {
-        array_push($arr_messages, "Error: Cannot populate an multiselect dropdown containing the delimiter (" . $delimiter . ").");
+        $arr_printf = array($delimiter);
+        array_push($arr_messages, __t("Error: Cannot populate an multiselect dropdown containing the delimiter (%s).", $module));
     }
     else {
         // populate dropdown
@@ -186,7 +190,8 @@ if ($main->button(2)) {
         $arr_dropdowns_json[$row_type][$col_type] = $arr_dropwork + $arr_props;
         $arr_dropdowns_json['properties'] = $arr_properties;
         $main->update_json($con, $arr_dropdowns_json, "bb_dropdowns");
-        array_push($arr_messages, "Column " . $col_text . " has had its dropdown list added or updated.");
+        $arr_printf = array($col_text);
+        array_push($arr_messages, __t("Column %d has had its dropdown list added or updated.", $module, $arr_printf));
 
         $row_type = $main->set('row_type', $arr_state, $default_row_type);
         $col_type = $main->set('col_type', $arr_state, $default_col_type);
@@ -201,13 +206,13 @@ if ($main->button(3)) // remove_dropdown
     // this area removes the dropdown
     unset($arr_dropdowns_json[$row_type][$col_type]);
     $main->update_json($con, $arr_dropdowns_json, "bb_dropdowns");
-
-    array_push($arr_messages, "Column " . $col_text . " has had its dropdown list removed if it existed.");
+    $arr_printf = array($col_text);
+    array_push($arr_messages, __t("Column %d has had its dropdown list removed if it existed.", $module, $arr_printf));
 }
 
 /* BEGIN REQUIRED FORM */
 // populate row_type select combo box
-echo "<p class=\"spaced bold larger\">Manage Dropdowns</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Manage Dropdowns") . "</p>";
 
 echo "<div class=\"spaced\">";
 $main->echo_messages($arr_messages);
@@ -225,7 +230,7 @@ $main->column_dropdown($arr_columns, "col_type", $col_type, $params);
 echo "<br>";
 echo "<div class=\"spaced\">";
 echo "<span class = \"border rounded padded shaded\">";
-echo "<label class=\"padded\">Create Multiselect Dropdown: </label>";
+echo "<label class=\"padded\">" . __t("Create Multiselect Dropdown:", $module) . " </label>";
 $main->echo_input("multiselect", 1, array('type' => 'checkbox', 'class' => 'middle holderup', 'checked' => $multiselect));
 echo "</span>";
 echo "</div>";
@@ -235,23 +240,23 @@ $main->echo_textarea("dropdown", $dropdown, array('class' => "spaced", 'cols' =>
 $main->echo_clear();
 
 // buttons
-$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Populate Form");
+$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Populate Form", $module));
 $main->echo_button("populate_dropdown", $params);
 echo "<span class = \"spaced border rounded padded shaded\">";
 $checked = ($all_values == 1) ? true : false;
 $main->echo_input("all_values", 1, array('type' => 'checkbox', 'class' => 'middle holderup', 'checked' => $checked));
-echo "<label class=\"padded\">Populate With Existing Dropdown</label>";
+echo "<label class=\"padded\">" . __t("Populate With Existing Dropdown", $module) . "</label>";
 echo "</span>";
 echo "<br>";
-$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Create Dropdown");
+$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Create Dropdown", $module));
 $main->echo_button("create_dropdown", $params);
 echo "<span class = \"spaced border rounded padded shaded\">";
 $checked = ($empty_value == 1) ? true : false;
 $main->echo_input("empty_value", 1, array('type' => 'checkbox', 'class' => 'middle holderup', 'checked' => $checked));
-echo "<label class=\"padded\">Include Empty Value</label>";
+echo "<label class=\"padded\">" . __t("Include Empty Value", $module) . "</label>";
 echo "</span>";
 echo "<br>";
-$params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => "Remove Dropdown");
+$params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => __t("Remove Dropdown", $module));
 $main->echo_button("populate_dropdown", $params);
 echo "<br>";
 

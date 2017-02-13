@@ -20,6 +20,8 @@ class php_boolean_validator {
     /* MAIN FUNCTION */
     function parse_boolean_string(&$boolean_string, &$boolean_tokens = null) {
 
+        global $module;
+
         /* THINKING AHEAD FOR CUSTOM ERRORS */
         $error_empty = "Enter Search Terms or Tokens";
         $error_beginning = "Error at beginning of boolean expression";
@@ -34,7 +36,7 @@ class php_boolean_validator {
         /* CONTAINS WATERFALL RETURNS */
         if (trim($boolean_string) == "") {
             // return and exit on empty string
-            return $error_empty;
+            return __t($error_empty, $module);
         }
 
         /* GET IN AND OUT FORMATS */
@@ -74,7 +76,7 @@ class php_boolean_validator {
         }
         // return and exit on unbalanced parenthesis
         if ($i != 0) {
-            return $error_unbalanced;
+            return __t($error_unbalanced, $module);
         }
 
         // SPLICE CONJOINING TOKENS WITH PIPE FOR OR
@@ -111,25 +113,25 @@ class php_boolean_validator {
         }
         else {
             // bad start
-            return $error_beginning;
+            return __t($error_beginning, $module);
         }
 
         /* CHECK TOKENS FOR EXISTANCE OF OUTPUT SUBSTITUTION TOKENS */
         if (count(array_intersect($boolean_return, $boolean_tokens)) > 0) {
-            return $error_output;
+            return __t($error_output, $module);
         }
 
         /* PROCESS RESULT OF PARSE */
         // error could be boolean, string, or array
         if (is_string($error)) {
             /* BAD BEGINNING OR UNEXPECTED END */
-            return $error_ending;
+            return __t($error_ending, $module);
         }
         elseif (is_array($error)) {
             /* ERROR IN EXPRESSION */
             if (is_string($error)) {
                 /* BAD BEGINNING OR UNEXPECTED END */
-                return $error_ending;
+                return __($error_ending, $module);
             }
             elseif (is_array($error)) {
                 /* ERROR IN EXPRESSION */
@@ -140,7 +142,7 @@ class php_boolean_validator {
                 else {
                     $mistake = $error[1];
                 }
-                return sprintf($error_expression, $position, $mistake);
+                return __t($error_expression, $module, array($position, $mistake));
             }
         }
         else {

@@ -26,8 +26,11 @@
 $title = PAGE_TITLE;
 $title = $main->filter("bb_box_page_title", $title);
 echo "<title>" . $title . "</title>";
-//Translation Array
+//Translation Arrays
 $bb_box_translate = $main->get_json($con, "bb_box_translate");
+$ {
+    $module . '_translate'
+} = $main->get_json($con, $module . '_translate');
 
 /* STANDARD JAVASCRIPT INCLUDE */
 $arr_javascript[] = array('path' => $webpath . "/bb-utilities/bb_scripts.js", 'version' => BRIMBOX_PROGRAM);

@@ -75,10 +75,12 @@ if ($main->button(1) || $main->button(2)) {
     /* CHECK IF KEY SET OR POSSIBLE */
     if ($unique_key) {
         if ($main->button(1)) {
-            array_push($arr_messages, "Column \"" . $arr_columns[$col_type]['name'] . "\" on layout \"" . $arr_layout['plural'] . "\" has a unique key on it.");
+            $arr_printf = array($arr_columns[$col_type]['name'], $arr_layout['plural']);
+            array_push($arr_messages, __t("Column \"%s\" on layout \"%s\" has a unique key on it.", $module, $arr_printf));
         }
         elseif ($main->button(2)) {
-            array_push($arr_messages, "Error: Unique Key is already set on layout \"" . $arr_layout['plural'] . "\" . Column \"" . $arr_columns_json[$row_type][$unique_key]['name'] . "\" has a unique key on it.");
+            $arr_printf = array($arr_layout['plural'], $arr_columns_json[$row_type][$unique_key]['name']);
+            array_push($arr_messages, __t("Error: Unique Key is already set on layout \"%s\" . Column \"%s\" has a unique key on it.", $module, $arr_printf));
         }
     } // no key
     elseif ($col_type) {
@@ -86,15 +88,16 @@ if ($main->button(1) || $main->button(2)) {
         $query = "SELECT 1 FROM (SELECT " . $column . ", count(" . $column . ") FROM data_table WHERE row_type = " . $row_type . " GROUP BY " . $column . " HAVING count(" . $column . ") > 1) T1";
         $result = $main->query($con, $query);
         if (pg_num_rows($result) > 0) {
-            array_push($arr_messages, "Error: Column \"" . $arr_columns[$col_type]['name'] . "\" contains duplicate values. Unique key cannot be created.");
+            $arr_printf = array($arr_columns[$col_type]['name']);
+            array_push($arr_messages, __t("Error: Column \"%s\" contains duplicate values. Unique key cannot be created.", $module, $arr_printf));
         }
         // check if note column
         if (in_array($column, $arr_notes)) {
-            array_push($arr_messages, "Error: Unique Key cannot be created on Note column. Unique key cannot be created.");
+            array_push($arr_messages, __t("Error: Unique Key cannot be created on Note column. Unique key cannot be created.", $module));
         }
     }
     else {
-        array_push($arr_messages, "Error: No column available for key creation.");
+        array_push($arr_messages, __t("Error: No column available for key creation.", $module));
     }
 
     /* UPDATE OR REPORT ON KEY */
@@ -102,7 +105,8 @@ if ($main->button(1) || $main->button(2)) {
     if (empty($arr_messages) && $col_type) {
         if ($main->button(1)) {
             // check_column
-            array_push($arr_messages, "Unique key can be created on layout \"" . $arr_layout['plural'] . "\" column \"" . $arr_columns[$col_type]['name'] . "\".");
+            $arr_printf = array($arr_layout['plural'], $arr_columns[$col_type]['name']);
+            array_push($arr_messages, __t("Unique key can be created on layout \"%s\" column \"%s\".", $module, $arr_printf));
         }
         elseif ($main->button(2)) {
             // add_key, $col_type <> 0
@@ -115,11 +119,13 @@ if ($main->button(1) || $main->button(2)) {
 
             if (pg_affected_rows($result) == 1) {
                 // key updated or set
-                array_push($arr_messages, "Unique Key has been created on layout \"" . $arr_layout['plural'] . "\", column \"" . $arr_columns[$col_type]['name'] . "\".");
+                $arr_printf = array($arr_layout['plural'], $arr_columns[$col_type]['name']);
+                array_push($arr_messages, __t("Unique Key has been created on layout \"%s\", column \"%s\".", $module, $arr_printf));
             }
             else {
                 // something changed
-                array_push($arr_messages, "Unique Key has not been created on layout \"" . $arr_layout['plural'] . "\", column \"" . $arr_columns[$col_type]['name'] . "\". Underlying data change.");
+                $arr_printf = array($arr_layout['plural'], $arr_columns[$col_type]['name']);
+                array_push($arr_messages, __t("Unique Key has not been created on layout \"%s\", column \"%s\". Underlying data change.", $module, $arr_printf));
             }
         }
     }
@@ -133,10 +139,11 @@ if ($main->button(3)) {
         unset($value['unique']);
     }
     $main->update_json($con, $arr_columns_json, "bb_column_names");
-    array_push($arr_messages, "Unique Key has been removed for this layout type \"" . $arr_layout['plural'] . "\".");
+    $arr_printf = array($arr_layout['plural']);
+    array_push($arr_messages, __t("Unique Key has been removed for this layout type \"%s\".", $module, $arr_printf));
 }
 /* BEGIN REQUIRED FORM */
-echo "<p class=\"spaced bold larger\">Create Key</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Create Key", $module) . "</p>";
 
 echo "<div class=\"padded\">";
 $main->echo_messages($arr_messages);
@@ -145,7 +152,7 @@ echo "</div>";
 $main->echo_form_begin();
 $main->echo_module_vars();;
 echo "<div class=\"spaced borderleft bordertop floatleft\">";
-$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "Check Layout");
+$params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Check Layout", $module));
 $main->echo_button("check_column", $params);
 echo "<br>";
 $params = array("class" => "spaced", "onchange" => "bb_reload()");
@@ -153,9 +160,9 @@ $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 $params = array("class" => "spaced", "onchange" => "bb_reload()");
 $main->column_dropdown($arr_columns, "col_type", $col_type, $params);
 echo "<br>";
-$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => "Create Key");
+$params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Create Key", $module));
 $main->echo_button("add_key", $params);
-$params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => "Remove Key");
+$params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => __t("Remove Key", $module));
 $main->echo_button("remove_key", $params);
 echo "<br>&nbsp;<br>&nbsp;<br></div>";
 $main->echo_form_end();

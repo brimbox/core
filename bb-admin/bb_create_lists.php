@@ -118,7 +118,7 @@ if ($main->button(1)) {
         if (!$found) {
             $list_number = $main->get_next_node($arr_lists, 2000); // gets next lists number, 1 to limit
             if ($list_number < 0) {
-                array_push($arr_messages, "Error: Maximum number of lists exceeded.");
+                array_push($arr_messages, __t("Error: Maximum number of lists exceeded.", $module));
             }
             else {
                 foreach ($arr_definitions['new']['keys'] as $value) {
@@ -129,16 +129,16 @@ if ($main->button(1)) {
                 // empty list just in case
                 $query = "UPDATE data_table SET list_string = bb_list_unset(list_string, " . $list_number . ") WHERE bb_list(list_string, " . $list_number . ") = 1 AND row_type IN (" . ( int )$row_type . ");";
                 $main->query($con, $query);
-                array_push($arr_messages, "List succesfully added.");
+                array_push($arr_messages, __t("List succesfully added.", $module));
             }
         }
         else {
             // lists already exists, $bool = true
-            array_push($arr_messages, "Error: List already exists.");
+            array_push($arr_messages, __t("Error: List already exists.", $module));
         }
     }
     else {
-        array_push($arr_messages, "Error: New list name not supplied.");
+        array_push($arr_messages, __t("Error: New list name not supplied.", $module));
     }
 }
 
@@ -166,14 +166,14 @@ if ($main->button(2)) {
                 }
                 $arr_lists_json[$row_type][$list_number] = $arr_list;
                 $main->update_json($con, $arr_lists_json, "bb_create_lists");
-                array_push($arr_messages, "List definition successfully updated.");
+                array_push($arr_messages, __t("List definition successfully updated.", $module));
             }
             else {
-                array_push($arr_messages, "Error: Unable to updated/renamed list.");
+                array_push($arr_messages, __t("Error: Unable to updated/renamed list.", $module));
             }
         }
         else {
-            array_push($arr_messages, "Error: List name for update not supplied.");
+            array_push($arr_messages, __t("Error: List name for update not supplied.", $module));
         }
     }
 } // button 2 if
@@ -189,18 +189,18 @@ if ($main->button(3)) {
             $query = "UPDATE data_table SET list_string = bb_list_unset(list_string, " . $list_number . ") WHERE bb_list(list_string, " . $list_number . ") = 1 AND row_type IN (" . ( int )$row_type . ");";
             $main->query($con, $query);
             $main->update_json($con, $arr_lists_json, "bb_create_lists");
-            array_push($arr_messages, "List successfully removed.");
+            array_push($arr_messages, __t("List successfully removed.", $module));
         }
         else {
-            array_push($arr_messages, "Error: Unable to remove list.");
+            array_push($arr_messages, __t("Error: Unable to remove list.", $module));
         }
     }
     else {
-        array_push($arr_messages, "Error: List not selected.");
+        array_push($arr_messages, __t("Error: List not selected.", $module));
     }
 } // button 3 if
 elseif ($main->button(3) && ($arr_create_lists['delete']['confirm_remove'] != 1)) {
-    array_push($arr_messages, "Error: Please confirm to remove list.");
+    array_push($arr_messages, __t("Error: Please confirm to remove list.", $module));
 }
 
 // archive or retrieve list
@@ -215,19 +215,19 @@ if ($main->button(4)) {
             $archive = $arr_create_lists['delete']['archive'];
             $arr_lists_json[$row_type][$list_number]['archive'] = $archive;
             $main->update_json($con, $arr_lists_json, "bb_create_lists");
-            $message = ($archive == 1) ? "List successfully archived." : "List successfully retrieved.";
+            $message = ($archive == 1) ? __t("List successfully archived.", $module) : __t("List successfully retrieved.", $module);
             array_push($arr_messages, $message);
         }
         else {
-            array_push($arr_messages, "Error: Unable to archive/retrieve list");
+            array_push($arr_messages, __t("Error: Unable to archive/retrieve list.", $module));
         }
     }
     else {
-        array_push($arr_messages, "Error: Unable to find list");
+        array_push($arr_messages, __t("Error: Unable to find list.", $module));
     }
 } // button 4 if
 /* BEGIN REQUIRED FORM */
-echo "<p class=\"spaced bold larger\">Manage Lists</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Manage Lists", $module) . "</p>";
 
 echo "<div class=\"spaced\">";
 $main->echo_messages($arr_messages);
@@ -240,29 +240,29 @@ foreach ($arr_definitions as $key => $value) {
     switch ($key) {
         case "new":
             // add lists
-            echo "<span class=\"spaced colored\">Add New List</span>";
+            echo "<span class=\"spaced colored\">" . __t("Add New List", $module) . "</span>";
             echo "<div class=\"table border spaced\">";
             echo "<div class=\"row padded\">";
-            echo "<div class=\"padded cell\">List Type: </div>";
+            echo "<div class=\"padded cell\">" . __t("List Type:", $module) . " </div>";
             echo "<div class=\"padded cell\">";
             $params = array("class" => "spaced", "onchange" => "bb_reload_1()");
             $main->layout_dropdown($arr_layouts, "row_type_new", $arr_create_lists['new']['row_type'], $params);
             echo "</div>";
             echo "</div>";
             echo "<div class=\"row padded\">";
-            echo "<div class=\"padded top cell\">List Name: </div>";
+            echo "<div class=\"padded top cell\">" . __t("List Name:", $module) . " </div>";
             echo "<div class=\"padded cell\">";
             $main->echo_input("name_new", "", array('type' => 'text', 'class' => 'spaced'));
             echo "</div></div>";
             echo "<div class=\"row padded\">";
-            echo "<div class=\"padded top cell\">Description: </div>";
+            echo "<div class=\"padded top cell\">" . __t("Description:", $module) . " </div>";
             echo "<div class=\"padded cell\">";
             $main->echo_textarea("description_new", "", array('rows' => 4, 'cols' => 60, 'class' => 'spaced'));
             echo "</div></div>";
             echo "<div class=\"row padded\">";
             echo "<div class=\"padded cell\"></div>";
             echo "<div class=\"padded cell\">";
-            $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => "New List");
+            $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("New List", $module));
             $main->echo_button("add_list", $params);
             echo "</div></div></div>";
             echo "<br>";
@@ -273,7 +273,7 @@ foreach ($arr_definitions as $key => $value) {
             $row_type = $arr_create_lists['update']['row_type'];
             $arr_lists = $main->lists($con, $row_type);
 
-            echo "<span class=\"spaced colored\">Rename List, Update Description and Find List Number</span>";
+            echo "<span class=\"spaced colored\">" . __t("Rename List, Update Description and Find List Number", $module) . "</span>";
             echo "<div class=\"border table\">"; // border
             echo "<div class=\"table spaced\">";
             echo "<div class=\"row padded\">";
@@ -287,24 +287,24 @@ foreach ($arr_definitions as $key => $value) {
             echo "</div>";
             echo "<div class=\"spaced table padded\">";
             echo "<div class=\"row padded\">";
-            echo "<div class=\"spaced padded cell\">List Number: </div>";
+            echo "<div class=\"spaced padded cell\">" . __t("List Number:", $module) . " </div>";
             echo "<div class=\"padded cell\">";
             $main->echo_input("identifier_update", __($arr_create_lists['update']['identifier']), array('type' => 'text', 'class' => 'spaced textbox', 'readonly' => true));
             echo "</div></div>";
             echo "<div class=\"row padded\">";
-            echo "<div class=\"spaced padded top cell\">List Name: </div>";
+            echo "<div class=\"spaced padded top cell\">" . __t("List Name:", $module) . " </div>";
             echo "<div class=\"padded cell\">";
             $main->echo_input("name_update", __($arr_create_lists['update']['name']), array('type' => 'text', 'class' => 'spaced textbox'));
             echo "</div></div>";
             echo "<div class=\"row padded\">";
-            echo "<div class=\"spaced padded cell\">Description: </div>";
+            echo "<div class=\"spaced padded cell\">" . __t("Description:", $module) . " </div>";
             echo "<div class=\"padded cell\">";
             $main->echo_textarea("description_update", $arr_create_lists['update']['description'], array('rows' => 4, 'cols' => 60, 'class' => 'spaced'));
             echo "</div></div>";
             echo "<div class=\"row padded\">";
             echo "<div class=\"padded cell\"></div>";
             echo "<div class=\"padded cell\">";
-            $params = array("class" => "spaced", "number" => 2, "target" => $module, $arr_state, "passthis" => true, "label" => "Update List");
+            $params = array("class" => "spaced", "number" => 2, "target" => $module, $arr_state, "passthis" => true, "label" => __t("Update List", $module));
             $main->echo_button("update_list_2", $params);
             echo "</div>";
             echo "</div>";
@@ -318,7 +318,7 @@ foreach ($arr_definitions as $key => $value) {
             $row_type = $arr_create_lists['delete']['row_type'];
             $arr_lists = $main->lists($con, $row_type);
 
-            echo "<span class=\"spaced colored\">Remove or Archive List</span>";
+            echo "<span class=\"spaced colored\">" . __t("Remove or Archive List", $module) . "</span>";
             echo "<div class=\"table border spaced\">";
             echo "<div class=\"row padded\">";
             echo "<div class=\"padded cell nowrap\">";
@@ -329,21 +329,21 @@ foreach ($arr_definitions as $key => $value) {
             echo " | ";
             echo "</div>";
             echo "<div class=\"padded cell nowrap\">";
-            $params = array("class" => "spaced", "number" => 3, "target" => $module, $arr_state, "passthis" => true, "label" => "Remove List");
+            $params = array("class" => "spaced", "number" => 3, "target" => $module, $arr_state, "passthis" => true, "label" => __t("Remove List", $module));
             $main->echo_button("remove_list", $params);
             echo "<span class = \"spaced border rounded padded shaded\">";
-            echo "<label class=\"padded\">Confirm Remove: </label>";
+            echo "<label class=\"padded\">" . __t("Confirm Remove:", $module) . " </label>";
             $main->echo_input("confirm_remove_delete", 1, array('type' => 'checkbox', 'class' => 'middle holderup'));
             echo "</span>";
             echo " | ";
             echo "</div>";
             echo "<div class=\"padded cell nowrap\">";
-            $params = array("class" => "spaced", "number" => 4, "target" => $module, $arr_state, "passthis" => true, "label" => "Archive/Retrieve List");
+            $params = array("class" => "spaced", "number" => 4, "target" => $module, $arr_state, "passthis" => true, "label" => __t("Archive/Retrieve List", $module));
             $main->echo_button("archive_list", $params);
             echo "</div>";
             echo "<div class=\"padded cell nowrap\">";
             $main->echo_input("archive_delete", 1, array('type' => 'checkbox', 'class' => 'middle holderup'));
-            echo "<span class=\"spaced\">Check to Archive/Uncheck to Retrieve</span></div>";
+            echo "<span class=\"spaced\">" . __t("Check to Archive/Uncheck to Retrieve", $module) . "</span></div>";
             echo "</div>";
             echo "</div>";
         break;

@@ -136,7 +136,7 @@ if (!$mbox):
     // exit as gracefully as possible
     // warnings come out inline but notices appear at the end
     // imap error commented out in $main->get_mbox
-    echo "<p class=\"message spaced\">Unable to connect to mailbox</p>";
+    echo "<p class=\"message spaced\">" . __t("Unable to connect to mailbox.", $module) . "</p>";
     $main->echo_form_begin();
     $main->echo_module_vars();
     $main->echo_form_end();
@@ -192,7 +192,8 @@ else: // long else
         $nbr = imap_num_msg($mbox);
         // deal with time
         date_default_timezone_set(USER_TIMEZONE);
-        echo "<div class = \"spaced\">There are " . $nbr . " total messages, " . $nbr_unseen . " unread. Date: " . date('Y-m-d h:i A', time()) . "</div>";
+        $arr_count = array($nbr, $nbr_unseen, date('Y-m-d h:i A', time()));
+        echo "<div class = \"spaced\">" . __t("There are %d total messages, %d unread. Date: %s.", $module, $arr_count) . "</div>";
 
         // this is the email list container -- start container
         echo "<div class=\"floatleft spaced\">"; // buttons
@@ -236,15 +237,15 @@ else: // long else
         $main->echo_clear();
 
         echo "<div class=\"floatleft\">"; // buttons
-        $params = array("class" => "spaced", "onclick" => "bb_clear_module()", "label" => "Clear Module");
+        $params = array("class" => "spaced", "onclick" => "bb_clear_module()", "label" => __t("Clear Module", $module));
         $main->echo_script_button("clear_module", $params);
-        $params = array("class" => "spaced", "number" => 2, "target" => "bb_input", "passthis" => true, "label" => "Add To Input");
+        $params = array("class" => "spaced", "number" => 2, "target" => "bb_input", "passthis" => true, "label" => __t("Add To Input", $module));
         $main->echo_button("add_to_input", $params);
         echo "</div>";
         echo "<div class=\"floatright\">";
-        $params = array("class" => "spaced", "number" => 3, "target" => "bb_queue", "passthis" => true, "label" => "Delete Emails");
+        $params = array("class" => "spaced", "number" => 3, "target" => "bb_queue", "passthis" => true, "label" => __t("Delete Emails", $module));
         $main->echo_button("delete_emails", $params);
-        $params = array("class" => "spaced", "number" => 4, "target" => "bb_queue", "passthis" => true, "label" => "Mark Emails");
+        $params = array("class" => "spaced", "number" => 4, "target" => "bb_queue", "passthis" => true, "label" => __("Mark Emails", $module));
         $main->echo_button("mark_emails", $params);
         echo "</div>";
         echo "</div>";

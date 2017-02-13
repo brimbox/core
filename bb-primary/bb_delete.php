@@ -24,7 +24,7 @@ $main->check_permission(array("3_bb_brimbox", "4_bb_brimbox", "5_bb_brimbox"));
 $arr_messages = array();
 
 // $POST brought in from controller
-
+$alphabet = $main->get_alphabet();
 
 $post_key = $main->init($POST['bb_post_key'], -1);
 $row_type = $main->init($POST['bb_row_type'], -1);
@@ -51,14 +51,15 @@ if ($main->button(1)) {
     $result = $main->query($con, $query);
     $cnt_affected = pg_affected_rows($result);
     if ($cnt_affected > 0) {
-        array_push($arr_messages, "This Cascade Delete deleted " . $cnt_affected . " rows.");
+        array_push($arr_messages, __t("This Cascade Delete deleted %d rows.", $module, array($cnt_affected)));
         if ($delete_log) {
-            $message = "Record " . chr($row_type + 64) . $post_key . " and " . ($cnt_affected - 1) . " children deleted.";
+            $alpha = mb_substr($alphabet, $row_type - 1, 1);
+            $message = __t("Record %s%d and %d children deleted.", $module, array($alpha, $postkey, $cnt_affected - 1));
             $main->log($con, $message);
         }
     }
     else {
-        array_push($arr_messages, "Error: There may have been an underlying data change.");
+        array_push($arr_messages, __t("Error: There may have been an underlying data change.", $module));
     }
 } /* END CASCADE */
 
@@ -68,12 +69,17 @@ else {
     $result = $main->query($con, $query);
     $cnt_cascade = pg_num_rows($result);
 
-    if ($cnt_cascade > 1) {
-        array_push($arr_messages, "This record has " . ($cnt_cascade - 1) . " child records.");
-        array_push($arr_messages, "<br>Caution: Clicking \"Delete Cascade\" will delete this record and all its child records. This cannot be undone.");
+    if ($cnt_cascade == 1) {
+        array_push($arr_messages, __t("This record does not have child records.", $module));
+        array_push($arr_messages, __t("Caution: Clicking \"Delete Cascade\" will delete this record. This cannot be undone.", $module));
     }
-    else {
-        array_push($arr_messages, "This record does not have child records.");
+    elseif ($cnt_cascade == 2) {
+        array_push($arr_messages, __t("This record has 1 child record.", $module));
+        array_push($arr_messages, __t("Caution: Clicking \"Delete Cascade\" will delete this record and its child record. This cannot be undone.", $module));
+    }
+    elseif ($cnt_cascade > 2) {
+        array_push($arr_messages, __t("This record has %d child records.", $module, array($cnt_cascade - 1)));
+        array_push($arr_messages, __t("Caution: Clicking \"Delete Cascade\" will delete this record and all its child records. This cannot be undone.", $module));
     }
 
     $arr_layouts = $main->layouts($con);
@@ -116,7 +122,7 @@ $main->echo_form_begin();
 $main->echo_module_vars();
 
 if (!$main->button(1)) {
-    $params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => "Delete Cascade");
+    $params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => __t("Delete Cascade", $module));
     $main->echo_button("delete_cascade", $params);
 }
 

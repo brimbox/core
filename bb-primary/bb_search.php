@@ -98,7 +98,7 @@ $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
 // button and end form
-$params = array("class" => "spaced", "onclick" => "bb_reload()", "label" => "Search Database");
+$params = array("class" => "spaced", "onclick" => "bb_reload()", "label" => __t("Search Database", $module));
 $main->echo_script_button("post_search", $params);
 
 // archive interworking allows quick access to archived records
@@ -110,7 +110,7 @@ if ($main->on_constant('BB_ARCHIVE_INTERWORKING')) {
     }
     echo "<span class = \"border rounded padded shaded\">";
     $main->echo_input("archive_flag", 1, array('type' => 'checkbox', 'class' => 'middle padded', 'checked' => $checked));
-    echo "<label class=\"padded\">Check Archives</label>";
+    echo "<label class=\"padded\">" . __t("Check Archives", $module) . "</label>";
     echo "</span><br>";
 }
 

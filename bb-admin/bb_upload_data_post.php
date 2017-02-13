@@ -120,7 +120,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_
             $data_area = file_get_contents($_FILES[$main->name('upload_file', $submit) ]["tmp_name"]);
         }
         else {
-            array_push($arr_messages, "Error: Must specify file name.");
+            array_push($arr_messages, __t("Error: Must specify file name.", $module));
         }
     }
 
@@ -259,7 +259,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_
             }
         }
         else {
-            array_push($arr_messages, "Error: Header row does not match the column names of layout chosen.");
+            array_push($arr_messages, __t("Error: Header row does not match the column names of layout chosen.", $module));
         }
         if (count($arr_lines) > 1) {
             $data_area = implode("\r\n", $arr_lines);
