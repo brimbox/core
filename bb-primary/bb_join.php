@@ -18,147 +18,189 @@
 ?>
 <?php
 $main->check_permission(array("3_bb_brimbox", "4_bb_brimbox", "5_bb_brimbox"));
-
 ?>
-<style>
-/* MODULE CSS */
-.listchoose_box {
-	display: inline;
-	width: 200px;
-	height: 275px;
-}
-</style>
+<script>
+function bb_remove(k)
+    {
+    //change row_type, reload appropriate columns
+    //this goes off when row_type is changed
+    
+    var frmobj = document.forms["bb_form"];
+    
+    frmobj.remove.value = k;
+    bb_submit_form([1]); //call javascript submit_form function
+	return false;
+    }
+</script>
 <?php
 /* INITIALIZE */
-/* BEGIN STATE */
 
-// $POST brought in from controller
+// get state from db
+$arr_messages = array();
+$arr_state = $main->load($con, $module);
 
-
-// get post_key
 $post_key = $main->init($POST['bb_post_key'], -1);
 $row_type = $main->init($POST['bb_row_type'], -1);
 
-// get postback vars
+$remove = $main->post('remove', $module, "");
+
+if (!$main->button(array(1, 2, 3))) {
+    if (($main->state('post_key_1', $arr_state, -1) < 0) && ((int)($post_key > 0))) {
+        $main->set('post_key_1', $arr_state, $post_key);
+        $main->set('row_type_1', $arr_state, $row_type);
+    }
+    else {
+        if (($main->state('post_key_2', $arr_state, -1) < 0) && (int)($post_key > 0)) {
+            $main->set('post_key_2', $arr_state, $post_key);
+            $main->set('row_type_2', $arr_state, $row_type);
+        }
+        else {
+            //get message
+            array_push($arr_messages, __t("Error: Only two records are allowed to be joined together. Please remove one before setting the join again.", $module));
+        }
+    }
+    $main->update($con, $module, $arr_state);
+}
+
+//remove record
 if ($main->button(1)) {
-    $post_key = $main->post('post_key', $module);
-    $row_type = $main->post('row_type', $module);
-}
-/* END STATE */
 
-// update row for adding to the list
-if ($main->check('add_names', $module)) {
-    $add_names = $main->post('add_names', $module);
-    foreach ($add_names as $value) {
-        // row_type unnecessary
-        $query = "UPDATE data_table SET list_string = bb_list_set(list_string," . $value . ") WHERE id = " . $post_key . ";";
-        $main->query($con, $query);
+    if ($main->state('post_key_1', $arr_state, -1) == $remove) {
+        unset($arr_state['post_key_1']);
+        unset($arr_state['row_type_1']);
     }
-}
-
-// update row for removing from the list
-if ($main->check('remove_names', $module)) {
-    $remove_names = $main->post('remove_names', $module);
-    foreach ($remove_names as $value) {
-        // row_type unnecessary
-        $query = "UPDATE data_table SET list_string = bb_list_unset(list_string," . $value . ") WHERE id = " . $post_key . ";";
-        $main->query($con, $query);
+    else {
+        if ($main->state('post_key_2', $arr_state, -1) == $remove) {
+            unset($arr_state['post_key_2']);
+            unset($arr_state['row_type_2']);
+        }
     }
+    $main->update($con, $module, $arr_state);
 }
 
-// get layout
+//insert join
+if ($main->button(2)) {
+
+    $main->hook('bb_join_table_row_input');
+
+    //get messages
+    $arr_messages = $main->process('arr_messages', $module, $arr_state, array());
+    //unset messages
+    unset($arr_state['arr_messages']);
+    // update state, back to db
+    $main->update($con, $module, $arr_state);
+}
+
+//delete join
+if ($main->button(3)) {
+
+    $post_key_1 = (int)$arr_state['post_key_1'];
+    $post_key_2 = (int)$arr_state['post_key_2'];
+
+    $query = "DELETE FROM join_table WHERE (join1 = " . $post_key_1 . " AND join2 = " . $post_key_2 . ") OR (join2 = " . $post_key_1 . " AND join1 = " . $post_key_2 . ");";
+    $result = $main->query($con, $query);
+
+    //get message
+    if (pg_affected_rows($result) > 0) {
+        array_push($arr_messages, __t("Join has been deleted.", $module));
+    }
+    else {
+        array_push($arr_messages, __t("Error: Join not found. Possible underlying data change.", $module));
+    }
+
+    unset($arr_state['row_type_1']);
+    unset($arr_state['post_key_1']);
+    unset($arr_state['row_type_2']);
+    unset($arr_state['post_key_2']);
+    $main->update($con, $module, $arr_state);
+}
+
 $arr_layouts = $main->layouts($con);
 $arr_columns = $main->columns($con, $row_type);
 
-// get column name from "primary" attribute in column array
-// this is used to populate the record header link to parent record
-$parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent")); // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-if ($parent_row_type) {
-    $arr_columns_props = $main->columns_properties($con, $parent_row_type);
-    $leftjoin = $main->pad("c", $arr_columns_props['primary']);
-}
-else {
-    $leftjoin = "c01";
-}
+$arr_query = array();
+if ($arr_state['post_key_1'] > 0) $arr_query[] = array('row_type' => $arr_state['row_type_1'], 'post_key' => $arr_state['post_key_1']);
+if ($arr_state['post_key_2'] > 0) $arr_query[] = array('row_type' => $arr_state['row_type_2'], 'post_key' => $arr_state['post_key_2']);
 
-// one int and a string
-$query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " . "LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 " . "ON T1.key1 = T2.id " . "WHERE T1.id = " . $post_key . ";";
+$post_key_1 = (int)$arr_state['post_key_1'];
+$post_key_2 = (int)$arr_state['post_key_2'];
+
+//where also used in delete
+$query = "SELECT 1 FROM join_table WHERE (join1 = " . $post_key_1 . " AND join2 = " . $post_key_2 . ") OR (join2 = " . $post_key_1 . " AND join1 = " . $post_key_2 . ");";
+
 $result = $main->query($con, $query);
 
-// get row, set xml on row_type, echo out details
-$main->return_stats($result);
-$row = pg_fetch_array($result);
-echo "<div class =\"margin divider\">";
-// outputs the row we are working with
-$main->return_header($row, "bb_cascade");
-$main->echo_clear();
-$main->return_rows($row, $arr_columns);
-$main->echo_clear();
+//corresponds to button
+if (pg_affected_rows($result) > 0) {
+    array_push($arr_messages, __t("These rows already are joined.", $module));
+    $action = 3;
+}
+else {
+    $action = 2;
+}
+
+// start module output
+echo "<div class=\"spaced\">";
+$main->echo_messages($arr_messages);
 echo "</div>";
-echo "<div class =\"margin divider\"></div>";
 
-// get database values for processing
-$row_type = $row['row_type'];
-$list_string = $row['list_string'];
+foreach ($arr_query as $value) {
 
-// get list arr
-$arr_lists = $main->lists($con, $row_type);
+    $row_type = $value['row_type'];
+    $post_key = $value['post_key'];
 
-// start form containing select add and remove boxes
-$main->echo_clear();
-$main->echo_clear();
+    $arr_layouts = $main->layouts($con);
+    $arr_columns = $main->columns($con, $row_type);
+
+    if ($post_key > 0) {
+
+        // get column name from "primary" attribute in column array
+        // this is used to populate the record header link to parent record
+        $parent_row_type = $main->reduce($arr_layouts, array($row_type, "parent")); // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
+        if ($parent_row_type) {
+            $arr_columns_props = $main->columns_properties($con, $parent_row_type);
+            $leftjoin = $main->pad("c", $arr_columns_props['primary']);
+            $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table) T2 ON T1.key1 = T2.id WHERE T1.id = " . $post_key . ";";
+        }
+        else {
+            $query = "SELECT count(*) OVER () as cnt, T1.* FROM data_table T1 WHERE T1.id = " . $post_key . ";";
+        }
+
+        $result = $main->query($con, $query);
+
+        $main->return_stats($result);
+        $row = pg_fetch_array($result);
+        $setbit = $row['archive'];
+        echo "<div class =\"margin divider\">";
+        // outputs the row we are working with
+        $main->return_header($row, "bb_cascade");
+        $main->echo_clear();
+        $main->return_rows($row, $arr_columns);
+        $main->echo_clear();
+        $main->echo_script_button('remove_' . $post_key, array('label' => 'Remove', 'onclick' => "bb_remove(" . $post_key . ")", 'class' => "link"));
+        echo "</div>";
+        echo "<div class =\"margin divider\"></div>";
+
+    }
+}
+
 /* BEGIN REQUIRED FORM */
 $main->echo_form_begin();
 $main->echo_module_vars();
 
-// select add box
-echo "<div class=\"table\">";
-echo "<div class=\"row\">";
-echo "<div class=\"cell padded\"><p class = \"bold colored\">" . __t("Record Not In List(s)", $module) . "</p></div>";
-echo "<div class=\"cell padded\"></div>";
-echo "<div class=\"cell padded\"><p class = \"bold colored\">" . __t("Record In List(s)", $module) . "</p></div>";
-echo "</div>";
+$main->echo_input("remove", "", array('type' => "hidden"));
 
-// row
-echo "<div class=\"row\">";
-echo "<div class=\"cell padded listchoose_box\">";
-
-echo "<select class=\"listchoose_box\" name = \"add_names[]\" multiple>";
-// echo the xml lists not set
-foreach ($arr_lists as $key => $value) {
-    $i = $key - 1; // start string at 0
-    if (( int )substr($list_string, $i, 1) == 0) {
-        echo "<option value=\"" . $key . "\">" . __($value['name']) . "</option>";
+if (!empty($arr_query)) {
+    if ($action == 2) {
+        $main->echo_button('join', array('label' => __t("Join Records", $module), 'number' => "2", 'passthis' => true));
+    }
+    elseif ($action == 3) {
+        $main->echo_button('join', array('label' => __t("Delete Join", $module), 'number' => "3", 'passthis' => true));
     }
 }
-echo "</select>";
-echo "</div>"; // cell
-echo "<div class=\"cell padded middle\">";
-$params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => __t("<< Move >>", $module));
-$main->echo_button("move_list", $params);
-echo "</div>"; // cell
-// select remove box -- multiselect
-echo "<div class=\"cell padded\">";
-echo "<select class=\"listchoose_box\" name=\"remove_names[]\" multiple>";
-// echo the xml lists already set
-// no need to get $arr_list again
-foreach ($arr_lists as $key => $value) {
-    $i = $key - 1; // start string at 0
-    if (( int )substr($list_string, $i, 1) == 1) {
-        echo "<option value=\"" . $key . "\">" . __($value['name']) . "</option>";
-    }
-}
-echo "</select>";
-echo "</div>"; // cell
-echo "</div>"; // row
-echo "</div>"; // table
-// local post_key for resubmit
-$params = array('type' => "hidden");
-$main->echo_input("post_key", $post_key, $params);
-$main->echo_input("row_type", $row_type, $params);
 
 // form vars necessary for header link
 $main->echo_common_vars();
 $main->echo_form_end();
-/* END FORM */
-?>
+/* FORM */
+?>
