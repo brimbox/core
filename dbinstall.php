@@ -266,6 +266,21 @@ EOT;
 pg_query($con, $query);
 
 $query = <<<EOT
+CREATE OR REPLACE FUNCTION bb_join_date()
+  RETURNS trigger AS
+$body
+DECLARE
+BEGIN
+NEW.join_date  = now();
+RETURN NEW;
+END;
+$body
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+EOT;
+pg_query($con, $query);
+
+$query = <<<EOT
 CREATE OR REPLACE FUNCTION bb_modify_date()
   RETURNS trigger AS
 $body
@@ -557,13 +572,15 @@ if ($do_modules_table) {
 
 $query = <<<EOT
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
-VALUES (0, 'bb-primary/bb_delete.php', 'bb_delete', 'Delete', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the delete hidden page which is activated from the \"delete\" link when records are returned on the standard pages. It allows for deleting individual records or cascaded deletes which include all child records."}'); 
+VALUES (0, 'bb-primary/bb_delete.php', 'bb_delete', 'Delete', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the delete hidden page which is activated from the \"Delete\" link when records are returned on the standard pages. It allows for deleting individual records or cascaded deletes which include all child records."}'); 
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
-VALUES (0, 'bb-primary/bb_archive.php', 'bb_archive', 'Archive', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the archive hidden module which is activated from the \"archive\" link when records are returned on the standard pages. It allows for archiving cascaded records, which include all child records."}'); 
+VALUES (0, 'bb-primary/bb_archive.php', 'bb_archive', 'Archive', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the archive hidden module which is activated from the \"Archive\" link when records are returned on the standard pages. It allows for archiving cascaded records, which include all child records."}'); 
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
-VALUES (0, 'bb-primary/bb_secure.php', 'bb_secure', 'Secure', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the secure hidden module which is activated from the \"secure\" link when records are returned on the standard pages. It allows for securing cascaded records, which include all child records, so that records can be hidden from guest users."}'); 
+VALUES (0, 'bb-primary/bb_secure.php', 'bb_secure', 'Secure', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the secure hidden module which is activated from the \"Secure\" link when records are returned on the standard pages. It allows for securing cascaded records, which include all child records, so that records can be hidden from guest users."}'); 
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
-VALUES (0, 'bb-primary/bb_listchoose.php', 'bb_listchoose', 'List Choose', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is a hidden page which is activated from the \"list\" link when records are returned on the standard pages. It allows for adding an individual records to lists."}');
+VALUES (0, 'bb-primary/bb_listchoose.php', 'bb_listchoose', 'List Choose', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is a hidden page which is activated from the \"List\" link when records are returned on the standard pages. It allows for adding an individual records to lists."}');
+INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
+VALUES (0, 'bb-primary/bb_join.php', 'bb_join', 'Join', 'bb_brimbox', 0, 'Core', 2, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is a hidden page which is activated from \"Join\" links when records are returned on the standard pages. It allows for joining records in Many to Many relationships."}');
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
 VALUES (1, 'bb-primary/bb_guest.php', 'bb_guest', 'Guest', 'bb_brimbox', 1, 'Core', 0, '', '{"company":"Brimbox","author":"Brimbox Staff","license":"GNU GPL v3","description":"This is the guest landing page which includes the logout link, basic session stats such as user an database, and space to place customized links and information regarding the database."}'); 
 INSERT INTO modules_table(module_order, module_path, module_name, friendly_name, interface, module_type, module_version, standard_module, module_files, module_details)
@@ -789,6 +806,49 @@ EOT;
 if ($do_state_table) {
     $result = pg_query($con, $query);
     echo "State Table Created (No Population)<br>";
+}
+
+$query = "select * from pg_tables WHERE schemaname = 'public' and tablename = 'join_table'";
+$result = pg_query($con, $query);
+$num_rows = pg_num_rows($result);
+$do_join_table = false;
+if ($num_rows == 0) {
+    $do_join_table = true;
+}
+
+$query = <<<EOT
+CREATE TABLE join_table
+(
+  id bigserial NOT NULL,
+  join1 bigint NOT NULL,
+  join2 bigint NOT NULL,
+  join_date timestamp with time zone,
+  CONSTRAINT join_table_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER SEQUENCE join_table_id_seq RESTART CYCLE;
+CREATE INDEX join_table_idx_join1
+  ON join_table
+  USING btree
+  (join1);
+CREATE INDEX join_table_idx_join2
+  ON join_table
+  USING btree
+  (join2);
+-- Trigger: ts1_update_change_date on _table
+CREATE TRIGGER ts1_join_date
+  BEFORE INSERT
+  ON join_table
+  FOR EACH ROW
+  EXECUTE PROCEDURE bb_join_date();
+EOT;
+
+
+if ($do_join_table) {
+    $result = pg_query($con, $query);
+    echo "Join Table Created (No Population)<br>";
 }
 
 echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";

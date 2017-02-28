@@ -259,5 +259,37 @@ CREATE TRIGGER ts1_update_bb_change_date
 EOT;
 
 
+$join_before_eot = <<<EOT
+CREATE TABLE join_table
+(
+  id bigserial NOT NULL,
+  join1 bigint NOT NULL,
+  join2 bigint NOT NULL,
+  join_date timestamp with time zone,
+  CONSTRAINT join_table_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER SEQUENCE join_table_id_seq RESTART CYCLE;
+EOT;
+$join_after_eot = <<<EOT
+CREATE INDEX join_table_idx_join1
+  ON join_table
+  USING btree
+  (join1);
+CREATE INDEX join_table_idx_join2
+  ON join_table
+  USING btree
+  (join2);
+-- Trigger: ts1_update_change_date on _table
+CREATE TRIGGER ts1_join_date
+  BEFORE INSERT
+  ON join_table
+  FOR EACH ROW
+  EXECUTE PROCEDURE bb_join_date();
+EOT;
+
+
 
 ?>

@@ -104,6 +104,8 @@ if ($interface == "bb_brimbox"):
     $main->add_action('hooks', "bb_input_after_render_form", array('func' => "bb_input_module_hooks::submit_buttons", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 10);
     $main->add_action('hooks', "bb_input_after_render_form", array('func' => "bb_input_module_hooks::textarea_load", 'vars' => array("arr_state"), 'file' => "/bb-pluggables/bb_input_module_hooks.php"), 20);
 
+    $main->add_action('hooks', "bb_join_table_row_input", array('func' => "bb_join_table_row_input", 'vars' => array("&arr_state"), 'file' => "/bb-pluggables/bb_join_table_row_input.php"), 50);
+
     /* standard pagination hooks linked from $main */
     $main->add_action('hooks', "bb_browse_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
     $main->add_action('hooks', "bb_cascade_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
@@ -133,6 +135,8 @@ if ($interface == "bb_brimbox"):
     $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_delete", 'text' => __t("Delete", "bb_main"))), 70);
     $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_secure", 'text' => __t("Secure", "bb_main"))), 80);
     $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'children'), 'params' => array('target_add' => "bb_input", 'text_add' => __t("Add", "bb_main"), 'target_view' => "bb_view", 'text_view' => __t("View", "bb_main"))), 90);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'joinlinks'), 'params' => array('target' => "bb_view", 'text' => __t("View", "bb_main"))), 100);
+    $main->add_action('links', '3_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_join", 'text' => __t("Join", "bb_main"))), 110);
 
     $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_details", 'text' => __t("Details", "bb_main"))), 10);
     $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_cascade", 'text' => __t("Cascade", "bb_main"))), 20);
@@ -143,6 +147,8 @@ if ($interface == "bb_brimbox"):
     $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_delete", 'text' => __t("Delete", "bb_main"))), 70);
     $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_secure", 'text' => __t("Secure", "bb_main"))), 80);
     $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'children'), 'params' => array('target_add' => "bb_input", 'text_add' => __t("Add", "bb_main"), 'target_view' => "bb_view", 'text_view' => __t("View", "bb_main"))), 90);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'joinlinks'), 'params' => array('target' => "bb_view", 'text' => __t("View", "bb_main"))), 100);
+    $main->add_action('links', '4_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_join", 'text' => __t("Join", "bb_main"))), 110);
 
     $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_details", 'text' => __t("Details", "bb_main"))), 10);
     $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_cascade", 'text' => __t("Cascade", "bb_main"))), 20);
@@ -153,6 +159,8 @@ if ($interface == "bb_brimbox"):
     $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_delete", 'text' => __t("Delete", "bb_main"))), 70);
     $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_secure", 'text' => __t("Secure", "bb_main"))), 80);
     $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'children'), 'params' => array('target_add' => "bb_input", 'text_add' => __t("Add", "bb_main"), 'target_view' => "bb_view", 'text_view' => __t("View", "bb_main"))), 90);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'joinlinks'), 'params' => array('target' => "bb_view", 'text' => __t("View", "bb_main"))), 100);
+    $main->add_action('links', '5_bb_brimbox', array('func' => array($main, 'standard'), 'params' => array('target' => "bb_join", 'text' => __t("Join", "bb_main"))), 110);
 
 endif; // interface bb_brimbox
 

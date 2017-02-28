@@ -198,7 +198,7 @@ if ($main->button(2)) {
     $arr_related = array(); // check related layouts for integrity
     $arr_errors = array(
         0 => __t("Error: Row settings contain a blank value when column name is set.", $module) ,
-        1 => __t("Error: Column order contains a blank value when column name is set.") ,
+        1 => __t("Error: Column order contains a blank value when column name is set.", $module) ,
         2 => __t("Error: Row values must start at 1 and be strictly ascending when column name is set, records can have multiple columns per row.", $module) ,
         3 => __t("Error: Column order must start at 1, be unique, and be strictly ascending when column name is set.", $module) ,
         4 => __t("Error: Column names must be unique.", $module) ,

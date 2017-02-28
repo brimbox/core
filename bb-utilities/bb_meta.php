@@ -120,6 +120,45 @@ class bb_meta extends bb_validate {
         return $this->filter_keys($arr_reduced, $arr_props_keys, true, true);
     }
 
+    function joins($con, $row_type_1 = NULL, $row_type_2 = NULL) {
+
+        $arr_layouts_json = $this->get_json($con, "bb_layout_names");
+        $arr_joins = $this->reduce($arr_layouts_json, 'joins');
+        $arr_row_types = array($row_type_1, $row_type_2);
+
+        //check if join exists or valid, boolean return
+        if (($row_type_1 > 0) && ($row_type_2 > 0)) {
+            foreach ($arr_joins as $value) {
+                if ($row_type_1 <> $row_type_2) {
+                    if (in_array($value['join1'], $arr_row_types) && in_array($value['join2'], $arr_row_types)) {
+                        return true;
+                    }
+                }
+                elseif ($row_type_1 == $row_type_2) {
+                    if (($value['join1'] == $row_type_1) == ($value['join2'] == $row_type_2)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        //return corresponding joins as an array of integers
+        elseif (($row_type_1 > 0) && is_null($row_type_2)) {
+            foreach ($arr_joins as $value) {
+                if (in_array($row_type_1, $value)) {
+                    $arr_return[] = $value['join1'];
+                    $arr_return[] = $value['join2'];
+                }
+            }
+            $arr_return = array_diff($arr_return, array($row_type_1));
+            return array_unique($arr_return);
+        }
+        //Or return the full join subarray from arr_layouts
+        else {
+            return $arr_joins;
+        }
+    }
+
     function order_sort($a, $b) {
         // would be quicker to do this when defining
         if ($a['order'] == $b['order']) {

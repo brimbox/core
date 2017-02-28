@@ -90,12 +90,12 @@ $iv = substr($salt, 0, 8);
 if ($type == 0) // no encrypt
 {
     // left 2 digits should be encrypt method
-    $hex = "00000008";
+    $hex = "0000000A";
     $eol = "\r\n";
 }
 elseif ($type == 1) // MCRYPT_3DES + Compression
 {
-    $hex = "00000009";
+    $hex = "0000000B";
     $eol = "\r\n";
 }
 
@@ -198,6 +198,26 @@ $main->query($con, $query);
 $json_log = array();
 $json_log['count'] = $cnt;
 $str = json_encode($json_log);
+echo encrypt_line($str, $passwd, $iv, $type) . $eol;
+
+while ($row = pg_fetch_row($result)) {
+    $str = implode("\t", $row);
+    $str = encrypt_line($str, $passwd, $iv, $type) . $eol;
+    echo $str;
+}
+
+/* JOIN TABLE */
+$query = "BEGIN; LOCK TABLE join_table;";
+$main->query($con, $query);
+$query = "SELECT join1, join2, join_date FROM join_table;";
+$result = $main->query($con, $query);
+$cnt = pg_num_rows($result);
+$query = "COMMIT;";
+$main->query($con, $query);
+
+$json_join = array();
+$json_join['count'] = $cnt;
+$str = json_encode($json_join);
 echo encrypt_line($str, $passwd, $iv, $type) . $eol;
 
 while ($row = pg_fetch_row($result)) {

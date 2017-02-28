@@ -36,17 +36,7 @@ $arr_messages = array();
 /* PRESERVE STATE */
 
 // $POST brought in from controller
-
-
 // sorting function
-function cmp($a, $b) {
-
-    if ($a['order'] == $b['order']) {
-        return 0;
-    }
-    return ($a['order'] < $b['order']) ? -1 : 1;
-}
-
 $arr_layouts_fields = array(
     'parent' => array(
         'name' => __t("Parent", $module)
@@ -86,6 +76,17 @@ if ($main->button(1)) {
         else {
             unset($arr_layouts[$i]);
         }
+
+        //join submit
+        $join1 = (int)$main->post('join1_' . $i, $module, 0);
+        $join2 = (int)$main->post('join2_' . $i, $module, 0);
+        if (($join1 > 0) && ($join2 > 0)) {
+            $arr_joins[$i]['join1'] = $join1;
+            $arr_joins[$i]['join2'] = $join2;
+        }
+        else {
+            unset($arr_joins[$i]);
+        }
     }
 
     // check for integrity
@@ -94,6 +95,8 @@ if ($main->button(1)) {
     $arr_plural = array();
     $arr_order = array();
     $arr_parent = array();
+    $arr_checkjoin = array();
+    $arr_selfjoin = array();
 
     for ($i = 1;$i <= $number_layouts;$i++) {
         $singular = $arr_layouts[$i]['singular'];
@@ -102,20 +105,31 @@ if ($main->button(1)) {
         if (!$main->blank($singular) && !$main->blank($plural)) {
             $both = true; // good
             // test for uniqueness
-            $parent = $arr_layouts[$i]['parent'];
             $order = $arr_layouts[$i]['order'];
-            // check parent and child are not recursive or circular
-            $parent_forward = $i . $parent;
-            $parent_reverse = $parent . $i;
-
+            $parent = $arr_layouts[$i]['parent'];
+            $join1 = $arr_joins[$i]['join1'];
+            $join2 = $arr_joins[$i]['join2'];
             array_push($arr_singular, $singular);
             array_push($arr_plural, $plural);
             array_push($arr_order, $order);
-            // check for circular references
-            array_push($arr_parent, $parent_forward);
-            array_push($arr_parent, $parent_reverse);
+            // check parent and child are not recursive or circular
+            if ($parent > 0) {
+                array_push($arr_parent, $i . $parent);
+                array_push($arr_parent, $parent . $i);
+            }
+            if ($join1 > 0) {
+                if ($join1 == $join2) {
+                    array_push($arr_selfjoin, $join1 . $join2);
+                }
+                else {
+                    array_push($arr_checkjoin, $join1 . $join2);
+                    array_push($arr_checkjoin, $join2 . $join1);
+                }
+            }
         }
     }
+
+    $arr_layouts['joins'] = $arr_joins;
 
     if ($both) {
         // one layout populated
@@ -131,10 +145,25 @@ if ($main->button(1)) {
         }
 
         // check for circular relationships
-        $relationship = true;
         if (count($arr_parent) != count(array_unique($arr_parent))) {
-            array_push($arr_messages, __t("Error: Circular or self-referential relationship between layouts.", $module));
+            array_push($arr_messages, __t("Error: Circular or self-referential Parent/Child relationship between layouts.", $module));
         }
+
+        //check for duplicate self joins
+        if (count($arr_selfjoin) != count(array_unique($arr_selfjoin))) {
+            array_push($arr_messages, __t("Error: Cannot have more than one self join.", $module));
+        }
+
+        // check for multiple joins
+        if (count($arr_checkjoin) != count(array_unique($arr_checkjoin))) {
+            array_push($arr_messages, __t("Error: Join relationship has been defined more than once.", $module));
+        }
+
+        //check if a parent child relationship matches a join relation hip
+        if (count(array_intersect($arr_checkjoin, $arr_parent)) > 0) {
+            array_push($arr_messages, __t("Error: Cannot have a Join relationship identical to a Parent/Child relationship.", $module));
+        }
+
     }
 
     else {
@@ -146,15 +175,14 @@ if ($main->button(1)) {
     if (!$main->has_error_messages($arr_messages)) {
         // discard rows without both singular and plural, JSON changed and updated
         // sort on order and update JSON, layouts are stored sorted by order, not row_type
-        uasort($arr_layouts, 'cmp');
         $main->update_json($con, $arr_layouts, "bb_layout_names");
-        array_push($arr_messages, __t("Layouts have been updated.", $module));
+        array_push($arr_messages, __t("Layouts and Joins have been updated.", $module));
     }
 } // submit
 if ($main->button(2)) {
     // revert to json in database
     $arr_layouts = $main->get_json($con, "bb_layout_names");
-    array_push($arr_messages, __t("Layouts have been refreshed from database.", $module));
+    array_push($arr_messages, __t("Layouts and Joins have been refreshed from database.", $module));
 }
 
 if ($main->button(3)) {
@@ -165,27 +193,52 @@ if ($main->button(3)) {
 }
 
 /* START REQUIRED FORM */
-echo "<p class=\"spaced bold larger\">" . __t("Layout Names", $module) . "</p>";
+echo "<p class=\"padded bold larger\">" . __t("Layout Names", $module) . "</p>";
 
 echo "<div class=\"padded\">";
 $main->echo_messages($arr_messages);
 echo "</div>";
 
 $main->echo_form_begin();
-$main->echo_module_vars();;
+$main->echo_module_vars();
+
+$params = array(
+    "class" => "spaced",
+    "number" => 1,
+    "target" => $module,
+    "passthis" => true,
+    "label" => __t("Submit Layouts and Joins", $module)
+);
+$main->echo_button("layout_submit", $params);
+$params = array(
+    "class" => "spaced",
+    "number" => 2,
+    "target" => $module,
+    "passthis" => true,
+    "label" => __t("Refresh Layouts and Joins", $module)
+);
+$main->echo_button("refresh_layout", $params);
+$params = array(
+    "class" => "spaced",
+    "number" => 3,
+    "target" => $module,
+    "passthis" => true,
+    "label" => __t("Vacuum Database", $module)
+);
+$main->echo_button("vacuum_database", $params);
 
 echo "<div class=\"table spaced border\">";
 echo "<div class=\"row\">";
-echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">&nbsp;</label></div>";
+echo "<div class=\"cell shaded\"></div>";
 echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">" . __t("Singular", $module) . "</label></div>";
 echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">" . __t("Plural", $module) . "</label></div>";
 foreach ($arr_layouts_fields as $key => $value) {
     echo "<div class=\"bold underline shaded extra middle cell \"><label class=\"padded\">" . $value['name'] . "</label></div>";
 }
 echo "</div>";
-for ($i = 0;$i <= $number_layouts - 1;$i++) {
+for ($i = 1;$i < $number_layouts;$i++) {
 
-    $alpha = mb_substr($alphabet, $i, 1);
+    $alpha = mb_substr($alphabet, $i - 1, 1);
 
     echo "<div class=\"row\">"; // begin row
     // label
@@ -310,31 +363,53 @@ for ($i = 0;$i <= $number_layouts - 1;$i++) {
     
 } // end for
 echo "</div>"; // end table
-$params = array(
-    "class" => "spaced",
-    "number" => 1,
-    "target" => $module,
-    "passthis" => true,
-    "label" => __t("Submit Layouts", $module)
-);
-$main->echo_button("layout_submit", $params);
-$params = array(
-    "class" => "spaced",
-    "number" => 2,
-    "target" => $module,
-    "passthis" => true,
-    "label" => __t("Refresh Layouts", $module)
-);
-$main->echo_button("refresh_layout", $params);
-$params = array(
-    "class" => "spaced",
-    "number" => 3,
-    "target" => $module,
-    "passthis" => true,
-    "label" => __t("Vacuum Database", $module)
-);
-$main->echo_button("vacuum_database", $params);
+/* START JOIN AREA */
+echo "<p class=\"spacertop padded bold larger\">" . __t("Join Relationships", $module) . "</p>";
 
+echo "<div class=\"table spaced border\">";
+echo "<div class=\"row\">";
+echo "<div class=\"cell shaded\"></div>";
+echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">" . __t("Layout", $module) . "</label></div>";
+echo "<div class=\"bold underline shaded extra middle cell\"><label class=\"padded\">" . __t("Layout", $module) . "</label></div>";
+echo "</div>";
+//set up dropdown field array
+for ($i = 1;$i <= $number_layouts;$i++) {
+    $alpha = mb_substr($alphabet, $i - 1, 1);
+    $arr_select[$i] = $alpha . $i;
+}
+//output selects
+for ($i = 1;$i <= $number_layouts;$i++) {
+
+    echo "<div class=\"row\">"; // begin row
+    // label
+    echo "<div class=\"extra middle cell\">";
+    echo "<label>" . __t("Join", $module) . " " . $i . "</label>";
+    echo "</div>";
+
+    // join1
+    echo "<div class=\"extra middle cell\">";
+    $join1 = (int)$arr_layouts['joins'][$i]['join1'];
+    $main->array_to_select($arr_select, "join1_" . $i, $join1, array(
+        0 => ""
+    ) , array(
+        'usekey' => true
+    ));
+    echo "</div>";
+
+    // join2
+    echo "<div class=\"extra middle cell\">";
+    $join2 = (int)$arr_layouts['joins'][$i]['join2'];
+    $main->array_to_select($arr_select, "join2_" . $i, $join2, array(
+        0 => ""
+    ) , array(
+        'usekey' => true
+    ));
+    echo "</div>";
+
+    echo "</div>"; // end row
+    
+} // end for
+echo "</div>"; // end table
 $main->echo_form_end();
 /* END FORM */
 ?>

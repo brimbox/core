@@ -158,10 +158,10 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                     // 00000000 -- no encrypt before userrole => userroles
                     // 00000001 -- encrypt before userrole => userroles
                     if (hash('sha512', $passwd . $salt) == $hash) {
-                        if (in_array($hex, array("00000000", "00000002", "00000004", "00000006", "00000008"))) {
+                        if (in_array($hex, array("00000000", "00000002", "00000004", "00000006", "00000008", "0000000A"))) {
                             $type = 0;
                         }
-                        elseif (in_array($hex, array("00000001", "00000003", "00000005", "00000007", "00000009"))) {
+                        elseif (in_array($hex, array("00000001", "00000003", "00000005", "00000007", "00000009", "0000000B"))) {
                             $type = 1;
                         }
                         // get next line, xml_backup has version and time stats
@@ -298,6 +298,36 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                             }
                         }
 
+                        /* JOIN TABLE */
+                        $str = rtrim(fgets($handle));
+                        $json_modules = json_decode(decrypt_line($str, $passwd, $iv, $type), true);
+                        $cnt = $json_modules['count'];
+
+                        if ($main->post('join_table_checkbox', $module) == 1) {
+                            $query = "DROP TABLE IF EXISTS join_table CASCADE";
+                            $main->query($con, $query);
+
+                            $query = $join_before_eot;
+                            $main->query($con, $query);
+
+                            for ($i = 0;$i < $cnt;$i++) {
+                                $str = rtrim(fgets($handle));
+                                $row = explode("\t", decrypt_line($str, $passwd, $iv, $type));
+                                $query = "INSERT INTO join_table (join1, join2, join_date) VALUES ($1,$2,$3);";
+                                // echo "<p>" . htmlentities($query) . "</p><br>";
+                                // use query params because not updating or inserting full text columns
+                                $main->query_params($con, $query, $row);
+                            }
+                            $query = $join_after_eot;
+                            $main->query($con, $query);
+                            array_push($arr_messages, __t("Join table has been restored from backup.", $module));
+                        }
+                        else {
+                            for ($i = 0;$i < $cnt;$i++) {
+                                fgets($handle);
+                            }
+                        }
+
                         /* DATA TABLE */
                         /* slightly different than last foru tables */
                         // get count from header xml
@@ -347,7 +377,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                             $query = $data_after_eot;
                             $main->query($con, $query);
 
-                            array_push($arr_messages, __t("Data table has been restored from backup."));
+                            array_push($arr_messages, __t("Data table has been restored from backup.", $module));
                         }
                         else {
                             // close file if not restoring data table
@@ -356,17 +386,17 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
                     }
                     else {
                         // bad password
-                        array_push($arr_messages, __("Error: Password for backup file not verified."));
+                        array_push($arr_messages, __t("Error: Password for backup file not verified.", $module));
                     }
                 }
                 else {
                     // bad first line
-                    array_push($arr_messages, __t("Error: File is not a valid backup file."));
+                    array_push($arr_messages, __t("Error: File is not a valid backup file.", $module));
                 }
             }
             else {
                 // no file at all
-                array_push($arr_messages, __t("Error: Must choose backup file."));
+                array_push($arr_messages, __t("Error: Must choose backup file.", $module));
             }
         } // check admin password
         

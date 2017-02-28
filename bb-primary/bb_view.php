@@ -87,11 +87,21 @@ $main->update($con, $module, $arr_state);
 $arr_columns = $main->columns($con, $row_join);
 
 // for the header left join
-// get column name from "primary" attribute in column array
 // this is used to populate the record header link to parent record
-$parent_row_type = $main->reduce($arr_layouts, array($row_join, "parent")); // will be default of 0, $arr_columns[$parent_row_type] not set if $parent_row_type = 0
-if ($parent_row_type) {
-    $arr_columns_props = $main->columns_properties($con, $parent_row_type);
+//by definitiom
+$parent_row_type = $row_type;
+
+//join or child relationship
+if ($main->joins($con, $row_type, $row_join) > 0) {
+    $query_type = 'join';
+}
+else {
+    $query_type = 'child';
+}
+
+//parent row type > 0
+$arr_columns_props = $main->columns_properties($con, $parent_row_type);
+if ($arr_columns_props['primary'] > 0) {
     $leftjoin = $main->pad("c", $arr_columns_props['primary']);
 }
 else {
@@ -148,11 +158,27 @@ $element = "offset";
 if ($post_key > 0) // viewing children of record
 {
     // four int(s) and a string
-    $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 LEFT JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table WHERE row_type = " . $parent_row_type . ") T2 " . "ON T1.key1 = T2.id " . "WHERE T2.id = " . $post_key . " AND row_type = " . $row_join . " AND " . $mode . " ORDER BY " . $col1 . " " . $asc_desc . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
-    // echo "<p>" . $query . "</p>";
+    if ($query_type == 'child') {
+        $query = "SELECT count(*) OVER () as cnt, T1.*, T2.hdr, T2.row_type_left FROM data_table T1 " . " INNER JOIN (SELECT id, row_type as row_type_left, " . $leftjoin . " as hdr FROM data_table WHERE row_type = " . $parent_row_type . ") T2 " . " ON T1.key1 = T2.id " . "WHERE T2.id = " . $post_key . " AND row_type = " . $row_join . " AND " . $mode . " ORDER BY " . $col1 . " " . $asc_desc . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
+    }
+    else {
+        //row_type that is less than other is always join1
+        if ($row_join > $row_type) {
+            $join_data = "join2";
+            $join_header = "join1";
+        }
+        else {
+            $join_data = "join1";
+            $join_header = "join2";
+        }
+
+        $query = "SELECT T1.*, T3.row_type_left, T3.hdr FROM data_table T1 INNER JOIN join_table T2 ON T1.id = T2." . $join_data . " " . " INNER JOIN (SELECT id as id_left, row_type as row_type_left, c01 as hdr FROM data_table " . " WHERE " . $row_type . " = 1 AND id = " . $post_key . ") T3 ON T3.id_left = T2." . $join_header . " WHERE T1.row_type = " . $row_join . " AND " . $mode . " ORDER BY " . $col1 . " " . $asc_desc . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
+    }
+
+    //echo "<p>" . $query . "</p>";
     $result = $main->query($con, $query);
 
-    // this outputs the return conut
+    // this outputs the return count
     $main->return_stats($result);
 
     // this outputs the data blobs

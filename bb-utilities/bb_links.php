@@ -31,12 +31,26 @@
 class bb_links extends bb_work {
 
     function get_standard($row, $arr_layouts, $target, $text, $params = array()) {
+
+        global $con;
+
         // standard row_type and post_key for a target
         // commonly used in linking things
         $button = isset($params['button']) ? $params['button'] : 0;
         $filter = isset($params['layouts']) ? $params['layouts'] : array();
         $class = isset($params['class']) ? $params['class'] : "link rightmargin";
         $id = isset($params['id']) ? "id=\"" . $params['id'] . "\"" : "";
+
+        //setup filter for join links
+        if ($target == 'bb_join') {
+            $arr_joins = $this->joins($con);
+            $filter = array();
+            foreach ($arr_joins as $value) {
+                if ($value['join1'] > 0) array_push($filter, $value['join1']);
+                if ($value['join2'] > 0) array_push($filter, $value['join2']);
+            }
+        }
+        //place hook here
         if (in_array($row['row_type'], $filter) || empty($filter)) {
             $str = "<button " . $id . " class = \"" . $class . "\" onclick=\"bb_links.standard(" . $button . ", " . $row['id'] . "," . $row['row_type'] . ",'" . $target . "'); return false;\">";
             $str.= $text . "</button>";
@@ -129,6 +143,39 @@ class bb_links extends bb_work {
     function children($row, $arr_layouts, $target_add, $text_add, $target_view, $text_view, $params = array()) {
 
         echo $this->get_children($row, $arr_layouts, $target_add, $text_add, $target_view, $text_view, $params);
+    }
+
+    function get_joinlinks($row, $arr_layouts, $target, $text, $params = array()) {
+
+        global $con;
+
+        // post_key is the parent
+        $button = isset($params['button']) ? $params['button'] : 0;
+        $check = isset($params['check']) ? $params['check'] : false;
+        $class = isset($params['class']) ? $params['class'] : "link rightmargin";
+
+        //get joins with meta function
+        $arr_joins = $this->joins($con, $row['row_type']);
+
+        // only if there are children
+        foreach ($arr_joins as $join) {
+            $secure = ($check && ($arr_layouts[$join]['secure'] > 0)) ? 1 : 0;
+            $plural = $arr_layouts[$join]['plural'];
+            if (!$secure) {
+                // view link, sues standard js function
+                $str.= "<button class = \"" . $class . "\" onclick=\"bb_links.join(" . $button . ", " . $row['id'] . "," . $row['row_type'] . "," . $join . ",'" . $target . "'); return false;\">";
+                $str.= $text . " " . $plural . "</button>";
+                // add link, not available when archived
+                
+            }
+        }
+
+        return $str;
+    }
+
+    function joinlinks($row, $arr_layouts, $target, $text, $params = array()) {
+
+        echo $this->get_joinlinks($row, $arr_layouts, $target, $text, $params);
     }
 
     function get_drill($post_key, $row_type, $arr_layouts, $target_add, $text_add, $params = array()) {
