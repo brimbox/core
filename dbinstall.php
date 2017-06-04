@@ -436,58 +436,105 @@ if ($do_data_table) {
 }
 
 $query = <<<EOT
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c04,c05,c06,owner_name,updater_name)
-VALUES (1,-1,'Angie','Terrier Mix','Jess Hammers','2001-01-05','Traverse City','Dog','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c04,c05,c06,owner_name,updater_name)
-VALUES (1,-1,'Bambi','German Shepherd','Jamer Dewitt','2005-03-21','Buckley','Dog','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c04,c05,c06,owner_name,updater_name)
-VALUES (1,-1,'Anne','Tabby','Jess Howards','2009-07-11','Traverse City','Cat','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c04,c05,c06,owner_name,updater_name)
-VALUES (1,-1,'Bernard','St. Bernard','Mike Howard','2004-07-01','Traverse City','Dog','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c04,c05,c06,owner_name,updater_name)
-VALUES (1,-1,'Berry','Paint ','Mary Davis','1999-04-02','Interlochen','Horse','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c04,c05,c06,owner_name,updater_name)
-VALUES (1,-1,'Bradford','Tiger Cat','Jack Winters','2006-05-07','Traverse City','Cat','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c04,c05,c06,owner_name,updater_name)
-VALUES (1,-1,'Bessy','Quarter Horse','Jill Jackson','2010-05-03','Traverse City','Horse','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c04,c05,c06,owner_name,updater_name)
-VALUES (1,-1,'Carla','Palamino','BJ Wells','2010-03-05','Traverse City','Horse','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,1,'Food','125.00','Debit','Angie needed some wet food.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,1,'Bone','5.50','Debit','Angie likes real bones only.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,2,'Dog House','75.00','Debit','Bambi needed a new doghouse roof.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,2,'Collar','50.00','Credit','Bambi needed a new dog collar.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,2,'Treats','15.00','Debit','Bambi ran out of treats.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,3,'Litter','30.00','Credit','Anne needed some more litter.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,3,'Food','10.00','Debit','Anne only likes wet food.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,4,'Food','56.00','Debit','Bernard will only eat dry food.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,4,'Medicine','75.00','Debit','Bernard got his flea medicine.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,5,'Food','12.50','Debit','Berry is wild about carrots.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,5,'Hay','50.00','Debit','Berry was getting low on Hay.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,6,'Food','10.00','Debit','Bradford is supposed to get fresh chicken.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,6,'Food','22.50','Debit','Bradford likes a combination of wet and dry food.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,7,'Medicine','600.00','Debit','Bessy needed an antibiotic.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,7,'Hay','125.00','Debit','Bessy was getting low on hay.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,8,'Food','200.00','Debit','Carla needed some hay.','Sample','Sample');
-INSERT INTO data_table (row_type,key1,c01,c02,c03,c49,owner_name,updater_name)
-VALUES (2,8,'Food','100.00','Debit','Carla ran out of sweet oats.','Sample','Sample');
-UPDATE data_table SET fts = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c49 || ' ' || regexp_replace(c49, E'(\\W)+', ' ', 'g')), ftg = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c49 || ' ' || regexp_replace(c49, E'(\\W)+', ' ', 'g'))  WHERE row_type = 2;
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c41, owner_name, updater_name)
+VALUES (8, 1, 'Carla', 'Horse', 'Wisconsin', '2010-03-05', 'Fixed', 'C46:Arabian', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05,c41, owner_name, updater_name)
+VALUES (5, 1, 'Berry', 'Horse', 'Missouri', '1999-04-02', 'Not Fixed', 'C47:Belgian', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05,c41, owner_name, updater_name)
+VALUES (4, 1, 'Bernard', 'Dog', 'Wisconsin', '2004-07-01', 'Fixed', 'C44:Border Collie', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05,c41, owner_name, updater_name)
+VALUES (3, 1, 'Anne', 'Cat', 'Missouri', '2009-07-11', 'Fixed', 'C42:Burmese', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05,c41, owner_name, updater_name)
+VALUES (1, 1, 'Angie', 'Dog', 'Wisconsin', '2001-01-05', 'Not Fixed', 'C43:Akita', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05,c41, owner_name, updater_name)
+VALUES (2, 1, 'Bambi', 'Dog', 'Michigan', '2005-03-21', 'Fixed', 'C45:Boston Terrier', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05,c41, owner_name, updater_name)
+VALUES (7, 1, 'Bessy', 'Horse', 'Michigan', '2010-05-03', 'Fixed', 'C46:Arabian', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05,c41, owner_name, updater_name)
+VALUES (6, 1, 'Bradford', 'Cat', 'Wisconsin', '2006-05-07', 'Not Fixed', 'C41:American Bobtail', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (9, 2, 1, 'Food', '125.00', 'Debit', 'Angie needed some wet food.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (10, 2, 1, 'Bone', '5.50', 'Debit', 'Angie likes real bones only.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (11, 2, 2, 'Dog House', '75.00', 'Debit', 'Bambi needed a new doghouse roof.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (12, 2, 2, 'Collar', '50.00', 'Credit', 'Bambi needed a new dog collar.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (13, 2, 2, 'Treats', '15.00', 'Debit', 'Bambi ran out of treats.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (14, 2, 3, 'Litter', '30.00', 'Credit', 'Anne needed some more litter.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (15, 2, 3, 'Food', '10.00', 'Debit', 'Anne only likes wet food.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (16, 2, 4, 'Food', '56.00', 'Debit', 'Bernard will only eat dry food.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (17, 2, 4, 'Medicine', '75.00', 'Debit', 'Bernard got his flea medicine.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (18, 2, 5, 'Food', '12.50', 'Debit', 'Berry is wild about carrots.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (19, 2, 5, 'Hay', '50.00', 'Debit', 'Berry was getting low on Hay.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (20, 2, 6, 'Food', '10.00', 'Debit', 'Bradford is supposed to get fresh chicken.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (21, 2, 6, 'Food', '22.50', 'Debit', 'Bradford likes a combination of wet and dry food.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (22, 2, 7, 'Medicine', '600.00', 'Debit', 'Bessy needed an antibiotic.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (23, 2, 7, 'Hay', '125.00', 'Debit', 'Bessy was getting low on hay.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (24, 2, 8, 'Food', '200.00', 'Debit', 'Carla needed some hay.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, key1, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (25, 2, 8, 'Food', '100.00', 'Debit', 'Carla ran out of sweet oats.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (47, 3, 'Belgian', 'Belgium', 'Horse', 'The Belgian draft horse was developed in the fertile pastures of Belgium. It was also there that the forefather of all draft horses was first bred—a heavy black horse used as knights’ mounts called the Flemish.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (46, 3, 'Arabian', 'Middle Eastern', 'Horse', 'Theorized to be the oldest breed in the world, Arabians were constant companions of the first documented breeders of the Arabian horse, the Bedouin people--nomadic tribesmen of Arabia who relied on the horse for survival.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (45, 3, 'Boston Terrier', 'American', 'Dog', 'Boston Terriers have been popular since their creation a little more than a century ago. They were originally bred to be fighting dogs, but today, they’re gentle, affectionate companions with tuxedo-like markings that earned them the nickname “American Gentleman.”', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (40, 3, 'American Shorthair', 'North Americca', 'Cat', 'The American Short-hair is known as a healthy, hardy breed with few genetic defects, not surprising since the breed developed from hardy domestic stock. A relatively large gene pool helps keep the breed healthy. The standard emphasizes that the American Short-hair should be a ''true breed of working cat'' and that no part of the anatomy should be exaggerated as to foster weakness.  \n  \nThe most striking and best known color is the silver tabby; more than one- third of all American Shorthairs exhibit this color. With the black markings set against the brilliant silver background, the pattern is dynamic and memorable.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (44, 3, 'Border Collie', 'Scotland and England', 'Dog', 'The Border Collie dog breed was developed to gather and control sheep in the hilly border country between Scotland and England. He is known for his intense stare, or “eye,” with which he controls his flock. He’s a dog with unlimited energy, stamina, and working drive, all of which make him a premier herding dog; he’s still used today to herd sheep on farms and ranches around the world. The highly trainable and intelligent Border Collie also excels in various canine sports, including obedience, flyball, agility, tracking, and flying disc competitions.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (43, 3, 'Akita', 'Japan', 'Dog', 'The Akita is a large and powerful dog breed with a noble and intimidating presence. He was originally used for guarding royalty and nobility in feudal Japan. The Akita also tracked and hunted wild boar, black bear, and sometimes deer. He is a fearless and loyal guardian of his family. The Akita does not back down from challenges and does not frighten easily. Yet he is also an affectionate, respectful, and amusing dog when properly trained and socialized.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (41, 3,  'American Bobtail', 'North American', 'Cat', 'Bobtails are slow to develop, reaching maturity somewhere between two and three years. Like bobcats, the Bobtail''s hind legs are slightly longer than the front legs, and the feet are large and round and may have toe tufts.  \n  \nThe Bobtail''s most noted feature, its succinct tail, is one-third to one-half the length of an ordinary cat''s, and should not extend below the hock. Like the Manx, the Bobtail''s tail appears to be governed by a dominant gene. The tail is straight and articulate but may curve, have bumps or be slightly knotted. Bobtails with no tails (also called rumpies) are not acceptable because of the health problems associated with the shortened spine.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c49, owner_name, updater_name)
+VALUES (42, 3, 'Burmese', 'Southeast Asia', 'Cat', 'The Burmese''s body style has changed over the years. The 1953 standard described the Burmese as medium, dainty, and long. By 1957 the standard was changed to midway between Domestic Shorthair and Siamese. The words ''somewhat compact'' were added to the standard in 1959; the word somewhat was dropped from the standard somewhat later. Since then, the standard has remained virtually un-changed.  \n  \nOver the last 20 years or so a difference of opinion has developed among breeders as to the favored conformation of the breed. One group favors the European Burmese, longer, narrower muzzles with a less pronounced nose break and a slightly narrower head. The other favors the contemporary Burmese, shorter, broader muzzle, pronounced nose break, and broader, rounder head shapes. Because of this, two conformation types exist today. In the CFA, the European Burmese has just been accepted as a breed in his own right in the miscellaneous class. (In International Division shows they are eligible for championship.) In CFF, CCA, and UFO, the breed is recognized under the name ''Foreign Burmese''. TCA recognizes the classic and traditional Burmese.  \n  \nOne of the main differences between the two breeds, besides the head and body type, is that the European Burmese comes in additional colors. Because the Burmese was crossbred with European Siamese lines that possessed the red gene, the colors red and cream were introduced, producing six additional colors.', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (38, 4, 'Byrd', 'Libby', 'libby@nulla.com', '920-845-2142', '8509 Eston St.', 'Milwaukee', 'WI', '54772', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (37, 4, 'Bradshaw', 'Honorato', 'honorato@dolorquisque.com', '715-794-5298', '7630 Proin Avenue', 'Appleton', 'WI', '54254', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (36, 4, 'Booker', 'Hadassah', 'hadassahs@libero.net', '715-631-4440', '5162 Vulputate Avenue', 'Green Bay', 'WI', '53224', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (35, 4, 'Blake', 'Kristen', 'blake@commodo.com', '920-594-5897', '7357 Commodo Road', 'Madison', 'WI', '53812', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (34, 4, 'Benjamin', 'Jana', 'jana@tacitisociosqu.com', '920-787-1680', '8512 Molestie. Ave', 'Davenport', 'WI', '53116', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (33, 4, 'Bray', 'Odessa', 'odessa@nullam.net', '314-648-2537', '7460 Dolora Ave', 'Columbia', 'MO', '65224', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (32, 4, 'Beasley', 'Yvette', 'beasley@nuncio.org', '314-722-5245', '5762 Felis Street', 'Springfield', 'MO', '64523', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (31, 4, 'Baldwin', 'Julian', 'julianbaldwin@urna.net', '417-877-0605', '143 Accord St.', 'Saint Louis', 'MO', '63826', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (30, 4, 'Anthony', 'Wesley', 'wesley@liberomauris.com', '314-841-5975', '134 Nuncon Street', 'Columbia', 'MO', '63442', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (29, 4, 'Brown', 'Caleb', 'brown@atarcu.edu', '231-719-8618', '5391 Ettle St.', 'Lansing', 'MI', '48554', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (28, 4, 'Brock', 'Chaim', 'chaim@ultriciesornareelit.com', '231-291-7539', '2345 Erma Rd.', 'Sterling Heights', 'MI', '49224', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (27, 4, 'Bonner', 'Madaline', 'bonner@yahoo.com', '517-111-2927', '3948 Scelerisque Road', 'Sterling Heights', 'MI', '48262', 'admin', 'admin');
+INSERT INTO data_table (id, row_type, c01, c02, c03, c04, c05, c06, c07, c08, owner_name, updater_name)
+VALUES (26, 4, 'Avila', 'Lacey', 'lacey6@nullaInteger.com', '231-493-1047', '479 Inwood Rd.', 'Flint', 'MI', '48513', 'admin', 'admin');
 UPDATE data_table SET fts = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c02 || ' ' || regexp_replace(c02, E'(\\W)+', ' ', 'g') || ' ' || c03 || regexp_replace(c03, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c05 || regexp_replace(c05, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c06 || regexp_replace(c06, E'(\\W)+', ' ', 'g')), ftg = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c02 || ' ' || regexp_replace(c02, E'(\\W)+', ' ', 'g') || ' ' || c03 || regexp_replace(c03, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c05 || regexp_replace(c05, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c06 || regexp_replace(c06, E'(\\W)+', ' ', 'g')) WHERE row_type = 1;
+UPDATE data_table SET fts = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c49 || ' ' || regexp_replace(c49, E'(\\W)+', ' ', 'g')), ftg = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c49 || ' ' || regexp_replace(c49, E'(\\W)+', ' ', 'g'))  WHERE row_type = 2;
+UPDATE data_table SET fts = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c02 || ' ' || regexp_replace(c02, E'(\\W)+', ' ', 'g') || ' ' || c03 || regexp_replace(c03, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c49 || regexp_replace(c49, E'(\\W)+', ' ', 'g')),
+ftg = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c02 || ' ' || regexp_replace(c02, E'(\\W)+', ' ', 'g') || ' ' || c03 || regexp_replace(c03, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c49 || regexp_replace(c49, E'(\\W)+', ' ', 'g')) WHERE row_type = 3;
+UPDATE data_table SET fts = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c02 || ' ' || regexp_replace(c02, E'(\\W)+', ' ', 'g') || ' ' || c03 || regexp_replace(c03, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c04 || regexp_replace(c04, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c05 || regexp_replace(c05, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c06 || regexp_replace(c06, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c07 || regexp_replace(c07, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c08 || regexp_replace(c08, E'(\\W)+', ' ', 'g')),
+ftg = to_tsvector(c01 || ' ' || regexp_replace(c01, E'(\\W)+', ' ', 'g') || ' ' || c02 || ' ' || regexp_replace(c02, E'(\\W)+', ' ', 'g') || ' ' || c03 || regexp_replace(c03, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c04 || regexp_replace(c04, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c05 || regexp_replace(c05, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c06 || regexp_replace(c06, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c07 || regexp_replace(c07, E'(\\W)+', ' ', 'g') || ' ' || ' ' || c08 || regexp_replace(c08, E'(\\W)+', ' ', 'g')) WHERE row_type = 4;
+SELECT setval('data_table_id_seq', (SELECT MAX(id) FROM data_table));
 EOT;
 if ($do_data_table) {
     $result = pg_query($con, $query);
@@ -659,6 +706,8 @@ CREATE TABLE users_table
   minit text NOT NULL DEFAULT ''::text,
   lname text NOT NULL DEFAULT ''::text,
   notes text NOT NULL DEFAULT ''::text,
+  jsondata text NOT NULL DEFAULT ''::text,
+  reset text NOT NULL DEFAULT ''::text,
   ips cidr[] NOT NULL DEFAULT '{0.0.0.0/0,0:0:0:0:0:0:0:0/0}',
   change_date timestamp with time zone,
   CONSTRAINT users_table_pkey PRIMARY KEY (id),
@@ -726,11 +775,11 @@ if ($do_json_table) {
 
 $query = <<<EOT
 INSERT INTO json_table (lookup, jsondata)
-VALUES('bb_layout_names','{"1":{"singular":"Animal","plural":"Animals","parent":"0","order":"1","secure":"0","autoload":"0","relate":"0"},"2":{"singular":"Expense","plural":"Expenses","parent":"1","order":"2","secure":"0","autoload":"0","relate":"0"}}');
+VALUES('bb_layout_names','{"1":{"singular":"Animal","plural":"Animals","parent":"0","order":"1","secure":"0","autoload":"0","relate":"0"},"2":{"singular":"Expense","plural":"Expenses","parent":"1","order":"2","secure":"0","autoload":"0","relate":"0"},"joins":{"1":{"join1":1,"join2":4},"2":{"join1":7,"join2":10}},"3":{"singular":"Breed","plural":"Breeds","parent":"0","order":"3","secure":"0","autoload":"0","relate":"1"},"4":{"singular":"Owner","plural":"Owners","parent":"0","order":"4","secure":"0","autoload":"0","relate":"0"}}');
 INSERT INTO json_table (lookup, jsondata)
-VALUES('bb_column_names','{"2":{"1":{"name":"Topic","row":"1","length":"short","order":"1","type":"bb_brimbox_text","display":"0","required":"1","secure":"0","search":"1","relate":""},"2":{"name":"Cost","row":"1","length":"short","order":"2","type":"bb_brimbox_money","display":"0","required":"0","secure":"0","search":"0","relate":""},"3":{"name":"Type","row":"1","length":"short","order":"3","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"49":{"name":"Note","row":"2","length":"note","order":"4","type":"","display":"0","required":"1","secure":"0","search":"1","relate":""},"primary":1,"count":4,"alternative":{"bb_brimbox":{"1":{"row":"1","length":"short","order":"1","display":"0"},"2":{"row":"1","length":"short","order":"2","display":"0"},"3":{"row":"1","length":"short","order":"3","display":"0"},"49":{"row":"2","length":"note","order":"4","display":"0"},"primary":1,"count":4}}},"1":{"1":{"name":"Name","row":"1","length":"medium","order":"1","type":"bb_brimbox_text","display":"0","required":"1","secure":"0","search":"1","relate":""},"2":{"name":"Breed","row":"1","length":"medium","order":"2","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"3":{"name":"Owner","row":"3","length":"medium","order":"5","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"4":{"name":"Birthday","row":"2","length":"medium","order":"4","type":"bb_brimbox_date","display":"0","required":"0","secure":"0","search":"0","relate":""},"5":{"name":"Location","row":"3","length":"medium","order":"6","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"6":{"name":"Type","row":"2","length":"medium","order":"3","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"primary":1,"count":6,"alternative":{"bb_brimbox":{"1":{"row":"1","length":"medium","order":"1","display":"0"},"2":{"row":"1","length":"medium","order":"2","display":"0"},"3":{"row":"3","length":"medium","order":"5","display":"0"},"4":{"row":"2","length":"medium","order":"4","display":"0"},"5":{"row":"3","length":"medium","order":"6","display":"0"},"6":{"row":"2","length":"medium","order":"3","display":"0"},"primary":1,"count":6}}},"fields":{"row":{"name":"Row","alternative":true},"length":{"name":"Length","alternative":true},"order":{"name":"Order","alternative":true},"type":{"name":"Type"},"display":{"name":"Display","alternative":true},"required":{"name":"Required"},"secure":{"name":"Secure"},"search":{"name":"Search"},"relate":{"name":"Relate"}},"properties":{"primary":{"name":"Primary"},"count":{"name":"Count"},"unique":{"name":"Unique"}}}');
+VALUES('bb_column_names','{"2":{"1":{"name":"Topic","row":"1","length":"short","order":"1","type":"bb_brimbox_text","display":"0","required":"1","secure":"0","search":"1","relate":""},"2":{"name":"Cost","row":"1","length":"short","order":"2","type":"bb_brimbox_money","display":"0","required":"0","secure":"0","search":"0","relate":""},"3":{"name":"Type","row":"1","length":"short","order":"3","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"49":{"name":"Note","row":"2","length":"note","order":"4","type":"","display":"0","required":"1","secure":"0","search":"1","relate":""},"primary":1,"count":4,"alternative":{"bb_brimbox":{"1":{"row":"1","length":"short","order":"1","display":"0"},"2":{"row":"1","length":"short","order":"2","display":"0"},"3":{"row":"1","length":"short","order":"3","display":"0"},"49":{"row":"2","length":"note","order":"4","display":"0"},"primary":1,"count":4}}},"1":{"1":{"name":"Name","row":"1","length":"medium","order":"1","type":"bb_brimbox_text","display":"0","required":"1","secure":"0","search":"1","relate":""},"2":{"name":"Type","row":"1","length":"medium","order":"2","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"3":{"name":"Location","row":"2","length":"medium","order":"3","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"4":{"name":"Birthday","row":"2","length":"medium","order":"4","type":"bb_brimbox_date","display":"0","required":"0","secure":"0","search":"0","relate":""},"5":{"name":"Fixed","row":"3","length":"medium","order":"5","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"0","relate":""},"41":{"name":"Breed","row":"3","length":"medium","order":"6","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"0","relate":"3"},"primary":1,"count":6,"alternative":{"bb_brimbox":{"1":{"row":"1","length":"medium","order":"1","display":"0"},"2":{"row":"1","length":"medium","order":"2","display":"0"},"3":{"row":"2","length":"medium","order":"3","display":"0"},"4":{"row":"2","length":"medium","order":"4","display":"0"},"5":{"row":"3","length":"medium","order":"5","display":"0"},"41":{"row":"3","length":"medium","order":"6","display":"0"},"primary":1,"count":6}}},"fields":{"row":{"name":"Row","alternative":true},"length":{"name":"Length","alternative":true},"order":{"name":"Order","alternative":true},"type":{"name":"Type"},"display":{"name":"Display","alternative":true},"required":{"name":"Required"},"secure":{"name":"Secure"},"search":{"name":"Search"},"relate":{"name":"Relate"}},"properties":{"primary":{"name":"Primary"},"count":{"name":"Count"},"unique":{"name":"Unique"}},"4":{"1":{"name":"Last Name","row":"1","length":"medium","order":"1","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"2":{"name":"First Name","row":"1","length":"medium","order":"2","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"3":{"name":"Email","row":"2","length":"medium","order":"3","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"4":{"name":"Phone","row":"2","length":"medium","order":"4","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"5":{"name":"Address","row":"2","length":"medium","order":"5","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"6":{"name":"City","row":"3","length":"medium","order":"6","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"7":{"name":"State","row":"3","length":"medium","order":"7","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"8":{"name":"Zip","row":"3","length":"medium","order":"8","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"primary":1,"count":8,"alternative":{"bb_brimbox":{"1":{"row":"1","length":"medium","order":"1","display":"0"},"2":{"row":"1","length":"medium","order":"2","display":"0"},"3":{"row":"2","length":"medium","order":"3","display":"0"},"4":{"row":"2","length":"medium","order":"4","display":"0"},"5":{"row":"2","length":"medium","order":"5","display":"0"},"6":{"row":"3","length":"medium","order":"6","display":"0"},"7":{"row":"3","length":"medium","order":"7","display":"0"},"8":{"row":"3","length":"medium","order":"8","display":"0"},"primary":1,"count":8}}},"3":{"1":{"name":"Name","row":"1","length":"medium","order":"1","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"2":{"name":"Origination","row":"2","length":"medium","order":"2","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"3":{"name":"Type","row":"3","length":"medium","order":"3","type":"bb_brimbox_text","display":"0","required":"0","secure":"0","search":"1","relate":""},"49":{"name":"Description","row":"4","length":"note","order":"4","type":"","display":"0","required":"0","secure":"0","search":"1","relate":""},"primary":1,"count":4,"alternative":{"bb_brimbox":{"1":{"row":"1","length":"medium","order":"1","display":"0"},"2":{"row":"2","length":"medium","order":"2","display":"0"},"3":{"row":"3","length":"medium","order":"3","display":"0"},"49":{"row":"4","length":"note","order":"4","display":"0"},"primary":1,"count":4}}}}');
 INSERT INTO json_table (lookup, jsondata)
-VALUES('bb_dropdowns','{"1":{"6":{"0":"Cat","1":"Dog","2":"Horse","multiselect":"0"}},"2":{"3":{"0":"Credit","1":"Debit","2":"No Charge","multiselect":"0"}},"properties":{"multiselect":{"name":"Multiselect"}}}');
+VALUES('bb_dropdowns','{"1":{"5":{"0":"Fixed","1":"Not Fixed","multiselect":"0"}},"2":{"3":{"0":"Credit","1":"Debit","2":"No Charge","multiselect":"0"}},"properties":{"multiselect":{"name":"Multiselect"}},"3":{"3":{"0":"Cat","1":"Dog","2":"Horse","multiselect":"0"}}}');
 INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_create_lists','{"1":{"2":{"name":"Cat","archive":0,"description":"This is the cat list."},"1":{"name":"Dog","archive":0,"description":"This is the dog list."}},"2":{"1":{"name":"Vet","description":"This is the vet list.","archive":0}}}');
 EOT;
@@ -848,7 +897,42 @@ EOT;
 
 if ($do_join_table) {
     $result = pg_query($con, $query);
-    echo "Join Table Created (No Population)<br>";
+    echo "Join Table Created<br>";
+}
+
+$query = <<<EOT
+INSERT INTO join_table (join1, join2)
+VALUES (1, 35);
+INSERT INTO join_table (join1, join2)
+VALUES (3, 32);
+INSERT INTO join_table (join1, join2)
+VALUES (3, 31);
+INSERT INTO join_table (join1, join2)
+VALUES (5, 30);
+INSERT INTO join_table (join1, join2)
+VALUES (4, 37);
+INSERT INTO join_table (join1, join2)
+VALUES (7, 29);
+INSERT INTO join_table (join1, join2)
+VALUES (6, 36);
+INSERT INTO join_table (join1, join2)
+VALUES (8, 34);
+INSERT INTO join_table (join1, join2)
+VALUES (4, 35);
+INSERT INTO join_table (join1, join2)
+VALUES (1, 34);
+INSERT INTO join_table (join1, join2)
+VALUES (2, 27);
+INSERT INTO join_table (join1, join2)
+VALUES (2, 28);
+INSERT INTO join_table (join1, join2)
+VALUES (6, 38);
+EOT;
+
+
+if ($do_join_table) {
+    $result = pg_query($con, $query);
+    echo "Join Table Populated<br>";
 }
 
 echo "<body><p>You have successfully installed the database. You may delete this file now.</p></body>";

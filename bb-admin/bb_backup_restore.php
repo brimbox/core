@@ -44,7 +44,7 @@ $main->echo_module_vars();
 
 /* BACKUP AREA */
 echo "<p class=\"spaced bold larger\">" . __t("Backup Database", $module) . "</p>";
-echo "<div class=\"spaced border floatleft padded\">";
+echo "<div class=\"inlineblock spaced border padded\">";
 $params = array("class" => "spaced", "number" => 1, "passthis" => true, "label" => __t("Clean Database Data", $module));
 $main->echo_button("add_list", $params);
 $params = array("class" => "spaced", "number" => 2, "passthis" => true, "label" => __t("Clean Database Columns", $module));
@@ -60,12 +60,11 @@ echo "<label class=\"spaced\">" . __t("Password:", $module) . " </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"backup_passwd\"/>";
 echo "<label class=\"spaced middle\"> " . __t("Encrypt:", $module) . " </label>";
 $main->echo_input("encrypt_method", 1, array('type' => "checkbox", 'class' => "middle spaced", 'checked' => true));
-
 echo "</div>";
-$main->echo_clear();
+echo "<br>";
 
 echo "<p class=\"spaced bold larger\">" . __t("Database Dump", $module) . "</p>";
-echo "<div class=\"spaced border floatleft padded\">";
+echo "<div class=\"inlineblock spaced border padded\">";
 $params = array("class" => "spaced", "label" => __t("Download Layout", $module), "onclick" => "bb_submit_link('bb-links/bb_backup_restore_link_3.php'); return false;");
 $main->echo_script_button("dump_database", $params);
 $main->layout_dropdown($arr_layouts, "row_type", $row_type);
@@ -79,13 +78,12 @@ $main->echo_script_button("dump_listdata", $params);
 echo "<br><label class=\"spaced\">" . __t("Password:", $module) . " </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"dump_passwd\"/>";
 echo "</div>";
-$main->echo_clear();
+echo "<br>";
 
 /* RESTORE AREA */
 echo "<p class=\"spaced bold larger\">" . __t("Restore Database", $module) . "</p>";
-echo "<div class=\"spaced border floatleft padded\">";
-echo "<p class=\"spaced\">" . __t("Note: When restoring post_max_size and 
-upload_max_filesize<br>must be bigger than your backup files.", $module) . "</p>";
+echo "<div class=\"inlineblock spaced border padded\">";
+echo "<p class=\"spaced\">" . __t("Note: When restoring post_max_size and upload_max_filesize must be bigger than your backup files.", $module) . "</p>";
 echo "</div>";
 echo "<br>";
 echo "<div class=\"spaced border floatleft padded\">";

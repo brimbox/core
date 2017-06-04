@@ -172,7 +172,7 @@ if ($post_key > 0) // viewing children of record
             $join_header = "join2";
         }
 
-        $query = "SELECT T1.*, T3.row_type_left, T3.hdr FROM data_table T1 INNER JOIN join_table T2 ON T1.id = T2." . $join_data . " " . " INNER JOIN (SELECT id as id_left, row_type as row_type_left, c01 as hdr FROM data_table " . " WHERE " . $row_type . " = 1 AND id = " . $post_key . ") T3 ON T3.id_left = T2." . $join_header . " WHERE T1.row_type = " . $row_join . " AND " . $mode . " ORDER BY " . $col1 . " " . $asc_desc . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
+        $query = "SELECT T1.*, T3.row_type_left, T3.hdr FROM data_table T1 INNER JOIN join_table T2 ON T1.id = T2." . $join_data . " " . " INNER JOIN (SELECT id as id_left, row_type as row_type_left, c01 as hdr FROM data_table " . " WHERE id = " . $post_key . ") T3 ON T3.id_left = T2." . $join_header . " WHERE T1.row_type = " . $row_join . " AND " . $mode . " ORDER BY " . $col1 . " " . $asc_desc . ", id LIMIT " . $return_rows . " OFFSET " . $lower_limit . ";";
     }
 
     //echo "<p>" . $query . "</p>";

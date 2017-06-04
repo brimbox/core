@@ -97,15 +97,12 @@ else {
 
 $arr_columns = $main->columns($con, $row_type);
 
-// center
-echo "<div class=\"table spaced border tablecenter\"><div class=\"row padded\">";
-
 /* BEGIN REQUIRED FORM */
 // form part, based on xml, hidden field return offset
 $main->echo_form_begin();
 $main->echo_module_vars();
 
-echo "<div class=\"cell padded middle\">";
+echo "<div class=\"padded\">";
 echo "<label class=\"spaced\">" . __t("Choose List:", $module) . "</label>";
 $params = array("class" => "spaced", "onchange" => "bb_reload()");
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
@@ -114,15 +111,15 @@ $main->list_dropdown($arr_lists, "list_number", $list_number, $params);
 echo "</div>";
 
 // list return
-echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
-echo "<div class=\"cell padded middle\">";
-$main->echo_textarea("description", $description, $params = array("rows" => 2, "cols" => 50, "class" => "spaced border", "readonly" => "readonly"));
+echo "<div class=\"padded\">";
+$main->echo_textarea("description", $description, $params = array("id" => 'bb_listview_description_textarea', "class" => "padded border", "readonly" => "readonly"));
 echo "</div>";
+
+echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 
 $main->echo_common_vars();
 $main->echo_form_end();
 
-echo "</div></div>"; // end align center, table, row
 /* BEGIN RETURN ROWS */
 // calculate lower limit of ordered query, return rows will be dealt with later
 // initialize $count_rows in case no rows are returned

@@ -16,14 +16,6 @@
  * If not, see http://www.gnu.org/licenses/
 */
 ?>
-<style type="text/css">
-/* MODULE CSS */
-/* no colors in css */
-.manage_log_wrap {
-	height: 400px;
-	overflow-y: scroll;
-}
-</style>
 <script>
 function bb_reload()
     {    
@@ -35,10 +27,9 @@ function bb_reload()
 </script>
 <?php
 $main->check_permission("5_bb_brimbox");
-?>
-<?php
+
 $arr_messages = array();
-$arr_options = array('1 day' => __t("Preserve 1 Day", $module), '1 week' => __t("Preserve 1 Week", $module), '1 month' => __t("Preserve 1 Month"));
+$arr_options = array('1 day' => __t("Preserve 1 Day", $module), '1 week' => __t("Preserve 1 Week", $module), '1 month' => __t("Preserve 1 Month", $module));
 
 end($arr_options);
 $default_truncate_option = key($arr_options);
@@ -83,7 +74,7 @@ $query = "SELECT * FROM log_table ORDER BY change_date DESC;";
 $result = $main->query($con, $query);
 
 // title
-echo "<p class=\"spaced bold larger\">" . __t("Manage Log and State Tables") . "</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Manage Log and State Tables", $module) . "</p>";
 
 echo "<div class=\"padded\">";
 $main->echo_messages($arr_messages);
@@ -91,7 +82,7 @@ echo "</div>";
 
 // div container with scroll bar
 echo "<div class=\"spaced padded bold\">" . __t("Log Table", $module) . "</div>";
-echo "<div class=\"spaced padded border manage_log_wrap\">";
+echo "<div id=\"bb_manage_log_wrap\" class=\"spaced padded border\">";
 echo "<div class=\"table padded\">";
 
 // table header
@@ -127,7 +118,7 @@ $main->echo_module_vars();
 
 // truncate_option select tag
 $arr_options = $main->filter("bb_log_truncate_options", $arr_options);
-$params = array('select_class' => "spaced", 'onchange' => "bb_reload()", 'usekey' => true);
+$params = array('class' => "spaced", 'onchange' => "bb_reload()", 'usekey' => true);
 $main->array_to_select($arr_options, "truncate_option", $truncate_option, array(), $params);
 
 // submit button

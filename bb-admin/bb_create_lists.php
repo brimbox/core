@@ -240,31 +240,24 @@ foreach ($arr_definitions as $key => $value) {
     switch ($key) {
         case "new":
             // add lists
-            echo "<span class=\"spaced colored\">" . __t("Add New List", $module) . "</span>";
-            echo "<div class=\"table border spaced\">";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"padded cell\">" . __t("List Type:", $module) . " </div>";
-            echo "<div class=\"padded cell\">";
+            echo "<div id=\"bb_create_lists_add\" class=\"border padded\">";
+            echo "<div class=\"larger colored spaced\">" . __t("Add New List", $module) . "</div>";
+            echo "<div class=\"bb_create_lists_left_div twice\">" . __t("List Type:", $module) . " </div>";
+            echo "<div class=\"bb_create_lists_right_div padded\">";
             $params = array("class" => "spaced", "onchange" => "bb_reload_1()");
             $main->layout_dropdown($arr_layouts, "row_type_new", $arr_create_lists['new']['row_type'], $params);
             echo "</div>";
-            echo "</div>";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"padded top cell\">" . __t("List Name:", $module) . " </div>";
-            echo "<div class=\"padded cell\">";
+            echo "<div class=\"bb_create_lists_left_div twice\">" . __t("List Name:", $module) . " </div>";
+            echo "<div class=\"bb_create_lists_right_div padded\">";
             $main->echo_input("name_new", "", array('type' => 'text', 'class' => 'spaced'));
-            echo "</div></div>";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"padded top cell\">" . __t("Description:", $module) . " </div>";
-            echo "<div class=\"padded cell\">";
-            $main->echo_textarea("description_new", "", array('rows' => 4, 'cols' => 60, 'class' => 'spaced'));
-            echo "</div></div>";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"padded cell\"></div>";
-            echo "<div class=\"padded cell\">";
-            $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("New List", $module));
+            echo "</div>";
+            echo "<div class=\"bb_create_lists_left_div top twice\">" . __t("Description:", $module) . " </div>";
+            $main->echo_textarea("description_new", "", array('class' => 'bb_create_lists_textarea double boxsizing'));
+            echo "<div class=\"padded\">";
+            $params = array("class" => "double", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("New List", $module));
             $main->echo_button("add_list", $params);
-            echo "</div></div></div>";
+            echo "</div>";
+            echo "</div>";
             echo "<br>";
         break;
 
@@ -272,44 +265,31 @@ foreach ($arr_definitions as $key => $value) {
             // Rename List or Update Lists
             $row_type = $arr_create_lists['update']['row_type'];
             $arr_lists = $main->lists($con, $row_type);
+            echo "<div id=\"bb_create_lists_update\" class=\"border padded\">";
+            echo "<span class=\"spaced larger colored\">" . __t("Rename List, Update Description and Find List Number", $module) . "</span>";
 
-            echo "<span class=\"spaced colored\">" . __t("Rename List, Update Description and Find List Number", $module) . "</span>";
-            echo "<div class=\"border table\">"; // border
-            echo "<div class=\"table spaced\">";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"padded cell\">";
+            echo "<div class=\"padded\">";
             $params = array("class" => "spaced", "onchange" => "bb_reload_2()");
             $main->layout_dropdown($arr_layouts, "row_type_update", $row_type, $params);
             $params = array("class" => "spaced", "empty" => true, "check" => 1, "onchange" => "bb_reload_1()");
             $main->list_dropdown($arr_lists, "list_number_update", $arr_create_lists['update']['list_number'], $params);
             echo "</div>";
-            echo "</div>";
-            echo "</div>";
-            echo "<div class=\"spaced table padded\">";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"spaced padded cell\">" . __t("List Number:", $module) . " </div>";
-            echo "<div class=\"padded cell\">";
+
+            echo "<div class=\"bb_create_lists_left_div twice\">" . __t("List Number:", $module) . " </div>";
+            echo "<div class=\"bb_create_lists_right_div padded\">";
             $main->echo_input("identifier_update", __($arr_create_lists['update']['identifier']), array('type' => 'text', 'class' => 'spaced textbox', 'readonly' => true));
-            echo "</div></div>";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"spaced padded top cell\">" . __t("List Name:", $module) . " </div>";
-            echo "<div class=\"padded cell\">";
+            echo "</div>";
+            echo "<div class=\"bb_create_lists_left_div twice\">" . __t("List Name:", $module) . " </div>";
+            echo "<div class=\"bb_create_lists_right_div padded\">";
             $main->echo_input("name_update", __($arr_create_lists['update']['name']), array('type' => 'text', 'class' => 'spaced textbox'));
-            echo "</div></div>";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"spaced padded cell\">" . __t("Description:", $module) . " </div>";
-            echo "<div class=\"padded cell\">";
-            $main->echo_textarea("description_update", $arr_create_lists['update']['description'], array('rows' => 4, 'cols' => 60, 'class' => 'spaced'));
-            echo "</div></div>";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"padded cell\"></div>";
-            echo "<div class=\"padded cell\">";
+            echo "</div>";
+            echo "<div class=\"bb_create_lists_left_div top twice\">" . __t("Description:", $module) . " </div>";
+            $main->echo_textarea("description_update", $arr_create_lists['update']['description'], array('class' => 'bb_create_lists_textarea double boxsizing'));
+            echo "<div class=\"padded\">";
             $params = array("class" => "spaced", "number" => 2, "target" => $module, $arr_state, "passthis" => true, "label" => __t("Update List", $module));
             $main->echo_button("update_list_2", $params);
             echo "</div>";
             echo "</div>";
-            echo "</div>";
-            echo "</div>"; // border
             echo "<br>";
         break;
 
@@ -318,34 +298,35 @@ foreach ($arr_definitions as $key => $value) {
             $row_type = $arr_create_lists['delete']['row_type'];
             $arr_lists = $main->lists($con, $row_type);
 
-            echo "<span class=\"spaced colored\">" . __t("Remove or Archive List", $module) . "</span>";
-            echo "<div class=\"table border spaced\">";
-            echo "<div class=\"row padded\">";
-            echo "<div class=\"padded cell nowrap\">";
+            echo "<div id=\"bb_create_lists_delete\" class=\"inlineblock border spaced\">";
+            echo "<div class=\"padded\">";
+            echo "<span class=\"larger colored\">" . __t("Remove or Archive List", $module) . "</span>";
+            echo "</div>";
+
+            echo "<div class=\"inlineblock padded\">";
             $params = array("class" => "spaced", "onchange" => "bb_reload_3()");
             $main->layout_dropdown($arr_layouts, "row_type_delete", $arr_create_lists['delete']['row_type'], $params);
             $params = array("class" => "spaced", "empty" => true, "check" => 0, "onchange" => "bb_reload_1()");
             $main->list_dropdown($arr_lists, "list_number_delete", $arr_create_lists['delete']['list_number'], $params);
-            echo " | ";
             echo "</div>";
-            echo "<div class=\"padded cell nowrap\">";
+            echo "<div id=\"bb_create_lists_remove\" class=\"inlineblock padded\">";
+            echo " | ";
             $params = array("class" => "spaced", "number" => 3, "target" => $module, $arr_state, "passthis" => true, "label" => __t("Remove List", $module));
             $main->echo_button("remove_list", $params);
             echo "<span class = \"spaced border rounded padded shaded\">";
             echo "<label class=\"padded\">" . __t("Confirm Remove:", $module) . " </label>";
             $main->echo_input("confirm_remove_delete", 1, array('type' => 'checkbox', 'class' => 'middle holderup'));
             echo "</span>";
-            echo " | ";
             echo "</div>";
-            echo "<div class=\"padded cell nowrap\">";
+            echo "<div id=\"bb_create_lists_archive\" class=\"inlineblock padded\">";
+            echo " | ";
             $params = array("class" => "spaced", "number" => 4, "target" => $module, $arr_state, "passthis" => true, "label" => __t("Archive/Retrieve List", $module));
             $main->echo_button("archive_list", $params);
-            echo "</div>";
-            echo "<div class=\"padded cell nowrap\">";
             $main->echo_input("archive_delete", 1, array('type' => 'checkbox', 'class' => 'middle holderup'));
             echo "<span class=\"spaced\">" . __t("Check to Archive/Uncheck to Retrieve", $module) . "</span></div>";
             echo "</div>";
             echo "</div>";
+            echo "<br>";
         break;
     }
 }

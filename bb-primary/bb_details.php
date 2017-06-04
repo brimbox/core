@@ -47,12 +47,6 @@ function bb_select_field(div_id)
         }        
  	}
 </script>
-<style>
-.dump_textarea {
-	width: 400px;
-	height: 100px;
-}
-</style>
 
 <?php
 /* INITIALIZE */
@@ -137,7 +131,7 @@ if ($post_key > 0) // a detail of a record
                 echo "<label class = \"spaced left floatleft overflow medium shaded\" onclick=\"bb_select_field('" . $field_id . "')\">" . __($value['name']) . ":</label>";
                 $main->echo_clear();
                 // double it up for emheight
-                echo "<div class=\"spaced border half pad_note\">";
+                echo "<div class=\"spaced padded border half\">";
                 echo "<div id=\"" . $field_id . "\" class=\"spaced minnote\">" . nl2br(__($row[$col2])) . "</div></div>";
                 $main->echo_clear();
             }
@@ -314,7 +308,7 @@ if (($post_key > 0) && ($cnt_rows == 1)) {
     $main->echo_button("link_button", $params);
     $main->echo_clear();
     echo "<br>";
-    $main->echo_textarea("dump_area", $text_str, array('class' => "spaced dump_textarea"));
+    $main->echo_textarea("dump_area", $text_str, array('id' => "bb_details_dump_textarea", 'class' => "spaced"));
     $main->echo_clear();
     $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Dump Data", $module));
     $main->echo_button("dump_button", $params);

@@ -29,7 +29,7 @@ function bb_reload()
 </script>
 <?php
 // get state from db
-$arr_prepend_po = array("" => "", 'bb_box' => __t("Box Controller", $module), 'bb_main' => __t("Main Functions", $module));
+$arr_prepend_po = array("" => "", 'bb_box' => __t("Box Controller", $module), 'bb_login' => __t("Login Routine", $module), 'bb_main' => __t("Main Functions", $module));
 
 $arr_state = $main->load($con, $module);
 
@@ -66,49 +66,33 @@ $main->array_to_select($arr_modules_po, "translation", $translation, $arr_prepen
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_translation\" id=\"file\"/>";
 $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Upload Translation .po file", $module));
 $main->echo_button("submit_translation", $params);
-
-echo "<div class=\"border\">";
-echo "<div class=\"floatleft\">";
+echo "<br>";
+echo "<div id=\"bb_translation_inputs_wrapper\" class=\"border padded\">";
 $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Add Translation", $module));
 $main->echo_button("submit_translation", $params);
-echo "</div>";
-$main->echo_clear();
-echo "<div class=\"floatleft\">";
-$main->echo_textarea('addkey', "", array('class' => "border spaced textarea", 'placeholder' => __t("Original", $module)));
-echo "</div>";
-echo "<div class=\"floatleft\">";
-$main->echo_textarea('addvalue', "", array('class' => "border spaced textarea", 'placeholder' => __t("Translation", $module)));
-echo "</div>";
-$main->echo_clear();
+echo "<br>";
+$main->echo_textarea('addkey', "", array('class' => "inlineblock border spaced textarea", 'placeholder' => __t("Original", $module)));
+$main->echo_textarea('addvalue', "", array('class' => "inlineblock border spaced textarea", 'placeholder' => __t("Translation", $module)));
 
 if (count($arr_po) > 0) {
-    echo "<div class=\"floatleft\">";
+    echo "<br>";
     $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => __t("Update Translations", $module));
     $main->echo_button("update_translation", $params);
-    echo "</div>";
-    $main->echo_clear();
+    echo "<br>";
 }
 
 $i = 0;
 foreach ($arr_po as $key => $value) {
     $i++;
-    echo "<div class=\"floatleft\">";
     if (strlen($key) <= 50) {
-        $main->echo_input("key" . $i, __($key), array('class' => "border spaced textbox"));
-        echo "</div>";
-        echo "<div class=\"floatleft\">";
-        $main->echo_input("value" . $i, __($value), array('class' => "border spaced textbox"));
-        echo "</div>";
-        $main->echo_clear();
+        $main->echo_input("key" . $i, __($key), array('class' => "border spaced maxlonger"));
+        $main->echo_input("value" . $i, __($value), array('class' => "border spaced maxlonger"));
+        echo "<br>";
     }
     else {
-        echo "<div class=\"floatleft\">";
         $main->echo_textarea("key" . $i, __($key), array('class' => "border spaced textarea"));
-        echo "</div>";
-        echo "<div class=\"floatleft\">";
         $main->echo_textarea("value" . $i, __($value), array('class' => "border spaced textarea"));
-        echo "</div>";
-        $main->echo_clear();
+        echo "<br>";
     }
 
 }

@@ -43,7 +43,7 @@ function bb_get_selected_text()
          }            
 	if (selText !== "") 
 		{
-		document.getElementById('clipboard').innerHTML = selText;
+		document.getElementById('bb_queue_clipboard').innerHTML = selText;
 		}
 	return false;
 	}
@@ -62,7 +62,7 @@ function bb_clear_module()
 	{
 	var frmobj = document.forms["bb_form"];
 	
-	document.getElementById("clipboard").innerHTML = "";
+	document.getElementById("bb_queue_clipboard").innerHTML = "";
 	frmobj.email_number.value = -1;
 	bb_submit_form();
 	return false;
@@ -70,7 +70,7 @@ function bb_clear_module()
 //set the fields on the left
 function bb_set_field(col)
 	{
-	var str = document.getElementById("clipboard").innerHTML;
+	var str = document.getElementById("bb_queue_clipboard").innerHTML;
 	var fld = col;
 	//full value
 	document.forms["bb_form"][fld].value = str;	
@@ -84,25 +84,8 @@ function bb_set_field(col)
 	}
 </script>
 <?php
-$queue_module_css = "<style>
-.email_inbox_list {
-	overflow-y: scroll;
-	height: 200px;
-	resize: both;
-}
-.email_container, .email_body {
-	max-width: 600px;
-}
-.email_body {
-	height: 400px;
-	resize: both;
-	overflow: scroll;
-}
-.email_body img {
-	width: auto;
-}
-</style>";
 //email css
+/* DEPRECATED */
 $queue_module_css = $main->filter("bb_queue_module_css", $queue_module_css);
 echo $queue_module_css;
 ?>
@@ -196,9 +179,9 @@ else: // long else
         echo "<div class = \"spaced\">" . __t("There are %d total messages, %d unread. Date: %s.", $module, $arr_count) . "</div>";
 
         // this is the email list container -- start container
-        echo "<div class=\"floatleft spaced\">"; // buttons
-        echo "<div class=\"border spaced border email_inbox_list\">";
-        echo "<div class=\"spaced padded table\">";
+        echo "<div id=\"bb_queue_inbox_wrap\">";
+        echo "<div id=\"bb_queue_inbox_list\" class=\"border spaced\">";
+        echo "<div class=\"padded table fill\">";
         for ($i = $nbr;$i >= 1;$i--) {
             $header = imap_header($mbox, $i);
             // bold open emails
@@ -224,16 +207,16 @@ else: // long else
             }
             // output loop, hidden uid, javascript link, and checkbox
             echo "<div class=\"row " . $shaded . "\">";
-            echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_subject . "</button></div>";
-            echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_personal . "</button></div>";
-            echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_email . "</button></div>";
-            echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"link" . $strong . "\">" . $var_date . "</button></div>";
-            echo "<div class = \"extra cell\"><input name=\"f" . ( string )$i . "\" type=\"checkbox\" class=\"queue_super_short spaced \" value=\"Y\" /></div>";
+            echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"left link" . $strong . "\">" . $var_subject . "</button></div>";
+            echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"left link" . $strong . "\">" . $var_personal . "</button></div>";
+            echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"left link" . $strong . "\">" . $var_email . "</button></div>";
+            echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"left link" . $strong . "\">" . $var_date . "</button></div>";
+            echo "<div class = \"center extra cell\"><input name=\"f" . ( string )$i . "\" type=\"checkbox\" class=\"spaced \" value=\"Y\" /></div>";
             echo "<div class = \"extra cell\"><input name=\"u" . ( string )$i . "\" type=\"hidden\" value=\"" . imap_uid($mbox, $header->Msgno) . "\" /></div>";
             echo "</div>";
         }
         echo "</div>"; // end table
-        echo "</div>"; // end container
+        echo "</div>";
         $main->echo_clear();
 
         echo "<div class=\"floatleft\">"; // buttons
@@ -282,17 +265,16 @@ else: // long else
         // subject is dependent on email number, no need to include in state
         echo "<input name=\"subject\" type=\"hidden\" value=\"" . $var_subject . "\" />";
 
-        echo "<div class=\"spaced floatleft\">";
-        echo "<div class=\"spaced floatleft border email_container\" >";
-        echo "<div id=\"clipboard\" class=\"padded left borderbottom\"></div>";
+        echo "<div id=\"bb_queue_email_container\" class=\"inlineblock spaced border\" >";
+        echo "<div id=\"bb_queue_clipboard\" class=\"padded left borderbottom\"></div>";
         echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_personal . " &lt;" . $var_email . "&gt;</div>";
         echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_subject . "</div>";
         echo "<div class=\"padded left borderbottom\" onMouseUp=\"bb_get_selected_text(); return false;\">" . $var_date . "</div>";
-        echo "<div class=\"left email_body\" onMouseUp=\"bb_get_selected_text()\">" . $trans_htmlmsg . "</div>";
+        echo "<div id=\"bb_queue_email_body\" class=\"inlineblock\" onMouseUp=\"bb_get_selected_text()\">" . $trans_htmlmsg . "</div>";
         echo "</div>";
         $i = 1;
         // visable queue fields
-        echo "<div class=\"floatleft\">";
+        echo "<div class=\"inlineblock top double\">";
         echo "<ul class=\"nobullets noindent\">";
         if (!empty($arr_columns)) {
             foreach ($arr_columns as $key => $value) {
@@ -304,7 +286,6 @@ else: // long else
             }
         }
         echo "</ul>";
-        echo "</div>";
         echo "</div>";
         $main->echo_clear();
     }

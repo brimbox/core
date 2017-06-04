@@ -28,6 +28,7 @@ $title = $main->filter("bb_box_page_title", $title);
 echo "<title>" . $title . "</title>";
 //Translation Arrays
 $bb_box_translate = $main->get_json($con, "bb_box_translate");
+$bb_main_translate = $main->get_json($con, "bb_main_translate");
 $ {
     $module . '_translate'
 } = $main->get_json($con, $module . '_translate');
@@ -165,7 +166,7 @@ foreach ($arr_interface as $key => $value) {
     }
 }
 //mobile Logout Link
-echo "<li class=\"hidden mobile_display\"><button onclick=\"bb_logout_selector('0_bb_brimbox')\">Logout</button></li>";
+echo "<li><button onclick=\"bb_logout_selector('0_bb_brimbox')\">Logout</button></li>";
 echo "</ul>";
 echo "</div>";
 /* END ECHO TABS */

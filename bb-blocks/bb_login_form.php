@@ -22,104 +22,58 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?php echo PAGE_TITLE; ?></title>
-<style>
-/* These are the login styles */
-#bb_index {
-	margin: auto;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	margin: -80px 0 0 -150px;
-	width: 300px;
-	height: 160px;
-	text-align: center;
-}
-
-#bb_image {
-	background-image: url("bb-config/login_image.gif");
-	width: 300px;
-	height: 50px;
-	background-repeat: no-repeat;
-	background-position: center;
-}
-
-#bb_table {
-	width: 298px;
-	border: 1px solid #A070B6;
-}
-
-#bb_table td.right {
-	width: 60%;
-	text-align: left;
-}
-
-#bb_table td.left {
-	width: 40%;
-	text-align: right;
-	background-color: #F2EAFF;
-}
-
-#bb_table td, #bb_login input, #bb_submit {
-	font-size: 12px;
-	font-family: Arial, Helvetica, sans-serif;
-	line-height: 140%;
-}
-
-#bb_login input {
-	padding: 2px;
-	width: 200px;
-	border: 1px solid #A070B6;
-	background-color: #FFFFFF;
-}
-
-#bb_message {
-	text-align: center;
-	font-size: 12px;
-	font-family: Arial, Helvetica, sans-serif;
-	line-height: 140%;
-	color: red;
-}
-
-#bb_submit {
-	background-color: #F2EAFF;
-	border: 1px solid #A070B6;
-	margin: 5px;
-	padding: 3px;
-	border-radius: 2px;
-	-moz-border-radius: 2px;
-	-webkit-border-radius: 2px;
-	-o-border-radius: 2px;
-}
-
-@media screen and (min-height: 600px) {
-	#bb_index {
-		margin-top: -200px;
-	}
-}
-</style>
 </head>
 
 <body>
 	<div id="bb_index">
 		<div id="bb_image"></div>
+		<div id="bb_message_notice"><?php if (isset($message)) echo $message; ?></div>
+		<?php /* REGULAR LOGIN */ ?>
+		<?php if (in_array(strtolower($_GET['action']), array("nomail", "sent", "done")) || empty($_GET['action'])): ?>
 		<form id="bb_login" name="bb_login" method="post">
-			<table id="bb_table">
-				<tr>
-					<td class="left"><label for="username">Username: </label></td>
-					<td class="right"><input name="username" id="username" class="long"
-						type="text" /></td>
-				</tr>
-				<tr>
-					<td class="left"><label for="password">Password: </label></td>
-					<td class="right"><input name="password" id="password" class="long"
-						type="password" /></td>
-				</tr>
-			</table>
-			<button id="bb_submit" name="bb_submit" type="submit" value="submit">
-			Login
-			</button>
-			<div id="bb_message"><?php if (isset($message)) echo $message; ?></div>
+			<div id="bb_wrap">
+				<input class="bb_input" name="username" id="username" placeholder="Username" type="text" />
+				<input class="bb_input" name="password" id="password" placeholder="Password" type="password" />
+			</div>
+			<input id="bb_submit" name="bb_submit" type="submit" value="Login">
+			<input id="bb_reset" name="bb_reset" type="submit" value="Reset Password">		
 		</form>
+		<?php /* SEND PASSWORD RESET EMAIL */ ?>
+		<?php
+elseif (in_array(strtolower($_GET['action']), array("reset", "nouser", "expired"))): ?>
+		<form id="bb_login" name="bb_login" method="post">
+			<div id="bb_wrap">
+				<input class="bb_input" name="username_or_email" id="username_or_email" placeholder="Username or Email" type="text" />
+			</div>
+			<input id="bb_send" name="bb_send" type="submit" value="Send Reset Email">
+			<input id="bb_home" name="bb_home" type="submit" value="Login Home">
+		</form>
+		<?php /* SET PASSWORD */ ?>
+		<?php
+elseif (in_array(strtolower($_GET['action']), array("weak", "set"))): ?>
+		<?php //generate password with php and put show/hide password anonymous function in javascript event handler
+    $possible_chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    $required_chars = mb_substr("ABCDEFGHJKLMNPQRSTUVWXYZ", rand(0, 23), 1) . mb_substr("abcdefghijkmnpqrstuvwxyz", rand(0, 23), 1) . mb_substr("23456789", rand(0, 7), 1);
+    for ($i = 0, $suggested_password = $required_chars;$i < 5;$i++) {
+        $index = rand(0, 55);
+        $suggested_password.= mb_substr($possible_chars, $index, 1);
+    }
+    $suggested_password = str_shuffle($suggested_password);
+?>
+		<form id="bb_login" name="bb_login" method="post">
+			<div id="bb_wrap">
+				<input class="bb_input" name="password_set" id="passsword_set" placeholder="New Password" type="text" value="<?php echo $suggested_password; ?>"/>
+			</div>
+			<input id="bb_set" name="bb_set" type="submit" value="Set Password">
+			<input id="bb_hide" name="bb_hide" type="button" value="Hide Password"
+			onclick="(function(e) {
+			var ele = document.getElementById('passsword_set');
+			if (ele.type == 'password') {ele.type = 'text'; e.value = 'Hide Password';}
+			else {ele.type = 'password'; e.value = 'Show Password';} })(this);"> - 
+			<input id="bb_home" name="bb_home" type="submit" value="Login Home">
+		</form>
+		<?php
+endif; ?>
 	</div>
 </body>
 

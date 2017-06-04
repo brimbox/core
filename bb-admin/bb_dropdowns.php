@@ -90,7 +90,7 @@ $arr_columns = $main->columns($con, $row_type);
 // update state, back to db
 $main->update($con, $module, $arr_state);
 
-$col_text = isset($arr_column[$col_type]['name']) ? $arr_column[$col_type]['name'] : "";
+$col_text = isset($arr_columns[$col_type]['name']) ? $arr_columns[$col_type]['name'] : "";
 
 // this area populates the textarea
 if ($main->button(1)) {
@@ -134,13 +134,13 @@ if ($main->button(1)) {
         // values from dropdown not alphabetized
         $arr_display = $arr_dropdown;
         $arr_printf = array($col_text);
-        array_push($arr_messages, __t("Column %d has a dropdown list.", $module));
+        array_push($arr_messages, __t("Column %s has a dropdown list.", $module, $arr_printf));
         array_push($arr_messages, __t("Textarea populated from preexisting dropdown list.", $module));
     }
     else {
         // values from db alphabetized
         $arr_printf = array($col_text);
-        array_push($arr_messages, __t("Column %s does not have a preexisting dropdown list.", $module));
+        array_push($arr_messages, __t("Column %s does not have a preexisting dropdown list.", $module, $arr_printf));
         $arr_display = array_filter($arr_query);
     }
     $dropdown = implode("\r\n", $arr_display);
@@ -191,7 +191,7 @@ if ($main->button(2)) {
         $arr_dropdowns_json['properties'] = $arr_properties;
         $main->update_json($con, $arr_dropdowns_json, "bb_dropdowns");
         $arr_printf = array($col_text);
-        array_push($arr_messages, __t("Column %d has had its dropdown list added or updated.", $module, $arr_printf));
+        array_push($arr_messages, __t("Column %s has had its dropdown list added or updated.", $module, $arr_printf));
 
         $row_type = $main->set('row_type', $arr_state, $default_row_type);
         $col_type = $main->set('col_type', $arr_state, $default_col_type);
@@ -212,14 +212,14 @@ if ($main->button(3)) // remove_dropdown
 
 /* BEGIN REQUIRED FORM */
 // populate row_type select combo box
-echo "<p class=\"spaced bold larger\">" . __t("Manage Dropdowns") . "</p>";
+echo "<p class=\"spaced bold larger\">" . __t("Manage Dropdowns", $module) . "</p>";
 
 echo "<div class=\"spaced\">";
 $main->echo_messages($arr_messages);
 echo "</div>";
 
 $main->echo_form_begin();
-$main->echo_module_vars();;
+$main->echo_module_vars();
 
 // row_type select tag
 $params = array("class" => "spaced", "onchange" => "bb_reload()");
@@ -235,9 +235,7 @@ $main->echo_input("multiselect", 1, array('type' => 'checkbox', 'class' => 'midd
 echo "</span>";
 echo "</div>";
 // populate text area
-$main->echo_textarea("dropdown", $dropdown, array('class' => "spaced", 'cols' => 60, 'rows' => 15, 'wrap' => "off"));
-
-$main->echo_clear();
+$main->echo_textarea("dropdown", $dropdown, array('id' => "bb_dropdowns_textarea", 'class' => "spaced boxsizing", 'wrap' => "off"));
 
 // buttons
 $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Populate Form", $module));

@@ -98,14 +98,14 @@ $main->echo_form_begin(array("enctype" => "multipart/form-data"));
 $main->echo_module_vars();;
 
 // upload row_join calls dummy function
-echo "<div class=\"spaced border floatleft padded\">";
+echo "<div class=\"inlineblock spaced border padded\">";
 $params = array("class" => "spaced", "onchange" => "bb_reload()");
 $main->layout_dropdown($arr_layouts, "row_join", $row_join, $params);
 $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Get Upload Header", $module));
 $main->echo_button("get_header", $params);
 echo "</div>";
 $main->echo_clear();
-echo "<div class=\"spaced border floatleft padded\">";
+echo "<div class=\"inlineblock spaced border padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_file\" id=\"file\" />";
 $params = array("class" => "spaced", "number" => 2, "target" => $module, "passthis" => true, "label" => __t("Upload File", $module));
@@ -117,7 +117,7 @@ $arr_select = array(0 => __t("Insert", $module), 1 => __t("Update", $module));
 $main->array_to_select($arr_select, "edit_or_insert", $edit_or_insert, array(), array('usekey' => true, 'class' => "spaced"));
 echo "</div>";
 $main->echo_clear();
-echo "<textarea class=\"spaced\" name=\"data_area\" cols=\"160\" rows=\"25\" wrap=\"off\">" . $data_area . "</textarea>";
+$main->echo_textarea("data_area", $dropdown, array('id' => "bb_upload_data_textarea", 'class' => "spaced boxsizing", 'wrap' => "off"));
 $main->echo_form_end();
 /* END FORM */
 ?>

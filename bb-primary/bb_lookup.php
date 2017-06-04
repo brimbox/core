@@ -127,58 +127,49 @@ echo "<div class=\"spaced\">";
 $main->echo_messages($arr_messages);
 echo "</div>";
 
-echo "<div class=\"table\">";
-// use a table to organized form, headers follow
-echo "<div class=\"row\">";
-
-echo "<div class=\"spaced border middle cell\">";
-$params = array("class" => "spaced nowrap", "onclick" => "bb_reload()", "label" => __t("Submit Lookup", $module));
+echo "<div id=\"bb_lookup_searchform_wrapper\" class=\"margin1\">";
+echo "<div class=\"minusleft spacertop\">";
+$params = array("class" => "spacednowrap", "onclick" => "bb_reload()", "label" => __t("Submit Lookup", $module));
 $main->echo_script_button("lookup_button", $params);
 echo "</div>";
 
-echo "<div class=\"spaced border cell\">";
+echo "<div class=\"minusleft spacertop inlineblock border padded\">";
 echo "<div class=\"spaced\">" . __t("Record ID", $module) . "</div>";
-echo "<div class=\"spaced\"><input type =\"text\" class =\"short\" name = \"record_id\" value = \"" . $record_id . "\"></div>";
+echo "<input class=\"spaced maxshort\" type =\"text\" name = \"record_id\" value = \"" . $record_id . "\">";
 echo "</div>";
 
-echo "<div class=\"border cell\">";
+echo "<div class=\"minusleft spacertop inlineblock border padded\">";
 echo "<div class=\"spaced\">" . __t("Layout", $module) . "</div>";
-echo "<div class=\"spaced\">";
+echo "<div class=\"inlineblock margin3\">";
 $params = array("onchange" => "bb_reload()");
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "</div>";
 echo "</div>";
 
-echo "<div class=\"border cell\">";
+echo "<div class=\"minusleft spacertop inlineblock border padded\">";
 echo "<div class=\"spaced\">" . __t("First Lookup Column", $module) . "</div>";
-echo "<div class=\"spaced inlineblock\">";
-echo "<input type=\"text\" name = \"value_1\" value = \"" . $value_1 . "\">";
-echo "</div>";
-echo "<div class=\"spaced nowrap inlineblock\">";
+echo "<input class=\"spaced maxmedium\" type=\"text\" name = \"value_1\" value = \"" . $value_1 . "\">";
+echo "<div class=\"inlineblock spaced nowrap\">";
 echo "<span>" . __t("Begins:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"1\"" . ($radio_1 == 1 ? "checked" : "") . " >";
 echo "<span> " . __t("Exact:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"2\"" . ($radio_1 == 2 ? "checked" : "") . ">";
 echo "<span> " . __t("Like:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"3\"" . ($radio_1 == 3 ? "checked" : "") . ">";
 echo "<span> " . __t("Empty:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_1\" value=\"4\"" . ($radio_1 == 4 ? "checked" : "") . ">";
 echo "</div>";
-echo "&nbsp;";
-echo "<div class=\"spaced inlineblock\">";
+echo "<div class=\"inlineblock spaced\">";
 $main->column_dropdown($arr_columns, "col_type_1", $col_type_1);
 echo "</div>";
 echo "</div>";
 
-echo "<div class=\"border cell\">";
+echo "<div class=\"minusleft spacertop inlineblock border padded\">";
 echo "<div class=\"spaced\">" . __t("Second Lookup Column", $module) . "</div>";
-echo "<div class=\"spaced inlineblock\">";
-echo "<input type=\"text\" name = \"value_2\" value = \"" . $value_2 . "\">";
-echo "</div>";
-echo "<div class=\"spaced nowrap inlineblock\">";
+echo "<input class=\"spaced maxmedium\" type=\"text\" name = \"value_2\" value = \"" . $value_2 . "\">";
+echo "<div class=\"inlineblock spaced nowrap\">";
 echo "<span>" . __t("Begins:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"1\"" . ($radio_2 == 1 ? "checked" : "") . " >";
 echo "<span> " . __t("Exact:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"2\"" . ($radio_2 == 2 ? "checked" : "") . ">";
 echo "<span> " . __t("Like:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"3\"" . ($radio_2 == 3 ? "checked" : "") . ">";
 echo "<span> " . __t("Empty:", $module) . "</span><input type=\"radio\" class=\"middle\" name=\"radio_2\" value=\"4\"" . ($radio_2 == 4 ? "checked" : "") . ">";
 echo "</div>";
-echo "&nbsp;";
-echo "<div class=\"spaced inlineblock\">";
+echo "<div class=\"inlineblock spaced\">";
 $main->column_dropdown($arr_columns, "col_type_2", $col_type_2);
 echo "</div>";
 echo "</div>";
@@ -189,7 +180,7 @@ if ($main->on_constant('BB_ARCHIVE_INTERWORKING')) {
         $checked = "checked";
         $mode = " 1 = 1 ";
     }
-    echo "<div class=\"border middle cell\">";
+    echo "<div class=\"minusleft spacertop inlineblock border middle\">";
     echo "<span class = \"spaced border nowrap rounded padded shaded\">";
     $main->echo_input("archive_flag", 1, array('type' => 'checkbox', 'class' => 'middle padded', 'checked' => $checked));
     echo "<label class=\"padded\">" . __t("Check Archives", $module) . "</label>";
@@ -197,9 +188,8 @@ if ($main->on_constant('BB_ARCHIVE_INTERWORKING')) {
     echo "</span>";
     echo "</div>";
 }
+echo "</div>";
 
-echo "</div>"; // end row
-echo "</div>"; // end table
 // hidden element containing the current return page, this is related to the row offset in the query LIMIT clause
 echo "<input type = \"hidden\"  name = \"offset\" value = \"" . $offset . "\">";
 

@@ -112,18 +112,17 @@ $main->echo_form_begin();
 $main->echo_module_vars();
 
 // select add box
-echo "<div class=\"table\">";
+echo "<div class=\"bb_listchoose_lists_table table\">";
 echo "<div class=\"row\">";
-echo "<div class=\"cell padded\"><p class = \"bold colored\">" . __t("Record Not In List(s)", $module) . "</p></div>";
-echo "<div class=\"cell padded\"></div>";
-echo "<div class=\"cell padded\"><p class = \"bold colored\">" . __t("Record In List(s)", $module) . "</p></div>";
+echo "<div class=\"bb_listchoose_lists_header cell padded\"><p class = \"bold colored\">" . __t("Record Not In List(s)", $module) . "</p></div>";
+echo "<div class=\"bb_listchoose_lists_button cell padded\"></div>";
+echo "<div class=\"bb_listchoose_lists_header cell padded\"><p class = \"bold colored\">" . __t("Record In List(s)", $module) . "</p></div>";
 echo "</div>";
 
 // row
 echo "<div class=\"row\">";
-echo "<div class=\"cell padded listchoose_box\">";
-
-echo "<select class=\"listchoose_box\" name = \"add_names[]\" multiple>";
+echo "<div class=\"bb_listchoose_lists_cell cell padded\">";
+echo "<select class=\"fill\" name = \"add_names[]\" multiple>";
 // echo the xml lists not set
 foreach ($arr_lists as $key => $value) {
     $i = $key - 1; // start string at 0
@@ -133,13 +132,13 @@ foreach ($arr_lists as $key => $value) {
 }
 echo "</select>";
 echo "</div>"; // cell
-echo "<div class=\"cell padded middle\">";
+echo "<div class=\"bb_listchoose_lists_button cell padded middle\">";
 $params = array("class" => "spaced", "number" => 1, "target" => $module, "slug" => $slug, "passthis" => true, "label" => __t("<< Move >>", $module));
 $main->echo_button("move_list", $params);
 echo "</div>"; // cell
 // select remove box -- multiselect
-echo "<div class=\"cell padded\">";
-echo "<select class=\"listchoose_box\" name=\"remove_names[]\" multiple>";
+echo "<div class=\"bb_listchoose_lists_cell cell padded\">";
+echo "<select class=\"fill\" name=\"remove_names[]\" multiple>";
 // echo the xml lists already set
 // no need to get $arr_list again
 foreach ($arr_lists as $key => $value) {

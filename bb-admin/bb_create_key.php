@@ -151,7 +151,6 @@ echo "</div>";
 
 $main->echo_form_begin();
 $main->echo_module_vars();;
-echo "<div class=\"spaced borderleft bordertop floatleft\">";
 $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Check Layout", $module));
 $main->echo_button("check_column", $params);
 echo "<br>";
@@ -164,7 +163,7 @@ $params = array("class" => "spaced", "number" => 2, "target" => $module, "passth
 $main->echo_button("add_key", $params);
 $params = array("class" => "spaced", "number" => 3, "target" => $module, "passthis" => true, "label" => __t("Remove Key", $module));
 $main->echo_button("remove_key", $params);
-echo "<br>&nbsp;<br>&nbsp;<br></div>";
+echo "<br><br><br>";
 $main->echo_form_end();
 
 /* END FORM */

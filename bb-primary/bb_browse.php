@@ -83,6 +83,8 @@ else {
 
 // process row_type
 $row_type = $main->process('row_type', $module, $arr_state, $default_row_type);
+// must get arr_column again on current row_type
+$arr_columns = $main->columns($con, $row_type);
 
 // update state, back to db
 $main->update($con, $module, $arr_state);

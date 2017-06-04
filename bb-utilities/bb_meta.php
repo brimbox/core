@@ -123,7 +123,7 @@ class bb_meta extends bb_validate {
     function joins($con, $row_type_1 = NULL, $row_type_2 = NULL) {
 
         $arr_layouts_json = $this->get_json($con, "bb_layout_names");
-        $arr_joins = $this->reduce($arr_layouts_json, 'joins');
+        $arr_joins = $this->init($this->reduce($arr_layouts_json, 'joins'), array());
         $arr_row_types = array($row_type_1, $row_type_2);
 
         //check if join exists or valid, boolean return
@@ -144,6 +144,7 @@ class bb_meta extends bb_validate {
         }
         //return corresponding joins as an array of integers
         elseif (($row_type_1 > 0) && is_null($row_type_2)) {
+            $arr_return = array();
             foreach ($arr_joins as $value) {
                 if (in_array($row_type_1, $value)) {
                     $arr_return[] = $value['join1'];

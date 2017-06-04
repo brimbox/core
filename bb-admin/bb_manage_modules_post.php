@@ -400,7 +400,7 @@ if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_
     } // end set order
     if ($main->button(4)) {
         /* GET LESS REPLACER */
-        include ($abspath . "/bb-less/bb_less_substituter.php");
+        include ($abspath . "/bb-classes/lesssubstituter/bb_less_substituter.php");
 
         $less = new bb_less_substituter();
 

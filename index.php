@@ -241,11 +241,28 @@ if (isset($_SESSION['username'])): /* START IF, IF (logged in) THEN (controller)
 else: /* MIDDLE ELSE, IF (logged in) THEN (controller) ELSE (login) END */
 
     /* LOGIN SECTION */
-    /* INCLUDES THE LOGIN PHP VERIFICATION */
-    if (file_exists("bb-extend/bb_verify_login.php")) include_once ("bb-extend/bb_verify_login.php");
-    else include_once ("bb-blocks/bb_verify_login.php");
 
-    /* INCLUDE LOGIN CSS AND HTML FOR THE MOST PART */
+    //get connection
+    $con_string = "host=" . DB_HOST . " dbname=" . DB_NAME . " user=" . DB_USER . " password=" . DB_PASSWORD;
+    $con = pg_connect($con_string);
+    if (!$con) die(); //merciless death
+    //translation functions
+    include_once ("bb-utilities/bb_string.php");
+    //get Translation array
+    $result = pg_query($con, "SELECT jsondata FROM json_table WHERE lookup IN ('bb_login_translate');");
+    if (pg_num_rows($result)) {
+        $bb_login_translate = json_decode(pg_fetch_result($result, 0, "jsondata"), true);
+    }
+
+    /* INCLUDES THE LOGIN PHP VERIFICATION AND RESET LOGIC */
+    if (file_exists("bb-extend/bb_login_verification.php")) include_once ("bb-extend/bb_login_verification.php");
+    else include_once ("bb-blocks/bb_login_verification.php");
+
+    /* INCLUDE HTML FOR THE MOST PART */
+    if (file_exists("bb-extend/bb_login_styles.php")) include_once ("bb-extend/bb_login_styles.php");
+    else include_once ("bb-blocks/bb_login_styles.php");
+
+    /* INCLUDE HTML FOR THE MOST PART */
     if (file_exists("bb-extend/bb_login_form.php")) include_once ("bb-extend/bb_login_form.php");
     else include_once ("bb-blocks/bb_login_form.php");
 

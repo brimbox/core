@@ -57,7 +57,6 @@ echo "</div>";
 $main->echo_form_begin(array("enctype" => "multipart/form-data"));
 $main->echo_module_vars();
 // upload row_type calls dummy function
-echo "<div class=\"spaced border floatleft padded\">";
 echo "<label class=\"spaced\">Filename: </label>";
 echo "<input class=\"spaced\" type=\"file\" name=\"upload_file\" id=\"file\" />";
 $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Upload File", $module));
@@ -90,8 +89,7 @@ $result = $main->query($con, $query);
 echo "<p class=\"spaced bold larger\">Documents List</p>";
 
 // div container with scroll bar
-echo "<div class=\"spaced padded border logwrap\">";
-echo "<div class=\"table padded\">";
+echo "<div class=\"table padded border\">";
 
 // table header
 echo "<div class=\"row shaded\">";
@@ -125,7 +123,6 @@ while ($row = pg_fetch_array($result)) {
     echo "</div>";
     $i++;
 }
-echo "</div>";
 echo "</div>";
 
 /* END DISPLAY DOCS */

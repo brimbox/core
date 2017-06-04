@@ -93,7 +93,7 @@ else:
     $main->echo_button("submit_update", $params);
     $main->echo_clear();
     echo "<div class=\"spaced padded floatleft\">";
-    echo "<div class=\"spaced floatleft\">" . __t("Admin Password:") . " ";
+    echo "<div class=\"spaced floatleft\">" . __t("Admin Password:", $module) . " ";
     echo "<input class=\"spaced\" type=\"password\" name=\"install_passwd\"/></div>";
     echo "</div>";
     $main->echo_clear();
@@ -107,7 +107,7 @@ else:
     $main->echo_button("submit_module", $params);
 
     echo "<span class = \"spaced border padded rounded shaded\">";
-    echo "<label class=\"padded\">" . __t("Install Activated:") . " </label>";
+    echo "<label class=\"padded\">" . __t("Install Activated:", $module) . " </label>";
     $main->echo_input("install_activated", 1, array('type' => 'checkbox', 'class' => 'middle', 'checked' => true));
     echo "</span>";
     echo "</div>";

@@ -440,12 +440,12 @@ if ($action == 0) {
     // echo "<p>" . $query . "</p>";
     $result = $main->query($con, $query);
 
-    echo "<div class=\"floatleft\">";
-    echo "<button class=\"floatleft spaced\" name=\"add_new_user\" onclick=\"bb_set_hidden(0,1)\">" . __t("Add New User", $module) . "</button>";
-
     // floatright in reverse order
-    echo "<div class=\"table floatright\">";
+    echo "<div class=\"table\">";
     echo "<div class=\"row\">";
+    echo "<div class=\"padded cell\">";
+    echo "<button class=\"padded\" name=\"add_new_user\" onclick=\"bb_set_hidden(0,1)\">" . __t("Add New User", $module) . "</button>";
+    echo "</div>";
     echo "<div class=\"padded cell\">" . __t("Filter By:", $module) . " </div>";
     echo "<div class=\"padded cell\">";
     echo "<select name=\"filterrole\" onChange=\"bb_reload()\">";

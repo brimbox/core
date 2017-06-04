@@ -29,24 +29,6 @@ function bb_reload()
     return false;
     }
 </script>
-<style>
-/* Query Alias */
-.sub_textarea {
-	width: 400px;
-	overflow-y: scroll;
-}
-
-.full_textarea {
-	width: 700px;
-	overflow-y: scroll;
-}
-
-.return_textarea {
-	width: 700px;
-	background-color: #F0F0F0;
-	overflow-y: scroll;
-}
-</style>
 <?php
 $arr_pagination = array(10, 25, 50, 100, 500, 1000);
 
@@ -132,12 +114,7 @@ $main->echo_module_vars();
 // echo form report vars for report functions
 $main->echo_report_vars();
 
-$params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => __t("Submit Full Query", $module));
-$main->echo_button("submit_query", $params);
-
-$main->echo_clear();
-
-echo "<div class=\"spaced floatleft\"><span>" . __t("Show Columns:", $module) . "</span>";
+echo "<div class=\"inlineblock spaced\"><span>" . __t("Show Columns:", $module) . "</span>";
 $params = array("onchange" => "bb_reload()", "empty" => "true");
 $main->layout_dropdown($arr_layouts, "row_type", $row_type, $params);
 echo "</div>";
@@ -146,61 +123,65 @@ for ($i = 0;$i <= 10;$i++) {
     $arr_number[] = $i;
 }
 $params = array("select_class" => "spaced", "onchange" => "bb_reload()");
-echo "<div class=\"spaced floatleft\"><span>" . __t("Number of Subqueries:", $module) . " </span>";
+echo "<div class=\"spaced inlineblock\"><span>" . __t("Number of Subqueries:", $module) . " </span>";
 $main->array_to_select($arr_number, "number_sub_queries", $number_sub_queries, array(), $params);
 echo "</div>";
 
-$params = array("select_class" => "spaced", "onchange" => "bb_reload()");
-echo "<div class=\"spaced floatleft\"><span>" . __("Pagination:", $module) . " </span>";
+$params = array("class" => "spaced", "onchange" => "bb_reload()");
+echo "<div class=\"inlineblock spaced\"><span>" . __("Pagination:", $module) . " </span>";
 $main->array_to_select($arr_pagination, "pagination", $pagination, array(), $params);
 echo "</div>";
-
-// report type dropdown, use $pass as resuable parameters variable
 $main->echo_tag("label", __t("Report Type:", $module) . " ", array('class' => "padded"));
 $params = array("class" => "margin");
 $main->report_type($current['report_type'], $params);
-$main->echo_clear();
+
+echo "<br>";
 
 if ($row_type > 0) {
-    echo "<div class=\"floatleft padded spaced border\">";
+    echo "<div class=\"bb_query_alias_columns_wrapper inlineblock twice spaced border\">";
     ksort($arr_columns);
     foreach ($arr_columns as $key => $value) {
-        echo $main->pad("c", $key);
-        echo "=>";
-        echo $value['name'];
-        echo "<br>";
+        $arr_display_columns[] = $main->pad("c", $key) . "=>" . $value['name'];
     }
+    $str_display_columns = implode(" | ", $arr_display_columns);
+    echo $str_display_columns;
     echo "</div>";
 }
 
 // loop through subqueries
-echo "<div class=\"floatleft\">";
+echo "<div id=\"bb_query_alias_query_wrapper\">";
+
+echo "<div class=\"divider spaced\"></div>";
+
 if ($number_sub_queries > 0) {
-    echo "<div class=\"table spaced\" >";
-    echo "<div class=\"row\"><div class=\"padded border cell\"></div><div class=\"padded border cell\">" . __t("SubQuery Alias", $module) . "</div><div class=\"padded border cell\">" . __t("SubQuery Value", $module) . "</div></div>";
     for ($i = 1;$i <= $number_sub_queries;$i++) {
-        echo "<div class=\"row\"><div class=\"padded border top cell\">";
+        echo "<div class=\"inlineblock top\">";
         $params = array("class" => "spaced", "number" => $i, "target" => $module, "passthis" => true, "label" => __t("Submit SubQuery", $module));
         $main->echo_button("submit_subquery_" . $i, $params);
-        echo "</div><div class=\"padded border top cell\">";
         $name = $main->pad("s", $i);
-        $main->echo_input($name, $arr_sub_queries[$i]['name'], array('type' => "text", 'class' => "spaced"));
-        echo "</div><div class=\"padded border top cell\">";
+        $main->echo_input($name, $arr_sub_queries[$i]['name'], array('type' => "text", 'placeholder' => "SubQuery Alias", 'class' => "spaced medium"));
+        echo "</div>";
         $subquery = $main->pad("q", $i);
-        $main->echo_textarea($subquery, $arr_sub_queries[$i]['subquery'], array('class' => "spaced sub_textarea"));
-        echo "</div>";
-        echo "</div>";
+        $main->echo_textarea($subquery, $arr_sub_queries[$i]['subquery'], array('placeholder' => "SubQuery Definition", 'class' => "bb_query_alias_subquery_textarea spaced top"));
     }
-    echo "</div>";
-    echo "<div class=\"top\">";
-    $main->echo_textarea("substituter", $substituter, array('class' => "spaced full_textarea", 'rows' => 5));
-    echo "</div>";
 
-    echo "<div class=\"top\">";
-    if (isset($fullquery)) {
-        $main->echo_textarea("fullquery", $fullquery, array('class' => "spaced return_textarea", 'rows' => 5, 'readonly' => true));
-    }
+    $main->echo_textarea("substituter", $substituter, array('id' => "bb_query_alias_substituter_textarea", 'class' => "spaced", 'placeholder' => "Full Query Definition with Aliases"));
+
+    $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => __t("Submit Full Query", $module));
+    $main->echo_button("submit_query", $params);
+    /*
+    $params = array("class" => "spaced", "onchange" => "bb_reload()");
+    echo "<div class=\"inlineblock spaced\"><span>" . __("Pagination:", $module) ." </span>";
+    $main->array_to_select($arr_pagination, "pagination", $pagination, array(), $params);
     echo "</div>";
+    $main->echo_tag("label", __t("Report Type:", $module) . " ", array('class'=>"padded"));
+    $params = array ("class" => "margin");
+    $main->report_type ( $current ['report_type'], $params );
+    */
+
+    if (isset($fullquery)) {
+        $main->echo_textarea("fullquery", $fullquery, array('id' => "bb_query_alias_fullquery_textarea", 'class' => "spaced", 'readonly' => true));
+    }
 }
 
 // echo report
