@@ -21,6 +21,9 @@
 /* This will allow imports of LESS variable files and renders the variables and substitutions in order declared */
 /* This removes comments and whitespace rendering CSS as open styles for inclusion between style tags (not a CSS file) */
 /* Dies on 4 errors, bad file extension, bad file or import statement, bad variable name, or empty variable value */
+
+/* Version 1.0 */
+
 class bb_less_substituter {
 
     // main function
