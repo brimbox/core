@@ -46,6 +46,10 @@ define('EMAIL_PASSWORD', 'email_password');
 // Example: 143/imap/novalidate-cert
 // Example: 110/pop3/novalidate-cert
 define('EMAIL_IMAP_OPTIONS', '993/imap/ssl/novalidate-cert');
+//define as incoming server at by default
+define('SMTP_SERVER', EMAIL_SERVER);
+//define as default port
+define('SMTP_PORT', 465);
 
 /* PROGRAM VARIABLES */
 // Browser page title
