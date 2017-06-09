@@ -14,7 +14,9 @@
  * If not, see http://www.gnu.org/licenses/
  */
 
-/* CSS/LESS Document for parsing*/
+/**** CSS/LESS ****/
+
+/**** DEFAULT LESS ****/
 
 /* Default Colors */
 
@@ -26,7 +28,9 @@
 
 /* These are the Tab Colors */
 
-/* Reset and Clearfix */
+/**** END DEFAULT LESS ****/
+
+/**** GLOBAL STYLES ****/
 
 /* Reset */
 * {
@@ -41,38 +45,103 @@
 	content: " ";
 	display: table;
 }
-
 .clearfix:after {
 	clear: both;
 }
-
 .clearfix {
 	*zoom: 1;
 }
 
 /* Responsive */
-
 html {
     -webkit-text-size-adjust: 100%;
 }
-
 img {
 	max-width: 100%;
 	height: auto;
 }
 
-/*********** MENU **************/
+/* Font */
+body, td, input, select, button, textarea {
+	font-size: 11pt;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #181818;
+	line-height: 140%;
+}
+/* Form objects */
+button, input, select, textarea {
+	padding: 1px;
+	border: 1px solid #A070B6;
+}
+/* immediately change radio, checkbox and image to no border */
+input[type="radio"], input[type="checkbox"], input[type="image"] {
+	border: none;
+}
+/* background of type = file */
+input[type="file"] {
+	background: white;
+}
+/* checkbox alignment problem */
+input[type=checkbox], input[type=radio] {
+  vertical-align: middle;
+  position: relative;
+  bottom: 1px;
+}
+/* rounded objects */
+button, input, select {
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-o-border-radius: 2px;
+}
+/* button specific */
+button {
+	cursor: pointer;
+	background-color: #F2EAFF;
+}
+/* link style button css */
+button.link {
+	color: #56006F;
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer
+}
+button.link:hover {
+	text-decoration: underline;
+}
+button.link::-moz-focus-inner {
+	padding: 0;
+	border: 0
+}
+input[type=checkbox]:checked.multihighlight + label {
+  background-color: #F2EAFF;
+}
+@media screen and (max-width : 480px) {
+	/* global adjustments */
+	body, td, input, select, button, textarea {
+		font-size: 11pt;
+		font-family: Arial, Helvetica, sans-serif;
+		color: #181818;
+		line-height: 140%;
+	}
+	div.rowclear {
+		clear: none;
+	}
+}
+
+/**** END GLOBAL STYLES ****/
+
+/**** MENU AND BOX CONTROLLER ****/
 
 /* Header */
 #bb_header {
 	width: 100%;
 }
-
 /* Menu Reset*/
 #bb_menu, #bb_admin_menu {
 	list-style-type: none;
 }
-
 #bb_menu {
 	margin: 0 6px;
 }
@@ -83,11 +152,9 @@ img {
 	margin-right: -1px;
 	margin-bottom: -1px;
 }
-
 #bb_menu li:last-of-type {
 	display: none;
 }
-
 /* Menu Links */
 #bb_menu li button {
 	display: block;
@@ -103,15 +170,18 @@ img {
 	color: #56006F;
 	background-color: #F2EAFF;
 	text-decoration: none;
+	border-radius: 0;
+	-moz-border-radius: 0;
+	-webkit-border-radius: 0;
+	-o-border-radius: 0;
+	
 }
-
 #bb_menu li button.chosen {
 	background-color: #FFFFFF;
 	border-top-width: 3px;
 	padding: 3px 6px 4px 6px;
 	border-bottom: 1px solid #FFFFFF;
 }
-
 #bb_menu li button:hover {
 	background-color: #F6F0FF;
 	font-weight: bold;
@@ -121,70 +191,62 @@ img {
 #bb_mobile_header {
 	display: none;
 }
-
 /* Hide Label Toggle Checkbox */
 #bb_menu_header input#bb_show_menu {
 	display: none;
 }
-
 /* Show Menu When Invisible Checkbox is Checked */
 #bb_menu_header input#bb_show_menu:checked ~ #bb_menu {
 	display: block;
 }
-
 /* Line Under Tabs */
 #bb_line {
 	width: 100%;
 	border-top: 1px solid #A070B6;
 }
-
 /* Display Module */
 #bb_wrapper {
 	margin: 6px;
 }
-
 #bb_content {
 	margin: 4px 0;
 }
-
 #bb_admin_content {
 	border-left: 1px solid #A070B6;
 	border-top: 1px solid #A070B6;
 	margin-top: 4px;
 	padding: 4px;
 }
-
+/* Admin Menu */
 #bb_admin_menu {
 	margin: 10px auto 10px auto;
 }
-
-/* Admin Menu */
 #bb_admin_menu li {
 	display: inline;
 	margin: 0;
 }
-
 #bb_admin_menu li button {
 	display: inline;
 	padding: 5px 6px 4px 6px;
-	-moz-border-radius: 0px;
 	border: 1px solid #A070B6;
 	background-color: #F2EAFF;
 	margin: -1px -1px  0  0;
+	cursor: pointer;
+	border-radius: 0;
+	-moz-border-radius: 0;
+	-webkit-border-radius: 0;
+	-o-border-radius: 0;
 }
-
 #bb_admin_menu li button:hover {
 	font-weight: bold;
 	background-color: #F6F0FF;
 	transition: .5s ease;
 }
-
 #bb_admin_menu li button.chosen {
 	background-color: #FFFFFF;
 	border-top-width: 3px;
 	padding: 3px 6px 4px 6px;
 }
-
 /* Processing Image */
 #bb_processing {
 	display: block;
@@ -193,7 +255,6 @@ img {
 	height: 100%;
 	z-index: 1000;
 }
-
 #bb_processing img {
     position: absolute;
     margin: auto;
@@ -203,104 +264,8 @@ img {
     bottom: 0;
 }
 
-/******* END MENU **************/
-
-/****** GLOBAL STYLES **********/
-/* FONT */
-body, td, input, select, button, textarea {
-	font-size: 11pt;
-	font-family: Arial, Helvetica, sans-serif;
-	color: #181818;
-	line-height: 140%;
-}
-/* FORM OBJECTS */
-/* standard form objects, including HTML5 inputs */
-button, input, select, textarea {
-	padding: 1px;
-	border: 1px solid #A070B6;
-}
-/* immediately change radio, checkbox and image to no border */
-input[type="radio"], input[type="checkbox"], input[type="image"] {
-	border: none;
-}
-/* background of type = file */
-input[type="file"] {
-	background: white;
-}
-/* rounded objects */
-button, input, select {
-	border-radius: 2px;
-	-moz-border-radius: 2px;
-	-webkit-border-radius: 2px;
-	-o-border-radius: 2px;
-}
-
-button {
-	background-color: #F2EAFF;
-}
-
-/* link style button css */
-button.link {
-	color: #56006F;
-	background: none;
-	border: 0;
-	padding: 0;
-	cursor: pointer
-}
-
-button.link:hover {
-	text-decoration: underline;
-}
-
-button.link::-moz-focus-inner {
-	padding: 0;
-	border: 0
-}
-
-/* CLEAR  */
-div.clear, div.rowclear {
-	clear: both;
-}
-
-input[type=checkbox]:checked.multihighlight + label {
-  background-color: #F2EAFF;
-} 
-
-/* Responsive Styles for Pads */
-@media screen and (max-width : 768px) {
-	body {
-		margin: 0 2px;
-	}
-	#bb_wrapper {
-		margin: 6px;
-	}
-	#bb_admin_content {
-		margin: 6px 0;
-	}		
-	#bb_menu {		
-		border: 0;
-		text-align: center;
-	}
-	#bb_menu li {
-		float: none;
-		display: inline-block;
-		margin-top: -1px;
-	}
-	#bb_menu li button {
-		width: 175px;
-	}
-	#bb_menu li button.chosen {
-		background-color: #FFFFFF;
-		border-bottom: 1px solid #A070B6;
-	}	
-	#bb_admin_menu {
-		text-align: center;
-	}	
-}
-
 /* Responsive Styles for Phones */
-@media screen and (max-width : 480px) {
-	
+@media screen and (max-width : 480px) {	
 	/* Mobile Button and Header */
 	#bb_controller_image {
 		display: none;
@@ -312,7 +277,6 @@ input[type=checkbox]:checked.multihighlight + label {
 		background-color: #A070B6;
 		overflow: hidden;
 	}
-
 	/* Text Logo */
 	#bb_mobile_logo {
 		line-height: 24px;
@@ -321,17 +285,14 @@ input[type=checkbox]:checked.multihighlight + label {
 		font-weight: bold;
 		float: left;
 	}
-
 	/* Mobile Menu Button */
 	#bb_mobile_button {
 		float: right;
 	}
-
 	/* Pointer on Hover */
 	#bb_mobile_button:hover {
 		cursor: pointer;
 	}
-
 	/* Mobile Menu */
 	#bb_menu {
 		display: none;
@@ -343,56 +304,53 @@ input[type=checkbox]:checked.multihighlight + label {
 	
 	#bb_menu li:last-of-type {
 		display: block;
-	}
-	
+	}	
 	#bb_menu li button {
 		font-size: 12pt;
 		min-width: 140px;
 		text-align: center;
 		padding: 3px;
 	}
-
 	/*Make Menu Full Width*/
 	#bb_menu li, #bb_menu li button {
 		width: 100%;
-	}
-	
-	/* global adjustments */
-	body, td, input, select, button, textarea {
-		font-size: 11pt;
-		font-family: Arial, Helvetica, sans-serif;
-		color: #181818;
-		line-height: 140%;
-	}
-	div.rowclear {
-		clear: none;
+	}	
+	/*Make Menu Full Width*/
+	#bb_admin_menu {
+		text-align: center;
 	}
 }
 
+/**** END MENU AND BOX CONTROLLER ****/
+
 /**** STANDARD CSS DECLARATIONS ***/
 
-/* border colors in LESS */
+/* border colors*/
 .border { border: 1px solid #A070B6; }
 .bordertop { border-top: 1px solid #A070B6; }
 .borderright { border-right: 1px solid #A070B6; }
 .borderbottom { border-bottom: 1px solid #A070B6; }
 .borderleft { border-left: 1px solid #A070B6; }
-/* divider colors in LESS */
+
+/* divider colors */
 .divider { border-top: 1px solid #A070B6; padding: 3px 0px 3px 0; }
 .darkline { border-top: 1px solid #CCBBDD; padding: 3px 0px 3px 0; }
 .noborder { border: 0; }
+
 /* alignment */
 .center { text-align: center; }
 .left { text-align: left; }
 .right { text-align: right; }
 .floatleft { float: left; }
 .floatright { float: right; }
+
 /* font classes */
 .bold { font-weight: bold; }
 .italic { font-style: italic; }
 .none { text-decoration: none; }
 .underline { text-decoration: underline; }
 .larger { font-size: 12pt; letter-spacing: 0.3px; }
+
 /* font colors */
 .message { color: #56006F; }
 .colored { color: #56006F; }
@@ -428,35 +386,29 @@ input[type=checkbox]:checked.multihighlight + label {
 .inlineblock { display: inline-block; }
 .overflow { white-space: nowrap; overflow: hidden; float: left; }
 .auto { overflow: auto; }
+
 /* lengths & sizes */
 .shorter { min-height: 1em; width: 50px; }
 .maxshorter { min-height: 1em; max-width: 50px; width: 100%;}
-
 .short { min-height: 1em; width: 100px; }
 .maxshort { min-height: 1em; max-width: 100px; width: 100%;}
-
 .medium { min-height: 1em; width: 150px; }
 .maxmedium { min-height: 1em; max-width: 150px; width: 100%;}
-
 .long { min-height: 1em; width: 200px; }
 .maxlong { min-height: 1em; max-width: 200px; width: 100%;}
-
 .longer {min-height: 1em; width: 300px;}
 .maxlonger {min-height: 1em; max-width: 300px; width: 100%;}
-
 .half { min-height: 1em; width: 50%; }
 .note { min-height: 1em; width: 90%; }
 .fill { height: 100%; width: 100%; }
-
 .notearea { height: 200px; max-width: 600px;  width: 100%;}
 .thinarea { height: 400px; max-width: 800px;  width: 100%;}
 .widearea { height: 600px; max-width: 1000px;  width: 100%;}
-
-.boxsizing { box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; }
-
 .textbox { max-width: 300px; width: 100%}
 .textarea { height: 100px; max-width: 300px; width: 100%;}
+.boxsizing { box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; }
 
+/* other classes */
 .multiheight {max-height: 75px; }
 .scrolly {overflow-y: scroll}
 .emheight { min-height: 2em; }
@@ -473,8 +425,17 @@ input[type=checkbox]:checked.multihighlight + label {
 .top { vertical-align: top; }
 .middle { vertical-align: middle; }
 .bottom { vertical-align: bottom; }
+.resize { resize: both; overflow: auto;}
 
-/* Non-standard items unique to modules */
+/* clears */
+.clear, .rowclear { clear: both; }
+@media screen and (max-width : 768px) {
+	.rowclear { clear: none; }	
+}
+
+/**** END STANDARD CSS ****/
+
+/**** MODULE SPECIFIC CSS ****/
 
 /* bb_manage_log */
 #bb_manage_log_wrap {
@@ -484,22 +445,18 @@ input[type=checkbox]:checked.multihighlight + label {
 }
 
 /* bb_create_lists */
-
 #bb_create_lists_add, #bb_create_lists_update {
 	max-width: 432px;
 }
-
 .bb_create_lists_left_div {
 	display: inline-block;
 	width: 100px;	
 }
-
 .bb_create_lists_right_div {
 	display: inline-block;
 	max-width: 316px;
 	width: 100%;
 }
-
 .bb_create_lists_textarea {
 	max-width: 308px;
 	width: 100%;
@@ -528,18 +485,15 @@ input[type=checkbox]:checked.multihighlight + label {
 #bb_query_alias_query_wrapper {
 	max-width: 800px;
 }
-
 #bb_query_alias_columns_wrapper {
 	max-width: 796px;
 }
-
 #bb_query_alias_fullquery_textarea,
 #bb_query_alias_substituter_textarea {
 	max-width: 792px;
 	width: 100%;
 	height: 125px;	
 }
-
 .bb_query_alias_subquery_textarea {
 	max-width: 523px;
 	width: 100%;
@@ -547,7 +501,6 @@ input[type=checkbox]:checked.multihighlight + label {
 }
 
 /* bb_translation */
-
 #bb_translation_inputs_wrapper {
 	max-width: 618px;
 }
@@ -558,37 +511,31 @@ input[type=checkbox]:checked.multihighlight + label {
 	width: 100%;
 	height: 75px;
 }
-
 .bb_listchoose_lists_table {
 	table-layout: fixed;
 	max-width: 722px;
 	width: 100%;
 }
-
 .bb_listchoose_lists_cell {
 	max-width: 300px;
 	width: 100%;
 	height: 275px;
 }
-
 .bb_listchoose_lists_button {
 	width: 110px;
 	text-align: center;
 }
-
 .bb_listchoose_lists_header{
 	max-width: 300px;
 	width: 100%;
 }
 
 /* bb_details */
-
 #bb_details_dump_textarea {
 	height: 100px;
 	max-width: 300px; 
 	width: 100%;
 }
-
 /* bb_queue */
 #bb_queue_inbox_list {
 	overflow-y: scroll;
@@ -596,7 +543,6 @@ input[type=checkbox]:checked.multihighlight + label {
 	resize: both;
     max-width: 1000px;
 }
-
 #bb_queue_inbox_wrap {
     max-width: 1006px;
 }
@@ -608,7 +554,6 @@ input[type=checkbox]:checked.multihighlight + label {
     height: 800px;
     min-width: 600px;
 }
-
 @media screen and (max-width : 600px) {
 	#bb_queue_email_container {
 		min-width: 0;
@@ -617,13 +562,13 @@ input[type=checkbox]:checked.multihighlight + label {
 		height: 100%;
 	}
 }
-
 #bb_queue_email_body {
     display: block;
     width: 100%;        
 }
-
 #bb_queue_email_body img {
     width: auto;        
 }
+
+/**** END MODULE SPECIFIC CSS ****/
 

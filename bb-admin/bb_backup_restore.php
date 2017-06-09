@@ -58,8 +58,8 @@ $params = array("class" => "spaced", "label" => __t("Backup Files", $module), "o
 $main->echo_script_button("backup_files", $params);
 echo "<label class=\"spaced\">" . __t("Password:", $module) . " </label>";
 echo "<input class=\"spaced\" type=\"password\" name=\"backup_passwd\"/>";
-echo "<label class=\"spaced middle\"> " . __t("Encrypt:", $module) . " </label>";
-$main->echo_input("encrypt_method", 1, array('type' => "checkbox", 'class' => "middle spaced", 'checked' => true));
+echo "<label class=\"spaced\"> " . __t("Encrypt:", $module) . " </label>";
+$main->echo_input("encrypt_method", 1, array('type' => "checkbox", 'class' => "spaced", 'checked' => true));
 echo "</div>";
 echo "<br>";
 

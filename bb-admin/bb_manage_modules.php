@@ -108,7 +108,7 @@ else:
 
     echo "<span class = \"spaced border padded rounded shaded\">";
     echo "<label class=\"padded\">" . __t("Install Activated:", $module) . " </label>";
-    $main->echo_input("install_activated", 1, array('type' => 'checkbox', 'class' => 'middle', 'checked' => true));
+    $main->echo_input("install_activated", 1, array('type' => 'checkbox', 'checked' => true));
     echo "</span>";
     echo "</div>";
 

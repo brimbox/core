@@ -108,9 +108,9 @@ if ($main->on_constant('BB_ARCHIVE_INTERWORKING')) {
         $checked = "checked";
         $mode = " 1 = 1 ";
     }
-    echo "<span class = \"border rounded padded shaded\">";
-    $main->echo_input("archive_flag", 1, array('type' => 'checkbox', 'class' => 'middle padded', 'checked' => $checked));
-    echo "<label class=\"padded\">" . __t("Check Archives", $module) . "</label>";
+    echo "<span class = \"border spaced rounded padded shaded\">";
+    $main->echo_input("archive_flag", 1, array('type' => 'checkbox', 'class' => 'spaced', 'checked' => $checked));
+    echo "<label class=\"spaced\">" . __t("Check Archives", $module) . "</label>";
     echo "</span><br>";
 }
 

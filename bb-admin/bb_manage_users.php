@@ -526,6 +526,7 @@ if ($action == 0) {
 if (in_array($action, array(1, 2, 3, 4))):
 
     // buttons
+    echo "<div>";
     if ($action == 1) {
         $params = array("class" => "spaced", "number" => 1, "target" => $module, "passthis" => true, "label" => __t("Add User", $module));
         $main->echo_button("add_user", $params);
@@ -551,6 +552,7 @@ if (in_array($action, array(1, 2, 3, 4))):
         $params = array("class" => "spaced", "number" => - 1, "target" => $module, "passthis" => true, "label" => __t("Reset Module", $module));
         $main->echo_button("clear_form", $params);
     }
+    echo "</div>";
 
     // get the specific record for edit, delete, or lock, not on postback
     // manage users a little tricky because of multiple functionalites
@@ -584,103 +586,97 @@ if (in_array($action, array(1, 2, 3, 4))):
     $readonly = in_array($action, array(3, 4)) ? true : false;
 
     // echo out form
-    echo "<div class=\"table spaced\">";
-
-    echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">" . __t("Username:", $module) . "</div>";
-    echo "<div class=\"middle cell\">";
+    echo "<div class=\"middle inlineblock medium\">" . __t("Username:", $module) . "</div>";
+    echo "<div class=\"middle inlineblock\">";
     $main->echo_input("username_work", __($username_work), array('type' => "text", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
-    echo "<div class=\"error middle cell\"> " . (isset($arr_error['username_work']) ? $arr_error['username_work'] : "") . "</div>";
-    echo "</div>";
+    echo "<div class=\"error middle inlineblock\"> " . (isset($arr_error['username_work']) ? $arr_error['username_work'] : "") . "</div>";
+    echo "<div class=\"floatleft\"></div>";
+    $main->echo_clear();
 
-    echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">" . __t("Email:", $module) . "</div>";
-    echo "<div class=\"middle cell\">";
+    echo "<div class=\"middle inlineblock medium\">" . __t("Email:", $module) . "</div>";
+    echo "<div class=\"middle inlineblock\">";
     $main->echo_input("email_work", __($email_work), array('type' => "text", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
-    echo "<div class=\"error middle cell\"> " . (isset($arr_error['email_work']) ? $arr_error['email_work'] : "") . "</div>";
-    echo "</div>";
+    echo "<div class=\"error middle inlineblock\"> " . (isset($arr_error['email_work']) ? $arr_error['email_work'] : "") . "</div>";
+    echo "<div class=\"floatleft\"></div>";
+    $main->echo_clear();
 
     // passwords, md5 so never repopulate, no readonly, has error msgs
-    echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">" . __t("Password:", $module) . "</div>";
-    echo "<div class=\"middle cell\">";
+    echo "<div class=\"middle inlineblock medium\">" . __t("Password:", $module) . "</div>";
+    echo "<div class=\"middle inlineblock\">";
     $handler = "onKeyUp=\"bb_check_passwd(this.value,'passwd_work')\"";
     $main->echo_input("passwd_work", "", array('type' => 'password', 'class' => 'spaced long', 'handler' => $handler, 'maxlength' => $maxinput));
     echo "</div>";
-    echo "<div class=\"error middle cell\"> " . (isset($arr_error['passwd_work']) ? $arr_error['passwd_work'] : "") . "</div>";
-    echo "</div>";
+    echo "<div class=\"error middle inlineblock\"> " . (isset($arr_error['passwd_work']) ? $arr_error['passwd_work'] : "") . "</div>";
+    echo "<div class=\"floatleft\"></div>";
+    $main->echo_clear();
 
-    echo "<div class=\"row spaced\">";
-    echo "<div class=\"middle cell\">" . __t("Re-Enter Password:", $module) . "</div>";
-    echo "<div class=\"middle cell\">";
+    echo "<div class=\"middle inlineblock medium\">" . __t("Re-Enter Password:", $module) . "</div>";
+    echo "<div class=\"middle inlineblock\">";
     $handler = "onKeyUp=\"bb_check_passwd(this.value,'repasswd_work')\"";
     $main->echo_input("repasswd_work", "", array('type' => 'password', 'class' => 'spaced long', 'handler' => $handler, 'maxlength' => $maxinput));
     echo "</div>";
-    echo "<div class=\"error middle cell\"> " . (isset($arr_error['repasswd_work']) ? $arr_error['repasswd_work'] : "") . "</div>";
-    echo "</div>";
+    echo "<div class=\"error middle inlineblock\"> " . (isset($arr_error['repasswd_work']) ? $arr_error['repasswd_work'] : "") . "</div>";
+    echo "<div class=\"floatleft\"></div>";
+    $main->echo_clear();
 
     // names, readonly for delete, has first and last name error messages for edit
     // delete will have no error msgs but is tested anyway
-    echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">" . __t("First Name:", $module) . "</div>";
-    echo "<div class=\"middle cell\">";
+    echo "<div class=\"middle inlineblock medium\">" . __t("First Name:", $module) . "</div>";
+    echo "<div class=\"middle inlineblock\">";
     $main->echo_input("fname", __($fname), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
-    echo "<div class=\"error middle cell\"> " . (isset($arr_error['fname']) ? $arr_error['fname'] : "") . "</div>";
-    echo "</div>";
+    echo "<div class=\"error middle inlineblock\"> " . (isset($arr_error['fname']) ? $arr_error['fname'] : "") . "</div>";
+    echo "<div class=\"floatleft\"></div>";
+    $main->echo_clear();
 
-    echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\">" . __t("Middle Initial:", $module) . "</div>";
-    echo "<div class=\"middle cell\">";
+    echo "<div class=\"middle inlineblock medium\">" . __t("Middle Initial:", $module) . "</div>";
+    echo "<div class=\"middle inlineblock\">";
     $main->echo_input("minit", __($minit), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
-    echo "<div class=\"middle cell\"></div>";
-    echo "</div>";
+    echo "<div class=\"floatleft\"></div>";
+    $main->echo_clear();
 
-    echo "<div class=\"row\">";
-    echo "<div class=\"middle cell\"\">" . __t("Last Name:", $module) . "</div>";
-    echo "<div class=\"middle cell\">";
+    echo "<div class=\"middle inlineblock medium\"\">" . __t("Last Name:", $module) . "</div>";
+    echo "<div class=\"middle inlineblock\">";
     $main->echo_input("lname", __($lname), array('type' => "input", 'class' => "spaced long", 'readonly' => $readonly, 'maxlength' => $maxinput));
     echo "</div>";
-    echo "<div class=\"error middle cell\"> " . (isset($arr_error['lname']) ? $arr_error['lname'] : "") . "</div>";
-    echo "</div>";
+    echo "<div class=\"error middle inlineblock\"> " . (isset($arr_error['lname']) ? $arr_error['lname'] : "") . "</div>";
+    echo "<div class=\"floatleft\"></div>";
+    $main->echo_clear();
 
     // lock and delete
     if (in_array($action, array(3, 4))) {
         // display roles
-        echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\"\">" . __t("Roles:", $module) . "</div>";
-        echo "<div class=\"middle cell\">";
-        echo "<div class=\"padded spaced border\">";
+        echo "<div class=\"middle inlineblock medium\"\">" . __t("Roles:", $module) . "</div>";
+        echo "<div class=\"middle inlineblock\">";
+        echo "<div class=\"padded spaced border resize medium\">";
         $arr_display = array();
         foreach ($userroles_work as $value) {
-
-            array_push($arr_display, $array_header['userroles'][$value]);
+            array_push($arr_display, $array_userroles[$value]['name']);
         }
         echo implode("<br>", $arr_display);
         echo "</div></div>";
-        echo "<div class=\"middle cell\"></div>";
-        echo "</div>";
-        echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\"\">" . __t("IPs (cidr):", $module) . "</div>";
-        echo "<div class=\"padded spaced border minnote\">" . nl2br($ips) . "</div>";
-        echo "<div class=\"middle cell\"></div>";
-        echo "</div>";
-        echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\"\">" . __t("Notes:", $module) . "</div>";
-        echo "<div class=\"padded spaced border minnote\">" . nl2br($notes) . "</div>";
-        echo "<div class=\"middle cell\"></div>";
-        echo "</div>";
+        echo "<div class=\"floatleft\"></div>";
+        $main->echo_clear();
+
+        echo "<div class=\"middle inlineblock medium\"\">" . __t("IPs (cidr):", $module) . "</div>";
+        echo "<div class=\"middle inlineblock padded spaced border resize textarea\">" . nl2br($ips) . "</div>";
+        echo "<div class=\"floatleft\"></div>";
+        $main->echo_clear();
+
+        echo "<div class=\"middle inlineblock medium\"\">" . __t("Notes:", $module) . "</div>";
+        echo "<div class=\"middle inlineblock padded spaced border resize textarea\">" . nl2br($notes) . "</div>";
+        echo "<div class=\"floatleft\"></div>";
+        $main->echo_clear();
     }
 
     // add or edit user
     if (in_array($action, array(1, 2))) {
         // default role select
-        echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\"\">" . __t("Default Role:", $module) . "</div>";
-        echo "<div class=\"middle cell\"><select name=\"userrole_default\" id=\"select_default\"  class=\"spaced\" />";
+        echo "<div class=\"middle inlineblock medium\"\">" . __t("Default Role:", $module) . "</div>";
+        echo "<div class=\"middle inlineblock\"><select name=\"userrole_default\" id=\"select_default\"  class=\"spaced\" />";
         // if add user
         if (in_array($action, array(1)) && empty($userroles_work)) {
             $userroles_work = array($userrole_constant);
@@ -692,13 +688,12 @@ if (in_array($action, array(1, 2, 3, 4))):
         }
 
         echo "</select></div>";
-        echo "<div class=\"error middle cell\"></div>";
-        echo "</div>";
+        echo "<div class=\"floatleft\"></div>";
+        $main->echo_clear();
 
         // userroles select
-        echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\">" . __t("Roles:", $module) . "</div>";
-        echo "<div class=\"middle cell\">";
+        echo "<div class=\"middle inlineblock medium\">" . __t("Roles:", $module) . "</div>";
+        echo "<div class=\"middle inlineblock\">";
         echo "<div class=\"spaced border padded\">";
         // unset locked value
         unset($arr_userroles_loop['0_bb_brimbox']);
@@ -715,28 +710,21 @@ if (in_array($action, array(1, 2, 3, 4))):
         }
         echo "</div>";
         echo "</div>";
-        echo "<div class=\"middle cell\"></div>";
-        echo "</div>";
+        echo "<div class=\"floatleft\"></div>";
+        $main->echo_clear();
 
         // id addresses textarea
-        echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\">" . __t("IP Addresses or Ranges (cidr):", $module) . "</div>";
-        echo "<div class=\"cell\">";
-        $main->echo_textarea("ips", $ips, array('class' => "spaced", 'rows' => 7, 'cols' => 27));
-        echo "</div>";
-        echo "<div class=\"error middle cell\"> " . (isset($arr_error['ips']) ? $arr_error['ips'] : "") . "</div>";
-        echo "</div>";
+        echo "<div class=\"middle inlineblock medium\">" . __t("IP Addresses or Ranges (cidr):", $module) . "</div>";
+        $main->echo_textarea("ips", $ips, array('class' => "middle spaced textarea"));
+        echo "<div class=\"error middle inlineblock\"> " . (isset($arr_error['ips']) ? $arr_error['ips'] : "") . "</div>";
+        echo "<div class=\"floatleft\"></div>";
+        $main->echo_clear();
 
-        echo "<div class=\"row\">";
-        echo "<div class=\"middle cell\">" . __t("Notes:", $module) . "</div>";
-        echo "<div class=\"cell\">";
-        $main->echo_textarea("notes", $notes, array('class' => "spaced", 'rows' => 8, 'cols' => 35));
-        echo "</div>";
-        echo "<div class=\"middle cell\"></div>";
-        echo "</div>";
+        echo "<div class=\"middle inlineblock medium\">" . __t("Notes:", $module) . "</div>";
+        $main->echo_textarea("notes", $notes, array('class' => "middle spaced textarea"));
+        echo "<div class=\"floatleft\"></div>";
     }
 
-    echo "</div>"; // end table
     if (in_array($action, array(1, 2))) echo "<p class=\"spaced italic\">" . __t("Password must contain numbers, uppercase and lowercase letters, and length must be 8 or greater.", $module) . "</p>";
 
 endif;

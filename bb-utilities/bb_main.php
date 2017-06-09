@@ -201,7 +201,16 @@ class bb_main extends bb_reports {
     function get_alphabet() {
 
         $alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        /* DEPRECATED */
         $alphabet = $this->filter('bb_main_get_alphabet', $alphabet);
+        /* HOOK */
+        $locals = get_defined_vars();
+        $this->hook('bb_main_get_alphabet', $locals);
+        foreach ($locals as $key => $value) $ {
+            $key
+        } = $value;
+
         return $alphabet;
     }
 
@@ -556,23 +565,45 @@ class bb_main extends bb_reports {
 
     function purge_chars($str, $eol = true, $quotes = false) {
 
+        global $module;
+
         // replace chars with a space, eol is false for note fields
         $pattern = "\t\x0B\x0C\r";
         if ($eol) $pattern = $pattern . "\n";
         $pattern = "/[" . $pattern . "]+/";
+        /* DEPRECATED */
         $pattern = $this->filter("bb_main_purge_chars_space", $pattern, $eol, $quotes);
+        /* HOOK */
+        $locals = get_defined_vars();
+        $this->hook('bb_main_purge_chars_space', $locals);
+        foreach ($locals as $key => $value) $ {
+            $key
+        } = $value;
         if ($pattern !== "") //shut off with empty string
-        $str = preg_replace($pattern, " ", $str);
-
+        $str = preg_replace($pattern, " ", $str); //replace with space
         // remove chars, quotes are purged in meta data like column names
         if ($quotes) $pattern = "/[\"]+/";
         else $pattern = "";
+        /* DEPRECATED */
         $pattern = $this->filter("bb_main_purge_chars_nospace", $pattern, $eol, $quotes);
+        /* HOOK */
+        $locals = get_defined_vars();
+        $this->hook('bb_main_purge_chars_nospace', $locals);
+        foreach ($locals as $key => $value) $ {
+            $key
+        } = $value;
         if ($pattern !== "") //shut off with empty string
-        $str = preg_replace($pattern, "", $str);
-
+        $str = preg_replace($pattern, "", $str); //replace without space
         // PHP trim hooked in by default
+        /* DEPRECATED */
         $str = $this->filter("bb_main_purge_chars_format", $str);
+        /* HOOK */
+        $locals = get_defined_vars();
+        //trim has a return value use filter
+        $str = $this->hook('bb_main_purge_chars_format', $locals);
+        foreach ($locals as $key => $value) $ {
+            $key
+        } = $value;
 
         return $str;
     }
@@ -861,7 +892,15 @@ class bb_main extends bb_reports {
             }
             // POSIX regex, no null because db text fields cannot have nulls
             // change tabs, form feeds, new lines, returns and vertical tabs to space and trim
+            /* DEPRECATED */
             $query = $this->filter("bb_main_cleanup_database_data", $query, $col_type);
+            /* HOOK */
+            $locals = get_defined_vars();
+            $this->hook('bb_main_cleanup_database_data', $locals);
+            foreach ($locals as $key => $value) $ {
+                $key
+            } = $value;
+
             $this->query($con, $query);
         }
     }

@@ -34,6 +34,7 @@ class bb_build {
 
     // will not return anything
     // create and pass global vars
+    /* DEPRECATED */
     function filter() {
         // Standard Wordpress style Filter
         global $array_filters;
@@ -71,117 +72,160 @@ class bb_build {
         return $filter;
     }
 
-    function hook($hookname)
-    // Brimbox style Global Hook
-    {
-        // name passed as values so no error if hooks aren't set
-        // append is to make hook which which work when module name is changed
-        // hooks can loop and have multiple declaration and executions
+    function hook($hookname, &$locals = array()) {
+        // Brimbox's unique Hook
         global $array_hooks;
         global $abspath;
 
         // hook must be set
         if (isset($array_hooks[$hookname])) {
-            // hook loop
+            //specific hook
             $arr_hooks = $array_hooks[$hookname];
+            //priority
             ksort($arr_hooks);
+            // hook loop
             foreach ($arr_hooks as $arr_hook) {
                 // simple function with no parameters
-                // or include file for some reason
-                // handles callable array and strings
                 if (is_callable($arr_hook)) {
                     // used for simple hooks, can actually be an array
                     call_user_func($arr_hook);
                 }
                 elseif (is_string($arr_hook)) {
-                    if (file_exists($abspath . $arr_hook))
                     // include file
-                    include_once ($abspath . $arr_hook);
+                    if (file_exists($abspath . $arr_hook)) include_once ($abspath . $arr_hook);
                 }
-                else {
+                elseif (is_array($arr_hook)) {
                     // process with parameters etc
-                    // array, most likely has variables
-                    // not callable function array
-                    if (is_array($arr_hook)) {
-                        $args_hook = array();
-                        // process variables
-                        // turn arr_hook[1] into array
-                        if (isset($arr_hook['vars']))
-                        // asscoiative
-                        $arr_vars = is_string($arr_hook['vars']) ? array($arr_hook['vars']) : $arr_hook['vars'];
-                        elseif (isset($arr_hook[1]))
-                        // numeric keys
-                        $arr_vars = is_string($arr_hook[1]) ? array($arr_hook[1]) : $arr_hook[1];
-                        else $arr_vars = NULL;
+                    $args_hook = array();
+                    // get global variables
+                    if (isset($arr_hook['vars'])) $arr_vars = is_string($arr_hook['vars']) ? array($arr_hook['vars']) : $arr_hook['vars'];
+                    else $arr_vars = NULL;
 
-                        // get the callable function
-                        if (isset($arr_hook['func'])) $arr_func = $arr_hook['func'];
-                        elseif (isset($arr_hook[0])) $arr_func = $arr_hook[0];
-                        else $arr_func = NULL;
+                    // get local variables
+                    if (isset($arr_hook['locals'])) $arr_locals = is_string($arr_hook['locals']) ? array($arr_hook['locals']) : $arr_hook['locals'];
+                    else $arr_locals = NULL;
 
-                        // get the include file
-                        if (isset($arr_hook['file'])) $str_file = $arr_hook['file'];
-                        elseif (isset($arr_hook[2])) $str_file = $arr_hook[2];
-                        else $str_file = NULL;
+                    // get the callable function
+                    if (isset($arr_hook['func'])) $arr_func = $arr_hook['func'];
+                    else $arr_func = NULL;
 
-                        // process vars and values for passing
-                        if (!empty($arr_vars)) {
-                            // foreach will not iterate on empty array
-                            foreach ($arr_vars as $var) {
-                                // passed by reference
-                                if (substr($var, 0, 1) == "&") {
-                                    $var = substr($var, 1);
-                                    if (isset($GLOBALS[$var])) $ {
-                                        $var
-                                    } = $GLOBALS[$var];
-                                    else $ {
-                                        $var
-                                    } = NULL;
-                                    $args_hook[] = & $ {
-                                        $var
-                                    };
-                                }
-                                else {
-                                    // passed by value
-                                    if (isset($GLOBALS[$var])) $ {
-                                        $var
-                                    } = $GLOBALS[$var];
-                                    else $ {
-                                        $var
-                                    } = NULL;
-                                    $args_hook[] = $ {
-                                        $var
-                                    };
-                                }
+                    // get the include file
+                    if (isset($arr_hook['file'])) $str_file = $arr_hook['file'];
+                    else $str_file = NULL;
+
+                    // process global vars and values for passing
+                    if (!empty($arr_vars)) {
+                        // foreach will not iterate on empty array
+                        foreach ($arr_vars as $var) {
+                            // passed by reference
+                            if (substr($var, 0, 1) == "&") {
+                                $var = substr($var, 1);
+                                if (isset($GLOBALS[$var])) $ {
+                                    $var
+                                } = $GLOBALS[$var];
+                                else $ {
+                                    $var
+                                } = NULL;
+                                $args_hook[] = & $ {
+                                    $var
+                                };
                             }
-                        }
-
-                        if ($str_file) if (file_exists($abspath . $str_file))
-                        // include file
-                        include_once ($abspath . $str_file);
-                        if (is_callable($arr_func))
-                        // callable function
-                        call_user_func_array($arr_func, $args_hook);
-
-                        // pass by value emulation, variables updated
-                        // will bring variables out of blocks and functions
-                        // $arr_hook[1] should be array
-                        if (!empty($arr_vars)) {
-                            foreach ($arr_vars as $var) {
-                                if (substr($var, 0, 1) == "&") {
-                                    $var = substr($var, 1);
-                                    $GLOBALS[$var] = $ {
-                                        $var
-                                    };
-                                }
+                            else {
+                                // passed by value
+                                if (isset($GLOBALS[$var])) $ {
+                                    $var
+                                } = $GLOBALS[$var];
+                                else $ {
+                                    $var
+                                } = NULL;
+                                $args_hook[] = $ {
+                                    $var
+                                };
                             }
                         }
                     }
-                }
-            }
-        }
-    }
 
+                    // process local vars and values for passing
+                    if (!empty($arr_locals)) {
+                        foreach ($arr_locals as $var) {
+                            // passed by reference
+                            if (substr($var, 0, 1) == "&") {
+                                $var = substr($var, 1);
+                                if (isset($locals[$var])) $ {
+                                    $var
+                                } = $locals[$var];
+                                else $ {
+                                    $var
+                                } = NULL;
+                                $args_hook[] = & $ {
+                                    $var
+                                };
+                            }
+                            else {
+                                // passed by value
+                                if (isset($locals[$var])) $ {
+                                    $var
+                                } = $locals[$var];
+                                else $ {
+                                    $var
+                                } = NULL;
+                                $args_hook[] = $ {
+                                    $var
+                                };
+                            }
+                        }
+                    }
+
+                    // include file, can inlcude hooked function
+                    if ($str_file) if (file_exists($abspath . $str_file)) include_once ($abspath . $str_file);
+
+                    if (is_callable($arr_func)) {
+                        // hook function call
+                        $return = call_user_func_array($arr_func, $args_hook);
+
+                        //indexed call_user_func_array array
+                        $i = 0;
+                        // global pass by value emulation, variables updated
+                        if (!empty($arr_vars)) {
+                            foreach ($arr_vars as $var) {
+                                if (substr($var, 0, 1) == "&") {
+                                    $var = substr($var, 1);
+                                    $GLOBALS[$var] = $args_hook[$i];
+                                }
+                                $i++;
+                            }
+                            // update or create a global variable from the retrun value - careful
+                            if (isset($arr_hook['global'])) {
+                                $GLOBALS[$arr_hook['global']] = $return;
+                            }
+                        }
+                        // local pass by value emulation, variables updated
+                        if (!empty($arr_locals)) {
+                            //locals only conatin pass by reference
+                            foreach ($arr_locals as $var) {
+                                if (substr($var, 0, 1) == "&") {
+                                    $var = substr($var, 1);
+                                    $locals[$var] = $args_hook[$i];
+                                }
+                                $i++;
+                            }
+                            // update or create a local variable from the retrun value - careful
+                            if (isset($arr_hook['filter'])) {
+                                $locals[$arr_hook['filter']] = $return;
+                            }
+                        }
+                    } //hook function is callable
+                    
+                } //foreach hook array value
+                
+            } //end hook loop
+            return $return;
+        } // isset hook array
+        else {
+            //empty locals to avoid loop after hook when hook inside function
+            $locals = array();
+        }
+    } //end function
     function add_action($name, $action, $value, $priority = NULL) {
 
         global $array_global;

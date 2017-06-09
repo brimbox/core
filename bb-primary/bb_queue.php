@@ -211,7 +211,7 @@ else: // long else
             echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"left link" . $strong . "\">" . $var_personal . "</button></div>";
             echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"left link" . $strong . "\">" . $var_email . "</button></div>";
             echo "<div class = \"extra cell\"><button onclick=\"bb_set_hidden('" . $i . "'); return false;\" class = \"left link" . $strong . "\">" . $var_date . "</button></div>";
-            echo "<div class = \"center extra cell\"><input name=\"f" . ( string )$i . "\" type=\"checkbox\" class=\"spaced \" value=\"Y\" /></div>";
+            echo "<div class = \"center extra cell\"><input name=\"f" . ( string )$i . "\" type=\"checkbox\" class=\"spaced\" value=\"Y\" /></div>";
             echo "<div class = \"extra cell\"><input name=\"u" . ( string )$i . "\" type=\"hidden\" value=\"" . imap_uid($mbox, $header->Msgno) . "\" /></div>";
             echo "</div>";
         }

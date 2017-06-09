@@ -55,12 +55,24 @@ if (!function_exists('bb_data_table_render_form')):
         $row_work = $row_join ? $row_join : $default_row_type;
 
         $arr_columns = $main->columns($con, $row_work);
-        /* FILTER */
+        /* DEPRECATED */
         $arr_columns = $main->filter("bb_input_render_form_columns", $arr_columns);
+        /* HOOK */
+        $locals = get_defined_vars();
+        $this->hook('bb_input_render_form_columns', $locals);
+        foreach ($locals as $key => $value) $ {
+            $key
+        } = $value;
 
         $arr_dropdowns = $main->dropdowns($con, $row_work);
-        /* FILTER */
+        /* DEPRECATED */
         $arr_dropdowns = $main->filter("bb_input_render_form_dropdowns", $arr_dropdowns);
+        /* HOOK */
+        $locals = get_defined_vars();
+        $this->hook('bb_input_render_form_dropdowns', $locals);
+        foreach ($locals as $key => $value) $ {
+            $key
+        } = $value;
 
         // get the error and regular messages, populated form redirect
         $arr_messages = $main->state('arr_messages', $arr_state, array());
@@ -299,7 +311,15 @@ if (!function_exists('bb_data_table_render_form')):
 
             } // switch
             // filter to echo the field output, htmlentites applied to input
+            /* DEPRECATED */
             $field_output = $main->filter('bb_input_field_output', $field_output, $input, $key, $value);
+            /* HOOK */
+            $locals = get_defined_vars();
+            $this->hook('bb_input_field_output', $locals);
+            foreach ($locals as $key => $value) $ {
+                $key
+            } = $value;
+
             echo $field_output;
         }
 

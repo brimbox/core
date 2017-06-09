@@ -782,6 +782,8 @@ INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_dropdowns','{"1":{"5":{"0":"Fixed","1":"Not Fixed","multiselect":"0"}},"2":{"3":{"0":"Credit","1":"Debit","2":"No Charge","multiselect":"0"}},"properties":{"multiselect":{"name":"Multiselect"}},"3":{"3":{"0":"Cat","1":"Dog","2":"Horse","multiselect":"0"}}}');
 INSERT INTO json_table (lookup, jsondata)
 VALUES('bb_create_lists','{"1":{"2":{"name":"Cat","archive":0,"description":"This is the cat list."},"1":{"name":"Dog","archive":0,"description":"This is the dog list."}},"2":{"1":{"name":"Vet","description":"This is the vet list.","archive":0}}}');
+INSERT INTO json_table (lookup, jsondata)
+VALUES('bb_box_translate','{"Queue":"Inbox"}');
 EOT;
 if ($do_json_table) {
     $result = pg_query($con, $query);

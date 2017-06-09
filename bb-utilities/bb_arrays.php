@@ -114,7 +114,7 @@ if ($interface == "bb_brimbox"):
     $main->add_action('hooks', "bb_search_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
     $main->add_action('hooks', "bb_view_pagination", array('func' => array($main, "page_selector"), 'vars' => array("element", "offset", "count_rows", "return_rows", "pagination")), 50);
 
-    $main->add_action('filters', "bb_main_purge_chars_format", array('func' => 'trim'), 50);
+    $main->add_action('hooks', "bb_main_purge_chars_format", array('func' => 'trim', 'filter' => "str", 'locals' => array("str")), 50);
 
     // COMMON VARS SHARED WITH OTHER TABS #
     // will not be processed through the form posting engine

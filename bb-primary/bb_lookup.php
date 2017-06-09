@@ -131,8 +131,20 @@ echo "<div id=\"bb_lookup_searchform_wrapper\" class=\"margin1\">";
 echo "<div class=\"minusleft spacertop\">";
 $params = array("class" => "spacednowrap", "onclick" => "bb_reload()", "label" => __t("Submit Lookup", $module));
 $main->echo_script_button("lookup_button", $params);
-echo "</div>";
 
+if ($main->on_constant('BB_ARCHIVE_INTERWORKING')) {
+    $checked = "";
+    if ($archive_flag == 1) {
+        $checked = "checked";
+        $mode = " 1 = 1 ";
+    }
+    echo "<span class = \"spaced border nowrap rounded padded shaded\">";
+    $main->echo_input("archive_flag", 1, array('type' => 'checkbox', 'class' => 'spaced', 'checked' => $checked));
+    echo "<label class=\"spaced\">" . __t("Check Archives", $module) . "</label>";
+    echo "</span><br>";
+    echo "</span>";
+}
+echo "</div>";
 echo "<div class=\"minusleft spacertop inlineblock border padded\">";
 echo "<div class=\"spaced\">" . __t("Record ID", $module) . "</div>";
 echo "<input class=\"spaced maxshort\" type =\"text\" name = \"record_id\" value = \"" . $record_id . "\">";
@@ -174,20 +186,6 @@ $main->column_dropdown($arr_columns, "col_type_2", $col_type_2);
 echo "</div>";
 echo "</div>";
 
-if ($main->on_constant('BB_ARCHIVE_INTERWORKING')) {
-    $checked = "";
-    if ($archive_flag == 1) {
-        $checked = "checked";
-        $mode = " 1 = 1 ";
-    }
-    echo "<div class=\"minusleft spacertop inlineblock border middle\">";
-    echo "<span class = \"spaced border nowrap rounded padded shaded\">";
-    $main->echo_input("archive_flag", 1, array('type' => 'checkbox', 'class' => 'middle padded', 'checked' => $checked));
-    echo "<label class=\"padded\">" . __t("Check Archives", $module) . "</label>";
-    echo "</span><br>";
-    echo "</span>";
-    echo "</div>";
-}
 echo "</div>";
 
 // hidden element containing the current return page, this is related to the row offset in the query LIMIT clause

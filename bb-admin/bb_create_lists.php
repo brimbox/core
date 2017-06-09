@@ -314,15 +314,15 @@ foreach ($arr_definitions as $key => $value) {
             $params = array("class" => "spaced", "number" => 3, "target" => $module, $arr_state, "passthis" => true, "label" => __t("Remove List", $module));
             $main->echo_button("remove_list", $params);
             echo "<span class = \"spaced border rounded padded shaded\">";
-            echo "<label class=\"padded\">" . __t("Confirm Remove:", $module) . " </label>";
-            $main->echo_input("confirm_remove_delete", 1, array('type' => 'checkbox', 'class' => 'middle holderup'));
+            echo "<label class=\"spaced\">" . __t("Confirm Remove:", $module) . " </label>";
+            $main->echo_input("confirm_remove_delete", 1, array('type' => 'checkbox', 'class' => "spaced"));
             echo "</span>";
             echo "</div>";
             echo "<div id=\"bb_create_lists_archive\" class=\"inlineblock padded\">";
             echo " | ";
             $params = array("class" => "spaced", "number" => 4, "target" => $module, $arr_state, "passthis" => true, "label" => __t("Archive/Retrieve List", $module));
             $main->echo_button("archive_list", $params);
-            $main->echo_input("archive_delete", 1, array('type' => 'checkbox', 'class' => 'middle holderup'));
+            $main->echo_input("archive_delete", 1, array('type' => 'checkbox', 'class' => 'spaced'));
             echo "<span class=\"spaced\">" . __t("Check to Archive/Uncheck to Retrieve", $module) . "</span></div>";
             echo "</div>";
             echo "</div>";
