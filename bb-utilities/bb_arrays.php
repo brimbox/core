@@ -58,11 +58,11 @@ $main->add_value('validation', array('func' => array($main, 'validate_yesno'), '
 // STANDARD INTERFACE DEFINITION #
 // key is module type
 // add_action sets up a array $array_interface[$interface][$module_type]
-$main->add_action('interface', 'bb_brimbox', array('interface_type' => 'Standard', 'userroles' => array('1_bb_brimbox'), 'module_type_name' => __t("Guest", "bb_main")), 1);
-$main->add_action('interface', 'bb_brimbox', array('interface_type' => 'Standard', 'userroles' => array('2_bb_brimbox'), 'module_type_name' => __t("Viewer", "bb_main")), 2);
-$main->add_action('interface', 'bb_brimbox', array('interface_type' => 'Standard', 'userroles' => array('3_bb_brimbox', '4_bb_brimbox', '5_bb_brimbox'), 'module_type_name' => __t("User", "bb_main")), 3);
-$main->add_action('interface', 'bb_brimbox', array('interface_type' => 'Auxiliary', 'userroles' => array('4_bb_brimbox', '5_bb_brimbox'), 'module_type_name' => __t("Setup", "bb_main")), 4);
-$main->add_action('interface', 'bb_brimbox', array('interface_type' => 'Auxiliary', 'userroles' => array('5_bb_brimbox'), 'module_type_name' => __t("Admin", "bb_main")), 5);
+$main->add_array('interface', 'bb_brimbox', array('interface_type' => 'Standard', 'userroles' => array('1_bb_brimbox'), 'module_type_name' => __t("Guest", "bb_main")), 1);
+$main->add_array('interface', 'bb_brimbox', array('interface_type' => 'Standard', 'userroles' => array('2_bb_brimbox'), 'module_type_name' => __t("Viewer", "bb_main")), 2);
+$main->add_array('interface', 'bb_brimbox', array('interface_type' => 'Standard', 'userroles' => array('3_bb_brimbox', '4_bb_brimbox', '5_bb_brimbox'), 'module_type_name' => __t("User", "bb_main")), 3);
+$main->add_array('interface', 'bb_brimbox', array('interface_type' => 'Auxiliary', 'userroles' => array('4_bb_brimbox', '5_bb_brimbox'), 'module_type_name' => __t("Setup", "bb_main")), 4);
+$main->add_array('interface', 'bb_brimbox', array('interface_type' => 'Auxiliary', 'userroles' => array('5_bb_brimbox'), 'module_type_name' => __t("Admin", "bb_main")), 5);
 
 // CURRENT REPORT TYPES ARRAY
 // key is a priority

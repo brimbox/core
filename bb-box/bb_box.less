@@ -228,7 +228,6 @@ input[type=checkbox]:checked.multihighlight + label {
 }
 /* Line Under Tabs */
 #bb_line {
-	width: 100%;
 	border-top: 1px solid @bb_border_color;
 }
 /* Display Module */
@@ -292,13 +291,14 @@ input[type=checkbox]:checked.multihighlight + label {
 }
 
 /* Responsive Styles for Phones */
-@media screen and (max-width : 480px) {	
+@media screen and (max-width : 600px) {	
 	/* Mobile Button and Header */
 	#bb_controller_image {
 		display: none;
     }
 
 	#bb_mobile_header {
+		margin: 0 3px;
 		display: block;
 		padding: 8px;
 		background-color: @bb_mobile_header_color;
@@ -341,7 +341,10 @@ input[type=checkbox]:checked.multihighlight + label {
 	/*Make Menu Full Width*/
 	#bb_menu li, #bb_menu li button {
 		width: 100%;
-	}	
+	}
+	#bb_line, #bb_wrapper, #bb_menu {
+		margin: 0 3px;
+	}
 	/*Make Menu Full Width*/
 	#bb_admin_menu {
 		text-align: center;

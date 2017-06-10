@@ -961,7 +961,7 @@ class bb_main extends bb_reports {
 
         // not sorted by default
         $arr_links = $array_links[$userrole];
-        ksort($arr_links);
+        usort($arr_links, array($this, 'priority_sort'));
         foreach ($arr_links as $arr) {
             array_unshift($arr['params'], $arr_layouts);
             array_unshift($arr['params'], $row);

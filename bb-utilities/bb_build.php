@@ -34,46 +34,9 @@ class bb_build {
 
     // will not return anything
     // create and pass global vars
-    /* DEPRECATED */
-    function filter() {
-        // Standard Wordpress style Filter
-        global $array_filters;
-        global $abspath;
-
-        $args = func_get_args();
-        $filter = $args[1];
-
-        if (isset($array_filters[$args[0]])) {
-            $arr_filters = $array_filters[$args[0]];
-            ksort($arr_filters);
-            foreach ($arr_filters as $arr_filter) {
-                // get the callable function
-                if (isset($arr_filter['func'])) $arr_func = $arr_filter['func'];
-                elseif (isset($arr_filter[0])) $arr_func = $arr_filter[0];
-                else $arr_func = NULL;
-
-                // get the include file
-                if (isset($arr_filter['file'])) $str_file = $arr_filter['file'];
-                elseif (isset($arr_filter[1])) $str_file = $arr_filter[1];
-                else $str_file = NULL;
-
-                if ($str_file) {
-                    if (file_exists($abspath . $str_file))
-                    // include file
-                    include_once ($abspath . $str_file);
-                }
-                if (is_callable($arr_func)) {
-                    $params = array_slice($args, 1, count($args) - 1);
-                    if (isset($filter)) $params[0] = $filter;
-                    $filter = call_user_func_array($arr_func, $params);
-                }
-            }
-        }
-        return $filter;
-    }
-
+    /* BRIMBOX'S HOOK */
     function hook($hookname, &$locals = array()) {
-        // Brimbox's unique Hook
+
         global $array_hooks;
         global $abspath;
 
@@ -82,17 +45,13 @@ class bb_build {
             //specific hook
             $arr_hooks = $array_hooks[$hookname];
             //priority
-            ksort($arr_hooks);
+            usort($arr_hooks, array($this, 'priority_sort'));
             // hook loop
             foreach ($arr_hooks as $arr_hook) {
                 // simple function with no parameters
                 if (is_callable($arr_hook)) {
                     // used for simple hooks, can actually be an array
                     call_user_func($arr_hook);
-                }
-                elseif (is_string($arr_hook)) {
-                    // include file
-                    if (file_exists($abspath . $arr_hook)) include_once ($abspath . $arr_hook);
                 }
                 elseif (is_array($arr_hook)) {
                     // process with parameters etc
@@ -226,28 +185,59 @@ class bb_build {
             $locals = array();
         }
     } //end function
-    function add_action($name, $action, $value, $priority = NULL) {
+    function priority_sort($a, $b) {
+        // would be quicker to do this when defining
+        if ($a['priority'] == $b['priority']) {
+            return 0;
+        }
+        return ($a['priority'] < $b['priority']) ? -1 : 1;
+    }
 
+    /* FUNCTIONS TO ADD TO $array_global */
+
+    //callable items
+    function add_action($name, $action, $value, $priority = 0) {
         global $array_global;
 
-        if (is_null($priority)) {
-            $array_global[$name][$action][] = $value;
+        $value['priority'] = $priority;
+
+        $array_global[$name][$action][] = $value;
+    }
+    function remove_action($name, $action, $callable, $priority = NULL) {
+        global $array_global;
+
+        //remove by callable and action
+        foreach ($array_global[$name][$action] as & $value) {
+            if (is_callable($value)) if ($value == $callable) unset($value);
+            elseif (is_array($arr_hook)) if (in_array($callable, $value)) if ($priority == $value['prioriy']) unset($value);
+            elseif (is_null($priority)) unset($value);
+        }
+    }
+
+    //array items with unique key
+    function add_array($name, $identifier, $value, $key = NULL) {
+        global $array_global;
+
+        //best way no overwirte
+        if (is_null($key)) {
+            $array_global[$name][$identifier][] = $value;
         }
         else {
-            $array_global[$name][$action][$priority] = $value;
+            $array_global[$name][$identifier][$key] = $value;
         }
     }
-
-    function remove_action($name, $action, $priority) {
-
+    function remove_array($name, $identifier, $key) {
         global $array_global;
 
-        unset($array_global[$name][$action][$priority]);
+        //remove by numeric key
+        unset($array_global[$name][$identifier][$key]);
     }
 
+    //items with value only
     function add_value($name, $value, $key = NULL) {
-
         global $array_global;
+
+        //best way no overwrite
         if (is_null($key)) {
             $array_global[$name][] = $value;
         }
@@ -257,9 +247,9 @@ class bb_build {
     }
 
     function remove_value($name, $key) {
-
         global $array_global;
 
+        //remove by numeric key
         unset($array_global[$name][$key]);
     }
 
@@ -277,6 +267,44 @@ class bb_build {
             die(); // important to stop script
             
         }
+    }
+
+    /* DEPRECATED */
+    function filter() {
+        // Standard Wordpress style Filter
+        global $array_filters;
+        global $abspath;
+
+        $args = func_get_args();
+        $filter = $args[1];
+
+        if (isset($array_filters[$args[0]])) {
+            $arr_filters = $array_filters[$args[0]];
+            ksort($arr_filters);
+            foreach ($arr_filters as $arr_filter) {
+                // get the callable function
+                if (isset($arr_filter['func'])) $arr_func = $arr_filter['func'];
+                elseif (isset($arr_filter[0])) $arr_func = $arr_filter[0];
+                else $arr_func = NULL;
+
+                // get the include file
+                if (isset($arr_filter['file'])) $str_file = $arr_filter['file'];
+                elseif (isset($arr_filter[1])) $str_file = $arr_filter[1];
+                else $str_file = NULL;
+
+                if ($str_file) {
+                    if (file_exists($abspath . $str_file))
+                    // include file
+                    include_once ($abspath . $str_file);
+                }
+                if (is_callable($arr_func)) {
+                    $params = array_slice($args, 1, count($args) - 1);
+                    if (isset($filter)) $params[0] = $filter;
+                    $filter = call_user_func_array($arr_func, $params);
+                }
+            }
+        }
+        return $filter;
     }
 } // end class
 

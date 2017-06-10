@@ -64,7 +64,7 @@ if (!empty($arr_details)):
     if (isset($arr_details['description'])) {
         echo "<label class = \"margin padded left floatleft overflow medium shaded\">" . __($name) . ":</label>";
         $main->echo_clear();
-        echo "<textarea class=\"margin\" cols=\"80\" rows=\"6\" readonly=\"readonly\">" . __($value) . "</textarea>";
+        echo "<textarea class=\"margin notearea\" readonly=\"readonly\">" . __($value) . "</textarea>";
         $main->echo_clear();
     }
     echo "</div>";
