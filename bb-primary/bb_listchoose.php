@@ -20,14 +20,6 @@
 $main->check_permission(array("3_bb_brimbox", "4_bb_brimbox", "5_bb_brimbox"));
 
 ?>
-<style>
-/* MODULE CSS */
-.listchoose_box {
-	display: inline;
-	width: 200px;
-	height: 275px;
-}
-</style>
 <?php
 /* INITIALIZE */
 /* BEGIN STATE */
@@ -122,7 +114,7 @@ echo "</div>";
 // row
 echo "<div class=\"row\">";
 echo "<div class=\"bb_listchoose_lists_cell cell padded\">";
-echo "<select class=\"fill\" name = \"add_names[]\" multiple>";
+echo "<select class=\"bb_listchoose_lists_select\" name = \"add_names[]\" multiple>";
 // echo the xml lists not set
 foreach ($arr_lists as $key => $value) {
     $i = $key - 1; // start string at 0
@@ -138,7 +130,7 @@ $main->echo_button("move_list", $params);
 echo "</div>"; // cell
 // select remove box -- multiselect
 echo "<div class=\"bb_listchoose_lists_cell cell padded\">";
-echo "<select class=\"fill\" name=\"remove_names[]\" multiple>";
+echo "<select class=\"bb_listchoose_lists_select\" name=\"remove_names[]\" multiple>";
 // echo the xml lists already set
 // no need to get $arr_list again
 foreach ($arr_lists as $key => $value) {
