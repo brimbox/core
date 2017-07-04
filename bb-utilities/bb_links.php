@@ -42,12 +42,14 @@ class bb_links extends bb_work {
         $id = isset($params['id']) ? "id=\"" . $params['id'] . "\"" : "";
 
         //setup filter for join links
+        //probably should moive to a hook
         if ($target == 'bb_join') {
             $arr_joins = $this->joins($con);
-            $filter = array();
+            //give array a value
+            $filter = array(0);
             foreach ($arr_joins as $value) {
-                if ($value['join1'] > 0) array_push($filter, $value['join1']);
-                if ($value['join2'] > 0) array_push($filter, $value['join2']);
+                if ($value['join1'] == $row['row_type']) array_push($filter, $value['join1']);
+                if ($value['join2'] == $row['row_type']) array_push($filter, $value['join2']);
             }
         }
         //place hook here

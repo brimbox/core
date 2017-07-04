@@ -263,7 +263,7 @@ if ($main->button(1)) {
         else {
             // since action is zero, only email_work needs to be blanked
             $email_work = "";
-            $arr_prinf = array($username_work);
+            $arr_printf = array($username_work);
             array_push($arr_messages, __t("User \"%s\" has been added.", $module, $arr_printf));
             $action = 0; // success
             
