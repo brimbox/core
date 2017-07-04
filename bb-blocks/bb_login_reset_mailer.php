@@ -1,5 +1,5 @@
 <?php
-include ("bb-classes/phpmailer/class.phpmailer.php");
+include ("bb-classes/phpmailer/PHPMailerAutoload.php");
 
 $email_host = defined(SMTP_SERVER) ? SMTP_SERVER : EMAIL_SERVER;
 $email_port = defined(SMTP_PORT) ? SMTP_PORT : 465;
