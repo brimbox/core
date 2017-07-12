@@ -172,10 +172,9 @@ if (!class_exists('bb_input_module_hooks')):
 
             global $module, $main, $con;
             // reduce columns
-            $row_join = $main->state('row_type', $arr_state, 0);
+            $row_join = $main->state('row_join', $arr_state, 0);
 
-            $row_work = $row_join;
-            $arr_columns = $main->columns($con, $row_work);
+            $arr_columns = $main->columns($con, $row_join);
 
             $textarea_rows = count($arr_columns) > 3 ? count($arr_columns) : 3;
             echo "<div class=\"clear\"></div>";
