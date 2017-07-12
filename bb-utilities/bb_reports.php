@@ -678,8 +678,7 @@ class bb_reports extends bb_forms {
         }
         // output header
         if ($header) {
-            $arr_counts($count_rows);
-            echo "<div class=\"" . $return_rows_class . "\"><label>" . __t("Returned %d Rows", "bb_main", $arr_counts) . "</label> -- ";
+            echo "<div class=\"" . $return_rows_class . "\"><label>" . __t("Returned %d Rows", "bb_main", array($count_rows)) . "</label> -- ";
             echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"select_textarea\" value=\"select_textarea\" onclick=\"bb_reports.select_textarea();\">" . __t("Select Textarea", "bb_main") . "</button> -- ";
             echo "<button type=\"button\" class=\"" . $button_class . "\" name=\"clear_textarea\" value=\"clear_textarea\" onclick=\"bb_reports.clear_textarea();\">" . __t("Clear Textarea", "bb_main") . "</button><br>";
             echo "</div>";
