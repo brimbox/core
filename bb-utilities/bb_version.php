@@ -18,8 +18,8 @@
 
 /* NO HTML OUTPUT */
 
-define('BRIMBOX_PROGRAM', '2.2.1');
-define('BRIMBOX_DATABASE', '2.0');
-define('BRIMBOX_BACKUP', '2.0');
+define('BRIMBOX_PROGRAM', '2.3');
+define('BRIMBOX_DATABASE', '2.3');
+define('BRIMBOX_BACKUP', '2.3');
 
 ?>
