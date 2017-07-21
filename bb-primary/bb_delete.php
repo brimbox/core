@@ -46,17 +46,22 @@ if ($main->button(1)) {
         @pg_lo_unlink($con, $id);
         pg_query($con, "END");
     }
+    //recursive join table delete
+    $query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) DELETE FROM join_table WHERE join1 IN (SELECT id FROM t) OR join2 IN (SELECT id FROM t);";
+    $result = $main->query($con, $query);
+    $cnt_joins = pg_affected_rows($result);
     // recursive query for cascading delete
     $query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) DELETE FROM data_table WHERE id IN (SELECT id FROM t);";
     $result = $main->query($con, $query);
     $cnt_affected = pg_affected_rows($result);
     if ($cnt_affected > 0) {
-        array_push($arr_messages, __t("This Cascade Delete deleted %d rows.", $module, array($cnt_affected)));
+        array_push($arr_messages, __t("This Cascade Delete deleted %d rows and %d joins.", $module, array($cnt_affected, $cnt_joins)));
         if ($delete_log) {
             $alpha = mb_substr($alphabet, $row_type - 1, 1);
             $message = __t("Record %s%d and %d children deleted.", $module, array($alpha, $postkey, $cnt_affected - 1));
             $main->log($con, $message);
         }
+
     }
     else {
         array_push($arr_messages, __t("Error: There may have been an underlying data change.", $module));
@@ -69,17 +74,33 @@ else {
     $result = $main->query($con, $query);
     $cnt_cascade = pg_num_rows($result);
 
+    $query = "WITH RECURSIVE t(id) AS (SELECT id FROM data_table WHERE id = " . $post_key . " UNION ALL SELECT T1.id FROM data_table T1, t WHERE t.id = T1.key1) SELECT id FROM join_table WHERE join1 IN (SELECT id FROM t) OR join2 IN (SELECT id FROM t);";
+    $result = $main->query($con, $query);
+    $cnt_joins = pg_num_rows($result);
+
     if ($cnt_cascade == 1) {
         array_push($arr_messages, __t("This record does not have child records.", $module));
-        array_push($arr_messages, __t("Caution: Clicking \"Delete Cascade\" will delete this record. This cannot be undone.", $module));
     }
     elseif ($cnt_cascade == 2) {
         array_push($arr_messages, __t("This record has 1 child record.", $module));
-        array_push($arr_messages, __t("Caution: Clicking \"Delete Cascade\" will delete this record and its child record. This cannot be undone.", $module));
     }
     elseif ($cnt_cascade > 2) {
         array_push($arr_messages, __t("This record has %d child records.", $module, array($cnt_cascade - 1)));
-        array_push($arr_messages, __t("Caution: Clicking \"Delete Cascade\" will delete this record and all its child records. This cannot be undone.", $module));
+    }
+
+    if ($cnt_joins == 0) {
+        array_push($arr_messages, __t("This delete will not delete joins.", $module));
+    }
+    elseif ($cnt_joins == 1) {
+        array_push($arr_messages, __t("This delete will delete 1 join.", $module));
+    }
+    elseif ($cnt_cascade > 1) {
+        array_push($arr_messages, __t("This delete will delete %d joins.", $module, array($cnt_joins)));
+    }
+
+    if ($cnt_cascade > 0) {
+        array_push($arr_messages, __t("Clicking \"Delete Cascade\" will delete this record, its children, and all joins associated with this record and its children. ", $module));
+        array_push($arr_messages, __t("Caution: This cannot be undone.", $module));
     }
 
     $arr_layouts = $main->layouts($con);

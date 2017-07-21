@@ -328,8 +328,8 @@ CREATE TABLE data_table
 (
   id bigserial NOT NULL,
   row_type integer NOT NULL DEFAULT (0),
-  key1 bigint NOT NULL DEFAULT (-1),
-  key2 bigint NOT NULL DEFAULT (-1),
+  key1 bigint NOT NULL DEFAULT (0),
+  key2 bigint NOT NULL DEFAULT (0),
   c01 text NOT NULL DEFAULT ''::text,
   c02 text NOT NULL DEFAULT ''::text,
   c03 text NOT NULL DEFAULT ''::text,
@@ -837,7 +837,7 @@ if ($num_rows == 0) {
 $query = <<<EOT
 CREATE TABLE state_table
 (
-  id serial NOT NULL,
+  id bigserial NOT NULL,
   statedata text[] NOT NULL DEFAULT '{}',
   postdata text NOT NULL DEFAULT '',
   change_date timestamp with time zone,
