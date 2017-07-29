@@ -276,7 +276,7 @@ class bb_reports extends bb_forms {
             $sort = $this->pad("s", $j, 2);
             if ($ucfirst) $field = ucfirst($field);
             if (isset($arr[$sort])) {
-                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . __($field) . "</button></div>";
+                echo "<div class=\"cell " . $cell_header_class . "\"><button class = \"link bold\" onclick=\"bb_reports.sort_order(" . $number . ",'" . $arr[$sort] . "','" . $order . "')\">" . __($field) . "</button></div>";
             }
             else {
                 echo "<div class=\"cell " . $cell_header_class . "\">" . __($field) . "</div>";

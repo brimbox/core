@@ -14,46 +14,6 @@
  * You should have received a copy of the GNU GPL v3 along with this program.
  * If not, see http://www.gnu.org/licenses/
 */
-/*
- * Database Change Log
- * 2012.1.3 header added
- * 2012.1.4 locked column removed from users table
- * 2012.1.5 sample owner name data added to sample data
- * 2012.1.6 archive column added in
- * 2012.1.7 sample dates to sortable style
- * 2012.1.8 secure field added after archive field
- * 2012.1.9 changed search functionality and changes field lengths, deleted extra fields
- * 2012.1.10 added viewer user permission
- * 2012.1.11 added fts and ftg tsvector columns and indexes
- * 2012.1.12 changed password storage to text for SHA256 crypt
- * 2012.1.13 utf-8 check implemented
- * 2012.1.14 updates add for fts and ftg
- * 2012.1.15 added cycles
- * 2012.1.16 change made in is_number function, added is_integer
- * 2012.1.17 sequence cache set to 1 from 3 on data_table and log_table
- * 2012.1.18 added attempts field to users table
- * 2012.1.19 added index on row_type
- * 2013.1.20 dropdown xml root made plural and PHP string repeater function implemented for list column initialization
- * 2014.1.21 users_table column userrole changed to array of smallint and renamed to userroles
- * 2014.1.22 SQL statement added to GRANT user role to db owner
- * 2014.1.23 JSON table added and XML table dropped, modules_table and users_table changes BIG change
- * 2015.1.24 ips column added to users_table
- * 2015.1.25 added username and note column to users_table, username to log table
- * 2015.1.26 added unique constraint to username column
- * //nomenclature change
- * 1.27 added docs table and renamed functions to start with bb
- * 1.28 text fields instead of varchar
- * 2.0 module_slug and module_url added
- * 2.3 added row to insert and changed trigger on modify date
-*/
-
-/*
- * Backup Change Log
- * 2012.1.2 Compatable with Version 2014.3.275
- * 2014.1.3 Database column userrole changed to userroles and from smallint to array of smallint
- * 2014.1.4 Convesion to JSON data structure, modules_table and users_table changed
- * 2014.1.5 added username to log and users tables and text field to users table
-*/
 ?>
 <html>
 <head>
