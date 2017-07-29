@@ -32,8 +32,8 @@ CREATE TABLE data_table
 (
   id bigint NOT NULL,
   row_type integer NOT NULL DEFAULT (0),
-  key1 bigint NOT NULL DEFAULT (-1),
-  key2 bigint NOT NULL DEFAULT (-1),
+  key1 bigint NOT NULL DEFAULT (0),
+  key2 bigint NOT NULL DEFAULT (0),
   c01 text NOT NULL DEFAULT ''::text,
   c02 text NOT NULL DEFAULT ''::text,
   c03 text NOT NULL DEFAULT ''::text,

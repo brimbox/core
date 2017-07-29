@@ -203,15 +203,31 @@ class bb_build {
 
         $array_global[$name][$action][] = $value;
     }
+
     function remove_action($name, $action, $callable, $priority = NULL) {
         global $array_global;
+        global $ {
+            'array_' . $name
+        };
 
         //remove by callable and action
-        foreach ($array_global[$name][$action] as & $value) {
-            if (is_callable($value)) if ($value == $callable) unset($value);
-            elseif (is_array($arr_hook)) if (in_array($callable, $value)) if ($priority == $value['prioriy']) unset($value);
-            elseif (is_null($priority)) unset($value);
+        //will only remove one instance of value
+        foreach ($array_global[$name][$action] as $key => $value) {
+            if (is_callable($value)) {
+                if ($value == $callable) break;
+            }
+            elseif (is_array($value)) {
+                if (in_array($callable, $value)) {
+                    if ($priority == $value['priority']) break;
+                    elseif (is_null($priority)) break;
+                }
+            }
         }
+        unset($ {
+            'array_' . $name
+        }
+        [$action][$key]);
+        unset($array_global[$name][$action][$key]);
     }
 
     //array items with unique key
@@ -228,8 +244,15 @@ class bb_build {
     }
     function remove_array($name, $identifier, $key) {
         global $array_global;
+        global $ {
+            'array_' . $name
+        };
 
         //remove by numeric key
+        unset($ {
+            'array_' . $name
+        }
+        [$identifier][$key]);
         unset($array_global[$name][$identifier][$key]);
     }
 
@@ -248,8 +271,15 @@ class bb_build {
 
     function remove_value($name, $key) {
         global $array_global;
+        global $ {
+            'array_' . $name
+        };
 
         //remove by numeric key
+        unset($ {
+            'array_' . $name
+        }
+        [$key]);
         unset($array_global[$name][$key]);
     }
 

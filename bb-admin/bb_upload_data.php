@@ -117,7 +117,7 @@ $arr_select = array(0 => __t("Insert", $module), 1 => __t("Update", $module));
 $main->array_to_select($arr_select, "edit_or_insert", $edit_or_insert, array(), array('usekey' => true, 'class' => "spaced"));
 echo "</div>";
 $main->echo_clear();
-$main->echo_textarea("data_area", $dropdown, array('id' => "bb_upload_data_textarea", 'class' => "spaced boxsizing", 'wrap' => "off"));
+$main->echo_textarea("data_area", $data_area, array('id' => "bb_upload_data_textarea", 'class' => "spaced boxsizing", 'wrap' => "off"));
 $main->echo_form_end();
 /* END FORM */
 ?>
