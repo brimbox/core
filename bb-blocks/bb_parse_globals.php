@@ -31,7 +31,7 @@ $query = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6)
 $result = pg_query($con, $query);
 while ($row = pg_fetch_array($result)) {
     // will ignore file if missing
-    include ($abspath . "/" . $row['module_path']);
+    if (file_exists($abspath . "/" . $row['module_path'])) include ($abspath . "/" . $row['module_path']);
 }
 /* ADHOC ARRAYS AND GLOBAL FUNCTIONS */
 include ($abspath . "/bb-config/bb_functions.php");
