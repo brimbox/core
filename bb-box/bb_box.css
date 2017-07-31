@@ -271,7 +271,7 @@ input[type=checkbox]:checked.multihighlight + label {
     }
 
 	#bb_mobile_header {
-		margin: 0 3px;
+		margin: 0 3px 0 3px;
 		display: block;
 		padding: 8px;
 		background-color: #A070B6;
@@ -316,7 +316,7 @@ input[type=checkbox]:checked.multihighlight + label {
 		width: 100%;
 	}
 	#bb_line, #bb_wrapper, #bb_menu {
-		margin: 0 3px;
+		margin: 0 3px 0 3px;
 	}
 	/*Make Menu Full Width*/
 	#bb_admin_menu {
@@ -545,28 +545,28 @@ input[type=checkbox]:checked.multihighlight + label {
 }
 /* bb_queue */
 #bb_queue_inbox_list {
+	display: inline-block;
 	overflow-y: scroll;
 	height: 250px;
 	resize: both;
-    max-width: 1000px;
-}
-#bb_queue_inbox_wrap {
-    max-width: 1006px;
 }
 
+#bb_queue_inbox_wrap {
+	float: left;
+}
 #bb_queue_email_container {
     display: inline-block;
     resize: both;
-	overflow: scroll;
+	overflow: auto;
     height: 800px;
-    min-width: 600px;
+    width: 650px;
 }
-@media screen and (max-width : 600px) {
+@media screen and (max-width : 680px) {
 	#bb_queue_email_container {
-		min-width: 0;
-		min-height: 400px;
-		width: auto;
-		height: 100%;
+		width: 100%;
+		height: auto;
+		margin-right: 3px;
+		box-sizing: border-box;
 	}
 }
 #bb_queue_email_body {

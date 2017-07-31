@@ -299,7 +299,7 @@ if (($post_key > 0) && ($cnt_rows == 1)) {
     echo "<br>";
     $main->echo_clear();
     echo "<p class =\"spaced\">" . __t("Link these records to this record.", $module) . "</p>";
-    echo "<input type=\"text\" name=\"link_values\" class =\"spaced\" size=\"50\" value=\"" . __($link_values) . "\" />";
+    echo "<input type=\"text\" name=\"link_values\" class =\"spaced textbox\" size=\"50\" value=\"" . __($link_values) . "\" />";
     $main->echo_clear();
     echo "<div class = \"spaced\">";
     $main->echo_messages($arr_messages);
