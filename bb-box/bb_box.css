@@ -546,6 +546,7 @@ input[type=checkbox]:checked.multihighlight + label {
 /* bb_queue */
 #bb_queue_inbox_list {
 	display: inline-block;
+	min-width: 650px;
 	overflow-y: scroll;
 	height: 250px;
 	resize: both;
@@ -568,6 +569,13 @@ input[type=checkbox]:checked.multihighlight + label {
 		margin-right: 3px;
 		box-sizing: border-box;
 	}
+	#bb_queue_inbox_list {
+		width: 100%;
+		min-width: initial;
+		margin-right: 3px;
+		box-sizing: border-box;
+	}
+}
 }
 #bb_queue_email_body {
     display: block;
