@@ -97,6 +97,7 @@ if ($main->button(1)) {
     $arr_parent = array();
     $arr_checkjoin = array();
     $arr_selfjoin = array();
+    $arr_orderjoin = array();
 
     for ($i = 1;$i <= $number_layouts;$i++) {
         $singular = $arr_layouts[$i]['singular'];
@@ -118,6 +119,9 @@ if ($main->button(1)) {
                 array_push($arr_parent, $parent . $i);
             }
             if ($join1 > 0) {
+                if ($join1 > $join2) {
+                    array_push($arr_orderjoin, $join1 . $join2);
+                }
                 if ($join1 == $join2) {
                     array_push($arr_selfjoin, $join1 . $join2);
                 }
@@ -162,6 +166,11 @@ if ($main->button(1)) {
         //check if a parent child relationship matches a join relation hip
         if (count(array_intersect($arr_checkjoin, $arr_parent)) > 0) {
             array_push($arr_messages, __t("Error: Cannot have a Join relationship identical to a Parent/Child relationship.", $module));
+        }
+
+        //for simplicity make sure lowest row_type is on the left in join defs
+        if (count($arr_orderjoin) > 0) {
+            array_push($arr_messages, __t("Error: The first join layout cannot have a layout number greater than the second layout.", $module));
         }
 
     }

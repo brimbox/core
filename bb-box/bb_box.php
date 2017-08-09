@@ -24,7 +24,10 @@
 <?php
 //Page Title
 $title = PAGE_TITLE;
+/* DEPRECATED */
 $title = $main->filter("bb_box_page_title", $title);
+/* HOOK */
+$main->hook("bb_box_page_title");
 echo "<title>" . $title . "</title>";
 //Translation Arrays
 $bb_box_translate = $main->get_json($con, "bb_box_translate");
@@ -35,8 +38,11 @@ $ {
 
 /* STANDARD JAVASCRIPT INCLUDE */
 $arr_javascript[] = array('path' => $webpath . "/bb-utilities/bb_scripts.js", 'version' => BRIMBOX_PROGRAM);
-//box javascript filter
+//box javascript hook
+/* DEPRECATED */
 $arr_javascript = $main->filter("bb_box_javascript", $arr_javascript, $webpath);
+/* HOOK */
+$main->hook("bb_box_javascript");
 //javascript inlcude loop
 $main->include_file($arr_javascript, "js");
 /* custom javascript from bb-config */
@@ -45,8 +51,11 @@ $main->include_file($webpath . "/bb-config/bb_javascript.js", "js");
 /* STANDARD CSS INCLUDE */
 // styles for the box
 $arr_css[] = array('path' => $webpath . "/bb-box/bb_box.css", 'version' => BRIMBOX_PROGRAM);
-//box css filter
+//box css hook
+/* DEPRECATED */
 $arr_css = $main->filter("bb_box_css", $arr_css, $webpath);
+/* HOOK */
+$arr_css = $main->hook("bb_box_css");
 //css include loop
 $main->include_file($arr_css, "css");
 /* custom css  from bb-config */
@@ -57,7 +66,10 @@ $main->include_file($webpath . "/bb-config/bb_css.css", "css");
 <body id="bb_brimbox">
 <?php
 /* PROCESSING IMAGE */
+/* DEPRECATED */
 $processing_image = $main->filter("bb_box_processing_image", $processing_image, $webpath);
+/* HOOK */
+$main->hook("bb_box_processing_image");
 if (!$main->blank($processing_image)) {
     // seems to flush nicely without explicitly flushing the output buffer
     echo "<div id=\"bb_processing\"><img src=\"" . $processing_image . "\"></div>";
@@ -70,7 +82,10 @@ echo "<div id=\"bb_header\">";
 // header image
 $controller_image = "<div class=\"table fill\"><div class=\"row\"><div class=\"cell\"><img class=\"floatleft\" src=\"" . $webpath . "/bb-config/controller_image.gif\"></div>
                      <div class=\"cell middle\"><div class=\"floatright extra double\">" . $main->get_logout_link() . "</div></div></div></div>";
+/* DEPRECATED */
 $controller_image = $main->filter("bb_box_controller_image", $controller_image, $webpath);
+/* HOOK */
+$main->hook("bb_box_controller_image");
 if (!$main->blank($controller_image)) {
     echo "<div id=\"bb_controller_image\">" . $controller_image . "</div>";
     $main->echo_clear();
