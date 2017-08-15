@@ -55,7 +55,7 @@ $arr_css[] = array('path' => $webpath . "/bb-box/bb_box.css", 'version' => BRIMB
 /* DEPRECATED */
 $arr_css = $main->filter("bb_box_css", $arr_css, $webpath);
 /* HOOK */
-$arr_css = $main->hook("bb_box_css");
+$main->hook("bb_box_css");
 //css include loop
 $main->include_file($arr_css, "css");
 /* custom css  from bb-config */
