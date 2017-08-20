@@ -17,34 +17,21 @@
 */
 ?>
 <?php
-/* GET HEADER AND GLOBAL ARRAYS */
-/* load header array, addon functions, and global arrays */
-// returns $array_header and by default all functions declared
-/* INCLUDE STANDARD ARRAYS ARRAYS AND GLOBAL FUNCTIONS */
-// global for all interfaces
-/* NO HTML OUTPUT */
-$abspath = $_SESSION['abspath'];
-
+/* INCLUDE CUSTOM FUNCTIONS AND GLOBAL ARRAYS */
+// include default global arrays
 include ($abspath . "/bb-utilities/bb_arrays.php");
-/* INCLUDE INSTALLED */
+
+/* load and include function modules  */
 $query = "SELECT module_path FROM modules_table WHERE standard_module IN (0,4,6) AND module_type IN (-1) ORDER BY module_order;";
 $result = pg_query($con, $query);
 while ($row = pg_fetch_array($result)) {
     // will ignore file if missing
     if (file_exists($abspath . "/" . $row['module_path'])) include ($abspath . "/" . $row['module_path']);
 }
-/* ADHOC ARRAYS AND GLOBAL FUNCTIONS */
-include ($abspath . "/bb-config/bb_functions.php");
-// header stored in SESSION
-// save for use in post side modules
-/* UNPACK $array_global for given interface */
-// this creates array from the global array
-if (isset($array_global)) {
-    foreach ($array_global as $key => $value) {
-        $ {
-            'array_' . $key
-        } = $value;
-    }
-}
 
+//include configuration functions file
+include ($abspath . "/bb-config/bb_functions.php");
+
+// unpack global array into standard arrays
+$main->unpack_global_array();
 ?>

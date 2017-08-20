@@ -141,9 +141,9 @@ if ($row_type > 0) {
     echo "<div class=\"bb_query_alias_columns_wrapper inlineblock twice spaced border\">";
     ksort($arr_columns);
     foreach ($arr_columns as $key => $value) {
-        $arr_display_columns[] = $main->pad("c", $key) . "=>" . $value['name'];
+        $arr_display_columns[] = $main->pad("c", $key) . " as \"" . $value['name'] . "\"";
     }
-    $str_display_columns = implode(" | ", $arr_display_columns);
+    $str_display_columns = implode(", ", $arr_display_columns);
     echo $str_display_columns;
     echo "</div>";
 }

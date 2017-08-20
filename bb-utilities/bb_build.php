@@ -193,146 +193,122 @@ class bb_build {
         return ($a['priority'] < $b['priority']) ? -1 : 1;
     }
 
-    /* FUNCTIONS TO ADD TO $array_global */
+    /* FUNCTIONS TO ADD TO AND MANIPULATE TO $array_global */
 
-    //callable items
-    function add_action($set, $action, $value, $priority = 0) {
+    function unpack_global_array($name = NULL) {
+        global $array_global;
 
-        if (is_array($set)) {
-            global $set;
-
-            $value['priority'] = $priority;
-            $set[$action][] = $value;
-        }
-
-        elseif (is_string($set)) {
-            global $array_global;
-
-            $value['priority'] = $priority;
-            $array_global[$set][$action][] = $value;
+        if (isset($array_global)) {
+            if (is_null($name)) {
+                foreach ($array_global as $key => $value) {
+                    $GLOBALS['array_' . $key] = $value;
+                }
+            }
+            else {
+                $GLOBALS['array_' . $name] = $array_global[$name];
+            }
         }
     }
 
-    function remove_action($unset, $action, $callable, $priority = NULL) {
+    //callable items
+    function add_action($name, $action, $value, $priority = 0) {
 
-        if (is_array($unset)) {
-            global $unset;
+        if (is_array($name)) {
+            global $name;
 
-            foreach ($unset[$action] as $key => $value) {
-                if (is_callable($value)) {
-                    if ($value == $callable) break;
-                }
-                elseif (is_array($value)) {
-                    if (in_array($callable, $value)) {
-                        if ($priority == $value['priority']) break;
-                        elseif (is_null($priority)) break;
-                    }
-                }
-            }
-            unset($unset[$action][$key]);
+            $value['priority'] = $priority;
+            $name[$action][] = $value;
         }
-        elseif (is_string($unset)) {
+
+        elseif (is_string($name)) {
             global $array_global;
 
-            foreach ($array_global[$unset][$action] as $key => $value) {
-                if (is_callable($value)) {
-                    if ($value == $callable) break;
-                }
-                elseif (is_array($value)) {
-                    if (in_array($callable, $value)) {
-                        if ($priority == $value['priority']) break;
-                        elseif (is_null($priority)) break;
-                    }
+            $value['priority'] = $priority;
+            $array_global[$name][$action][] = $value;
+        }
+    }
+
+    function remove_action($name, $action, $callable, $priority = NULL) {
+
+        global $array_global;
+
+        foreach ($array_global[$name][$action] as $key => $value) {
+            if (is_callable($value)) {
+                if ($value == $callable) $arr_keys[] = $key;
+            }
+            elseif (is_array($value)) {
+                if (in_array($callable, $value)) {
+                    if (is_null($priority)) $arr_keys[] = $key;
+                    else if ($priority == $value['priority']) $arr_keys[] = $key;
                 }
             }
-            unset($array_global[$unset][$action][$key]);
         }
+        foreach ($arr_keys as $key) unset($array_global[$name][$action][$key]);
+
     }
 
     //array items with unique key
-    function add_array($set, $identifier, $value, $key = NULL) {
+    function add_array($name, $identifier, $value, $key = NULL) {
 
-        if (is_array($set)) {
-            global $set;
+        global $array_global;
 
-            //best way no overwirte
-            if (is_null($key)) {
-                $set[$identifier][] = $value;
-            }
-            else {
-                $set[$identifier][$key] = $value;
-            }
+        //best way no overwirte
+        if (is_null($key)) {
+            $array_global[$name][$identifier][] = $value;
         }
-
-        elseif (is_string($set)) {
-            global $array_global;
-
-            //best way no overwirte
-            if (is_null($key)) {
-                $array_global[$set][$identifier][] = $value;
-            }
-            else {
-                $array_global[$set][$identifier][$key] = $value;
-            }
+        else {
+            $array_global[$name][$identifier][$key] = $value;
         }
 
     }
 
-    function remove_array($unset, $identifier, $key) {
+    function remove_array($name, $identifier, $key) {
 
-        if (is_array($unset)) {
-            global $unset;
+        global $array_global;
 
-            unset($unset[$identifier][$key]);
-        }
+        unset($array_global[$name][$identifier][$key]);
 
-        elseif (is_string($unset)) {
-            global $array_global;
-
-            unset($array_global[$unset][$identifier][$key]);
-        }
     }
 
     //items with value only
-    function add_value($set, $value, $key = NULL) {
+    function add_value($name, $value, $key = NULL) {
 
-        if (is_array($set)) {
-            global $set;
+        if (is_array($name)) {
+            global $name;
 
             //best way no overwrite
             if (is_null($key)) {
-                $set[] = $value;
+                $name[] = $value;
             }
             else {
-                $set[$key] = $value;
+                $name[$key] = $value;
             }
         }
 
-        elseif (is_string($set)) {
+        elseif (is_string($name)) {
             global $array_global;
 
             //best way no overwrite
             if (is_null($key)) {
-                $array_global[$set][] = $value;
+                $array_global[$name][] = $value;
             }
             else {
-                $array_global[$set][$key] = $value;
+                $array_global[$name][$key] = $value;
             }
         }
     }
 
-    function remove_value($unset, $key) {
+    function remove_value($name, $key) {
 
-        if (is_array($unset)) {
-            global $unset;
+        if (is_array($name)) {
 
-            unset($unset[$key]);
+            unset($name[$key]);
         }
 
-        elseif (is_string($unset)) {
+        elseif (is_string($name)) {
             global $array_global;
 
-            unset($array_global[$unset][$key]);
+            unset($array_global[$name][$key]);
         }
     }
 
