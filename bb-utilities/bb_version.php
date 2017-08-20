@@ -18,6 +18,6 @@
 
 /* NO HTML OUTPUT */
 
-define('BRIMBOX_PROGRAM', '2.3.3');
+define('BRIMBOX_PROGRAM', '2.3.4');
 
 ?>
