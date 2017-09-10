@@ -856,6 +856,7 @@ CREATE TRIGGER ts1_join_date
   EXECUTE PROCEDURE bb_join_date();
 EOT;
 
+
 if ($do_join_table) {
     $result = pg_query($con, $query);
     echo "Join Table Created<br>";
@@ -889,6 +890,7 @@ VALUES (2, 28);
 INSERT INTO join_table (join1, join2)
 VALUES (6, 38);
 EOT;
+
 
 if ($do_join_table) {
     $result = pg_query($con, $query);

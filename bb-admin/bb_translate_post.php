@@ -24,7 +24,7 @@ session_name(DB_NAME);
 session_start();
 session_regenerate_id();
 
-if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("5_bb_brimbox"))):
+if (isset($_SESSION['username']) && in_array($_SESSION['userrole'], array("4_bb_brimbox", "5_bb_brimbox"))):
 
     // set by controller (index.php)
     $interface = $_SESSION['interface'];
